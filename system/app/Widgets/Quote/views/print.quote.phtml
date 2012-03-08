@@ -1,0 +1,36 @@
+<?php $this->headLink()->appendStylesheet($this->websiteUrl . 'themes/' . $this->currentTheme . '/print.quote.css', 'print'); ?>
+<style type="text/css">
+	.quote-print {
+		position: fixed;
+		left: 0px;
+		top:10px;
+		overflow: hidden;
+		width:140px;
+		background: #eee;
+		padding: 5px;
+		-moz-border-radius:0 10px 10px 0;
+		-webkit-border-radius:0 10px 10px 0;
+		border-radius:0 10px 10px 0;
+	}
+	.quote-print:hover {
+		background: #ccc;
+		cursor: pointer;
+		font-weight: bold;
+		-moz-box-shadow: 0 0 5px #e7e7e7;
+		-webkit-box-shadow: 0 0 5px #e7e7e7;
+		top: 9px;
+	}
+	.quote-print a,
+	.quote-print a:visited,
+	.quote-print a:active {
+		height: 100%;
+		width: 100%;
+		display: block;
+		text-decoration: none;
+		color: #7c7c7c;
+	}
+	.quote-print img {
+	  margin-right:5px;
+	}
+</style>
+<div class="quote-print" ><a href="javascript:;" onclick="window.print()"><img alt="<?php echo $this->translate('Print'); ?>" src="<?php echo $this->websiteUrl?>plugins/quote/web/images/print.png" /><?php echo $this->translate('Print Quote');?></a></div>

@@ -1,0 +1,28 @@
+<?php if(!empty($this->customerData)): ?>
+	<div class="quote-info" id="<?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
+		<p class="title"><?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
+		<p><?php echo $this->customerData['firstname'], ' ', $this->customerData['lastname']; ?></p>
+		<p><?php echo $this->customerData['company']; ?></p>
+		<p>
+			<?php echo $this->customerData['address1']; ?>
+			<?php if($this->customerData['address2']): ?>
+				<?php echo ', ', $this->customerData['address2']; ?>
+			<?php endif; ?>
+		</p>
+		<p>
+			<?php echo $this->customerData['city'];?>
+			<?php if($this->customerData['state']): ?>
+				<?php $stateData = Tools_Geo::getStateById($this->customerData['state']);?>
+				<?php echo ', ', $stateData['state'], ', '; ?>
+			<?php endif; ?>
+			<?php echo $this->customerData['zip']; ?>
+		</p>
+		<p>
+			<?php $countries = Tools_Geo::getCountries(true); ?>
+			<?php echo $countries[$this->customerData['country']];?>
+		</p>
+		<p>
+			<a href="mailto:<?php echo $this->customerData['email'];?>"><?php echo $this->customerData['email'];?></a>
+		</p>
+	</div>
+<?php endif; ?>

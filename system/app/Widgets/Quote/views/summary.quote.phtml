@@ -1,0 +1,22 @@
+<div id="quote-summary">
+	<div class="quote-summary-row">
+		<span><?php echo $this->translate('Subtotal'); ?></span>
+		<span id="subtotal-val"><?php echo $this->currency($this->summary['subTotal']); ?></span>
+	</div>
+	<div class="quote-summary-row">
+		<span><?php echo $this->translate('Tax'); ?></span>
+		<span id="totaltax-val"><?php echo $this->currency($this->summary['totalTax']);?></span>
+	</div>
+	<div class="quote-summary-row">
+		<span><?php echo $this->translate('Shipping'); ?></span>
+		<span id="sipping-val"><?php echo $this->currency($this->summary['shipping']); ?></span>
+	</div>
+	<div class="quote-summary-row">
+		<span><?php echo $this->translate('Discount'); ?></span>
+		<span id="total-val"><?php echo $this->currency($this->summary['discount']); ?></span>
+	</div>
+	<div class="quote-summary-row">
+		<span><?php echo $this->translate('Grand Total'); ?></span>
+		<span id="total-val"><?php echo $this->currency($this->summary['total']); ?></span>
+	</div>
+</div>

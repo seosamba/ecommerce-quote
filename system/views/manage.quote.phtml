@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title><?php echo $this->translate('Manage quotes'); ?></title>
+		<meta name="description" content="<?php echo $this->translate('Manage quotes'); ?>">
+		<meta name="author" content="SEOTOASER 2">
+		<meta name="viewport" content="width=device-width">
+
+		<?php $this->headLink()->appendStylesheet($this->websiteUrl . 'system/css/reset.css')
+                ->appendStylesheet($this->websiteUrl . 'system/css/grid.css')
+                ->appendStylesheet($this->websiteUrl . 'system/uithemes/seotoasterui/seotoasterui.css')
+                ->appendStylesheet($this->websiteUrl . 'system/css/seotoaster.css')
+                ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/smoke.css')
+                ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/themes/toaster.css')
+				->appendStylesheet($this->websiteUrl . 'plugins/quote/web/css/manage.quote.css'); ?>
+        <?php echo $this->headLink(); ?>
+
+		<!-- quote template -->
+		<script id="quoteTemplate" type="text/x-jquery-tmpl">
+			<div class="grid_1">#</div>
+			<div class="grid_4">${title}</div>
+			<div class="grid_2">
+				${$.datepicker.formatDate('dd M, yy', new Date(createdAt))}
+			</div>
+			<select name="quoteStatus" class="quote-status grid_1" id="${id}">
+				<option value="new" {{if status == 'new'}} selected="selected" {{/if}}>New</option>
+				<option value="sent" {{if status == 'sent'}} selected="selected" {{/if}}>Sent</option>
+				<option value="sold" {{if status == 'sold'}} selected="selected" {{/if}}>Sold</option>
+				<option value="lost" {{if status == 'lost'}} selected="selected" {{/if}}>Lost</option>
+			</select>
+			<div class="preview grid_2">
+				<a href="http://www.seotoaster2.dev/${id}.html">Preview</a>
+			</div>
+			<div class="preview grid_1">
+
+			</div>
+			<div class="remove grid_1">
+				<a href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
+			</div>
+		</script>
+
+	</head>
+	<body>
+		<input type="hidden" id="pluginUrl" name="pluginUrl" value="<?php echo trim($this->websiteUrl, ' /').$this->url(array('run'=>''));?>" />
+	    <input type="hidden" id="websiteUrl" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
+		<div class="seotoaster container_12 h550" id="manage-quotes">
+			<div class="header" style="overflow:hidden;">
+				<div class="closebutton">
+				    <span class="close"><?php echo $this->translate('Close'); ?></span>
+				</div>
+				<?php echo $this->translate('Manage quotes'); ?>&nbsp;&nbsp;&nbsp;<a href="javascript:;" id="add-new"><?php echo $this->translate('Add new'); ?></a>
+			</div>
+			<div id="quotes" class="ui-widget-content ui-helper-clearfix h450 grid_12" style="overflow-x: hidden; overflow-y: auto;">
+
+			</div>
+   	    </div>
+	</body>
+	<?php
+        $this->headScript()->setAllowArbitraryAttributes(true)
+                ->appendFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+                ->appendFile('https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js')
+                ->appendFile($this->websiteUrl.'system/js/external/jquery/plugins/tmpl/jquery.tmpl.min.js')
+                ->appendFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
+                ->appendFile($this->websiteUrl . 'plugins/quote/web/js/libs/require/require.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/bootstrap.js'))
+                ->appendFile($this->websiteUrl . 'system/js/internal/system.js');
+        echo $this->headScript();
+    ?>
+</html>

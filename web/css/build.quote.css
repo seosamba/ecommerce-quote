@@ -1,0 +1,103 @@
+html, body {
+	height: 100%;
+}
+#quote-main {
+	min-height: 100%;
+	text-align: center;
+}
+
+#quote-main input {
+	border: 1px solid #ccc;
+}
+
+#quote-main input#quote-name {
+	padding: 6px 4px;
+	width: 350px;
+	float: left;
+}
+
+#quote-main #quote-main-inner {
+	margin: 0 auto;
+	width: 960px;
+}
+
+#quote-quicksearch {
+	height: 20px;
+	padding: 10px;
+	box-shadow: 0px 0px 10px #999;
+	margin-bottom: 10px;
+}
+#quote-tophead {
+	height: 350px;
+	padding: 10px 0;
+	background: #eee;
+	margin-bottom: 10px;
+}
+#quote-content {
+
+}
+
+footer {
+	height: 30px;
+	background: #fff;
+	padding: 10px;
+	position: fixed;
+	width: 100%;
+	box-shadow: 0px 0px 10px #999;
+	bottom: 0;
+	text-align: center;
+}
+footer #footer-inner {
+	margin: 0 auto;
+	width: 960px;
+}
+
+#quote-title, #quote-title-inner {
+	overflow: hidden;
+}
+
+#quote-title {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+#quote-title-inner {
+	width: 455px;
+	margin: 0 auto;
+}
+
+#quote-title h1 {
+	font-size: 25px;
+	color: #7c7c7c;
+	float: left;
+	margin-right: 10px;
+}
+
+#quote-cart {
+	min-height: 200px;
+}
+
+#quote-cart table {
+	width: 100%;
+}
+#quote-cart table th {
+	background: #eee;
+	color: #7c7c7c;
+	padding: 7px 2px;
+}
+
+#quote-cart table td#empty-cart {
+	padding: 20px 0;
+	font-size: 20px;
+	color: #ccc;
+}
+
+#quote-summary {
+	overflow: hidden;
+}
+#quote-summary #shipping-type {
+	margin-right: 10px;
+}
+#quote-summary .qsummary {
+	float: right;
+}

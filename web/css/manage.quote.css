@@ -1,0 +1,15 @@
+#quotes {
+	background: #fff;
+	padding: 5px 0;
+}
+.quote-item {
+	overflow: hidden;
+	border-bottom: 1px dashed #ccc;
+}
+.quote-item:last-child {
+	border-bottom: none;
+}
+
+.quote-item div {
+	padding-top: 4px;
+}
