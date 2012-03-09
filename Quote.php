@@ -101,7 +101,8 @@ class Quote extends Tools_PaymentGateway {
 	protected function _makeOptionQuote() {
 		$form = new Quote_Forms_Address();
 		if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
-			$form->setAttrib('class', '_fajax _reload');
+			//$form->addAttribs(array('class' => '_fajax _reload'));
+			$form->setAttrib('class', '_reload ' . $form->getAttrib('class'));
 		}
 
 		//trying to get billng address first, to pre-populate quote form
