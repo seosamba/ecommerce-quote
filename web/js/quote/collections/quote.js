@@ -1,7 +1,7 @@
 define([
 	'Underscore',
 	'Backbone',
-    'models/quote'
+    'quote/models/quote'
 ], function(_, Backbone, QuoteModel){
 
     var quoteCollection = Backbone.Collection.extend({

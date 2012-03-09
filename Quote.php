@@ -46,9 +46,17 @@ class Quote extends Tools_PaymentGateway {
 	 */
 	public function buildAction() {
 		$this->_view->shippingType = $this->_shoppingConfig['shippingType'];
+		$this->_view->lastEditedBy = $this->_sessionHelper->getCurrentUser()->getFullName();
 		echo $this->_view->render('build.quote.phtml');
 	}
 
+	public function additemAction() {
+		if($this->_request->isPost()) {
+			$params = $this->_request->getParams();
+			$this->_responseHelper->success($this->_translator->translate('Added.'));
+		}
+		echo $this->_view->render('add.products.quote.phtml');
+	}
 
 	/**
 	 * REST action for the quote managment
@@ -152,6 +160,9 @@ class Quote extends Tools_PaymentGateway {
 				->setUpdatedAt(date(DATE_ATOM))
 				->setValidUntil(date(DATE_ATOM, strtotime('+1 day', strtotime(date(DATE_ATOM)))))
 				->setUserId($cart->getUserId());
+			if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
+				$quote->setEditedBy('auto');
+			}
 
 			if(Quote_Models_Mapper_QuoteMapper::getInstance()->save($quote)) {
 

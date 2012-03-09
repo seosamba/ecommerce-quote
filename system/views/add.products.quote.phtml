@@ -14,45 +14,31 @@
                 ->appendStylesheet($this->websiteUrl . 'system/css/seotoaster.css')
                 ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/smoke.css')
                 ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/themes/toaster.css')
-				->appendStylesheet($this->websiteUrl . 'plugins/quote/web/css/manage.quote.css'); ?>
+				->appendStylesheet($this->websiteUrl . 'plugins/quote/web/css/add.products.quote.css'); ?>
         <?php echo $this->headLink(); ?>
 
-		<!-- quote template -->
-		<script id="quoteTemplate" type="text/x-jquery-tmpl">
-			<div class="grid_1">#</div>
-			<div class="grid_4">${title}</div>
-			<div class="grid_2">
-				${$.datepicker.formatDate('dd M, yy', new Date(createdAt))}
-			</div>
-			<select name="quoteStatus" class="quote-status grid_1" id="${id}">
-				<option value="new" {{if status == 'new'}} selected="selected" {{/if}}>New</option>
-				<option value="sent" {{if status == 'sent'}} selected="selected" {{/if}}>Sent</option>
-				<option value="sold" {{if status == 'sold'}} selected="selected" {{/if}}>Sold</option>
-				<option value="lost" {{if status == 'lost'}} selected="selected" {{/if}}>Lost</option>
-			</select>
-			<div class="preview grid_2">
-				<a href="http://www.seotoaster2.dev/${id}.html">Preview</a>
-			</div>
-			<div class="preview grid_1">
-
-			</div>
-			<div class="remove grid_1">
-				<a href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
-			</div>
+		<!-- product template -->
+		<script id="productTemplate" type="text/x-jquery-tmpl">
+			<p class="brand">${brand}</p>
+			<img class="lazy" src="" data-original="{{if photo}}${'/media/'+photo.replace('/', '/product/')}{{else}}/system/images/noimage.png{{/if}}" alt="${name}" />
+			<p class="name">${name}</p>
+			<p class="sku">${sku}</p>
+			<a class="btn-add" data-pid="${id}" href="javascript:;">Add</a>
 		</script>
 
 	</head>
 	<body>
 		<input type="hidden" id="pluginUrl" name="pluginUrl" value="<?php echo trim($this->websiteUrl, ' /').$this->url(array('run'=>''));?>" />
 	    <input type="hidden" id="websiteUrl" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
-		<div class="seotoaster container_12 h550" id="manage-quotes">
+		<input type="hidden" id="website_url" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
+		<div class="seotoaster container_12 h550" id="add-products-quote">
 			<div class="header" style="overflow:hidden;">
 				<div class="closebutton">
 				    <span class="close"><?php echo $this->translate('Close'); ?></span>
 				</div>
-				<?php echo $this->translate('Manage quotes'); ?>&nbsp;&nbsp;&nbsp;<a href="javascript:;" id="add-new"><?php echo $this->translate('Add new'); ?></a>
+				<?php echo $this->translate('Add products to the quote'); ?>
 			</div>
-			<div id="quotes" class="ui-widget-content ui-helper-clearfix h450 grid_12" style="overflow-x: hidden; overflow-y: auto;">
+			<div id="products" class="ui-widget-content ui-helper-clearfix h450 grid_12" style="overflow-x: hidden; overflow-y: auto;">
 
 			</div>
    	    </div>
@@ -61,9 +47,10 @@
         $this->headScript()->setAllowArbitraryAttributes(true)
                 ->appendFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
                 ->appendFile('https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js')
-                ->appendFile($this->websiteUrl.'system/js/external/jquery/plugins/tmpl/jquery.tmpl.min.js')
+                ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/tmpl/jquery.tmpl.min.js')
+                ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/lazyload/jquery.lazyload.min.js')
                 ->appendFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
-                ->appendFile($this->websiteUrl . 'plugins/quote/web/js/libs/require/require.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/quote.js'))
+                ->appendFile($this->websiteUrl . 'plugins/quote/web/js/libs/require/require.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/product.js'))
                 ->appendFile($this->websiteUrl . 'system/js/internal/system.js');
         echo $this->headScript();
     ?>

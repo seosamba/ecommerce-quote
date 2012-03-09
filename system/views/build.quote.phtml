@@ -104,11 +104,13 @@
 				</div>
 		    </div>
 	    </div>
+	    <div style="height: 30px; min-height: 30px;"></div>
 	    <footer id="bottom-line">
 		    <div id="footer-inner">
+			    <a data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/additem/" data-pheight="551" href="javascript:;" class="quote-controll tpopup"><?php echo $this->translate('Add product'); ?></a>
 			    <a href="" class="quote-controll"><?php echo $this->translate('Save quote'); ?></a>
                 <a href="" class="quote-controll"><?php echo $this->translate('Save and Send quote'); ?></a>
-                <span><?php echo $this->translate('Last edited by: '); ?> user_name</span>
+                <span><?php echo $this->translate('Last edited by: '), $this->lastEditedBy; ?></span>
 		    </div>
 	    </footer>
 	</body>
@@ -116,6 +118,7 @@
         $this->headScript()->setAllowArbitraryAttributes(true)
                 ->appendFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
                 ->appendFile('https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js')
+                ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/cookie/jquery.cookie.js')
                 ->appendFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
                 ->appendFile($this->websiteUrl . 'system/js/internal/system.js');
         echo $this->headScript();

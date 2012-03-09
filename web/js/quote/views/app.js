@@ -1,8 +1,8 @@
 define([
 	'Underscore',
 	'Backbone',
-    'collections/quote',
-    'views/quote'
+    'quote/collections/quote',
+    'quote/views/quote'
 ], function(_, Backbone, QuoteCollection, QuoteView){
 
 	var quoteListView = Backbone.View.extend({
@@ -41,8 +41,9 @@ define([
 			});
 		},
 		removeQuote: function(e) {
+			appView = this;
 			showConfirm('You are about to remove a quote! Are you sure?', function() {
-				var quote = this.quoteCollection.get($(e.target).parent().data('sid'));
+				var quote = appView.quoteCollection.get($(e.target).parent().data('sid'));
 				quote.destroy({
 					success: function(model, response){
 						showMessage(response.responseText);
