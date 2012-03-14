@@ -6,6 +6,8 @@
 
 class Quote extends Tools_PaymentGateway {
 
+	const QUOTE_CATEGORY_ID = -5;
+
 	/**
 	 * JSON helper for sending well-formated json response
 	 *
@@ -45,14 +47,25 @@ class Quote extends Tools_PaymentGateway {
 	 *
 	 */
 	public function buildAction() {
+		if($this->_request->isPost()) {
+
+		}
 		$this->_view->shippingType = $this->_shoppingConfig['shippingType'];
 		$this->_view->lastEditedBy = $this->_sessionHelper->getCurrentUser()->getFullName();
+		$this->_view->cartContent  = Tools_ShoppingCart::getInstance()->getContent();
 		echo $this->_view->render('build.quote.phtml');
 	}
 
 	public function additemAction() {
 		if($this->_request->isPost()) {
-			$params = $this->_request->getParams();
+			$item    = $this->_request->getParam('item');
+			$qty     = $this->_request->getParam('qty', 1);
+			$options = $this->_request->getParams('opts');
+
+			$cart = Tools_ShoppingCart::getInstance();
+			$cart->add(new Models_Model_Product($item), array(), $qty);
+			$cart->saveCartSession(null);
+
 			$this->_responseHelper->success($this->_translator->translate('Added.'));
 		}
 		echo $this->_view->render('add.products.quote.phtml');
@@ -101,7 +114,6 @@ class Quote extends Tools_PaymentGateway {
 	protected function _makeOptionQuote() {
 		$form = new Quote_Forms_Address();
 		if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
-			//$form->addAttribs(array('class' => '_fajax _reload'));
 			$form->setAttrib('class', '_reload ' . $form->getAttrib('class'));
 		}
 
@@ -125,6 +137,11 @@ class Quote extends Tools_PaymentGateway {
 	}
 
 	private function _saveQuote() {
+
+		$params = $this->_request->getParams();
+		$params = json_decode($this->_request->getRawBody(), true);
+
+
 		$form = new Quote_Forms_Address();
 		if($form->isValid($this->_request->getParams())) {
 
@@ -235,6 +252,10 @@ class Quote extends Tools_PaymentGateway {
 			->setNavName($params['quoteTitle'])
 			->setTemplateId($quoteTemplate->getName())
 			->setUrl($params['quoteUrl'])
+			->setParentId(self::QUOTE_CATEGORY_ID)
+			->setSystem(true)
+			->setLastUpdate(date(DATE_ATOM))
+			->setShowInMenu(Application_Model_Models_Page::IN_NOMENU)
 			->setHeaderTitle($params['quoteTitle']);
 		return Application_Model_Mappers_PageMapper::getInstance()->save($page);
 	}

@@ -16,29 +16,44 @@
 				->appendStylesheet($this->websiteUrl . 'plugins/quote/web/css/build.quote.css'); ?>
         <?php echo $this->headLink(); ?>
 
+		<!-- quick search template -->
+		<script id="qsearchTemplate" type="text/x-jquery-tmpl">
+			<input id="quick-search" type="text" placeholder="<?php echo $this->translate('Start typing id, name or e-mail to search among addresses.'); ?>" />
+		</script>
+
+		<script id="productTemplate" type="text/x-jquery-tmpl">
+			<td><img class="lazy" src="{{if photo}}${'/media/'+photo.replace('/', '/product/')}{{else}}/system/images/noimage.png{{/if}}" alt="${name}" /></td>
+			<td>${name}</td>
+			<td><input type="text" name="quoteCartNote[${id}]" value="${note}" /></td>
+			<td><input class="product-cty" type="number" step="1" min="1" name="quoteCartQty[${id}]" value="${qty}"/></td>
+			<td><input type="text" name="quoteCartPrice[${id}]" value="${price}" /></td>
+			<td>${price * qty}</td>
+		</script>
+
 	</head>
 	<body>
+		<input type="hidden" id="pluginUrl" name="pluginUrl" value="<?php echo trim($this->websiteUrl, ' /').$this->url(array('run'=>''));?>" />
+	    <input type="hidden" id="websiteUrl" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
 	    <div id="quote-main">
 		    <div id="quote-main-inner">
 
-			    <div id="quote-quicksearch">
-					quick search
-				</div>
+			    <!-- quick searc container -->
+			    <div id="quote-quicksearch"></div>
 
-			    <div id="quote-tophead">
-					tophead
-				</div>
+			    <!-- Quote addresses -->
+			    <div id="quote-tophead"></div>
 
 			    <div id="quote-content">
 
-					<div id="quote-title">
+				    <div id="quote-title">
 						<div id="quote-title-inner">
 							<h1><?php echo $this->translate('Quote'); ?> #</h1>
 							<input type="text" name="quoteName" value="" id="quote-name"/>
 						</div>
 					</div>
 
-					<div id="quote-cart">
+				    <!-- Quote cart -->
+				    <div id="quote-cart">
 						<table>
 							<thead>
 								<tr>
@@ -50,22 +65,7 @@
 									<th><?php echo $this->translate('Total'); ?></th>
 								</tr>
 							</thead>
-							<tbody>
-								<?php if(isset($this->cartContent) && !empty($this->cartContent)): ?>
-									<?php foreach($this->cartContent as $sid => $cartItem): ?>
-										<tr>
-											<td><?php echo $cartItem['photo']; ?></td>
-											<td><?php echo $cartItem['name']; ?></td>
-											<td><input type="text" name="quoteCartNote[<?php echo $sid; ?>]" value="" /></td>
-											<td><input type="number" step="1" min="1" name="quoteCartQty[<?php echo $sid; ?>]" value="<?php echo $cartItem['qty']; ?>"/></td>
-											<td><input type="text" name="quoteCartPrice[<?php echo $sid; ?>]" value="<?php echo $cartItem['price']; ?>" /></td>
-											<td><?php echo ($cartItem['price'] * $cartItem['qty']); ?></td>
-										</tr>
-									<?php endforeach; ?>
-								<?php else: ?>
-									<td colspan="6" id="empty-cart"><?php echo $this->translate('Cart is empty'); ?></td>
-								<?php endif; ?>
-							</tbody>
+							<tbody></tbody>
 						</table>
 					</div>
 					<div id="quote-summary">
@@ -81,12 +81,12 @@
 							<?php if($this->shippingType != Tools_Shipping_Shipping::SHIPPING_TYPE_PICKUP): ?>
 								<div class="summary-stat-row">
 									<span><?php echo $this->translate('Shipping'); ?></span>
-									<span>0</span>
+									<input type="text" name="shipping" id="shipping" />
 								</div>
 							<?php endif; ?>
 							<div class="summary-stat-row">
 								<span><?php echo $this->translate('Discount'); ?></span>
-								<span>0</span>
+								<input type="text" name="discount" id="discount" />
 							</div>
 							<hr/>
 							<div class="summary-stat-row">
@@ -95,31 +95,42 @@
 							</div>
 						</div>
 						<div id="shipping-type" class="qsummary">
-
+							<input type="text" id="shipping-method" value="">
 						</div>
 					</div>
 					<div id="quote-services">
-
+						<label for="disclaimer"><?php echo $this->translate('Disclaimer'); ?></label>
+						<input type="text" name="disclaimer" id="disclaimer" />
+						<div style="clear: both;"></div>
+						<div id="client-mail" class="messages">
+							<label><?php echo $this->translate('Client e-mail message'); ?></label>
+							<textarea></textarea>
+						</div>
+						<div id="internal-msg" class="messages">
+							<label><?php echo $this->translate('Internal notes'); ?></label>
+							<textarea></textarea>
+						</div>
 					</div>
 				</div>
 		    </div>
 	    </div>
-	    <div style="height: 30px; min-height: 30px;"></div>
+	    <div style="height: 100px; min-height: 100px;"></div>
 	    <footer id="bottom-line">
-		    <div id="footer-inner">
-			    <a data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/additem/" data-pheight="551" href="javascript:;" class="quote-controll tpopup"><?php echo $this->translate('Add product'); ?></a>
-			    <a href="" class="quote-controll"><?php echo $this->translate('Save quote'); ?></a>
-                <a href="" class="quote-controll"><?php echo $this->translate('Save and Send quote'); ?></a>
-                <span><?php echo $this->translate('Last edited by: '), $this->lastEditedBy; ?></span>
-		    </div>
+		    <a data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/additem/" data-pheight="551" href="javascript:;" class="quote-controll tpopup"><?php echo $this->translate('Add product'); ?></a>
+            <a href="javascript:;" id="save-quote" class="quote-controll"><?php echo $this->translate('Save quote'); ?></a>
+            <a href="javascript:;" id="save-and-send-quote" class="quote-controll"><?php echo $this->translate('Save and Send quote'); ?></a>
+            <span><?php echo $this->translate('Last edited by: '), $this->lastEditedBy; ?></span>
 	    </footer>
 	</body>
 	<?php
         $this->headScript()->setAllowArbitraryAttributes(true)
                 ->appendFile('https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
                 ->appendFile('https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js')
+                ->appendFile($this->websiteUrl.'system/js/external/jquery/plugins/tmpl/jquery.tmpl.min.js')
+               // ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/lazyload/jquery.lazyload.min.js')
                 ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/cookie/jquery.cookie.js')
                 ->appendFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
+                ->appendFile($this->websiteUrl . 'plugins/quote/web/js/libs/require/require.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/build.js'))
                 ->appendFile($this->websiteUrl . 'system/js/internal/system.js');
         echo $this->headScript();
     ?>

@@ -19,41 +19,59 @@
 
 		<!-- quote template -->
 		<script id="quoteTemplate" type="text/x-jquery-tmpl">
-			<div class="grid_1">#</div>
-			<div class="grid_4">${title}</div>
-			<div class="grid_2">
+			<td class="grid_0_5 centered">#</td>
+			<td class="grid_4">${title}</td>
+			<td class="grid_2 centered">
 				${$.datepicker.formatDate('dd M, yy', new Date(createdAt))}
-			</div>
-			<select name="quoteStatus" class="quote-status grid_1" id="${id}">
-				<option value="new" {{if status == 'new'}} selected="selected" {{/if}}>New</option>
-				<option value="sent" {{if status == 'sent'}} selected="selected" {{/if}}>Sent</option>
-				<option value="sold" {{if status == 'sold'}} selected="selected" {{/if}}>Sold</option>
-				<option value="lost" {{if status == 'lost'}} selected="selected" {{/if}}>Lost</option>
-			</select>
-			<div class="preview grid_2">
+			</td>
+			<td class="grid_2 centered nopad">
+				<select name="quoteStatus" class="quote-status" id="${id}">
+					<option value="new" {{if status == 'new'}} selected="selected" {{/if}}>New</option>
+					<option value="sent" {{if status == 'sent'}} selected="selected" {{/if}}>Sent</option>
+					<option value="sold" {{if status == 'sold'}} selected="selected" {{/if}}>Sold</option>
+					<option value="lost" {{if status == 'lost'}} selected="selected" {{/if}}>Lost</option>
+				</select>
+			</td>
+			<td class="preview grid_1 centered">
 				<a target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html">Preview</a>
-			</div>
-			<div class="preview grid_1">
-
-			</div>
-			<div class="remove grid_1">
+			</td>
+			<td class="grid_1 centered">
+				  ---
+			</td>
+			<td class="remove grid_1 centered">
 				<a href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
-			</div>
+			</td>
 		</script>
 
 	</head>
 	<body>
 		<input type="hidden" id="pluginUrl" name="pluginUrl" value="<?php echo trim($this->websiteUrl, ' /').$this->url(array('run'=>''));?>" />
 	    <input type="hidden" id="websiteUrl" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
-		<div class="seotoaster container_12 h550" id="manage-quotes">
+		<div class="seotoaster container_12 h570" id="manage-quotes">
 			<div class="header" style="overflow:hidden;">
 				<div class="closebutton">
 				    <span class="close"><?php echo $this->translate('Close'); ?></span>
 				</div>
 				<?php echo $this->translate('Manage quotes'); ?>&nbsp;&nbsp;&nbsp;<a href="javascript:;" id="add-new"><?php echo $this->translate('Add new'); ?></a>
 			</div>
-			<div id="quotes" class="ui-widget-content ui-helper-clearfix h450 grid_12" style="overflow-x: hidden; overflow-y: auto;">
+			<table id="quotes" class="ui-widget-content ui-helper-clearfix h470 grid_12" style="overflow-x: hidden; overflow-y: auto;">
+				<thead style="overflow: hidden;height: 30px;" class="grid_12">
+					<tr class="grid_12 bordered">
+						<th class="grid_0_5"><?php echo $this->translate('#'); ?></th>
+						<th class="grid_4"><?php echo $this->translate('Title'); ?></th>
+						<th class="grid_2"><?php echo $this->translate('Date'); ?></th>
+						<th class="grid_2"><?php echo $this->translate('Status'); ?></th>
+						<th class="grid_1"><?php echo $this->translate('Preview'); ?></th>
+						<th class="grid_1"><?php echo $this->translate('Pdf'); ?></th>
+						<th class="grid_1"><?php echo $this->translate('Remove'); ?></th>
+					</tr>
+				</thead>
+				<tbody class="grid_12">
 
+				</tbody>
+			</table>
+			<div class="grid_12">
+				<button class="save-and-close <?php echo $this->extraClasses; ?>"><?php echo $this->translate('Save and close'); ?></button>
 			</div>
    	    </div>
 	</body>

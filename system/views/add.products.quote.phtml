@@ -23,7 +23,23 @@
 			<img class="lazy" src="" data-original="{{if photo}}${'/media/'+photo.replace('/', '/product/')}{{else}}/system/images/noimage.png{{/if}}" alt="${name}" />
 			<p class="name">${name}</p>
 			<p class="sku">${sku}</p>
-			<a class="btn-add" data-pid="${id}" href="javascript:;">Add</a>
+			<div data-productid="${id}" class="product-options-listing">
+				{{each(index, val) defaultOptions}}
+					{{if val.type == 'dropdown'}}
+						<div class="product-option option-dropdown">
+							<label for="product-${id}-option-${val.id}">${val.title}</label>
+							<select name="selection" id="option-${val.id}">
+								{{each(key, value) val.selection}}
+									<option value="${value.id}" {{if value.isDefault == '1'}} selected="selected" {{/if}}>${value.title}</option>
+								{{/each}}
+							</select>
+							<input type="hidden" name="option" value="${val.id}">
+						</div>
+					{{/if}}
+				{{/each}}
+			</div>
+			<input type="number" class="qty" name="qty" value="1" step="1" />
+			<a class="btn-add" data-pid="${id}" href="javascript:;"><?php echo $this->translate('Add'); ?></a>
 		</script>
 
 	</head>

@@ -101,3 +101,19 @@ footer #footer-inner {
 #quote-summary .qsummary {
 	float: right;
 }
+
+#quote-services {
+	overflow: hidden;
+	background: #eee;
+	padding: 3px 0;
+}
+
+#quote-services #disclaimer {
+	width: 90%;
+	border: 1px solid #ccc;
+	padding: 8px 5px;
+}
+
+#quote-services .messages {
+	float: left;
+}

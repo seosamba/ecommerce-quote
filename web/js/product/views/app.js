@@ -30,7 +30,11 @@ define([
 				url        : $('#websiteUrl').val() + 'plugin/quote/run/additem/',
 				type       : 'post',
 				dataType   : 'json',
-				data : {item: product.toJSON()},
+				data : {
+					item : product.toJSON(),
+					opts : $('div[data-productid=' + productId + '] *').serialize(),
+					qty  : $(e.target).prev('.qty').val()
+				},
 				beforeSend : function() {showSpinner();},
 				success : function(response) {
 					hideSpinner();

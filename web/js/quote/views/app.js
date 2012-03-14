@@ -16,13 +16,13 @@ define([
 			this.quoteCollection = new QuoteCollection();
 			this.quoteCollection.bind('add', this.render, this);
 			this.quoteCollection.bind('remove', this.render, this);
-            this.quoteCollection.bind('reset', this.render, this)
+            //this.quoteCollection.bind('reset', this.render, this)
 		},
 		render: function(){
-            $('#quotes').empty();
+            $('table#quotes tbody').empty();
 			this.quoteCollection.each(function(quote){
 				var view = new QuoteView({model: quote});
-				$(view.render().el).appendTo('#quotes');
+				$(view.render().el).appendTo('table#quotes tbody');
             });
         },
 		addNewQuote: function() {
