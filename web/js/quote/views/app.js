@@ -1,9 +1,10 @@
 define([
 	'Underscore',
 	'Backbone',
-    'quote/collections/quote',
-    'quote/views/quote'
-], function(_, Backbone, QuoteCollection, QuoteView){
+    'quote/collections/quotes',
+    'quote/views/quote',
+	'quote/models/quote'
+], function(_, Backbone, QuoteCollection, QuoteView, QuoteModel){
 
 	var quoteListView = Backbone.View.extend({
 		el: $('#manage-quotes'),
@@ -14,9 +15,8 @@ define([
 		},
 		initialize: function() {
 			this.quoteCollection = new QuoteCollection();
-			this.quoteCollection.bind('add', this.render, this);
-			this.quoteCollection.bind('remove', this.render, this);
-            //this.quoteCollection.bind('reset', this.render, this)
+			this.quoteCollection.on('add', this.render, this);
+			this.quoteCollection.on('remove', this.render, this);
 		},
 		render: function(){
             $('table#quotes tbody').empty();
@@ -26,7 +26,20 @@ define([
             });
         },
 		addNewQuote: function() {
-			console.log('add new quote');
+			//adding quote from admin interface
+			var options = {
+				'type' : 'build'
+			};
+			$.ajax({
+				url: $('#websiteUrl').val() + 'plugin/quote/run/quotes/',
+				type       : 'post',
+				dataType   : 'json',
+				data : options,
+				beforeSend : function() {showSpinner();},
+				success : function(response) {
+					window.parent.location.href = $('#websiteUrl').val() + response.responseText.redirectTo;
+				}
+			});
 		},
 		updateQuoteStatus: function(e) {
 			var quote = this.quoteCollection.get(e.target.id);

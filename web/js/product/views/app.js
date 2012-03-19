@@ -8,13 +8,13 @@ define([
 	var quoteListView = Backbone.View.extend({
 		el: $('#add-products-quote'),
 		events: {
-			'click .btn-add' : 'addProductToQuote'
+			'click .btn-add' : 'addProductToQuote',
+			'keypress #product-list-search': 'filterProducts'
 		},
 		initialize: function() {
 			this.productsCollection = new ProductsCollection();
-			this.productsCollection.bind('add', this.render, this);
-			this.productsCollection.bind('remove', this.render, this);
-            this.productsCollection.bind('reset', this.render, this)
+			this.productsCollection.on('add', this.render, this);
+			this.productsCollection.on('remove', this.render, this);
 		},
 		render: function(){
             $('#products').empty();
@@ -24,16 +24,17 @@ define([
             });
         },
 		addProductToQuote: function(e) {
-			var productId = $(e.target).data('pid');
-			var product   = this.productsCollection.get(productId);
+			var productId        = $(e.target).data('pid');
+			var splitedParentUrl = window.parent.location.href.split('/');
 			$.ajax({
-				url        : $('#websiteUrl').val() + 'plugin/quote/run/additem/',
+				url        : $('#websiteUrl').val() + 'plugin/quote/run/products/',
 				type       : 'post',
 				dataType   : 'json',
 				data : {
-					item : product.toJSON(),
+					pid  : productId,
 					opts : $('div[data-productid=' + productId + '] *').serialize(),
-					qty  : $(e.target).prev('.qty').val()
+					qty  : $(e.target).prev('.qty').val(),
+					qid  : splitedParentUrl[splitedParentUrl.length-1]
 				},
 				beforeSend : function() {showSpinner();},
 				success : function(response) {
@@ -41,6 +42,9 @@ define([
 					showMessage(response.responseText);
 				}
 			})
+		} ,
+		filterProducts: function() {
+
 		}
 	});
 

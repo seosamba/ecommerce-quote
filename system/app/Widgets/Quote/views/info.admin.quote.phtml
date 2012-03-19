@@ -1,0 +1,4 @@
+<div class="quote-info" id="<?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
+	<p class="title"><?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
+	<?php echo $this->addressForm; ?>
+</div>

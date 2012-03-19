@@ -72,11 +72,11 @@
 						<div id="summary-stat" class="qsummary">
 							<div class="summary-stat-row">
 								<span><?php echo $this->translate('Sub-total'); ?></span>
-								<span>0</span>
+								<span><?php echo $this->currency(0);?></span>
 							</div>
 							<div class="summary-stat-row">
 								<span><?php echo $this->translate('Tax'); ?></span>
-								<span>0</span>
+								<span><?php echo $this->currency(0);?></span>
 							</div>
 							<?php if($this->shippingType != Tools_Shipping_Shipping::SHIPPING_TYPE_PICKUP): ?>
 								<div class="summary-stat-row">
@@ -91,10 +91,11 @@
 							<hr/>
 							<div class="summary-stat-row">
 								<span><?php echo $this->translate('Grand Total'); ?></span>
-								<span>0</span>
+								<span><?php echo $this->currency(0);?></span>
 							</div>
 						</div>
 						<div id="shipping-type" class="qsummary">
+							<span><?php echo $this->translate('Shipping method'); ?></span>
 							<input type="text" id="shipping-method" value="">
 						</div>
 					</div>

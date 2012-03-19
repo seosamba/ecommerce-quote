@@ -22,13 +22,15 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$cartSize    = sizeof($cartContent);
 
 		if($cartSize) {
-			$this->_parser = new Tools_Content_Parser();
 			foreach($cartContent as $key => $item) {
-				$content .= preg_replace_callback('~{\$quote:(.+)}~', function($matches) use($key) {
+				$content .= preg_replace_callback('~{\$quote:(.+)}~U', function($matches) use($key) {
 					$options = array_merge(explode(':', $matches[1]), array($key, 'quotemspace'));
 					return Tools_Factory_WidgetFactory::createWidget('Quote', $options)->render();
 				}, $spaceContent);
 			}
+
+			$parser   = new Tools_Content_Parser($content, $this->_toasterData, array());
+			$content  = $parser->parseSimple();
 		}
 		return $content;
 	}
@@ -38,13 +40,18 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$front       = Zend_Controller_Front::getInstance();
 		$quote       = Quote_Models_Mapper_QuoteMapper::getInstance()->find($pageHelper->clean($front->getRequest()->getParams('page')));
 		$cart        = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
-
+		$cartContent = $cart->getCartContent();
+		if(!$cartContent) {
+			return null;
+		}
 		return array_map(function($itemData) {
 			$product = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
-			$itemData['name']  = $product->getName();
-			$itemData['photo'] = '';
-			$itemData['note']  = 'GFY';
-			return $itemData;
+			if($product instanceof Models_Model_Product) {
+				$itemData['name']  = $product->getName();
+				$itemData['photo'] = '';
+				$itemData['note']  = 'GFY';
+				return $itemData;
+			}
 		}, $cart->getCartContent());
 
 	}

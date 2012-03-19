@@ -6,7 +6,7 @@ require.config({
 });
 
 require([
-	'build/application',
+	'options/application',
 	'order!libs/underscore/underscore-min',
 	'order!libs/backbone/backbone-min'
 ], function(App){

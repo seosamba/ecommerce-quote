@@ -1,6 +1,8 @@
 <?php if(isset($this->quoteItem['options'])): ?>
-    <?php foreach($this->quoteItem['options'] as $name => $optData): ?>
-	    <div class="options">
+    <?php //var_dump($this->quoteItem['options']); ?>
+	<?php foreach($this->quoteItem['options'] as $name => $optData): ?>
+	    <?php if(!$optData['isDefault']) {continue;} ?>
+		<div class="options">
 		    <span><?php echo $name; ?>:&nbsp;</span><span><?php echo $optData['title']; ?></span>
 		    <?php if(intval($optData['priceValue'])): ?>
 		        <span>(<?php echo $optData['priceSign'], ' ', (($optData['priceType'] == 'unit') ? $this->currency($optData['priceValue']) : $optData['priceValue'] . '%'); ?>)</span>
@@ -10,4 +12,9 @@
             <?php endif; ?>
 	    </div>
 	<?php endforeach; ?>
+<?php endif; ?>
+<?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL)): ?>
+	<a href="javascript:;" data-pwidth="600" data-pheight="404" class="tpopup" data-url="<?php echo $this->websiteHelper; ?>plugin/quote/run/options/pid/<?php echo $this->quoteItem['id'];?>">
+		<strong><?php echo $this->translate('Manage options'); ?></strong>
+	</a>
 <?php endif; ?>

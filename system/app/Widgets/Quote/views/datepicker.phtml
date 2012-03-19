@@ -1,0 +1,10 @@
+<?php echo $this->datePicker(
+	'datepicker-' . $this->dpType,
+	((intval($this->date)) ? date('M j, Y', strtotime($this->date)) : ''),
+	array(
+		'defaultDate' => ''
+	),
+	array(
+		'style' => 'width:95px !important; border-radius:2px;'
+	));
+?>

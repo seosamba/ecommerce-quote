@@ -72,11 +72,9 @@ footer #footer-inner {
 	float: left;
 	margin-right: 10px;
 }
-
 #quote-cart {
 	min-height: 200px;
 }
-
 #quote-cart table {
 	width: 100%;
 }
@@ -86,17 +84,37 @@ footer #footer-inner {
 	padding: 7px 2px;
 }
 
+#quote-cart table tr {
+	border-bottom: 1px dashed #ddd;
+}
+#quote-cart table td {padding: 10px 0;}
 #quote-cart table td#empty-cart {
 	padding: 20px 0;
 	font-size: 20px;
 	color: #ccc;
 }
-
 #quote-summary {
 	overflow: hidden;
+	margin-top: 10px;
+	padding: 10px 0;
 }
+#quote-summary .summary-stat-row {overflow: hidden;}
+#quote-summary .summary-stat-row span,
+#quote-summary #shipping-type span {
+	font-size: 28px;
+}
+#quote-summary .summary-stat-row span {
+	float: left;
+	min-width: 130px;
+}
+#quote-summary .summary-stat-row input, #quote-summary #shipping-type input {
+	padding: 4px;
+	font-size: 14px;
+}
+
 #quote-summary #shipping-type {
 	margin-right: 10px;
+	margin-top: 55px;
 }
 #quote-summary .qsummary {
 	float: right;
@@ -116,4 +134,20 @@ footer #footer-inner {
 
 #quote-services .messages {
 	float: left;
+}
+
+#quote-services .messages label {
+	display: block;
+	text-align: left;
+	font-size: 16px;
+	font-weight: bold;
+	margin-left: 10px;
+}
+
+#quote-services textarea {
+	width: 453px;
+	height: 110px;
+	margin: 0 10px;
+	resize: none;
+	border: 1px solid #ddd;
 }

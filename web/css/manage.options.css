@@ -1,0 +1,47 @@
+#manage-product-options {
+	overflow: hidden;
+}
+#manage-product-options-main {
+	background: #fff;
+}
+
+.product-item {
+	overflow: hidden;
+}
+
+.product-item img {
+	margin: 3px;
+	max-width: 150px;
+	max-height: 200px;
+}
+
+.product-item .product-data {
+	padding: 5px 0;
+}
+
+.product-item .product-data p {
+	background: #fff;
+	margin: 0 0 3px 0;
+	padding: 5px 0;
+	border-bottom: 1px dashed #ddd;
+}
+
+.product-item .product-data p#product-name {
+	text-align: center;
+	background: #eee;
+	font-size: 20px;
+	height: 20px;
+	overflow: hidden;
+}
+
+.product-item .product-options-listing {
+	padding: 5px 0;
+	float: left;
+	width: 264px;
+	overflow: hidden;
+}
+
+.product-option {
+	background: #fdffd5;
+	padding: 5px;
+}

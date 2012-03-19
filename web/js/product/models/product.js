@@ -4,7 +4,7 @@ define([
 ], function(_, Backbone){
 
     var productModel = Backbone.Model.extend({
-        urlRoot  : $('#websiteUrl').val()+'plugin/shopping/run/getdata/type/product/'
+        urlRoot  : $('#websiteUrl').val()+'plugin/shopping/run/getdata/type/product/id'
     });
 
 	return productModel;

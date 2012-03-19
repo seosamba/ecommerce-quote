@@ -20,7 +20,7 @@
 		<!-- quote template -->
 		<script id="quoteTemplate" type="text/x-jquery-tmpl">
 			<td class="grid_0_5 centered">#</td>
-			<td class="grid_4">${title}</td>
+			<td class="grid_5"><a alt="<?php echo $this->translate('Edit quote'); ?>" target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html">${title}</a></td>
 			<td class="grid_2 centered">
 				${$.datepicker.formatDate('dd M, yy', new Date(createdAt))}
 			</td>
@@ -33,10 +33,7 @@
 				</select>
 			</td>
 			<td class="preview grid_1 centered">
-				<a target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html">Preview</a>
-			</td>
-			<td class="grid_1 centered">
-				  ---
+				<a target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html?mode=preview">Preview</a>
 			</td>
 			<td class="remove grid_1 centered">
 				<a href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
@@ -47,6 +44,7 @@
 	<body>
 		<input type="hidden" id="pluginUrl" name="pluginUrl" value="<?php echo trim($this->websiteUrl, ' /').$this->url(array('run'=>''));?>" />
 	    <input type="hidden" id="websiteUrl" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
+		<input type="hidden" id="website_url" name="websiteUrl" value="<?php echo $this->websiteUrl;?>" />
 		<div class="seotoaster container_12 h570" id="manage-quotes">
 			<div class="header" style="overflow:hidden;">
 				<div class="closebutton">
@@ -58,11 +56,10 @@
 				<thead style="overflow: hidden;height: 30px;" class="grid_12">
 					<tr class="grid_12 bordered">
 						<th class="grid_0_5"><?php echo $this->translate('#'); ?></th>
-						<th class="grid_4"><?php echo $this->translate('Title'); ?></th>
+						<th class="grid_5"><?php echo $this->translate('Title'); ?></th>
 						<th class="grid_2"><?php echo $this->translate('Date'); ?></th>
 						<th class="grid_2"><?php echo $this->translate('Status'); ?></th>
 						<th class="grid_1"><?php echo $this->translate('Preview'); ?></th>
-						<th class="grid_1"><?php echo $this->translate('Pdf'); ?></th>
 						<th class="grid_1"><?php echo $this->translate('Remove'); ?></th>
 					</tr>
 				</thead>
