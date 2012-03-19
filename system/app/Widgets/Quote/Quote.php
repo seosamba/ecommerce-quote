@@ -97,7 +97,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	}
 
 	protected function _renderDiscount() {
-		return $this->_currency->toCurrency($this->_quote->getDiscount());
+		return $this->_currency->toCurrency(0);
 	}
 
 	protected function _renderTotal() {
