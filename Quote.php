@@ -123,7 +123,7 @@ class Quote extends Tools_PaymentGateway {
 				$customer = new Models_Model_Customer();
 				$customer->setRoleId(Shopping::ROLE_CUSTOMER)
 					->setEmail($billingFormData['email'])
-					->setFullNae($billingFormData['firstname'] . ' ' . $billingFormData['lastname'])
+					->setFullName($billingFormData['firstname'] . ' ' . $billingFormData['lastname'])
 					->setIpaddress($this->_request->getClientIp())
 					->setPassword(md5(uniqid('customer_' . time())));
 				$result = Models_Mapper_CustomerMapper::getInstance()->save($customer);
