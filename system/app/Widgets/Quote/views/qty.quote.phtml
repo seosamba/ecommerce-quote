@@ -1,5 +1,5 @@
 <?php if($this->editAllowed): ?>
-    <input type="number" min="1" step="1" value="<?php echo $this->qty; ?>" />
+    <input type="number" min="1" id="<?php echo $this->pid; ?>" step="1" value="<?php echo $this->qty; ?>" class="quote-qty" />
 <?php else: ?>
 	<span class="quote-qty"><?php echo $this->qty; ?></span>
 <?php endif; ?>

@@ -61,7 +61,8 @@ class Quote extends Tools_PaymentGateway {
 		Tools_Security_Acl::ROLE_SUPERADMIN => array(
             'settings',
 			'build',
-			'quotes'
+			'quotes',
+			'qty'
         )
 	);
 
@@ -71,6 +72,7 @@ class Quote extends Tools_PaymentGateway {
 		$this->_pageHelper        = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
 		$this->_shoppingConfig    = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
 		$this->_previewMode       = ('preview' == Zend_Controller_Front::getInstance()->getRequest()->getParam('mode', false));
+		$this->_quoteMapper       = Quote_Models_Mapper_QuoteMapper::getInstance();
 		$this->_view->editAllowed = $this->_editAllowed();
 	}
 
@@ -96,8 +98,7 @@ class Quote extends Tools_PaymentGateway {
 			throw new Exceptions_SeotoasterPluginException('Direct access is not allowed');
 		}
 
-		$mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-		$quote  = $mapper->find($this->_request->getParam('quoteId', 0));
+		$quote  = $this->_quoteMapper->find($this->_request->getParam('quoteId', 0));
 		if(!$quote instanceof Quote_Models_Model_Quote) {
 			throw new Exceptions_SeotoasterPluginException('Cannot load quote.');
 		}
@@ -136,7 +137,7 @@ class Quote extends Tools_PaymentGateway {
 		}
 
 		$quote->setUserId(($customer !== null) ? $customer->getId() : null);
-		$mapper->save($quote);
+		$this->_quoteMapper->save($quote);
 
 		if($customer) {
 			$cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
@@ -162,7 +163,7 @@ class Quote extends Tools_PaymentGateway {
 		$productId = $this->_request->getParam('pid');
 		if($this->_request->isPost()) {
 			$quoteId = $this->_pageHelper->clean($this->_request->getParam('qid'));
-			$cart    = $this->_invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId));
+			$cart    = $this->_invokeCart($this->_quoteMapper->find($quoteId));
 			$options = $this->_proccessOptions($this->_request->getParam('options', array()));
 			$cartContent = array_map(function($product) use($productId, $options) {
 				if($product['product_id'] == $productId) {
@@ -177,6 +178,11 @@ class Quote extends Tools_PaymentGateway {
 		echo $this->_view->render('manage.options.quote.phtml');
 	}
 
+	public function loadselectionsAction() {
+		$quoteId = $this->_pageHelper->clean($this->_request->getParam('qid'));
+  	    $cart    = $this->_invokeCart($this->_quoteMapper->find($quoteId));
+	}
+
 	/**
 	 * Render product add popup and add product to the quote
 	 *
@@ -185,7 +191,7 @@ class Quote extends Tools_PaymentGateway {
 		if($this->_request->isPost()) {
 			$product       = Models_Mapper_ProductMapper::getInstance()->find($this->_request->getParam('pid'));
 			$quoteId       = $this->_pageHelper->clean($this->_request->getParam('qid'));
-			$cart          = $this->_invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId));
+			$cart          = $this->_invokeCart($this->_quoteMapper->find($quoteId));
 			$currentTax    = Tools_Tax_Tax::calculateProductTax($product);
 			$cartContent   = $cart->getCartContent();
 			$cartContent[] = array(
@@ -209,7 +215,6 @@ class Quote extends Tools_PaymentGateway {
 	public function quotesAction() {
 		$data          = array();
 		$requestMethod = $this->_request->getMethod();
-		$quoteMapper   = Quote_Models_Mapper_QuoteMapper::getInstance();
 		switch($requestMethod) {
 			case 'GET':
 				//if type parameter specified and eq 'list' render quote list view
@@ -220,10 +225,10 @@ class Quote extends Tools_PaymentGateway {
 				}
 				$quoteId = $this->_request->getParam('qid', 0);
 				if($quoteId) {
-					$quote = $quoteMapper->find($quoteId);
+					$quote = $this->_quoteMapper->find($quoteId);
 					$data  = $quote->toArray();
 				} else {
-					$data = $quoteMapper->fetchAll(null, array('created_at DESC', 'title ASC'));
+					$data = $this->_quoteMapper->fetchAll(null, array('created_at DESC', 'title ASC'));
 					if(!empty($data)) {
 						$data = array_map(function($quote) { return $quote->toArray();}, $data);
 					}
@@ -269,7 +274,7 @@ class Quote extends Tools_PaymentGateway {
 					throw new Exceptions_SeotoasterPluginException('Quote parameters not passed');
 				}
 				$quote = new Quote_Models_Model_Quote($quoteParams);
-				if($quoteMapper->save($quote)) {
+				if($this->_quoteMapper->save($quote)) {
 					$data = array('error' => false, 'responseText' => $this->_translator->translate('Quote updated'));
 				} else {
 					$data = array('error' => true, 'code' => 409, 'responseText' => $this->_translator->translate('Can not update quote'));
@@ -280,11 +285,11 @@ class Quote extends Tools_PaymentGateway {
 				if(!is_array($quoteParams) || empty($quoteParams)) {
 					throw new Exceptions_SeotoasterPluginException('Quote parameters not passed');
 				}
-				$quote = $quoteMapper->find(end($quoteParams));
+				$quote = $this->_quoteMapper->find(end($quoteParams));
 				if(!$quote instanceof Quote_Models_Model_Quote) {
 					$data = array('error' => true, 'responseText' => $this->_translator->translate('Cannot find quote'));
 				}
-				if($quoteMapper->delete($quote)) {
+				if($this->_quoteMapper->delete($quote)) {
 					$data = array('error' => false, 'responseText' => $this->_translator->translate('Quote successfuly removed'));
 				} else {
 					$data = array('error' => true, 'responseText' => $this->_translator->translate('Cannot remove quote'));
@@ -295,6 +300,27 @@ class Quote extends Tools_PaymentGateway {
 			break;
 		}
 		$this->_jsonHelper->sendJson($data);
+	}
+
+	public function qtyAction() {
+		if(!$this->_request->isPost()) {
+			throw new Exceptions_SeotoasterPluginException('Direct access is not allowed');
+		}
+		$quoteId   = filter_var($this->_request->getParam('qid'), FILTER_SANITIZE_STRING);
+		$productId = filter_var($this->_request->getParam('pid'), FILTER_SANITIZE_STRING);
+		$qty       = $this->_request->getParam('qty', 1);
+		$cart      = $this->_invokeCart($this->_quoteMapper->find($quoteId));
+		$content   = $cart->getCartContent();
+		if(!empty($content)) {
+			$content = array_map(function($productData) use($productId, $qty) {
+				if($productData['product_id'] == $productId) {
+					$productData['qty'] = $qty;
+				}
+				return $productData;
+			}, $content);
+			$cart->setCartContent($content);
+			Models_Mapper_CartSessionMapper::getInstance()->save($cart);
+		}
 	}
 
 	/***************************
@@ -374,7 +400,7 @@ class Quote extends Tools_PaymentGateway {
 			->setValidUntil(date(DATE_ATOM, strtotime('+1 day', strtotime(date(DATE_ATOM)))))
 			->setUserId($userId)
 			->setEditedBy($editedBy);
-		if(Quote_Models_Mapper_QuoteMapper::getInstance()->save($quote)) {
+		if($this->_quoteMapper->save($quote)) {
 			$this->updateCartStatus($cartId, Models_Model_CartSession::CART_STATUS_PENDING);
 			Tools_ShoppingCart::getInstance()->clean();
 			return $quoteId;

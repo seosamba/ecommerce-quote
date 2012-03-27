@@ -7,5 +7,26 @@
 <script type="text/javascript">
 	$(function() {
 		$('.quote-controll').button();
+		$('.quote-qty').blur(function() {
+			var qty = $(this).val();
+			var pid = $(this).attr('id');
+			$.ajax({
+				url      : $('#website_url').val() + 'plugin/quote/run/qty',
+				type     : 'post',
+				dataType : 'json',
+				data     : {
+					qid: '<?php echo $this->quoteId; ?>',
+					qty: qty,
+					pid: pid
+				},
+				beforeSend : function() {showSpinner();},
+				success : function(response) {
+	                hideSpinner();
+	            },
+	            error: function(xhr, errorStatus) {
+	                showMessage(errorStatus, true);
+	            }
+			})
+		})
 	})
 </script>

@@ -12,7 +12,9 @@ define([
 		},
 		initialize: function() {
 			$('#save-options').button();
-			this.productView = new ProductView({model:  new ProductModel()});
+			var product = new ProductModel();
+			product.on('change:name', this.loadSelections, product);
+			this.productView = new ProductView({model:  product});
 		},
 		render: function(){
             $('#manage-product-options-main').empty();
@@ -21,15 +23,29 @@ define([
         },
 		saveOptions: function(e) {
 			var options   = $('.product-options-listing *').serialize();
-			var productId = $(e.target).data('pid');
+			var productId = $(e.target).parent().data('pid');
 			var splitedParentUrl = window.parent.location.href.split('/');
+			showSpinner();
 			$.post($('#websiteUrl').val() + 'plugin/quote/run/options/', {
 				qid: splitedParentUrl[splitedParentUrl.length-1],
 				options: options,
 				pid: productId
 			}, function(response) {
-				showMessage(response.responseText, response.error);
+				if(!response.error) {
+					top.location.reload();
+				} else {
+					showMessage(response.responseText, response.error);
+				}
 			}, 'json');
+		},
+		loadSelections: function() {
+			var splitedParentUrl = window.parent.location.href.split('/');
+			$.getJSON($('#websiteUrl').val() + 'plugin/quote/run/loadselections/', {
+				qid: splitedParentUrl[splitedParentUrl.length-1],
+				pid: this.get('id')
+			}, function(response) {
+
+			})
 		}
 	});
 

@@ -216,19 +216,27 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 					$content              = $this->_view->render('price.quote.item.phtml');
 				break;
 				case 'options':
-					$cartItem['options'] = array();
+                	$options        = array();
 					$defaultOptions = $product->getDefaultOptions();
-					if(!empty($defaultOptions)) {
-						foreach($defaultOptions as $optionsData) {
-							$cartItem['options'] = array_merge($cartItem['options'], $optionsData['selection']);
+					foreach($cartItem['options'] as $optionId => $selectionId) {
+						foreach($defaultOptions as $defaultOption) {
+							if($optionId == $defaultOption['id']) {
+								foreach($defaultOption['selection'] as $selection) {
+									if($selectionId == $selection['id']) {
+
+									}
+								}
+							}
 						}
 					}
+
 					$this->_view->quoteItem  = $cartItem;
 					$this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
 					$content                 = $this->_view->render('options.quote.item.phtml');
 				break;
 				case 'qty':
 					$this->_view->qty = $cartItem['qty'];
+					$this->_view->pid = $cartItem['id'];
 					$content = $this->_view->render('qty.quote.phtml');
 				break;
 				default:
