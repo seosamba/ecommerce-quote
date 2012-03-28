@@ -6,7 +6,23 @@ define([
 
     var quotesCollection = Backbone.Collection.extend({
         model: QuoteModel,
-        url: $('#website_url').val()+'plugin/quote/run/quotes/'
+	    paginator: {
+            limit: 30,
+            offset: 0,
+            last: false
+        },
+	    order: {
+            by: null,
+            asc: true
+        },
+        url: function() {
+	        var url = $('#website_url').val()+'plugin/quote/run/quotes/';
+	        url    += '?limit=' + this.paginator.limit + '&offset=' + this.paginator.offset;
+	        if (this.order.by) {
+                url += '&order=' + this.order.by + ' ' + (this.order.asc ? 'asc' : 'desc');
+            }
+	        return url;
+        }
     });
 
 	return quotesCollection;

@@ -14,7 +14,22 @@
 	    text-align: left;
 		padding: 5px;
 	}
+	table#quotes th.sortable::after{
+	    color: #5f9ea0;
+	    content: " \21D5";
+	    display: inline;
+    }
+    table#quotes th.sortUp::after{
+	    content: " \21E7";
+    }
+    table#quotes th.sortDown::after{
+        content: " \21E9";
+    }
 	table#quotes tbody tr:hover td {
+	    background-color:  #d3d3d3;
+	    color: #3C78A7;
+    }
+	table#people-table tbody tr:hover td {
 	    background-color:  #d3d3d3;
 	    color: #3C78A7;
     }
@@ -28,18 +43,20 @@
 	    background-color: white;
 	    border-bottom: 1px dashed #cccccc;
     }
+	table#quotes a.table-nav {
+	    margin: 10px 2px;
+    }
+    table#quotes a.table-nav:hover {
+	    text-decoration: underline;
+    }
 </style>
 
 <!-- quote template -->
 <script id="quoteTemplate" type="text/x-jquery-tmpl">
 	<td class="text-center">
-		{{if typeof(i) == 'undefined'}}
-			${i=1}
-		{{else}}
-			${i}
-		{{/if}}
+		<input type="checkbox" name="selectedQuotes[]" value="${id}" title="Click to mark/unmark ${title}" {{if checked}}checked="checked"{{/if}} />
 	</td>
-	<td><a alt="<?php echo $this->translate('Edit quote'); ?>" target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html">${title}</a></td>
+	<td><a title="<?php echo $this->translate('Edit'); ?> ${title}" target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html">${title}</a></td>
 	<td class="text-center">
 		${$.datepicker.formatDate('dd M, yy', new Date(createdAt))}
 	</td>
@@ -52,10 +69,10 @@
 		</select>
 	</td>
 	<td class="preview text-center">
-		<a target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html?mode=preview">Preview</a>
+		<a title="<?php echo $this->translate('Preview'); ?> ${title}" target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html?mode=preview"><img src="<?php echo $this->websiteUrl; ?>plugins/quote/web/images/preview.png" alt="<?php echo $this->translate('Preview'); ?> ${title}" /></a>
 	</td>
 	<td class="remove text-center">
-		<a href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
+		<a title="<?php echo $this->translate('Remove'); ?> ${title}" href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
 	</td>
 </script>
 
@@ -71,14 +88,33 @@
 	<table id="quotes" style="width: 100%">
 		<thead>
 			<tr class="mb10px">
-				<th><?php echo $this->translate('#'); ?></th>
-				<th><?php echo $this->translate('Title'); ?></th>
-				<th><?php echo $this->translate('Date'); ?></th>
-				<th><?php echo $this->translate('Status'); ?></th>
+				<th><?php echo $this->formCheckbox('quotes-check-all', null, array('title' => 'Check/Uncheck All'));?></th>
+				<th data-sortkey="title" class="sortable"><?php echo $this->translate('Title'); ?></th>
+				<th data-sortkey="date" class="sortable"><?php echo $this->translate('Date'); ?></th>
+				<th data-sortkey="status" class="sortable"><?php echo $this->translate('Status'); ?></th>
 				<th><?php echo $this->translate('Preview'); ?></th>
 				<th><?php echo $this->translate('Remove'); ?></th>
 			</tr>
 		</thead>
+		<tfoot>
+			<tr>
+	            <th colspan="4">
+		            <?php echo $this->translate('with selected do');?>
+		            <select id="mass-action" style="width: 250px">
+			            <option value="0"><?php echo $this->translate('nothing');?></option>
+			            <option value="deleteSelected"><?php echo $this->translate('delete');?></option>
+			            <option value="markNew"><?php echo $this->translate('mark as new');?></option>
+			            <option value="markSent"><?php echo $this->translate('mark as sent');?></option>
+			            <option value="markSold"><?php echo $this->translate('mark as sold');?></option>
+			            <option value="deleteLost"><?php echo $this->translate('mark as lost');?></option>
+		            </select>
+	            </th>
+	            <th colspan="2">
+		            <a href="#" id="quotes-previous" class="table-nav">&#8656;&nbsp;<?php echo $this->translate('previous');?></a>
+		            <a href="#" id="quotes-next" class="table-nav"><?php echo $this->translate('next');?>&nbsp;&#8658;</a>
+	            </th>
+            </tr>
+		</tfoot>
 		<tbody>
 
 		</tbody>

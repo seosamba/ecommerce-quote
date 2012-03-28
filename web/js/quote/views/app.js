@@ -11,7 +11,8 @@ define([
 		events: {
 			'click #add-new': 'addNewQuote',
 			'change .quote-status' : 'updateQuoteStatus',
-			'click .remove': 'removeQuote'
+			'click .remove': 'removeQuote',
+			'click th.sortable' : 'sort'
 		},
 		initialize: function() {
 			this.quoteCollection = new QuoteCollection();
@@ -66,6 +67,19 @@ define([
 					}
 				});
 			});
+		},
+		sort: function(e) {
+			var $el                       = $(e.target);
+			var sortKey                   = $(e.target).data('sortkey');
+			this.quoteCollection.order.by = sortKey;
+			if (!$el.hasClass('sortUp') && !$el.hasClass('sortDown')){
+                $el.addClass('sortUp');
+                this.quoteCollection.order.asc = true;
+            } else  {
+                $el.toggleClass('sortUp').toggleClass('sortDown');
+                this.quoteCollection.order.asc = !this.quoteCollection.order.asc;
+            }
+			this.quoteCollection.fetch();
 		}
 	});
 
