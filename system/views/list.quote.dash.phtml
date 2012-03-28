@@ -1,0 +1,86 @@
+<?php $this->headTitle($this->translate('Manage quotes')) ?>
+
+<style type="text/css">
+	table#quotes {
+	    background-color: #efefef;
+	}
+	table#quotes thead tr {
+	    border-bottom: 1px dashed #ccc;
+	}
+	table#quotes thead tr th {
+		cursor: pointer;
+	    white-space: nowrap;
+	    color: #3C78A7;
+	    text-align: left;
+		padding: 5px;
+	}
+	table#quotes tbody tr:hover td {
+	    background-color:  #d3d3d3;
+	    color: #3C78A7;
+    }
+    table#quotes td {
+	    padding: 6px 2px;
+    }
+    table#quotes td.text-center{
+	    text-align: center;
+    }
+    table#quotes tbody tr {
+	    background-color: white;
+	    border-bottom: 1px dashed #cccccc;
+    }
+</style>
+
+<!-- quote template -->
+<script id="quoteTemplate" type="text/x-jquery-tmpl">
+	<td class="text-center">
+		{{if typeof(i) == 'undefined'}}
+			${i=1}
+		{{else}}
+			${i}
+		{{/if}}
+	</td>
+	<td><a alt="<?php echo $this->translate('Edit quote'); ?>" target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html">${title}</a></td>
+	<td class="text-center">
+		${$.datepicker.formatDate('dd M, yy', new Date(createdAt))}
+	</td>
+	<td class="text-center nopad">
+		<select name="quoteStatus" class="quote-status" id="${id}">
+			<option value="new" {{if status == 'new'}} selected="selected" {{/if}}>New</option>
+			<option value="sent" {{if status == 'sent'}} selected="selected" {{/if}}>Sent</option>
+			<option value="sold" {{if status == 'sold'}} selected="selected" {{/if}}>Sold</option>
+			<option value="lost" {{if status == 'lost'}} selected="selected" {{/if}}>Lost</option>
+		</select>
+	</td>
+	<td class="preview text-center">
+		<a target="_blank" href="<?php echo $this->websiteUrl; ?>${id}.html?mode=preview">Preview</a>
+	</td>
+	<td class="remove text-center">
+		<a href="javascript:;" data-sid="${id}"><img src="<?php echo $this->websiteUrl; ?>system/images/delete.png" alt="delete"/></a>
+	</td>
+</script>
+
+<?php
+    $this->headScript()->setAllowArbitraryAttributes(true)
+		    ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/tmpl/jquery.tmpl.min.js')
+            ->appendFile($this->websiteUrl . 'plugins/quote/web/js/libs/require/require.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/quote.js'));
+
+	echo $this->noLayout ? $this->headScript() : '';
+?>
+
+<div class="ui-helper-clearfix" id="manage-quotes">
+	<table id="quotes" style="width: 100%">
+		<thead>
+			<tr class="mb10px">
+				<th><?php echo $this->translate('#'); ?></th>
+				<th><?php echo $this->translate('Title'); ?></th>
+				<th><?php echo $this->translate('Date'); ?></th>
+				<th><?php echo $this->translate('Status'); ?></th>
+				<th><?php echo $this->translate('Preview'); ?></th>
+				<th><?php echo $this->translate('Remove'); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+</div>

@@ -5,7 +5,7 @@ define([
 
 	var quoteView = Backbone.View.extend({
 		tagName: 'tr',
-		className : 'quote-item grid_12',
+		className : 'quote-item',
 		template  : $('#quoteTemplate').template(),
 		render: function() {
 			$(this.el).html($.tmpl(this.template, this.model.toJSON()));

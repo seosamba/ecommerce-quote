@@ -6,7 +6,7 @@ define([
 
     var quotesCollection = Backbone.Collection.extend({
         model: QuoteModel,
-        url: $('#websiteUrl').val()+'plugin/quote/run/quotes/'
+        url: $('#website_url').val()+'plugin/quote/run/quotes/'
     });
 
 	return quotesCollection;

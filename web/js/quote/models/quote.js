@@ -4,7 +4,7 @@ define([
 ], function(_, Backbone){
 
     var quoteModel = Backbone.Model.extend({
-        urlRoot  : $('#websiteUrl').val()+'plugin/quote/run/quotes/qid/'
+        urlRoot  : $('#website_url').val()+'plugin/quote/run/quotes/qid/'
     });
 
 	return quoteModel;

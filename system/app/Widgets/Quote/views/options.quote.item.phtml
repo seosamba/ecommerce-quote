@@ -1,17 +1,13 @@
-<?php if(isset($this->quoteItem['options'])): ?>
-    <?php //var_dump($this->quoteItem['options']); ?>
-	<?php foreach($this->quoteItem['options'] as $name => $optData): ?>
-	    <?php if(!$optData['isDefault']) {continue;} ?>
-		<div class="options">
-		    <span><?php echo $name; ?>:&nbsp;</span><span><?php echo $optData['title']; ?></span>
-		    <?php if(intval($optData['priceValue'])): ?>
-		        <span>(<?php echo $optData['priceSign'], ' ', (($optData['priceType'] == 'unit') ? $this->currency($optData['priceValue']) : $optData['priceValue'] . '%'); ?>)</span>
-			<?php endif; ?>
-		    <?php if(intval($optData['weightValue'])): ?>
-                <span>(<?php echo $optData['weightSign'], ' ', $optData['weightValue'],' ', $this->weightSign; ?>)</span>
-            <?php endif; ?>
-	    </div>
+<?php if(!empty($this->options)): ?>
+
+	<?php foreach($this->options as $optData): ?>
+	    <p>
+		    <?php echo $optData['title']; ?>
+		    <?php echo '<br />(', $optData['priceSign'], $this->currency($optData['priceValue']), ')'; ?>
+		    <?php echo '<br />(', $optData['weightSign'], $optData['weightValue'], ' ', $this->weightSign, ')'; ?>
+	    </p>
 	<?php endforeach; ?>
+
 <?php endif; ?>
 <?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL)): ?>
 	<a href="javascript:;" data-pwidth="600" data-pheight="404" class="tpopup" data-url="<?php echo $this->websiteHelper; ?>plugin/quote/run/options/pid/<?php echo $this->quoteItem['id'];?>">

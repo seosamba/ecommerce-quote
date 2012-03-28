@@ -57,6 +57,8 @@ class Quote extends Tools_PaymentGateway {
 	 */
 	protected $_quoteMapper    = null;
 
+	protected $_layout         = null;
+
 	protected $_securedActions = array(
 		Tools_Security_Acl::ROLE_SUPERADMIN => array(
             'settings',
@@ -67,7 +69,14 @@ class Quote extends Tools_PaymentGateway {
 	);
 
 	protected function _init() {
-		$this->_view->setScriptPath(__DIR__ . '/system/views/');
+		$this->_layout = new Zend_Layout();
+		$this->_layout->setLayoutPath(__DIR__ . '/system/views/');
+
+		if ($viewScriptPath = Zend_Layout::getMvcInstance()->getView()->getScriptPaths()){
+			$this->_view->setScriptPath($viewScriptPath);
+		}
+		$this->_view->addScriptPath(__DIR__ . '/system/views/');
+
 		$this->_jsonHelper        = Zend_Controller_Action_HelperBroker::getStaticHelper('json');
 		$this->_pageHelper        = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
 		$this->_shoppingConfig    = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
@@ -86,6 +95,19 @@ class Quote extends Tools_PaymentGateway {
 	 *
 	 */
 	public function settingsAction() {
+		$mapper = Models_Mapper_ShoppingConfig::getInstance();
+		$config = $mapper->getConfigParams();
+		$form   = new Quote_Forms_Settings();
+		if($this->_request->isPost()) {
+			if($form->isValid($this->_request->getParams())) {
+				$mapper->save($form->getValues());
+				$this->_responseHelper->success($this->_translator->translate('Configuration updated'));
+			} else {
+				$this->_jsonHelper->direct($form->getMessages());
+			}
+		}
+		$form->populate($config);
+		$this->_view->form = $form;
 		echo $this->_view->render('settings.quote.phtml');
 	}
 
@@ -369,6 +391,13 @@ class Quote extends Tools_PaymentGateway {
 		return $this->_view->render('controls.option.quote.phtml');
 	}
 
+	protected function _makeOptionQuotes() {
+		if(!$this->_editAllowed()) {
+			return '<!-- list available only for administrator -->';
+		}
+		$this->_view->noLayout = true;
+		return $this->_view->render('list.quote.dash.phtml');
+	}
 
 	/*****************************
 	 * all helpers methods

@@ -15,6 +15,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	const STATUS_LOST           = 'lost';
 
+	const TEMPLATE_TYPE_QUOTE   = 'typequote';
+
 	protected $_id              = '';
 
 	protected $_title           = '';

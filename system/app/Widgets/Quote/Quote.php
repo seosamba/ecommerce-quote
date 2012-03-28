@@ -223,7 +223,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 							if($optionId == $defaultOption['id']) {
 								foreach($defaultOption['selection'] as $selection) {
 									if($selectionId == $selection['id']) {
-
+										$options[] = $selection;
 									}
 								}
 							}
@@ -231,6 +231,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 					}
 
 					$this->_view->quoteItem  = $cartItem;
+	                $this->_view->options    = $options;
 					$this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
 					$content                 = $this->_view->render('options.quote.item.phtml');
 				break;
