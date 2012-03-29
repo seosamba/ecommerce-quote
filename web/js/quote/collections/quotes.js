@@ -7,7 +7,7 @@ define([
     var quotesCollection = Backbone.Collection.extend({
         model: QuoteModel,
 	    paginator: {
-            limit: 5,
+            limit: 30,
             offset: 0,
             last: false
         },
