@@ -12,12 +12,17 @@ define([
 			'click #add-new': 'addNewQuote',
 			'change .quote-status' : 'updateQuoteStatus',
 			'click .remove': 'removeQuote',
-			'click th.sortable' : 'sort'
+			'click th.sortable' : 'sort',
+			'click #quotes-next' : 'showNextPage',
+			'click #quotes-previous' : 'showPrevPage',
+			'change #quotes-check-all': 'toggleCheckAllQuotes',
+			'change #mass-action' : 'doMassAction'
 		},
 		initialize: function() {
 			this.quoteCollection = new QuoteCollection();
 			this.quoteCollection.on('add', this.render, this);
 			this.quoteCollection.on('remove', this.render, this);
+			this.quoteCollection.on('reset', this.render, this);
 		},
 		render: function(){
             $('table#quotes tbody').empty();
@@ -80,6 +85,57 @@ define([
                 this.quoteCollection.order.asc = !this.quoteCollection.order.asc;
             }
 			this.quoteCollection.fetch();
+		},
+		showNextPage: function() {
+			this.quoteCollection.next();
+			return false;
+		},
+		showPrevPage: function() {
+			this.quoteCollection.previous();
+			return false;
+		},
+		toggleCheckAllQuotes: function(e) {
+			var value = e.target.checked;
+            this.quoteCollection.each(function(quote){
+	            quote.set({checked: value});
+            });
+		},
+		doMassAction: function(e) {
+			var action  = $(e.target).val();
+			var pattern = /^mark[a-z]*/i;
+			if(pattern.test(action)) {
+				this.massChangeStatus(action.replace('mark', '').toLowerCase());
+			}
+			else {
+				action = this[action];
+				if(_.isFunction(action)) {
+					action.call(this);
+				}
+				$(e.target).val(0);
+			}
+		},
+		massChangeStatus: function(status) {
+			var quotes = this.quoteCollection.checked();
+			if(_.isEmpty(quotes)) {
+				return false;
+			}
+			_.each(quotes, function(quote) {
+				quote.set({status: status});
+				quote.save();
+			});
+		},
+		deleteSelected: function() {
+			console.log('mass del');
+			var quotes = this.quoteCollection.checked();
+			if(_.isEmpty(quotes)) {
+				return false;
+			}
+			showConfirm('You are about to remove quotes! Are you sure?', function(){
+                //var ids = _(quotes).pluck('id');
+				_.each(quotes, function(quote) {
+					quote.destroy();
+				});
+            });
 		}
 	});
 

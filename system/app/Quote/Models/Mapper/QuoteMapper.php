@@ -58,4 +58,16 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 		$quote->notifyObservers();
 		return $deleteResult;
 	}
+
+	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null) {
+		$entries   = array();
+		$resultSet = $this->getDbTable()->fetchAll($where, $order, $limit, $offset);
+		if(null === $resultSet) {
+			return null;
+		}
+		foreach ($resultSet as $row) {
+			$entries[] = new $this->_model($row->toArray());
+		}
+		return $entries;
+	}
 }

@@ -8,11 +8,13 @@
 	    border-bottom: 1px dashed #ccc;
 	}
 	table#quotes thead tr th {
-		cursor: pointer;
 	    white-space: nowrap;
 	    color: #3C78A7;
 	    text-align: left;
 		padding: 5px;
+	}
+	table#quotes th.sortable {
+		cursor: pointer;
 	}
 	table#quotes th.sortable::after{
 	    color: #5f9ea0;
@@ -90,7 +92,7 @@
 			<tr class="mb10px">
 				<th><?php echo $this->formCheckbox('quotes-check-all', null, array('title' => 'Check/Uncheck All'));?></th>
 				<th data-sortkey="title" class="sortable"><?php echo $this->translate('Title'); ?></th>
-				<th data-sortkey="date" class="sortable"><?php echo $this->translate('Date'); ?></th>
+				<th data-sortkey="created_at" class="sortable"><?php echo $this->translate('Date'); ?></th>
 				<th data-sortkey="status" class="sortable"><?php echo $this->translate('Status'); ?></th>
 				<th><?php echo $this->translate('Preview'); ?></th>
 				<th><?php echo $this->translate('Remove'); ?></th>
@@ -106,7 +108,7 @@
 			            <option value="markNew"><?php echo $this->translate('mark as new');?></option>
 			            <option value="markSent"><?php echo $this->translate('mark as sent');?></option>
 			            <option value="markSold"><?php echo $this->translate('mark as sold');?></option>
-			            <option value="deleteLost"><?php echo $this->translate('mark as lost');?></option>
+			            <option value="markLost"><?php echo $this->translate('mark as lost');?></option>
 		            </select>
 	            </th>
 	            <th colspan="2">

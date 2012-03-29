@@ -241,7 +241,7 @@ class Quote extends Tools_PaymentGateway {
 			case 'GET':
 				//if type parameter specified and eq 'list' render quote list view
 				$type = $this->_request->getParam('type', false);
-				if($type) {
+				if($type == 'list') {
 					echo $this->_view->render('list.quote.phtml');
 					return;
 				}
@@ -250,7 +250,14 @@ class Quote extends Tools_PaymentGateway {
 					$quote = $this->_quoteMapper->find($quoteId);
 					$data  = $quote->toArray();
 				} else {
-					$data = $this->_quoteMapper->fetchAll(null, array('created_at DESC', 'title ASC'));
+					$order   = filter_var($this->_request->getParam('order', false), FILTER_SANITIZE_STRING);
+					$limit   = filter_var($this->_request->getParam('limit', false), FILTER_SANITIZE_NUMBER_INT);
+					$offset  = filter_var($this->_request->getParam('offset', false), FILTER_SANITIZE_NUMBER_INT);
+					if(!$order && !$limit && !$offset) {
+						$data = $this->_quoteMapper->fetchAll(null, array('created_at DESC', 'title ASC'));
+					} else {
+						$data = $this->_quoteMapper->fetchAll(null, array($order), $limit, $offset);
+					}
 					if(!empty($data)) {
 						$data = array_map(function($quote) { return $quote->toArray();}, $data);
 					}
