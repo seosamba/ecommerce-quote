@@ -16,7 +16,8 @@ define([
 			'click #quotes-next' : 'showNextPage',
 			'click #quotes-previous' : 'showPrevPage',
 			'change #quotes-check-all': 'toggleCheckAllQuotes',
-			'change #mass-action' : 'doMassAction'
+			'change #mass-action' : 'doMassAction',
+			'keyup #quotes-search': 'searchQuotes'
 		},
 		initialize: function() {
 			this.quoteCollection = new QuoteCollection();
@@ -136,6 +137,14 @@ define([
 					quote.destroy();
 				});
             });
+		},
+		searchQuotes: function(e) {
+			var searchTerm = $(e.target).val();
+			var self       = this;
+			clearTimeout(self.searching);
+            self.searching = setTimeout(function(){
+                self.quoteCollection.search(searchTerm);
+            }, 600);
 		}
 	});
 

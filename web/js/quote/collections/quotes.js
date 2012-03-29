@@ -15,6 +15,7 @@ define([
             by: null,
             asc: true
         },
+	    searchTerm: '',
 	    initialize: function(){
             this.bind('reset', this.updatePaginator, this);
         },
@@ -24,6 +25,9 @@ define([
 	        if (this.order.by) {
                 url += '&order=' + this.order.by + ' ' + (this.order.asc ? 'asc' : 'desc');
             }
+	        if(this.searchTerm) {
+		        url += '&search=' + this.searchTerm;
+	        }
 	        return url;
         },
 	    next: function(callback) {
@@ -49,6 +53,15 @@ define([
         },
 	    checked: function(){
             return this.filter(function(quote){ return quote.has('checked') && quote.get('checked'); });
+        },
+	    search: function(term){
+            if (term !== this.searchTerm){
+                this.searchTerm = encodeURIComponent(term);
+                this.paginator.offset = 0;
+                this.paginator.last = false;
+                this.paginator.order = {by: null,asc: true};
+                return this.fetch();
+            }
         }
     });
 

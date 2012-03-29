@@ -253,10 +253,11 @@ class Quote extends Tools_PaymentGateway {
 					$order   = filter_var($this->_request->getParam('order', false), FILTER_SANITIZE_STRING);
 					$limit   = filter_var($this->_request->getParam('limit', false), FILTER_SANITIZE_NUMBER_INT);
 					$offset  = filter_var($this->_request->getParam('offset', false), FILTER_SANITIZE_NUMBER_INT);
+					$search  = filter_var($this->_request->getParam('search', null), FILTER_SANITIZE_SPECIAL_CHARS);
 					if(!$order && !$limit && !$offset) {
 						$data = $this->_quoteMapper->fetchAll(null, array('created_at DESC', 'title ASC'));
 					} else {
-						$data = $this->_quoteMapper->fetchAll(null, array($order), $limit, $offset);
+						$data = $this->_quoteMapper->fetchAll(null, array($order), $limit, $offset, $search);
 					}
 					if(!empty($data)) {
 						$data = array_map(function($quote) { return $quote->toArray();}, $data);
