@@ -342,14 +342,18 @@ class Quote extends Tools_PaymentGateway {
 		$cart      = $this->_invokeCart($this->_quoteMapper->find($quoteId));
 		$content   = $cart->getCartContent();
 		if(!empty($content)) {
-			$content = array_map(function($productData) use($productId, $qty) {
+			$currency   = Zend_Registry::get('Zend_Currency');
+			$totalPrice = 0;
+			$content    = array_map(function($productData) use($productId, $qty, &$totalPrice) {
 				if($productData['product_id'] == $productId) {
 					$productData['qty'] = $qty;
+					$totalPrice         = $productData['price']*$qty;
 				}
 				return $productData;
 			}, $content);
 			$cart->setCartContent($content);
 			Models_Mapper_CartSessionMapper::getInstance()->save($cart);
+			$this->_responseHelper->success(array('totalPrice' => $currency->toCurrency($totalPrice)));
 		}
 	}
 

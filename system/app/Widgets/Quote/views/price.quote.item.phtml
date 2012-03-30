@@ -1,1 +1,1 @@
-<?php echo $this->currency($this->content); ?>
+<span class="price-<?php echo ($this->unitPrice) ? 'unit' : 'total'; ?>"><?php echo $this->currency($this->content); ?></span>

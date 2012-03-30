@@ -1,0 +1,14 @@
+<?php if($this->editAllowed): ?>
+	<?php echo $this->datePicker(
+		'datepicker-' . $this->type,
+		((intval($this->date)) ? date('M j, Y', strtotime($this->date)) : ''),
+		array(
+			'defaultDate' => ''
+		),
+		array(
+			'style' => 'width:95px !important; border-radius:2px;'
+		));
+	?>
+<?php else: ?>
+	<?php echo date('M j, Y', strtotime($this->date)); ?>
+<?php endif; ?>

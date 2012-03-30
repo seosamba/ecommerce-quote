@@ -1,55 +1,55 @@
 <?php
 /**
- * @author Eugene I. Nezhuta <eugene@seotoaster.com>
- * Date: 2/24/12
- * Time: 5:19 PM
+ *
  */
-
 class Widgets_Quote_Quote extends Widgets_Abstract {
 
-	const INFO_TYPE_SHIPPING = 'shipping';
+	const MODE_PREVIEW        = 'preview';
 
-	const INFO_TYPE_BILLING  = 'billing';
+	const INFO_TYPE_SHIPPING  = 'shipping';
 
-	const DATE_TYPE_CREATED  = 'created';
+	const INFO_TYPE_BILLING   = 'billing';
 
-	const DATE_TYPE_EXPIRES  = 'expires';
+	const DATE_TYPE_CREATED   = 'created';
 
-	protected $_sessionHelper  = null;
+	const DATE_TYPE_EXPIRES   = 'expires';
 
-	protected $_quote          = null;
+	protected $_quote         = null;
 
-	protected $_cartItem       = null;
+	protected $_previewMode   = false;
 
-	protected $_websiteHelper  = null;
+	protected $_currency      = null;
 
-	protected $_view           = null;
+	protected $_cart          = null;
 
-	protected $_shoppingConfig = array();
-
-	protected $_currency       = null;
-
-	protected $_previewMode    = false;
+	protected $_websiteHelper = null;
 
 	protected function _init() {
-		$this->_view = new Zend_View(array(
-			'scriptPath' => __DIR__ . '/views'
-		));
+		//views and helpers
+		$this->_view = new Zend_View(array('scriptPath' => __DIR__ . '/views'));
 		$this->_view->setHelperPath(APPLICATION_PATH . '/views/helpers/');
 		$this->_view->addHelperPath('ZendX/JQuery/View/Helper/', 'ZendX_JQuery_View_Helper');
-		$this->_shoppingConfig    = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-		$this->_sessionHelper     = Zend_Controller_Action_HelperBroker::getStaticHelper('session');
-		$this->_websiteHelper     = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
-		$this->_currency          = Zend_Registry::get('Zend_Currency');
-		$this->_quote             = $this->_findQuote();
-		$this->_previewMode       = ('preview' == Zend_Controller_Front::getInstance()->getRequest()->getParam('mode', false));
-		$this->_view->editAllowed = $this->_editAllowed();
-	}
 
-	protected function _findQuote() {
-		$pageHelper   = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
-		$requestedUri = isset($this->_toasterOptions['url']) ? $this->_toasterOptions['url'] : Tools_System_Tools::getRequestUri();
-		return Quote_Models_Mapper_QuoteMapper::getInstance()->find($pageHelper->clean($requestedUri));
+		//website helper
+		$this->_websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+
+		//current currency
+		$this->_currency = Zend_Registry::get('Zend_Currency');
+
+		//current quote
+		$this->_quote = $this->_findQuote();
+
+		//current cart
+		$this->_cart  = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
+
+		//in preview mode?
+		$this->_previewMode = (self::MODE_PREVIEW == Zend_Controller_Front::getInstance()->getRequest()->getParam('mode', false));
+
+		//edit allowed for view
+		$this->_view->editAllowed = $this->_editAllowed();
+
+		//website url to view
+		$this->_view->websiteUrl  = $this->_websiteHelper->getUrl();
 	}
 
 	protected function _load() {
@@ -60,114 +60,69 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		if(method_exists($this, $rendererName)) {
 			return $this->$rendererName();
 		}
+		return '<!-- can not find renderer ' . $rendererName . ' -->';
 	}
 
+	/**
+	 * Can current user edit quote and other quote stuff
+	 *
+	 * @return bool
+	 */
+	protected function _editAllowed() {
+		return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL) && !$this->_previewMode);
+	}
+
+	/**
+	 * Find quote using it's url
+	 *
+	 * @return mixed
+	 */
+	protected function _findQuote() {
+		$pageHelper   = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
+		$requestedUri = isset($this->_toasterOptions['url']) ? $this->_toasterOptions['url'] : Tools_System_Tools::getRequestUri();
+		return Quote_Models_Mapper_QuoteMapper::getInstance()->find($pageHelper->clean($requestedUri));
+	}
+
+	/*
+	 * Render quote title (editable for an admin)
+	 *
+	 */
 	protected function _renderTitle() {
-		if($this->_editAllowed()) {
-			return '<input style="padding:5px;font-size:20px;" type="text" name="quoteTitle" id="quote-title" value="' . $this->_quote->getTitle() . '" />';
-		}
-		return $this->_quote->getTitle();
+		$this->_view->title = $this->_quote->getTitle();
+		return $this->_view->render('title.quote.phtml');
 	}
 
-	protected function _renderSubtotal() {
-		$cart        = $this->_invokeCart();
-		$cartContent = $cart->getCartContent();
-		if(!$cartContent) {
-			return $this->_currency->toCurrency(0);
-		}
-		return $this->_currency->toCurrency(array_reduce($cartContent, function($result, $item) {
-			return ($result += ($item['tax_price'] * $item['qty']));
-		}, 0));
-	}
-
-	protected function _renderTotaltax() {
-		$cart = $this->_invokeCart();
-		$cartContent = $cart->getCartContent();
-		if(!$cartContent) {
-			return $this->_currency->toCurrency(0);
-		}
-		return $this->_currency->toCurrency(array_reduce($cartContent, function($result, $item) {
-			return ($result += $item['tax']);
-		}, 0));
-	}
-
+	/**
+	 * Render shipping price
+	 *
+	 * @return mixed
+	 */
 	protected function _renderShipping() {
-		$cart = $this->_invokeCart();
-		return $this->_currency->toCurrency($cart->getShippingPrice());
+		return $this->_currency->toCurrency($this->_cart->getShippingPrice());
 	}
 
+	/**
+	 * Render discount amount
+	 *
+	 * @return mixed
+	 */
 	protected function _renderDiscount() {
 		return $this->_currency->toCurrency(0);
 	}
 
-	protected function _renderTotal() {
-		$cart        = $this->_invokeCart();
-		$cartContent = $cart->getCartContent();
-		if(!$cartContent) {
-			$subTotal = 0;
-			$tax      = 0;
-		} else {
-			$subTotal = array_reduce($cart->getCartContent(), function($result, $item) {
-				return ($result += ($item['tax_price'] * $item['qty']));
-			}, 0);
-			$tax      = array_reduce($cart->getCartContent(), function($result, $item) {
-				return ($result += $item['tax']);
-			}, 0);
+	/**
+	 * Render billing or shipping info
+	 *
+	 * @return mixed
+	 * @throws Exceptions_SeotoasterWidgetException
+	 */
+	protected function _renderInfo() {
+		if(!isset($this->_options[0])) {
+			throw new Exceptions_SeotoasterWidgetException('Info type not specified. Use: "billing" or "shiping"');
 		}
-		$shipping = $cart->getShippingPrice();
-		$discount = $this->_quote->getDiscount();
-		return $this->_currency->toCurrency($subTotal + $tax + $shipping + $discount);
-	}
-
-	protected function _renderCreated() {
-		return $this->_renderDate(self::DATE_TYPE_CREATED);
-	}
-
-	protected function _renderExpires() {
-		return $this->_renderDate(self::DATE_TYPE_EXPIRES);
-	}
-
-	protected function _renderDate($dateType = self::DATE_TYPE_CREATED) {
-		$date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getValidUntil();
-		if($this->_editAllowed()) {
-			$this->_view->date   = $date;
-			$this->_view->dpType = ($dateType == self::DATE_TYPE_CREATED) ? self::DATE_TYPE_CREATED : self::DATE_TYPE_EXPIRES;
-			return $this->_view->render('datepicker.phtml');
-		}
-		return date('M j, Y', strtotime($date));
-	}
-
-	protected function _renderPrint() {
-		$configHelper              = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
-		$this->_view->currentTheme = $configHelper->getConfig('currentTheme');
-		return $this->_view->render('print.quote.phtml');
-	}
-
-	protected function _renderSummary() {
-		$summary = array(
-			'subTotal' => 0,
-			'totalTax' => 0,
-			'shipping' => 0,
-			'discount' => 0,
-			'total'    => 0
-		);
-		$this->_view->summary = $summary;
-		return $this->_view->render('summary.quote.phtml');
-	}
-
-	protected function _renderShippinginfo() {
-		$this->_view->infoType = self::INFO_TYPE_SHIPPING;
-		return $this->_renderInfo(self::INFO_TYPE_SHIPPING);
-	}
-
-	protected function _renderBillinginfo() {
-		$this->_view->infoType = self::INFO_TYPE_BILLING;
-		return $this->_renderInfo(self::INFO_TYPE_BILLING);
-	}
-
-	private function _renderInfo($infoType = self::INFO_TYPE_BILLING) {
-		$cart    = $this->_invokeCart();
-		$address = Tools_ShoppingCart::getAddressById(($infoType == self::INFO_TYPE_BILLING) ? $cart->getBillingAddressId() : $cart->getShippingAddressId());
+		$infoType              = $this->_options[0];
+		$address               = Tools_ShoppingCart::getAddressById(($infoType == self::INFO_TYPE_BILLING) ? $this->_cart->getBillingAddressId() : $this->_cart->getShippingAddressId());
+		$this->_view->infoType = $infoType;
 		if($this->_editAllowed()) {
 			if($infoType == self::INFO_TYPE_BILLING) {
 				$addressForm = new Quote_Forms_Address();
@@ -177,78 +132,145 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$addressForm->removeElement('calculateAndCheckout');
 				$addressForm->removeElement('mobile');
 				$addressForm->removeElement('shippingInstructions');
+				$addressForm->removeDisplayGroup('bottom');
 			}
 			$addressForm->setAttrib('action', '#')
 				->populate(($address) ? $address : array());
 			$this->_view->addressForm = $addressForm;
-			return $this->_view->render('info.admin.quote.phtml');
 		}
 		$this->_view->customerData = $address;
 		return $this->_view->render('info.quote.phtml');
 	}
 
-	private function _invokeCart() {
-		return Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
+	/**
+	 * Render total tax, grand total and subtotal
+	 * @return mixed
+	 */
+	protected function _renderTotal() {
+		$totalType = isset($this->_options[0]) ? $this->_options[0] : 'sub';
+		$cartContent = $this->_cart->getCartContent();
+		if(!$cartContent || !is_array($cartContent)) {
+			return $this->_currency->toCurrency(0);
+		}
+
+		$totalTax = array_reduce($cartContent, function($result, $item) {
+			return ($result += $item['tax']);
+		}, 0);
+
+		$subTotal = array_reduce($cartContent, function($result, $item) {
+			return ($result += ($item['tax_price'] * $item['qty']));
+		}, 0);
+
+		if($totalType == 'tax') {
+			return $this->_currency->toCurrency($totalTax);
+		}
+		if($totalType == 'sub') {
+			return $this->_currency->toCurrency($subTotal);
+		}
+		$shippingPrice = $this->_cart->getShippingPrice();
+		//@todo Probabli we will have to change this, because discount will be moved to the cart
+		$discount      = $this->_quote->getDiscount();
+		return $this->_currency->toCurrency($totalTax + $subTotal + $shippingPrice + $discount);
+	}
+
+	/**
+	 * Render print quote button with print css
+	 *
+	 * @return mixed
+	 */
+	protected function _renderPrint() {
+		$configHelper              = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
+		$this->_view->currentTheme = $configHelper->getConfig('currentTheme');
+		return $this->_view->render('print.quote.phtml');
+	}
+
+	/**
+	 * Render created or epires quote dates
+	 *
+	 * @return mixed
+	 * @throws Exceptions_SeotoasterWidgetException
+	 */
+	protected function _renderDate() {
+		if(!isset($this->_options[0])) {
+			throw new Exceptions_SeotoasterWidgetException('Date type not specified. Use: "created" or "expires"');
+		}
+		$dateType          = $this->_options[0];
+		$this->_view->date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getValidUntil();
+		$this->_view->type = $dateType;
+		return $this->_view->render('date.quote.phtml');
 	}
 
 	protected function _renderItem() {
+		/**
+		 * If it is regular parsing - do nothing
+		 */
 		if(!in_array('quotemspace', $this->_options)) {
 			return '';
 		}
 		unset($this->_options[array_search('quotemspace', $this->_options, true)]);
-
-		$cartKey     = end($this->_options);
-		$cart        = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
-		$cartContent = $cart->getCartContent();
-		$cartItem    = $cartContent[$cartKey];
-		$product     = Models_Mapper_ProductMapper::getInstance()->find($cartItem['product_id']);
-		$cartItem    = array_merge($cartItem, $product->toArray());
-
-		$content     = '';
-		if(isset($this->_options[0])) {
-			switch($this->_options[0]) {
-				case 'photo':
-					$folder  = '/product/';
-					$content = '<img src="' . $this->_websiteHelper->getUrl() . 'media/' . str_replace('/', $folder, $cartItem['photo']) . '" alt="' . $cartItem['name'] . '" />';
-				break;
-				case 'price':
-					$this->_view->content = (isset($this->_options[1]) && $this->_options[1] == 'unit') ? $cartItem['price'] : $cartItem['price']*$cartItem['qty'];
-					$content              = $this->_view->render('price.quote.item.phtml');
-				break;
-				case 'options':
-                	$options        = array();
-					$defaultOptions = $product->getDefaultOptions();
-					foreach($cartItem['options'] as $optionId => $selectionId) {
-						foreach($defaultOptions as $defaultOption) {
-							if($optionId == $defaultOption['id']) {
-								foreach($defaultOption['selection'] as $selection) {
-									if($selectionId == $selection['id']) {
-										$options[] = $selection;
-									}
-								}
-							}
+		$shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+		$content        = '';
+		$cartContent    = $this->_cart->getCartContent();
+		$cartItem       = $cartContent[end($this->_options)];
+		$currentProduct = Models_Mapper_ProductMapper::getInstance()->find($cartItem['product_id']);
+		$cartItem       = array_merge($cartItem, $currentProduct->toArray());
+		$currentOptions = $this->_getOptions($cartItem['product_id'], $cartItem['options']);
+		if(!isset($this->_options[0])) {
+			throw new Exceptions_SeotoasterWidgetException('Wrong options count');
+		}
+		switch($this->_options[0]) {
+			case 'photo':
+				$this->_view->folder = (isset($this->_options[1])&& $this->_options[1]) ? $this->_options[1] : '/product/';
+				$this->_view->photo  = $cartItem['photo'];
+				$this->_view->name   = $cartItem['name'];
+				$content             = $this->_view->render('photo.quote.item.phtml');
+			break;
+			case 'options':
+				$this->_view->options    = $currentOptions;
+				$this->_view->weightSign = $shoppingConfig['weightUnit'];
+				$this->_view->pid        = $cartItem['product_id'];
+				$content                 = $this->_view->render('options.quote.item.phtml');
+			break;
+			case 'price':
+				if(!empty($currentOptions)) {
+					foreach($currentOptions as $optionData) {
+						if($optionData['priceType'] == 'unit') {
+							$cartItem['price'] = ($optionData['priceSign'] == '+') ? $cartItem['price'] + $optionData['priceValue'] : $cartItem['price'] - $optionData['priceValue'];
 						}
 					}
-
-					$this->_view->quoteItem  = $cartItem;
-	                $this->_view->options    = $options;
-					$this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
-					$content                 = $this->_view->render('options.quote.item.phtml');
-				break;
-				case 'qty':
-					$this->_view->qty = $cartItem['qty'];
-					$this->_view->pid = $cartItem['id'];
-					$content = $this->_view->render('qty.quote.phtml');
-				break;
-				default:
-					$content = (isset($cartItem[$this->_options[0]])) ? $cartItem[$this->_options[0]] : '';
-				break;
-			}
+				}
+				$this->_view->content   = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $cartItem['price'] : ($cartItem['price']*$cartItem['qty']);
+				$this->_view->unitPrice = ($this->_options[1] === 'unit');
+				$content                = $this->_view->render('price.quote.item.phtml');
+			break;
+			case 'qty':
+				$this->_view->qty = $cartItem['qty'];
+				$this->_view->pid = $cartItem['id'];
+				$content = $this->_view->render('qty.quote.phtml');
+			break;
+			default:
+				$content = (isset($cartItem[$this->_options[0]])) ? $cartItem[$this->_options[0]] : '';
+			break;
 		}
 		return $content;
 	}
 
-	protected function _editAllowed() {
-		return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL) && !$this->_previewMode);
+	protected function _getOptions($productId, $options) {
+		$actualOptions  = array();
+		$product        = Models_Mapper_ProductMapper::getInstance()->find($productId);
+		$defaultOptions = $product->getDefaultOptions();
+		foreach($options as $optionId => $selectionId) {
+			foreach($defaultOptions as $defaultOption) {
+				if($optionId != $defaultOption['id']) {
+					continue;
+				}
+				$actualOptions = array_filter($defaultOption['selection'], function($selection) use($selectionId) {
+					if($selectionId == $selection['id']) {
+						return $selection;
+					}
+				});
+			}
+		}
+		return $actualOptions;
 	}
 }

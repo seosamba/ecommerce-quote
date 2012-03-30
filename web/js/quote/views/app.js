@@ -38,13 +38,13 @@ define([
 				'type' : 'build'
 			};
 			$.ajax({
-				url: $('#websiteUrl').val() + 'plugin/quote/run/quotes/',
+				url: $('#website_url').val() + 'plugin/quote/run/quotes/',
 				type       : 'post',
 				dataType   : 'json',
 				data : options,
 				beforeSend : function() {showSpinner();},
 				success : function(response) {
-					window.parent.location.href = $('#websiteUrl').val() + response.responseText.redirectTo;
+					window.parent.location.href = $('#website_url').val() + response.responseText.redirectTo;
 				}
 			});
 		},

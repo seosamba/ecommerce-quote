@@ -10,6 +10,7 @@
 		$('.quote-qty').blur(function() {
 			var qty = $(this).val();
 			var pid = $(this).attr('id');
+			el      = $(this);
 			$.ajax({
 				url      : $('#website_url').val() + 'plugin/quote/run/qty',
 				type     : 'post',
@@ -21,7 +22,8 @@
 				},
 				beforeSend : function() {showSpinner();},
 				success : function(response) {
-	                hideSpinner();
+					hideSpinner();
+					el.closest('tr').find('span.price-total').text(response.responseText.totalPrice);
 	            },
 	            error: function(xhr, errorStatus) {
 	                showMessage(errorStatus, true);

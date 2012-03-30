@@ -1,4 +1,10 @@
-<?php if(!empty($this->customerData)): ?>
+<?php if($this->editAllowed): ?>
+	<div class="quote-info" id="<?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
+		<p class="title"><?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
+		<?php echo $this->addressForm; ?>
+	</div>
+<?php else: ?>
+	<?php if(!empty($this->customerData)): ?>
 	<div class="quote-info" id="<?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
 		<p class="title"><?php echo ($this->infoType == Widgets_Quote_Quote::INFO_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
 		<p><?php echo $this->customerData['firstname'], ' ', $this->customerData['lastname']; ?></p>
@@ -25,4 +31,5 @@
 			<a href="mailto:<?php echo $this->customerData['email'];?>"><?php echo $this->customerData['email'];?></a>
 		</p>
 	</div>
+	<?php endif; ?>
 <?php endif; ?>
