@@ -220,7 +220,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		}
 		switch($this->_options[0]) {
 			case 'photo':
-				$this->_view->folder = (isset($this->_options[1])&& $this->_options[1]) ? $this->_options[1] : '/product/';
+				$this->_view->folder = (isset($this->_options[1]) && $this->_options[1]) ? $this->_options[1] . '/' : 'product/';
 				$this->_view->photo  = $cartItem['photo'];
 				$this->_view->name   = $cartItem['name'];
 				$content             = $this->_view->render('photo.quote.item.phtml');
