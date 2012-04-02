@@ -1,3 +1,14 @@
+<?php $this->headStyle()->captureStart() ?>
+	.ui-autocomplete {
+	    background: rgba(204, 204, 204, 0.85);
+	}
+	.ui-menu-item {
+    	border-bottom: 1px dashed #eee;
+		list-style-type: none;
+	}
+<?php $this->headStyle()->captureEnd() ?>
+<?php echo $this->headStyle(); ?>
+
 <?php echo $this->formText('quoteSearch', '', array(
 	'id'          => 'quote-search',
 	'placeholder' => 'Start typing id, name or e-mail to search among addresses',
@@ -23,8 +34,8 @@
 	}).data('autocomplete')._renderItem = function(ul, item) {
 		return $('<li></li>')
 			.data('item.autocomplete', item)
-			.append('<a><strong>Quote: #' + item.id + '</strong> ' + item.firstname + ' ' + item.lastname +
-				', ' + item.email + '<br/> Address type: ' + item.address_type + '</a>')
+			.append('<a><strong>Quote: #' + item.id + '</strong><br/>' + item.firstname + ' ' + item.lastname +
+				'<br/> ' + item.email + '<br/> Address type: ' + item.address_type + '</a>')
 			.appendTo(ul);
 	};
 </script>
