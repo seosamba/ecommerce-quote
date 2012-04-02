@@ -163,6 +163,30 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		}, 0);
 
 		$subTotal = array_reduce($cartContent, function($result, $item) {
+			$product        = Models_Mapper_ProductMapper::getInstance()->find($item['product_id']);
+			$defaultOptions = $product->getDefaultOptions();
+			foreach($item['options'] as $optionId => $selectionId) {
+				foreach($defaultOptions as $defaultOption) {
+					if($optionId != $defaultOption['id']) {
+						continue;
+					}
+				}
+				$selections = array_filter($defaultOption['selection'], function($selection) use($selectionId) {
+					if($selectionId == $selection['id']) {
+						return $selection;
+					}
+				});
+			}
+			if(!empty($selection)) {
+				foreach($selections as $selection) {
+					if($selection['priceType'] == 'unit') {
+						$modifier = $selection['priceValue'];
+					} else {
+						$modifier = ($item['tax_price'] / 100) * $selection['priceValue'];
+					}
+					$item['tax_price'] = ($selection['priceSign'] == '+') ? $item['tax_price'] + $modifier : $item['tax_price'] - $modifier;
+				}
+			}
 			return ($result += ($item['tax_price'] * $item['qty']));
 		}, 0);
 
@@ -173,7 +197,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 			return $this->_currency->toCurrency($subTotal);
 		}
 		$shippingPrice = $this->_cart->getShippingPrice();
-		//@todo Probabli we will have to change this, because discount will be moved to the cart
+		//@todo Probably we will have to change this, because discount will be moved to the cart
 		$discount      = $this->_quote->getDiscount();
 		return $this->_currency->toCurrency($totalTax + $subTotal + $shippingPrice + $discount);
 	}
@@ -250,7 +274,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		}
 		switch($this->_options[0]) {
 			case 'photo':
-				$this->_view->folder = (isset($this->_options[1]) && $this->_options[1]) ?  '/' . $this->_options[1] . '/' : '/product/';
+				$this->_view->folder = (isset($this->_options[1]) && $this->_options[1] && is_dir($this->_websiteHelper->getMedia() . $this->_options[1])) ?  ('/' . $this->_options[1] . '/') : '/product/';
 				$this->_view->photo  = $cartItem['photo'];
 				$this->_view->name   = $cartItem['name'];
 				$content             = $this->_view->render('photo.quote.item.phtml');
@@ -270,7 +294,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 					}
 				}
 				$this->_view->content   = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $cartItem['price'] : ($cartItem['price']*$cartItem['qty']);
-				$this->_view->unitPrice = ($this->_options[1] === 'unit');
+				$this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
 				$content                = $this->_view->render('price.quote.item.phtml');
 			break;
 			case 'qty':
