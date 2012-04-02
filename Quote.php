@@ -155,6 +155,9 @@ class Quote extends Tools_PaymentGateway {
 				}
 			}
 			$billingAddressId  = $this->_addAddress($billingFormData);
+			if(isset($billingFormData['sameForShipping']) && $billingFormData['sameForShipping']) {
+				$shippingFormData = $billingFormData;
+			}
 			$shippingAddressId = $this->_addAddress($shippingFormData, Models_Model_Customer::ADDRESS_TYPE_SHIPPING);
 		}
 
@@ -357,6 +360,16 @@ class Quote extends Tools_PaymentGateway {
 		}
 	}
 
+	public function searchaddressAction() {
+		$searchTerm = $this->_request->getParam('term', false);
+		$data       = array();
+		if($searchTerm) {
+			$addressTable = new Quote_Models_DbTable_ShoppingCustomerAddress();
+				$data = $addressTable->searchAddress($searchTerm);
+		}
+		echo $this->_jsonHelper->direct($data);
+	}
+
 	/***************************
 	 * options
 	 **************************/
@@ -388,19 +401,6 @@ class Quote extends Tools_PaymentGateway {
 
 		$this->_view->form = $form;
 		return $this->_view->render('option.quote.phtml');
-	}
-
-	/**
-	 * Render quote controls panel
-	 *
-	 * @return string
-	 */
-	protected function _makeOptionControls() {
-		if(!$this->_editAllowed()) {
-			return '<!-- controls available only for administrator -->';
-		}
-		$this->_view->quoteId = $this->_pageHelper->clean($this->_seotoasterData['url']);
-		return $this->_view->render('controls.option.quote.phtml');
 	}
 
 	protected function _makeOptionQuotes() {
@@ -458,7 +458,7 @@ class Quote extends Tools_PaymentGateway {
 			$quoteTemplate  = reset($quoteTemplates);
 			unset($quoteTemplates);
 		} else {
-			$quoteTemplate = $templateMapper->findByName($this->_shoppingConfig['quoteTemplate']);
+			$quoteTemplate = $templateMapper->find($this->_shoppingConfig['quoteTemplate']);
 		}
 		if(!$quoteTemplate instanceof Application_Model_Models_Template) {
 			throw new Exceptions_SeotoasterPluginException('Quote parameters not passed');

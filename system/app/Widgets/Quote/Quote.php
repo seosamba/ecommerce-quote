@@ -24,6 +24,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
 	protected $_websiteHelper = null;
 
+	protected $_pageHelper    = null;
+
 	protected function _init() {
 		//views and helpers
 		$this->_view = new Zend_View(array('scriptPath' => __DIR__ . '/views'));
@@ -32,6 +34,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
 		//website helper
 		$this->_websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+
+		//page helper to clean quote url to get a quote id
+		$this->_pageHelper    = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
 
 		//current currency
 		$this->_currency = Zend_Registry::get('Zend_Currency');
@@ -198,6 +203,31 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		$this->_view->date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getValidUntil();
 		$this->_view->type = $dateType;
 		return $this->_view->render('date.quote.phtml');
+	}
+
+	/**
+	 * Render quote controls panel
+	 *
+	 * @return string
+	 */
+	protected function _renderControls() {
+		if(!$this->_editAllowed()) {
+			return '<!-- controls available only for administrator -->';
+		}
+		$this->_view->quoteId = $this->_pageHelper->clean($this->_toasterOptions['url']);
+		return $this->_view->render('controls.quote.phtml');
+	}
+
+	/**
+	 * Render quote search panel
+	 *
+	 * @return string
+	 */
+	protected function _renderSearch() {
+		if(!$this->_editAllowed()) {
+			return '<!-- search available only for administrator -->';
+		}
+		return $this->_view->render('search.quote.phtml');
 	}
 
 	protected function _renderItem() {

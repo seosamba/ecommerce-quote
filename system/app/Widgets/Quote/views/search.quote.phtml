@@ -1,0 +1,30 @@
+<?php echo $this->formText('quoteSearch', '', array(
+	'id'          => 'quote-search',
+	'placeholder' => 'Start typing id, name or e-mail to search among addresses',
+	'class'       => 'quote-address-search'
+)); ?>
+<script type="text/javascript">
+	var searchBox  = $('#quote-search');
+	searchBox.autocomplete({
+		source: '/plugin/quote/run/searchaddress/',
+		minLength: 3,
+		select: function(event, ui) {
+			var billingForm = $('#quote-user-address');
+			$(':input[name]', billingForm).each(function() {
+				$(this).val(ui.item[$(this).attr('name')]);
+			});
+		   	if($('#same-for-shipping').attr('checked')) {
+				var shippingForm = $('#shipping-user-address');
+				$(':input[name]', shippingForm).each(function() {
+					$(this).val(ui.item[$(this).attr('name')]);
+				});
+			}
+		}
+	}).data('autocomplete')._renderItem = function(ul, item) {
+		return $('<li></li>')
+			.data('item.autocomplete', item)
+			.append('<a><strong>Quote: #' + item.id + '</strong> ' + item.firstname + ' ' + item.lastname +
+				', ' + item.email + '<br/> Address type: ' + item.address_type + '</a>')
+			.appendTo(ul);
+	};
+</script>

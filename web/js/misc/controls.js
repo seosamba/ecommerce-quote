@@ -9,7 +9,7 @@ $(function() {
 			shipping    : $('#shipping-user-address').serialize(),
 			billing     : $('#quote-user-address').serialize(),
 			sendMail    : $(e.target).parent().data('sendmail')
-		}
+		};
 		$.ajax({
 			url        : $('#website_url').val() + 'plugin/quote/run/build/',
 			type       : 'post',
@@ -21,5 +21,22 @@ $(function() {
 				showMessage(response.responseText);
 			}
 		})
+	}).on('click', '#same-for-shipping', function() {
+		var shippingForm = $('#shipping-user-address');
+		var billingForm  = $('#quote-billing-info');
+		if(shippingForm.length) {
+			$(':input[name]', billingForm).each(function() {
+				$('[name=' + $(this).attr('name') + ']', shippingForm).val($(this).val());
+			});
+			var self = $(this);
+			shippingForm.find('input, select').each(function() {
+				if(self.prop('checked')) {
+					$(this).attr('disabled', true);
+				} else {
+					$(this).removeAttr('disabled');
+				}
+
+			});
+		}
 	});
 });

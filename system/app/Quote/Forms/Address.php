@@ -18,6 +18,12 @@ class Quote_Forms_Address extends Forms_Address_Abstract {
 		$this->getElement('firstname')->setRequired(true)->setAttrib('class', 'required');
 		$this->getElement('email')->setRequired(true)->setAttrib('class', 'required');
 
+		$this->addElement(new Zend_Form_Element_Checkbox(array(
+			'name'  => 'sameForShipping',
+			'id'    => 'same-for-shipping',
+			'label' => 'Use same data for shipping?',
+		)));
+
 		$this->addDisplayGroups(array(
 			'lcol' => array(
 				'firstname',
@@ -33,7 +39,8 @@ class Quote_Forms_Address extends Forms_Address_Abstract {
 				'state',
 				'zip',
 				'phone',
-				'mobile'
+				'mobile',
+				'sameForShipping'
 			)
 		));
 

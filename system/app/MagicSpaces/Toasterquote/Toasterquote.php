@@ -65,7 +65,7 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 			$quoteTemplate  = reset($quoteTemplates);
 			unset($quoteTemplates);
 		} else {
-			$quoteTemplate = $templateMapper->findByName($shoppingConfig['quoteTemplate']);
+			$quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
 		}
 	    return $quoteTemplate->getContent();
 	}
