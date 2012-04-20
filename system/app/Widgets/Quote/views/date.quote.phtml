@@ -3,7 +3,8 @@
 		'datepicker-' . $this->type,
 		((intval($this->date)) ? date('M j, Y', strtotime($this->date)) : ''),
 		array(
-			'defaultDate' => ''
+			'defaultDate' => '',
+			'onClose'    => new Zend_Json_Expr('function() {saveQuote($(".save-quote:first").data("qid"), false);}')
 		),
 		array(
 			'style' => 'width:95px !important; border-radius:2px;'

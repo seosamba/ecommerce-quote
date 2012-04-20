@@ -1,26 +1,7 @@
 $(function() {
 
 	$(document).on('click', '.save-quote', function(e) {
-		var quoteData = {
-			quoteId     : $(e.target).parent().data('qid'),
-			quoteTitle  : $('#quote-title').val(),
-			createdDate : $('#datepicker-created').val(),
-			expiresDate : $('#datepicker-expires').val(),
-			shipping    : $('#shipping-user-address').serialize(),
-			billing     : $('#quote-user-address').serialize(),
-			sendMail    : $(e.target).parent().data('sendmail')
-		};
-		$.ajax({
-			url        : $('#website_url').val() + 'plugin/quote/run/build/',
-			type       : 'post',
-			dataType   : 'json',
-			data : quoteData,
-			beforeSend : function() {showSpinner();},
-			success : function(response) {
-				hideSpinner();
-				showMessage(response.responseText);
-			}
-		})
+		saveQuote($(e.target).parent().data('qid'), $(e.target).parent().data('sendmail'));
 	}).on('click', '#same-for-shipping', function() {
 		var shippingForm = $('#shipping-user-address');
 		var billingForm  = $('#quote-billing-info');
@@ -38,5 +19,33 @@ $(function() {
 
 			});
 		}
+	}).on('blur', '#quote-title', function() {
+		saveQuote($('.save-quote:first').data('qid'), false);
 	});
 });
+
+function saveQuote(qid, sendEmail) {
+	if(typeof sendEmail == 'undefined') {
+		sendEmail = false;
+	}
+	var quoteData = {
+		quoteId     : qid,
+		quoteTitle  : $('#quote-title').val(),
+		createdDate : $('#datepicker-created').val(),
+		expiresDate : $('#datepicker-expires').val(),
+		shipping    : $('#shipping-user-address').serialize(),
+		billing     : $('#quote-user-address').serialize(),
+		sendMail    : sendEmail
+	};
+	$.ajax({
+		url        : $('#website_url').val() + 'plugin/quote/run/build/',
+		type       : 'post',
+		dataType   : 'json',
+		data : quoteData,
+		beforeSend : function() {showSpinner();},
+		success : function(response) {
+			hideSpinner();
+			showMessage(response.responseText);
+		}
+	})
+}

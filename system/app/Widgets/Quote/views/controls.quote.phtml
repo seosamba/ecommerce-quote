@@ -1,7 +1,7 @@
 <div class="quote-controlls">
-	<a data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/products/" data-pheight="554" href="javascript:;" class="quote-controll tpopup"><?php echo $this->translate('Add product'); ?></a>
-	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="1" class="save-quote quote-controll"><?php echo $this->translate('Save quote'); ?></a>
-	<a href="javascript:;" id="save-and-send-quote" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="0" class="save-quote quote-controll"><?php echo $this->translate('Save and Send quote'); ?></a>
+	<a data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/products/" data-pheight="554" href="javascript:;" class="save-quote quote-controll tpopup"><?php echo $this->translate('Add product'); ?></a>
+	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="0" class="save-quote quote-controll"><?php echo $this->translate('Save quote'); ?></a>
+	<a href="javascript:;" id="save-and-send-quote" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="1" class="save-quote quote-controll"><?php echo $this->translate('Save and Send quote'); ?></a>
 </div>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/misc/controls.js'); ?>
 <script type="text/javascript">
