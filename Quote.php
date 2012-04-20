@@ -353,16 +353,26 @@ class Quote extends Tools_PaymentGateway {
 		if(!empty($content)) {
 			$currency   = Zend_Registry::get('Zend_Currency');
 			$totalPrice = 0;
-			$content    = array_map(function($productData) use($productId, $qty, &$totalPrice) {
+			$subTotal   = 0;
+			$total      = 0;
+			$content    = array_map(function($productData) use($productId, $qty, &$totalPrice, &$subTotal, &$total) {
 				if($productData['product_id'] == $productId) {
 					$productData['qty'] = $qty;
-					$totalPrice         = $productData['price']*$qty;
+					$totalPrice         = $qty * $productData['tax_price'];
 				}
+				$subTotal += $productData['qty'] * $productData['tax_price'];
 				return $productData;
 			}, $content);
+			$cart->setSubTotal($subTotal);
+			$total = $subTotal + $cart->getTotalTax() + $cart->getShippingPrice();
 			$cart->setCartContent($content);
+			$cart->setTotal($total);
 			Models_Mapper_CartSessionMapper::getInstance()->save($cart);
-			$this->_responseHelper->success(array('totalPrice' => $currency->toCurrency($totalPrice)));
+			$this->_responseHelper->success(array(
+				'totalPrice' => $currency->toCurrency($totalPrice),
+				'subTotal'   => $currency->toCurrency($subTotal),
+				'total'      => $currency->toCurrency($total)
+			));
 		}
 	}
 

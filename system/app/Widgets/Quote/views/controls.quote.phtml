@@ -24,6 +24,8 @@
 				success : function(response) {
 					hideSpinner();
 					el.closest('tr').find('span.price-total').text(response.responseText.totalPrice);
+					$('.quote-total-val').text(response.responseText.subTotal);
+					$('.quote-grand-total-val').text(response.responseText.total);
 	            },
 	            error: function(xhr, errorStatus) {
 	                showMessage(errorStatus, true);

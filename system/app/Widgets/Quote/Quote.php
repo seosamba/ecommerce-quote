@@ -194,12 +194,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 			return $this->_currency->toCurrency($totalTax);
 		}
 		if($totalType == 'sub') {
-			return $this->_currency->toCurrency($subTotal);
+			return '<span class="quote-grand-total-val">' . $this->_currency->toCurrency($subTotal) . '</span>';
 		}
 		$shippingPrice = $this->_cart->getShippingPrice();
 		//@todo Probably we will have to change this, because discount will be moved to the cart
 		$discount      = $this->_quote->getDiscount();
-		return $this->_currency->toCurrency($totalTax + $subTotal + $shippingPrice + $discount);
+		return '<span class="quote-grand-total-val">' . $this->_currency->toCurrency($totalTax + $subTotal + $shippingPrice + $discount) . '</span>';
 	}
 
 	/**
