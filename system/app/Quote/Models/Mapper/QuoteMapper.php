@@ -31,9 +31,13 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
 		$exists = $this->find($quote->getId());
 		if($exists) {
-			return $this->getDbTable()->update($data, array('id=?' => $quote->getId()));
+			$result = $this->getDbTable()->update($data, array('id=?' => $quote->getId()));
 		}
-		return $this->getDbTable()->insert($data);
+		else {
+			$result = $this->getDbTable()->insert($data);
+		}
+		$quote->notifyObservers();
+		return $result;
 	}
 
 	public function findByCartId($cartId) {

@@ -7,41 +7,71 @@
 
 class Quote_Tools_Watchdog implements Interfaces_Observer {
 
-	public function notify($object) {
-		Quote_Models_Mapper_QuoteMapper::getInstance()->save($object->setContent($this->_generateQuoteContent()));
+	/**
+	 * @var Quote_Models_Model_Quote
+	 */
+	private $_quote   = null;
+
+	/**
+	 * @var array Watchdog options
+	 */
+	private $_options = array();
+
+	public function __construct($options = array()) {
+		$this->_options = $options;
 	}
 
-	protected function _generateQuoteContent() {
-		$templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
-		$websiteHelper  = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
-		$configHelper   = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
-		$shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-		$themeData      = Zend_Registry::get('theme');
-		$page           = new Application_Model_Models_Page();
-
-		// getting quote template from shopping config
-		if(!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
-			//if quote template not secified in configs, get first template by type 'quote'
-			$quoteTemplates = $templateMapper->findByType(Application_Model_Models_Template::TYPE_QUOTE);
-			$quoteTemplate  = reset($quoteTemplates);
-			unset($quoteTemplates);
-		} else {
-			$quoteTemplate = $templateMapper->findByName($shoppingConfig['quoteTemplate']);
+	public function notify($object) {
+		if(!$object instanceof Quote_Models_Model_Quote) {
+			throw new Exceptions_SeotoasterPluginException('Instance of Quote_Models_Model_Quote expected.');
 		}
+		$this->_quote = $object;
+		$this->_updateCartStatus();
+		$this->_recalculate();
+	}
 
-		$parser = new Tools_Content_Parser($quoteTemplate->getContent(), $page->toArray(), array(
-			'websiteUrl'   => $websiteHelper->getUrl(),
-			'websitePath'  => $websiteHelper->getPath(),
-			'currentTheme' => $configHelper->getConfig('currentTheme'),
-			'themePath'    => $themeData['path']
-		));
+	/**
+	 * Update quote-related shopping cart status
+	 *
+	 */
+	protected function _updateCartStatus() {
+		if(!isset($this->_options['gateway'])) {
+			throw new Exceptions_SeotoasterPluginException('Gateway not passed.');
+		}
+		$gateway = $this->_options['gateway'];
+		switch($this->_quote->getStatus()) {
+			case Quote_Models_Model_Quote::STATUS_NEW:
+				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_PENDING);
+			break;
+			case Quote_Models_Model_Quote::STATUS_SOLD:
+				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_COMPLETED);
+			break;
+			case Quote_Models_Model_Quote::STATUS_SENT:
+				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_PROCESSING);
+			break;
+			case Quote_Models_Model_Quote::STATUS_LOST:
+				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_CANCELED);
+			break;
+			default:
+				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_ERROR);
+			break;
+		}
+	}
 
-		unset($themeData);
-		unset($configHelper);
-		unset($shoppingConfig);
-		unset($templateMapper);
-		unset($page);
-
-		return $parser->parse();
+	protected function _recalculate() {
+		$mapper      = Models_Mapper_CartSessionMapper::getInstance();
+		$cart        = $mapper->find($this->_quote->getCartId());
+		$cart->setSubTotal(0)
+			->setTotalTax(0)
+			->setTotal(0);
+		$cartContent = $cart->getCartContent();
+		if(is_array($cartContent) && !empty($cartContent)) {
+			array_walk($cartContent, function($product) use($cart) {
+				$cart->setSubTotal($cart->getSubTotal() + $product['tax_price'] * $product['qty']);
+				$cart->setTotalTax($cart->getTotalTax() + $product['tax']);
+			});
+			$cart->setTotal($cart->getSubTotal() + $cart->getTotalTax() + $cart->getShippingPrice());
+			$mapper->save($cart);
+		}
 	}
 }

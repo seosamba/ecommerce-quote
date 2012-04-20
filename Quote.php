@@ -124,7 +124,9 @@ class Quote extends Tools_PaymentGateway {
 		if(!$quote instanceof Quote_Models_Model_Quote) {
 			throw new Exceptions_SeotoasterPluginException('Cannot load quote.');
 		}
-
+		$quote->registerObserver(new Quote_Tools_Watchdog(array(
+			'gateway' => $this
+		)));
 		$quoteTitle       = $this->_request->getParam('quoteTitle', '');
 		$createdAt        = $this->_request->getParam('createdDate', '');
 		$expiresAt        = $this->_request->getParam('expiresDate', '');
@@ -228,6 +230,7 @@ class Quote extends Tools_PaymentGateway {
 				'tax_price'  => $product->getPrice() + $currentTax
 			);
 			Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
+			$this->_quoteMapper->save($this->_quoteMapper->find($quoteId));
 			$this->_responseHelper->success($this->_translator->translate('Added.'));
 		}
 		echo $this->_view->render('add.products.quote.phtml');
@@ -307,6 +310,9 @@ class Quote extends Tools_PaymentGateway {
 					throw new Exceptions_SeotoasterPluginException('Quote parameters not passed');
 				}
 				$quote = new Quote_Models_Model_Quote($quoteParams);
+				$quote->registerObserver(new Quote_Tools_Watchdog(array(
+					'gateway' => $this
+				)));
 				if($this->_quoteMapper->save($quote)) {
 					$data = array('error' => false, 'responseText' => $this->_translator->translate('Quote updated'));
 				} else {
