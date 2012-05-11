@@ -130,7 +130,7 @@ class Quote extends Tools_PaymentGateway {
 			throw new Exceptions_SeotoasterPluginException('Direct access is not allowed');
 		}
 
-		$quote  = $this->_quoteMapper->find($this->_request->getParam('quoteId', 0));
+    	$quote = $this->_quoteMapper->find($this->_request->getParam('quoteId', 0));
 		if(!$quote instanceof Quote_Models_Model_Quote) {
 			throw new Exceptions_SeotoasterPluginException('Cannot load quote.');
 		}

@@ -302,6 +302,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$this->_view->pid = $cartItem['id'];
 				$content = $this->_view->render('qty.quote.phtml');
 			break;
+            case 'remove':
+                return '<a data-url="' . $this->_websiteHelper->getUrl()  . 'plugin/quote/run/quotes/" data-eid="' . $cartItem['id'] . '" class="_tdelete" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>';
+            break;
 			default:
 				$content = (isset($cartItem[$this->_options[0]])) ? $cartItem[$this->_options[0]] : '';
 			break;
