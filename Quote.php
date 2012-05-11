@@ -102,6 +102,7 @@ class Quote extends Tools_PaymentGateway {
 			if($form->isValid($this->_request->getParams())) {
 				$mapper->save($form->getValues());
 				$this->_responseHelper->success($this->_translator->translate('Configuration updated'));
+                return true;
 			} else {
 				$this->_jsonHelper->direct($form->getMessages());
 			}
@@ -111,10 +112,19 @@ class Quote extends Tools_PaymentGateway {
 		echo $this->_view->render('settings.quote.phtml');
 	}
 
+    public static function getEcommerceConfigTab() {
+        $translator = Zend_Controller_Action_HelperBroker::getStaticHelper('language');
+        return array(
+            'title'      => $translator->translate('Quote'),
+            'contentUrl' =>  Zend_Controller_Action_HelperBroker::getStaticHelper('website')->getUrl() . 'plugin/quote/run/settings/'
+        );
+    }
+
 	/**
-	 * Single quote administration action
-	 *
-	 */
+     * Single quote administration action
+     *
+     * @throws Exceptions_SeotoasterPluginException
+     */
 	public function buildAction() {
 		if(!$this->_request->isPost()) {
 			throw new Exceptions_SeotoasterPluginException('Direct access is not allowed');

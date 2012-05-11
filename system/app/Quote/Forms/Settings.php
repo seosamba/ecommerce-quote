@@ -16,26 +16,19 @@ class  Quote_Forms_Settings extends Zend_Form {
 			'label' => 'Generate quote automatically'
 		)));
 
-		$this->addElement(new Zend_Form_Element_Select(array(
-			'name'  => 'quoteMailTemplate',
-			'id'    => 'quote-mail-template',
-			'label' => 'Quote mail template',
-			'class' => 'grid_6',
-			'multiOptions' => Tools_Mail_Tools::getMailTemplatesHash()
-		)));
+//		$this->addElement(new Zend_Form_Element_Select(array(
+//			'name'  => 'quoteMailTemplate',
+//			'id'    => 'quote-mail-template',
+//			'label' => 'Quote mail template',
+//			'class' => 'grid_6',
+//			'multiOptions' => Tools_Mail_Tools::getMailTemplatesHash()
+//		)));
 
 		$this->addElement(new Zend_Form_Element_Select(array(
 			'name'  => 'quoteTemplate',
 			'id'    => 'quote-template',
 			'label' => 'Quote template',
-			'class' => 'grid_6',
 			'multiOptions' => Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
-		)));
-
-		$this->addElement(new Zend_Form_Element_Submit(array(
-			'name'    => 'applySettings',
-			'label'   => 'Save settings',
-			'igonore' => true
 		)));
 
 		$this->setDecorators(array('FormElements', 'Form'))
@@ -45,9 +38,10 @@ class  Quote_Forms_Settings extends Zend_Form {
 				array('HtmlTag', array('tag' => 'div'))
 			));
 
-		$this->getElement('autoQuote')->setDecorators(array(
-			'ViewHelper',
-			array('Label', array('class' => 'grid_8'))
-		));
+        $this->addElement(new Zend_Form_Element_Submit(array(
+            'name'    => 'applySettings',
+            'label'   => 'Save',
+            'igonore' => true
+        )));
 	}
 }

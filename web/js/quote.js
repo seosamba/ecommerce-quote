@@ -10,5 +10,7 @@ require([
 	'order!libs/underscore/underscore-min',
 	'order!libs/backbone/backbone-min'
 ], function(App){
-	App.initialize();
+	$(function() {
+        App.initialize();
+    })
 });
