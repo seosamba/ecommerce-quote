@@ -91,9 +91,10 @@ class Quote extends Tools_PaymentGateway {
 	}
 
 	/**
-	 * Quote configuration action
-	 *
-	 */
+     * Quote configuration action
+     *
+     * @return mixed
+     */
 	public function settingsAction() {
 		$mapper = Models_Mapper_ShoppingConfig::getInstance();
 		$config = $mapper->getConfigParams();
@@ -112,6 +113,12 @@ class Quote extends Tools_PaymentGateway {
 		echo $this->_view->render('settings.quote.phtml');
 	}
 
+    /**
+     * Generate tab for the general store config
+     *
+     * @static
+     * @return array
+     */
     public static function getEcommerceConfigTab() {
         $translator = Zend_Controller_Action_HelperBroker::getStaticHelper('language');
         return array(
@@ -174,7 +181,15 @@ class Quote extends Tools_PaymentGateway {
 		}
 
 		$quote->setUserId(($customer !== null) ? $customer->getId() : null);
-		$this->_quoteMapper->save($quote);
+
+        if($this->_request->getParam('sendMail', false)) {
+            $quote->registerObserver(new Tools_Mail_Watchdog(array(
+                'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE,
+                'mailMessage' => $this->_request->getParam('mailMessage', '')
+            )));
+        }
+
+        $this->_quoteMapper->save($quote);
 
 		if($customer) {
 			$cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
@@ -183,10 +198,6 @@ class Quote extends Tools_PaymentGateway {
 					->setShippingAddressId($shippingAddressId)
 					->setUserId($customer->getId())
 			);
-		}
-
-		if($this->_request->getParam('sendMail', false)) {
-			//@todo send mail to the client
 		}
 
 		$this->_responseHelper->success($this->_translator->translate('Saved.'));

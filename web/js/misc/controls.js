@@ -2,7 +2,11 @@ $(function() {
 
 	$(document).on('click', '.save-quote', function(e) {
 		saveQuote($(e.target).parent().data('qid'), $(e.target).parent().data('sendmail'));
-	}).on('click', '#same-for-shipping', function() {
+	}).on('click', '#save-and-send-quote', function() {
+        showMailMessageEdit('new quote', function(message) {
+            saveQuote($('#save-and-send-quote').data('qid'), true, message);
+        })
+    }).on('click', '#same-for-shipping', function() {
 		var shippingForm = $('#shipping-user-address');
 		var billingForm  = $('#quote-billing-info');
 		if(shippingForm.length) {
@@ -24,18 +28,20 @@ $(function() {
 	});
 });
 
-function saveQuote(qid, sendEmail) {
-	if(typeof sendEmail == 'undefined') {
+function saveQuote(qid, sendEmail, mailMessage) {
+    var quoteData = {};
+    if(typeof sendEmail == 'undefined') {
 		sendEmail = false;
 	}
-	var quoteData = {
+	quoteData = {
 		quoteId     : qid,
 		quoteTitle  : $('#quote-title').val(),
 		createdDate : $('#datepicker-created').val(),
 		expiresDate : $('#datepicker-expires').val(),
 		shipping    : $('#shipping-user-address').serialize(),
 		billing     : $('#quote-user-address').serialize(),
-		sendMail    : sendEmail
+		sendMail    : sendEmail,
+        mailMessage : mailMessage
 	};
 	$.ajax({
 		url        : $('#website_url').val() + 'plugin/quote/run/build/',
