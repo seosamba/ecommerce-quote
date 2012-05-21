@@ -110,8 +110,17 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
         $this->_entityParser->objectToDictionary($quote);
         $this->_mailer->setBody($this->_entityParser->parse($body));
-        $this->_mailer->setMailFrom(!empty($this->_storeConfig['email']) ? $this->_storeConfig['email'] : 'admin@localhost')
-            ->setMailFromLabel($this->_storeConfig['company']);
+
+        $mailActionTrigger = Application_Model_Mappers_EmailTriggersMapper::getInstance()->findByTriggerName($this->_options['trigger']);
+        $mailActionTrigger = (!$mailActionTrigger) ? array() : $mailActionTrigger->current()->toArray();
+        $mailFrom          = isset($mailActionTrigger['from']) ? $mailActionTrigger['from'] : $this->_storeConfig['email'];
+        if(!$mailFrom) {
+            $mailFrom = 'admin@localhost';
+        }
+
+        $this->_mailer->setMailFrom($mailFrom)
+            ->setMailFromLabel($this->_storeConfig['company'])
+            ->setSubject(isset($mailActionTrigger['subject']) ? $mailActionTrigger['subject'] : 'New quote is generated for you!');
         return ($this->_mailer->send() !== false);
     }
 
