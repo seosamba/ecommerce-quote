@@ -28,20 +28,25 @@ class  Quote_Forms_Settings extends Zend_Form {
 			'name'  => 'quoteTemplate',
 			'id'    => 'quote-template',
 			'label' => 'Quote template',
+			'class' => 'grid_6 alpha ',
 			'multiOptions' => Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
 		)));
 
 		$this->setDecorators(array('FormElements', 'Form'))
 			->setElementDecorators(array(
 				'ViewHelper',
-				array('Label', array('class' => 'grid_6')),
-				array('HtmlTag', array('tag' => 'div'))
+				array('Label', array('class' => 'grid_6 omega ')),
+				array('HtmlTag', array('tag' => 'div', 'class' => 'clearfix mt5px' ))
 			));
 
         $this->addElement(new Zend_Form_Element_Submit(array(
             'name'    => 'applySettings',
             'label'   => 'Save',
-            'igonore' => true
+            'igonore' => true,
+	        'decorators' => array(
+		        'ViewHelper',
+//		        array('HtmlTag', array('tag' => 'div', 'class'=>'grid_12'))
+	        )
         )));
 	}
 }
