@@ -144,6 +144,10 @@ class Quote extends Tools_PaymentGateway {
 		$quote->registerObserver(new Quote_Tools_Watchdog(array(
 			'gateway' => $this
 		)));
+        $quote->registerObserver(new Quote_Tools_GarbageCollector(array(
+            'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
+        )));
+
 		$quoteTitle       = $this->_request->getParam('quoteTitle', '');
 		$createdAt        = $this->_request->getParam('createdDate', '');
 		$expiresAt        = $this->_request->getParam('expiresDate', '');

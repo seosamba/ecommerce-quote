@@ -26,6 +26,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
 	protected $_pageHelper    = null;
 
+    protected $_cacheable     = false;
+
 	protected function _init() {
 		//views and helpers
 		$this->_view = new Zend_View(array('scriptPath' => __DIR__ . '/views'));

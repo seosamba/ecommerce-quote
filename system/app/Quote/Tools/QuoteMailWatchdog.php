@@ -8,13 +8,19 @@
  */
 class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
-    const TRIGGER_NEW_QUOTE         = 'new quote';
+    const TRIGGER_NEW_QUOTE         = 'quote_newquote';
 
-    const TRIGGER_QUOTE_STATUS_SOLD = 'quote status sold';
+    const TRIGGER_QUOTE_STATUS_SOLD = 'quotestatussold';
+
+    const TRIGGER_QUOTE_STATUS_SENT = 'quotestatussent';
+
+    const TRIGGER_QUOTE_STATUS_LOST = 'quotestatuslost';
 
     const RECIPIENT_SALESPERSON     = 'sales person';
 
     const RECIPIENT_CUSTOMER        = 'customer';
+
+    const RECIPIENT_MEMBER          = 'member';
 
     const RECIPIENT_STOREOWNER      = 'store owner';
 
@@ -46,7 +52,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $this->_entityParser  = new Tools_Content_EntityParser();
         $this->_configHelper  = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
         $this->_websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
-        $this->_initMailer();
+        $this->_mailer        = Tools_Mail_Tools::initMailer();
         $this->_initMailMessage();
     }
 
@@ -55,45 +61,23 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         unset($this->_options['mailMessage']);
     }
 
-    protected function _initMailer(){
-        $config        = $this->_configHelper->getConfig();
-        $this->_mailer = new Tools_Mail_Mailer();
-
-        if ((bool)$config['useSmtp']){
-            $smtpConfig = array(
-                'host'      => $config['smtpHost'],
-                'username'  => $config['smtpLogin'],
-                'password'  => $config['smtpPassword']
-            );
-            if ((bool)$config['smtpSsl']){
-                $smtpConfig['ssl'] = $config['smtpSsl'];
-            }
-            if (!empty($config['smtpPort'])){
-                $smtpConfig['port'] = $config['smtpPort'];
-            }
-            $this->_mailer->setSmtpConfig($smtpConfig);
-            $this->_mailer->setTransport(Tools_Mail_Mailer::MAIL_TYPE_SMTP);
-        } else {
-            $this->_mailer->setTransport(Tools_Mail_Mailer::MAIL_TYPE_MAIL);
-        }
-    }
-
     public function notify($object) {
         if (!$object){
             return false;
         }
         if (isset($this->_options['trigger'])){
-            $methodName = '_send'. str_replace(' ', '', ucwords($this->_options['trigger'])) . 'Mail';
+            $methodName = '_send'. str_replace(array(' ', '_'), '', ucwords($this->_options['trigger'])) . 'Mail';
             if (method_exists($this, $methodName)){
                 $this->$methodName($object);
             }
         }
     }
 
-    protected function _sendNewQuoteMail(Quote_Models_Model_Quote $quote) {
+    protected function _sendQuotenewquoteMail(Quote_Models_Model_Quote $quote) {
         $recipient = null;
         switch($this->_options['recipient']) {
             case self::RECIPIENT_CUSTOMER:
+            case self::RECIPIENT_MEMBER:
                 $recipient = Application_Model_Mappers_UserMapper::getInstance()->find($quote->getUserId());
                 $this->_mailer->setMailToLabel($recipient->getFullName())
                     ->setMailTo($recipient->getEmail());
@@ -110,15 +94,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
         $this->_entityParser->objectToDictionary($quote);
         $this->_mailer->setBody($this->_entityParser->parse($body));
-
-        $mailActionTrigger = Application_Model_Mappers_EmailTriggersMapper::getInstance()->findByTriggerName($this->_options['trigger']);
-        $mailActionTrigger = (!$mailActionTrigger) ? array() : $mailActionTrigger->current()->toArray();
-        $mailFrom          = isset($mailActionTrigger['from']) ? $mailActionTrigger['from'] : $this->_storeConfig['email'];
-        if(!$mailFrom) {
-            $mailFrom = 'admin@localhost';
-        }
-
-        $this->_mailer->setMailFrom($mailFrom)
+        $this->_mailer->setMailFrom((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from'])
             ->setMailFromLabel($this->_storeConfig['company'])
             ->setSubject(isset($mailActionTrigger['subject']) ? $mailActionTrigger['subject'] : 'New quote is generated for you!');
         return ($this->_mailer->send() !== false);

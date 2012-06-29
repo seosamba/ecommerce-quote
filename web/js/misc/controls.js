@@ -3,7 +3,7 @@ $(function() {
 	$(document).on('click', '.save-quote', function(e) {
 		saveQuote($(e.target).parent().data('qid'), $(e.target).parent().data('sendmail'));
 	}).on('click', '#save-and-send-quote', function() {
-        showMailMessageEdit('new quote', function(message) {
+        showMailMessageEdit('quote_newquote', function(message) {
             saveQuote($('#save-and-send-quote').data('qid'), true, message);
         })
     }).on('click', '#same-for-shipping', function() {
