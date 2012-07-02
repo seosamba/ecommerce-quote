@@ -22,7 +22,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
     const RECIPIENT_MEMBER          = 'member';
 
-    const RECIPIENT_STOREOWNER      = 'store owner';
+    const RECIPIENT_STOREOWNER      = 'storeowner';
 
     protected $_options             = array();
 
@@ -84,7 +84,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             break;
             case self::RECIPIENT_STOREOWNER:
                 $this->_mailer->setMailToLabel($this->_storeConfig['company'])
-                    ->setMailTo((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from']);
+                    ->setMailTo($this->_storeConfig['email']);
             break;
             default:
                 error_log('Unsupported recipient '.$this->_options['recipient'].' given');
