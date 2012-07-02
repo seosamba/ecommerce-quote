@@ -82,6 +82,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 $this->_mailer->setMailToLabel($recipient->getFullName())
                     ->setMailTo($recipient->getEmail());
             break;
+            case self::RECIPIENT_STOREOWNER:
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])
+                    ->setMailTo((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from']);
+            break;
             default:
                 error_log('Unsupported recipient '.$this->_options['recipient'].' given');
                 return false;
