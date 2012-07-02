@@ -8,7 +8,7 @@ class Quote_Forms_Address extends Forms_Address_Abstract {
 		$this->setLegend('Billing address')
 			->setAttribs(array(
 				'id'     => 'quote-user-address',
-				'class'  => 'toaster-checkout _fajax',
+				'class'  => 'toaster-quote _fajax',
 				'method' => Zend_Form::METHOD_POST
 			));
 

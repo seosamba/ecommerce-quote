@@ -60,7 +60,10 @@ class Quote extends Tools_PaymentGateway {
 	protected $_layout         = null;
 
 	protected $_securedActions = array(
-		Tools_Security_Acl::ROLE_SUPERADMIN => array(
+        Tools_Security_Acl::ROLE_GUEST => array(
+            'quotes'
+        ),
+        Tools_Security_Acl::ROLE_SUPERADMIN => array(
             'settings',
 			'build',
 			'quotes',

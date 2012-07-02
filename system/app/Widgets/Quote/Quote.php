@@ -211,7 +211,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	 */
 	protected function _renderPrint() {
 		$configHelper              = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
-		$this->_view->currentTheme = $configHelper->getConfig('currentTheme');
+        $currentTheme = $configHelper->getConfig('currentTheme');
+		$printCssFile = $this->_websiteHelper->getUrl() . 'themes/' . $currentTheme . '/print.quote.css';
+        if(!file_exists($printCssFile)) {
+            $this->_view->printCss = false;
+        } else {
+            $this->_view->currentTheme = $currentTheme;
+            $this->_view->printCss     = $printCssFile;
+        }
 		return $this->_view->render('print.quote.phtml');
 	}
 
