@@ -78,9 +78,12 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         switch($this->_options['recipient']) {
             case self::RECIPIENT_CUSTOMER:
             case self::RECIPIENT_MEMBER:
-                $recipient = Application_Model_Mappers_UserMapper::getInstance()->find($quote->getUserId());
-                $this->_mailer->setMailToLabel($recipient->getFullName())
-                    ->setMailTo($recipient->getEmail());
+                $quoteUserId = $quote->getUserId();
+                if($quoteUserId) {
+                    $recipient = Application_Model_Mappers_UserMapper::getInstance()->find($quoteUserId);
+                    $this->_mailer->setMailToLabel($recipient->getFullName())
+                        ->setMailTo($recipient->getEmail());
+                }
             break;
             case self::RECIPIENT_STOREOWNER:
                 $this->_mailer->setMailToLabel($this->_storeConfig['company'])
