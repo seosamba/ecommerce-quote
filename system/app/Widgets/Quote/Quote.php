@@ -28,6 +28,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
     protected $_cacheable     = false;
 
+    protected $_shoppingConfig = null;
+
+    protected $_cartStorage    = null;
+
 	protected function _init() {
 		//views and helpers
 		$this->_view = new Zend_View(array('scriptPath' => __DIR__ . '/views'));
@@ -43,8 +47,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		//current currency
 		$this->_currency = Zend_Registry::get('Zend_Currency');
 
+        //shopping settings
+        $this->_shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        $this->_cartStorage    = Tools_ShoppingCart::getInstance();
+
 		//current quote
 		$this->_quote = $this->_findQuote();
+
+        if(!$this->_quote) {
+            return null;
+        }
 
 		//current cart
 		$this->_cart  = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
@@ -132,8 +144,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		$this->_view->infoType = $infoType;
 		if($this->_editAllowed()) {
 			if($infoType == self::INFO_TYPE_BILLING) {
-				$addressForm = new Quote_Forms_Address();
-				$addressForm->removeElement('quoteMe');
+				$addressForm = new Quote_Forms_Quote();
+				$addressForm->removeElement('sendQuote');
 			} else {
 				$addressForm = new Forms_Checkout_Shipping();
 				$addressForm->removeElement('calculateAndCheckout');
@@ -233,7 +245,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 			throw new Exceptions_SeotoasterWidgetException('Date type not specified. Use: "created" or "expires"');
 		}
 		$dateType          = $this->_options[0];
-		$this->_view->date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getValidUntil();
+		$this->_view->date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getExpiresAt();
 		$this->_view->type = $dateType;
 		return $this->_view->render('date.quote.phtml');
 	}
@@ -312,7 +324,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$content = $this->_view->render('qty.quote.phtml');
 			break;
             case 'remove':
-                return '<a data-url="' . $this->_websiteHelper->getUrl()  . 'plugin/quote/run/quotes/" data-eid="' . $cartItem['id'] . '" class="_tdelete" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>';
+                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS)) ? '<a data-pid="' . $cartItem['id'] . '" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
             break;
 			default:
 				$content = (isset($cartItem[$this->_options[0]])) ? $cartItem[$this->_options[0]] : '';
@@ -339,4 +351,37 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 		}
 		return $actualOptions;
 	}
+
+    protected function _renderGrid() {
+        return 'quote grid here';
+    }
+
+    /**
+     * Render a quote form
+     *
+     * @return Quote_Forms_Quote
+     */
+    protected function _renderForm() {
+        $quoteForm = new Quote_Forms_Quote();
+        $quoteForm->removeElement('sameForShipping');
+        //check if the automatic quote generation is set up - add extra class to the form
+        if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
+            $quoteForm->setAttrib('class', '_reload ' . $quoteForm->getAttrib('class'));
+        }
+        //trying to get billng address first, to pre-populate quote form
+        $addrKey = $this->_cartStorage->getAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING);
+        if($addrKey === null) {
+            //otherwise trying to get shipping address (if shipping is not pick up)
+            $addrKey =  $this->_cartStorage->getAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING);
+        }
+        //if we have any address key -> getting an address
+        if($addrKey !== null) {
+            $address = Tools_ShoppingCart::getAddressById($addrKey);
+            if(is_array($address) && !empty($address)) {
+                $quoteForm->populate($address);
+            }
+        }
+        $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
+        return $this->_view->render('form.quote.phtml');
+    }
 }

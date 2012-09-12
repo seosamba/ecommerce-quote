@@ -1,36 +1,17 @@
 <div class="quote-controlls">
-	<a data-qid="<?php echo $this->quoteId; ?>" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/products/" data-pheight="554" href="javascript:;" class="save-quote quote-controll tpopup"><?php echo $this->translate('Add product'); ?></a>
-	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="0" class="save-quote quote-controll"><?php echo $this->translate('Save quote'); ?></a>
-	<a href="javascript:;" id="save-and-send-quote" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="1" class="quote-controll"><?php echo $this->translate('Save and Send quote'); ?></a>
+	<!-- add product to quote controll -->
+    <a data-qid="<?php echo $this->quoteId; ?>" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/" data-pheight="554" href="javascript:;" class="quote-control tpopup">
+        <?php echo $this->translate('Add product'); ?>
+    </a>
+
+    <!-- save quote controll -->
+	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="0" class="quote-control save-action">
+        <?php echo $this->translate('Save quote'); ?>
+    </a>
+
+    <!-- save quote and send e-mail controll -->
+	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="1" data-trigger="<?php echo Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE; ?>" class="quote-control save-action">
+        <?php echo $this->translate('Save and Send quote'); ?>
+    </a>
 </div>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/misc/controls.js'); ?>
-<script type="text/javascript">
-	$(function() {
-		$('.quote-controll').button();
-		$('.quote-qty').blur(function() {
-			var qty = $(this).val();
-			var pid = $(this).attr('id');
-			el      = $(this);
-			$.ajax({
-				url      : $('#website_url').val() + 'plugin/quote/run/qty',
-				type     : 'post',
-				dataType : 'json',
-				data     : {
-					qid: '<?php echo $this->quoteId; ?>',
-					qty: qty,
-					pid: pid
-				},
-				beforeSend : function() {showSpinner();},
-				success : function(response) {
-					hideSpinner();
-					el.closest('tr').find('span.price-total').text(response.responseText.totalPrice);
-					$('.quote-total-val').text(response.responseText.subTotal);
-					$('.quote-grand-total-val').text(response.responseText.total);
-	            },
-	            error: function(xhr, errorStatus) {
-	                showMessage(errorStatus, true);
-	            }
-			})
-		})
-	})
-</script>

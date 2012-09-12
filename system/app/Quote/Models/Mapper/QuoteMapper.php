@@ -12,7 +12,12 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 	protected $_model          = 'Quote_Models_Model_Quote';
 
 
-	public function save($quote) {
+    /**
+     * @param $quote Quote_Models_Model_Quote
+     * @return mixed
+     * @throws Exceptions_SeotoasterException
+     */
+    public function save($quote) {
 		if(!$quote instanceof Quote_Models_Model_Quote) {
 			throw new Exceptions_SeotoasterException('Given parameter should be and Quote_Models_Model_Quote instance');
 		}
@@ -23,21 +28,22 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 			'status'            => $quote->getStatus(),
 			'cart_id'           => $quote->getCartId(),
 			'edited_by'         => $quote->getEditedBy(),
-			'valid_until'       => $quote->getValidUntil(),
+			'expires_at'        => date(DATE_ATOM, strtotime($quote->getExpiresAt())),
 			'user_id'           => $quote->getUserId(),
-			'created_at'        => $quote->getCreatedAt(),
-			'updated_at'        => $quote->getUpdatedAt()
+			'created_at'        => date(DATE_ATOM, strtotime($quote->getCreatedAt())),
+			'updated_at'        => date(DATE_ATOM, strtotime($quote->getUpdatedAt()))
 		);
 
 		$exists = $this->find($quote->getId());
 		if($exists) {
-			$result = $this->getDbTable()->update($data, array('id=?' => $quote->getId()));
+			$this->getDbTable()->update($data, array('id=?' => $quote->getId()));
 		}
 		else {
-			$result = $this->getDbTable()->insert($data);
+			$quoteId = $this->getDbTable()->insert($data);
+            $quote->setId($quoteId);
 		}
 		$quote->notifyObservers();
-		return $result;
+		return $quote;
 	}
 
 	public function findByCartId($cartId) {

@@ -5,31 +5,21 @@
 		    $this->headMeta()->setCharset('UTF-8');
 	        $this->headMeta()->appendHttpEquiv('Content-Type', 'text/html; charset=UTF-8')
                  ->appendHttpEquiv('Content-Language', $this->translate()->getLocale());
-
 	        echo $this->headMeta();
-
             echo $this->headTitle();
-
 	        $this->headLink()->appendStylesheet($this->websiteUrl . 'system/uithemes/seotoasterui/seotoasterui.css')
 		        ->appendStylesheet($this->websiteUrl . 'system/css/reset.css')
 		        ->appendStylesheet($this->websiteUrl . 'system/css/grid.css')
                 ->appendStylesheet($this->websiteUrl . 'system/css/seotoaster.css')
-                ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/smoke.css')
-                ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/themes/toaster.css');
+                ->appendStylesheet($this->websiteUrl . 'system/js/external/smoke/smoke.css');
             echo $this->headLink();
-
 	        echo $this->headStyle();
-
 	        $this->jQuery()->enable();
             $this->jQuery()->uiEnable();
-
-			$this->jQuery()->addJavascriptFile($this->websiteUrl . 'system/js/external/jquery/plugins/tmpl/jquery.tmpl.min.js')
-			    ->addJavascriptFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
+			$this->jQuery()->addJavascriptFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
 	            ->addJavascriptFile($this->websiteUrl . 'system/js/external/jquery/plugins/cookie/jquery.cookie.js')
 			    ->addJavascriptFile($this->websiteUrl . 'system/js/internal/system.js');
-
 	        echo $this->jQuery();
-
             $this->headScript()->setAllowArbitraryAttributes(true);
 	        echo $this->headScript();
         ?>
@@ -40,7 +30,7 @@
 	        <a href="http://www.seotoaster.com/">seotoaster.com</a>
         </noscript>
         <?php echo $this->formHidden('website_url', $this->websiteUrl);?>
-        <div class="seotoaster container_12 rounded3px">
+        <div class="seotoaster container_12 rounded3px <?php echo $this->placeholder('extraClasses'); ?>" <?php echo $this->placeholder('containerId'); ?>>
             <div class="ui-widget-header ui-corner-top" style="height: 22px; padding: 7px 0 2px 8px;">
                 <?php echo $this->placeholder('headerContent'); ?>
                 <div class="closebutton"><span class="close"><?php echo $this->translate('Close'); ?></span></div>

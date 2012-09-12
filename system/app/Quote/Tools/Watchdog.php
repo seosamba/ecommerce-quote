@@ -26,9 +26,46 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 			throw new Exceptions_SeotoasterPluginException('Instance of Quote_Models_Model_Quote expected.');
 		}
 		$this->_quote = $object;
-		$this->_updateCartStatus();
-		$this->_recalculate();
+		$this->_updateCartStatus()
+            ->_updateQuotePage()
+            ->_recalculate();
 	}
+
+    protected function _updateQuotePage() {
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        $templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
+
+        if(!isset($shoppingConfig['quoteTemplate']) || $shoppingConfig['quoteTemplate']) {
+            $quoteTemplate = array_shift($templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE));
+        } else {
+            $quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
+        }
+
+        if(!$quoteTemplate instanceof Application_Model_Models_Template) {
+            throw new Exceptions_SeotoasterPluginException('Cannot find any quote template. Create one, please');
+        }
+
+        $pageHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
+        $page       = Application_Model_Mappers_PageMapper::getInstance()->find($this->_quote->getId());
+        if(!$page instanceof Application_Model_Models_Page) {
+            $page = new Application_Model_Models_Page();
+        }
+
+        Application_Model_Mappers_PageMapper::getInstance()->save(
+            $page->setH1($this->_quote->getTitle())
+                ->setNavName($this->_quote->getTitle())
+                ->setHeaderTitle($this->_quote->getTitle())
+                ->setTargetedKeyPhrase($this->_quote->getTitle())
+                ->setTemplateId($quoteTemplate->getName())
+                ->setUrl($pageHelper->filterUrl($this->_quote->getTitle()))
+                ->setParentId(Quote::QUOTE_CATEGORY_ID)
+                ->setSystem(true)
+                ->setLastUpdate(date(DATE_ATOM))
+                ->setShowInMenu(Application_Model_Models_Page::IN_NOMENU)
+        );
+
+        return $this;
+    }
 
 	/**
 	 * Update quote-related shopping cart status
@@ -56,6 +93,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_ERROR);
 			break;
 		}
+        return $this;
 	}
 
 	protected function _recalculate() {
@@ -73,5 +111,6 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 			$cart->setTotal($cart->getSubTotal() + $cart->getTotalTax() + $cart->getShippingPrice());
 			$mapper->save($cart);
 		}
+        return $this;
 	}
 }

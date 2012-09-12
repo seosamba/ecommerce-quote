@@ -17,6 +17,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	const TEMPLATE_TYPE_QUOTE   = 'typequote';
 
+    const QUOTE_TYPE_AUTO       = 'auto';
+
 	protected $_id              = '';
 
 	protected $_title           = '';
@@ -31,7 +33,7 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_editedBy        = '';
 
-	protected $_validUntil      = '';
+	protected $_expiresAt       = '';
 
 	protected $_discount        = '';
 
@@ -146,15 +148,6 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 		return $this->_userId;
 	}
 
-	public function setValidUntil($validUntil) {
-		$this->_validUntil = $validUntil;
-		return $this;
-	}
-
-	public function getValidUntil() {
-		return $this->_validUntil;
-	}
-
 	public function setShippingMethod($shippingMethod) {
 		$this->_shippingMethod = $shippingMethod;
 		return $this;
@@ -172,4 +165,13 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 	public function getId() {
 		return $this->_id;
 	}
+
+    public function setExpiresAt($expiresAt) {
+        $this->_expiresAt = $expiresAt;
+        return $this;
+    }
+
+    public function getExpiresAt() {
+        return $this->_expiresAt;
+    }
 }

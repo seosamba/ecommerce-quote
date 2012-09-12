@@ -1,20 +1,22 @@
 define([
-	'Underscore',
-	'Backbone',
-    'product/collections/products',
-    'product/views/product'
+    'libs/underscore/underscore',
+    'libs/backbone/backbone',
+    'modules/product/collections/products',
+    'modules/product/views/product'
 ], function(_, Backbone, ProductsCollection, ProductView){
 
 	var quoteListView = Backbone.View.extend({
-		el: $('#add-products-quote'),
+		el: $('#products'),
 		events: {
 			'click .btn-add' : 'addProductToQuote',
 			'keypress #product-list-search': 'filterProducts'
 		},
 		initialize: function() {
 			this.productsCollection = new ProductsCollection();
-			this.productsCollection.on('add', this.render, this);
+            this.productsCollection.on('reset', this.render, this);
+            this.productsCollection.on('add', this.render, this);
 			this.productsCollection.on('remove', this.render, this);
+            this.productsCollection.fetch();
 		},
 		render: function(){
             $('#products').empty();
@@ -27,7 +29,7 @@ define([
 			var productId        = $(e.target).data('pid');
 			var splitedParentUrl = window.parent.location.href.split('/');
 			$.ajax({
-				url        : $('#websiteUrl').val() + 'plugin/quote/run/products/',
+				url        : $('#website_url').val() + 'api/quote/products/',
 				type       : 'post',
 				dataType   : 'json',
 				data : {

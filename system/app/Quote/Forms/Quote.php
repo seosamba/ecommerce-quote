@@ -1,14 +1,14 @@
 <?php
 
-class Quote_Forms_Address extends Forms_Address_Abstract {
+class Quote_Forms_Quote extends Forms_Address_Abstract {
 
 	public function init() {
 		parent::init();
 
 		$this->setLegend('Billing address')
 			->setAttribs(array(
-				'id'     => 'quote-user-address',
-				'class'  => 'toaster-quote _fajax',
+				'id'     => 'billing-user-address',
+				'class'  => 'toaster-quote',
 				'method' => Zend_Form::METHOD_POST
 			));
 
@@ -63,9 +63,9 @@ class Quote_Forms_Address extends Forms_Address_Abstract {
 		));
 
 		$this->addElement(new Zend_Form_Element_Submit(array(
-			'name'   => 'quoteMe',
-			'id'     => 'quote-me',
-			'label'  => 'Quote me!',
+			'name'   => 'sendQuote',
+			'id'     => 'send-quote',
+			'label'  => 'Send me a quote',
 			'ignore' => true
 		)));
 	}

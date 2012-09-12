@@ -1,0 +1,24 @@
+<?php echo $this->form; ?>
+<script type="text/javascript">
+    $(function() {
+        $(document).on('submit', '#billing-user-address', function(e) {
+            e.preventDefault();
+            var form = $(e.currentTarget);
+            $.ajax({
+                type: 'post',
+                url: $(form).attr('action'),
+                data: $(form).serialize(),
+                dataType: 'json',
+                beforeSend: showSpinner
+            }).done(function(response) {
+                if($(form).hasClass('_reload') && (response instanceof Object)) {
+                    window.location.href = response.id + '.html';
+                } else {
+                    hideSpinner();
+                    showMessage('<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>' );
+                }
+            });
+            return false;
+        });
+    })
+</script>

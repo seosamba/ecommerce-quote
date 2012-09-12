@@ -19,9 +19,8 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$this->_content  = $tmpPageContent;
 
 		$cartContent = $this->_getCartContent();
-		$cartSize    = sizeof($cartContent);
 
-		if($cartSize) {
+		if(sizeof($cartContent)) {
 			foreach($cartContent as $key => $item) {
 				$content .= preg_replace_callback('~{\$quote:(.+)}~U', function($matches) use($key) {
 					$options = array_merge(explode(':', $matches[1]), array($key, 'quotemspace'));
@@ -31,7 +30,10 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 
 			$parser   = new Tools_Content_Parser($content, $this->_toasterData, array());
 			$content  = $parser->parseSimple();
-		}
+		} else {
+            $translator = Zend_Controller_Action_HelperBroker::getStaticHelper('language');
+            return '<tr><td colspan="7" class="empty-quote-content">' . $translator->translate('We are sorry, but your quote is empty yet!') . '</td></tr>';
+        }
 		return $content;
 	}
 

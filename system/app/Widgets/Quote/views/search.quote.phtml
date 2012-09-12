@@ -19,7 +19,9 @@
 <script type="text/javascript">
 	var searchBox  = $('#quote-search');
 	searchBox.autocomplete({
-		source: '/plugin/quote/run/searchaddress/',
+		source: function(request, callback) {
+            $.getJSON('/api/quote/customers/search/' + request.term, callback);
+        },
 		minLength: 3,
 		select: function(event, ui) {
 			var billingForm = $('#quote-user-address');

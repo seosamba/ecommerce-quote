@@ -1,12 +1,12 @@
 define([
-	'Underscore',
-	'Backbone',
-    'product/models/product'
+    'libs/underscore/underscore',
+    'libs/backbone/backbone',
+    'modules/product/models/product'
 ], function(_, Backbone, ProductModel){
 
     var productsCollection = Backbone.Collection.extend({
         model: ProductModel,
-        url: $('#websiteUrl').val()+'plugin/shopping/run/getdata/type/product/'
+        url: $('#website_url').val() + 'api/store/products/'
     });
 
 	return productsCollection;
