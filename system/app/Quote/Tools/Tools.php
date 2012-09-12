@@ -20,11 +20,11 @@ class Quote_Tools_Tools {
         $date        = date(DATE_ATOM);
         $quote       = new Quote_Models_Model_Quote();
 
-        $quote->registerObserver(new Tools_Mail_Watchdog(array(
-            'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
-        )));
         $quote->registerObserver(new Quote_Tools_Watchdog(array(
             'gateway' => new Tools_PaymentGateway(array(), array())
+        )))
+        ->registerObserver(new Tools_Mail_Watchdog(array(
+            'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
         )));
 
         $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->save(
