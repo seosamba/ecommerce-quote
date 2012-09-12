@@ -34,7 +34,7 @@ class Quote_Tools_Tools {
                 ->setCartId($cart->getId())
                 ->setCreatedAt($date)
                 ->setUpdatedAt($date)
-                ->setValidUntil($date, strtotime('+1 day', strtotime($date)))
+                ->setExpiresAt($date, strtotime('+1 day', strtotime($date)))
                 ->setUserId($cart->getUserId())
                 ->setEditedBy($options['editedBy'])
         );
