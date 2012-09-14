@@ -23,6 +23,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
     public function getAction() {
         $quoteId = filter_var($this->_request->getParam('id'), FILTER_SANITIZE_STRING);
+        $count   = (bool) $this->_request->has('count');
         if($quoteId) {
             $quote = $this->_quoteMapper->find($quoteId);
             if($quote instanceof Quote_Models_Model_Quote) {
@@ -40,8 +41,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             ($order)  ? array('created_at ' . strtoupper($order)) : array(),
             ($limit)  ? $limit : null,
             ($offset) ? $offset : null,
-            ($search) ? $search : null
+            ($search) ? $search : null,
+            ($count)  ? $count : null
         );
+        if($count) {
+            return $quotes;
+        }
         return array_map(function($quote) {return $quote->toArray();}, $quotes);
     }
 
@@ -122,15 +127,19 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     }
 
     public function deleteAction() {
-        $ids = array_filter(filter_var_array(explode(',', $this->_request->getParam('id')), FILTER_VALIDATE_INT));
+        $ids = array_filter(filter_var_array(explode(',', $this->_request->getParam('id')), FILTER_SANITIZE_STRING));
         if(empty($ids)) {
             $this->_error();
         }
         $quotes = $this->_quoteMapper->find($ids);
         if($quotes) {
             $result = array();
-            foreach($quotes as $quote) {
-                $result[$quote->getId()] = $this->_quoteMapper->delete($quote);
+            if(is_array($quotes)) {
+                foreach($quotes as $quote) {
+                    $result[$quote->getId()] = $this->_quoteMapper->delete($quote);
+                }
+            } else {
+                $result[$quotes->getId()] = $this->_quoteMapper->delete($quotes);
             }
             if(!empty($result) && in_array(false, $result)) {
                 $this->_error($result);

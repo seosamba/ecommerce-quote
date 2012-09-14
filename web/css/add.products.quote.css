@@ -5,10 +5,7 @@
 }
 .product-item {
 	overflow: hidden;
-	width: 15.4%;
 	height: 140px;
-	margin: 4px 0.6%;
-	float: left;
     border: 1px solid #fff;
     box-shadow: 0 0 4px #BBBBBB;
     -moz-box-shadow: 0 0 4px #BBBBBB;
@@ -24,9 +21,10 @@
     font-size: 9pt;
 }
 .product-item img {
-	max-height: 80px;
-	display: block;
-	margin: 0px auto;
+    max-height: 130px;
+    max-width: 190px;
+    height:auto;
+    width:auto;
 }
 p.brand {
     padding: 2px 0px;

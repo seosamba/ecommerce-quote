@@ -353,7 +353,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	}
 
     protected function _renderGrid() {
-        return 'quote grid here';
+        $this->_view->websiteUrl = $this->_websiteHelper->getUrl();
+        return $this->_view->render('grid.quote.phtml');
     }
 
     /**

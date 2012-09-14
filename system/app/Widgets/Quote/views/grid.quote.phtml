@@ -1,0 +1,43 @@
+<?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)): ?>
+    <div id="quote-grid">
+        <div class="quote-grid-block" id="quote-grid-top">
+            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search', 'placeholder' => $this->translate('search quote by title'))); ?>
+            <a id="quote-grid-add" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
+        </div>
+        <table id="quote-grid-quotes" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="quote-grid-select-all" /></th>
+                    <th><?php echo $this->translate('Id'); ?></th>
+                    <th><?php echo $this->translate('Title'); ?></th>
+                    <th><?php echo $this->translate('Date'); ?></th>
+                    <th><?php echo $this->translate('Status'); ?></th>
+                    <th><?php echo $this->translate('Preview'); ?></th>
+                    <th><?php echo $this->translate('Remove'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="pager" colspan="7"></td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="quote-grid-block" id="quote-grid-bottom">
+            <span><?php echo $this->translate('With selected'); ?></span>
+            <div>
+                <?php echo $this->formSelect('withSelected', $this->translate('select an action'), array('id' => 'batch-action'), array(
+                    '0'      => $this->translate('select an action'),
+                    'remove' => $this->translate('Remove'),
+                )); ?>
+            </div>
+        </div>
+    </div>
+    <?php
+        $this->headScript()->setAllowArbitraryAttributes(true)
+            ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/grid.js'));
+        echo $this->headScript();
+    ?>
+<?php endif; ?>

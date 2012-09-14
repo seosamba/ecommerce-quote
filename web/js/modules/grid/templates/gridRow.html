@@ -1,0 +1,14 @@
+<td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
+<td><%= id %></td>
+<td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
+<td><%= $.datepicker.formatDate('dd M, yy', new Date(createdAt)) %></td>
+<td>
+    <select name="quoteStatus" class="quote-status" id="<%= id %>">
+        <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>>New</option>
+        <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>>Sent</option>
+        <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>>Sold</option>
+        <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>>Lost</option>
+    </select>
+</td>
+<td><a target="_blank" href="<%= $('#website_url').val() + id %>.html?mode=preview">Preview</a></td>
+<td><a href="javascript:;" class="quote-grid-delete" data-sid="<%= id %>"><img src="<%= $('#website_url').val() %>system/images/delete.png" alt="delete"/></a></td>

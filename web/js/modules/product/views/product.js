@@ -1,17 +1,13 @@
 define([
-    'libs/underscore/underscore',
-    'libs/backbone/backbone'
+    'underscore',
+    'backbone'
 ], function(_, Backbone) {
 
 	var productView = Backbone.View.extend({
-		className : 'product-item',
+		className : 'product-item grid_2',
 		template  : _.template($('#productTemplate').text()),
 		render: function() {
-			$(this.el).html(this.template(this.model.toJSON()));
-			this.$('img.lazy').lazyload({
-                container: $('#products'),
-                effect: 'fadeIn'
-            });
+            $(this.el).html(this.template(this.model.toJSON()));
 			return this;
 		}
 	});

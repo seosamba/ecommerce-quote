@@ -1,0 +1,37 @@
+<div>
+    <% if (firstPage != currentPage) { %>
+    <a href="#" class="page" data-page="first">First</a>
+    <% } %>
+
+    <% if (currentPage > firstPage) { %>
+    <a href="#" class="page" data-page="prev">Previous</a>
+    <% } %>
+
+    <% if (currentPage - 3 > firstPage) { %>
+    <span>...</span>
+    <% } %>
+
+    <% for (p=currentPage-3; p<=currentPage+3; p++) { %>
+    <% if (p < firstPage || p > lastPage) continue %>
+    <% if (currentPage == p) { %>
+    <span class="page selected"><%= p+1 %></span>
+    <% } else { %>
+    <a href="#" class="page" data-page="<%= p %>"><%= p+1 %></a>
+    <% } %>
+    <% } %>
+
+    <% if (currentPage + 3 < lastPage) { %>
+    <span>...</span>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+    <a href="#" class="page" data-page="next">Next</a>
+    <% } %>
+
+    <% if (lastPage != currentPage) { %>
+    <a href="#" class="page" data-page="last">Last</a>
+    <% } %>
+</div>
+<div>
+    Total <%= totalRecords %> quotes found
+</div>

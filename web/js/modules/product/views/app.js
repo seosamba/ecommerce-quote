@@ -1,6 +1,6 @@
 define([
-    'libs/underscore/underscore',
-    'libs/backbone/backbone',
+    'underscore',
+    'backbone',
     'modules/product/collections/products',
     'modules/product/views/product'
 ], function(_, Backbone, ProductsCollection, ProductView){
@@ -12,17 +12,24 @@ define([
 			'keypress #product-list-search': 'filterProducts'
 		},
 		initialize: function() {
-			this.productsCollection = new ProductsCollection();
+
+            this.productsCollection = new ProductsCollection();
             this.productsCollection.on('reset', this.render, this);
             this.productsCollection.on('add', this.render, this);
 			this.productsCollection.on('remove', this.render, this);
             this.productsCollection.fetch();
+
 		},
 		render: function(){
             $('#products').empty();
 			this.productsCollection.each(function(product){
 				var view = new ProductView({model: product});
 				$(view.render().el).appendTo('#products');
+            });
+
+            this.$('img.lazy').lazyload({
+                container: $('#products'),
+                effect: 'fadeIn'
             });
         },
 		addProductToQuote: function(e) {
@@ -44,7 +51,14 @@ define([
 					showMessage(response.responseText);
 				}
 			})
-		} ,
+		},
+        waypointCallback: function(){
+            var self = this;
+            $('.product-item:last', '#products').waypoint(function(){
+                $(this).waypoint('remove');
+                self.productsCollection.requestNextPage()
+            }, {context: '#products', offset: '130%' } );
+        },
 		filterProducts: function() {
 
 		}

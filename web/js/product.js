@@ -1,12 +1,16 @@
 require.config({
+    paths: {
+        'underscore'         : '/plugins/quote/web/js/libs/underscore/underscore',
+        'backbone'           : '/plugins/quote/web/js/libs/backbone/backbone',
+        'backbone.paginator' : '/plugins/shopping/web/js/libs/backbone/backbone.paginator.min'
+    },
     shim: {
-        'libs/underscore/underscore': {
-            exports: '_'
-        },
-        'libs/backbone/backbone' : {
-            deps: ['libs/underscore/underscore'],
+        'underscore': {exports: '_'},
+        'backbone' : {
+            deps: ['underscore'],
             exports: 'Backbone'
-        }
+        },
+        'backbone.paginator': ['backbone']
     }
 });
 

@@ -11,7 +11,6 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
 	protected $_model          = 'Quote_Models_Model_Quote';
 
-
     /**
      * @param $quote Quote_Models_Model_Quote
      * @return mixed
@@ -69,16 +68,33 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 		return $deleteResult;
 	}
 
-	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null) {
+	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null, $includeCount = false) {
 		$entries   = array();
 		if($search !== null) {
 			$where = ($where === null) ? 'title LIKE "%' . $search .'%"' : ($where . ' AND title LIKE "%' . $search .'%"');
 		}
-		$resultSet = $this->getDbTable()->fetchAll($where, $order, $limit, $offset);
-		if(null === $resultSet) {
+
+        if($includeCount) {
+            $result = $this->getDbTable()->fetchAll($where, $order)->toArray();
+            return array(
+                'total'  => sizeof($result),
+                'data'   => array_slice(array_map(function($item){
+                    $quote = new Quote_Models_Model_Quote($item);
+                    return $quote->toArray();
+                }, $result), $offset, $limit),
+                'offset' => $offset,
+                'limit'  => $limit
+            );
+
+        }
+
+        $result = $this->getDbTable()->fetchAll($where, $order, $limit, $offset);
+
+        if(null === $result) {
 			return null;
 		}
-		foreach ($resultSet as $row) {
+
+        foreach ($result as $row) {
 			$entries[] = new $this->_model($row->toArray());
 		}
 		return $entries;

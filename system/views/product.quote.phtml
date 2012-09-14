@@ -1,6 +1,6 @@
 <?php $this->placeholder('extraClasses')->set('refreshOnClose'); ?>
 <!-- product template -->
-<script id="productTemplate" type="text/template">
+<script id="productTemplate" type="text/html">
     <p class="brand"><%= brand %></p>
     <img class="lazy" src="" data-original="<?php echo $this->websiteUrl;?><% if (photo) { %>media/<%= photo.replace('/', '/product/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" />
     <p class="name"><%= name %></p>

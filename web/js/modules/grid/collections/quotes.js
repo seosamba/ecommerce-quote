@@ -1,0 +1,51 @@
+define([
+	'underscore',
+	'backbone',
+    '../models/quote',
+    'backbone.paginator'
+], function(_, Backbone, QuoteModel){
+
+    var quotesCollection = Backbone.Paginator.requestPager.extend({
+        model : QuoteModel,
+        order : 'desc',
+        paginator_core: {
+            dataType : 'json',
+            url      : $('#website_url').val() + 'api/quote/quotes/'
+        },
+        paginator_ui: {
+            firstPage: 0,
+            currentPage: 0,
+            perPage: 10,
+            totalPages: 10
+        },
+        server_api: {
+            count: true,
+            order: function() { return this.order },
+            limit: function() { return this.perPage; },
+            offset: function() { return this.currentPage * this.perPage }
+        },
+        parse: function (response) {
+            this.totalRecords = (this.server_api.count) ? response.total : response.length;
+            this.totalPages   = Math.floor(this.totalRecords / this.perPage);
+            return (this.server_api.count) ? response.data : response;
+        },
+        batch: function(method, data) {
+            var quotes = this.where({checked: true});
+            var url    = this.paginator_core.url
+            var ids    = _.pluck(quotes, 'id').join(',');
+
+            url += 'id/' + ids + '/';
+
+            $.ajax({
+                type: method,
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(data)
+            }).done(function() {
+                appView.quotes.pager();
+            })
+        }
+    });
+
+	return quotesCollection;
+});
