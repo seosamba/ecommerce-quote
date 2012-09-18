@@ -22,6 +22,13 @@
     background: #fff;
     font-size: 9pt;
 }
+
+.product-item .in-quote {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+}
+
 .quote-checked {
     background: #eee;
     opacity: 0.4;
