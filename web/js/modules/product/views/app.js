@@ -1,66 +1,59 @@
 define([
     'underscore',
     'backbone',
-    'modules/product/collections/products',
-    'modules/product/views/product'
+    '../collections/products',
+    '../views/product'
 ], function(_, Backbone, ProductsCollection, ProductView){
 
 	var quoteListView = Backbone.View.extend({
-		el: $('#products'),
+		el: $('#products-container'),
 		events: {
-			'click .btn-add' : 'addProductToQuote',
-			'keypress #product-list-search': 'filterProducts'
+			'keypress #search': 'searchAction',
+            'click .add-products': 'addAction'
 		},
 		initialize: function() {
+            this.products = new ProductsCollection();
+            this.products.on('reset', this.render, this);
+            this.products.fetch();
 
-            this.productsCollection = new ProductsCollection();
-            this.productsCollection.on('reset', this.render, this);
-            this.productsCollection.on('add', this.render, this);
-			this.productsCollection.on('remove', this.render, this);
-            this.productsCollection.fetch();
-
+            //init autocomplete
+            $.getJSON($('#website_url').val() + 'plugin/shopping/run/searchindex', function(response){
+                $('#search').autocomplete({
+                    minLength: 2,
+                    source: response,
+                    select: function(event, ui){
+                        $('#search').val(ui.item.value).trigger('keypress', true);
+                    }
+                });
+            });
 		},
+        addAction: function(e) {
+            var splitedUrl = window.location.href.split('/');
+            var quoteId    = splitedUrl[splitedUrl.length - 1];
+            this.products.batch('post', {qid: quoteId}, {success: function(response) {
+                hideSpinner();
+                showMessage('Products added to the quote. Refreshing the quote page...');
+                window.parent.location.reload();
+            }});
+        },
 		render: function(){
-            $('#products').empty();
-			this.productsCollection.each(function(product){
+            this.$('#products').empty();
+			this.products.each(function(product){
 				var view = new ProductView({model: product});
 				$(view.render().el).appendTo('#products');
             });
 
             this.$('img.lazy').lazyload({
-                container: $('#products'),
+                container: this.$('#products'),
                 effect: 'fadeIn'
             });
         },
-		addProductToQuote: function(e) {
-			var productId        = $(e.target).data('pid');
-			var splitedParentUrl = window.parent.location.href.split('/');
-			$.ajax({
-				url        : $('#website_url').val() + 'api/quote/products/',
-				type       : 'post',
-				dataType   : 'json',
-				data : {
-					pid  : productId,
-					opts : $('div[data-productid=' + productId + '] *').serialize(),
-					qty  : $(e.target).prev('.qty').val(),
-					qid  : splitedParentUrl[splitedParentUrl.length-1]
-				},
-				beforeSend : function() {showSpinner();},
-				success : function(response) {
-					hideSpinner();
-					showMessage(response.responseText);
-				}
-			})
-		},
-        waypointCallback: function(){
-            var self = this;
-            $('.product-item:last', '#products').waypoint(function(){
-                $(this).waypoint('remove');
-                self.productsCollection.requestNextPage()
-            }, {context: '#products', offset: '130%' } );
-        },
-		filterProducts: function() {
-
+        searchAction: function(e, force) {
+            if(e.keyCode == 13 || force) {
+                this.products.server_api.key = function() {return e.currentTarget.value; }
+                this.products.pager();
+                $(e.target).autocomplete('close');
+            }
 		}
 	});
 

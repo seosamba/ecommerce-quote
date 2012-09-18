@@ -4,6 +4,9 @@
 	overflow-y: auto;
 }
 .product-item {
+    width: 13%;
+    float: left;
+    margin: 3px 5px;
 	overflow: hidden;
 	height: 140px;
     border: 1px solid #fff;
@@ -13,13 +16,17 @@
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
-    overflow: hidden;
     position: relative;
     text-align: center;
     cursor: pointer;
     background: #fff;
     font-size: 9pt;
 }
+.quote-checked {
+    background: #eee;
+    opacity: 0.4;
+}
+
 .product-item img {
     max-height: 130px;
     max-width: 190px;
@@ -51,4 +58,19 @@ p.sku{
 	position: absolute;
 	bottom: 3px;
 	left: 10px;
+}
+
+#search {
+    width: 350px;
+    padding: 2px;
+    margin: -4px 0;
+}
+
+.ui-autocomplete {
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+    background: url('/system/images/bg-strip.png');
+    box-shadow: #999 0px 4px 10px;
 }

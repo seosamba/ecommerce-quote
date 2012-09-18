@@ -30,7 +30,7 @@
 	        <a href="http://www.seotoaster.com/">seotoaster.com</a>
         </noscript>
         <?php echo $this->formHidden('website_url', $this->websiteUrl);?>
-        <div class="seotoaster container_12 rounded3px <?php echo $this->placeholder('extraClasses'); ?>" <?php echo $this->placeholder('containerId'); ?>>
+        <div class="seotoaster container_12 rounded3px <?php echo $this->placeholder('extraClasses'); ?>" id="<?php echo $this->placeholder('containerId'); ?>">
             <div class="ui-widget-header ui-corner-top" style="height: 22px; padding: 7px 0 2px 8px;">
                 <?php echo $this->placeholder('headerContent'); ?>
                 <div class="closebutton"><span class="close"><?php echo $this->translate('Close'); ?></span></div>

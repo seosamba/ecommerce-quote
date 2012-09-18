@@ -8,7 +8,9 @@
  */
 class Api_Quote_Products extends Api_Service_Abstract {
 
-    const UPDATE_TYPE_QTY = 'qty';
+    const UPDATE_TYPE_QTY     = 'qty';
+
+    const UPDATE_TYPE_OPTIONS = 'options';
 
     protected $_accessList  = array(
         Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete'))
@@ -23,36 +25,52 @@ class Api_Quote_Products extends Api_Service_Abstract {
     public function postAction() {
         $pageHelper  = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-        $productId   = filter_var($this->_request->getParam('pid'), FILTER_SANITIZE_NUMBER_INT);
-        $quoteId     = $pageHelper->clean(filter_var($this->_request->getParam('qid'), FILTER_SANITIZE_STRING));
-        if(!$productId) {
+
+        $ids     = array_filter(filter_var_array(explode(',', $this->_request->getParam('id')), FILTER_SANITIZE_NUMBER_INT));
+        $data    = Zend_Json::decode($this->_request->getRawBody());
+        //$quoteId = $pageHelper->clean(filter_var($this->_request->getParam('qid'), FILTER_SANITIZE_STRING));
+
+        if(!$ids) {
             $this->_error();
         }
-        $product       = Models_Mapper_ProductMapper::getInstance()->find($productId);
-        $cart          = Quote_Tools_Tools::invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId));
-        $currentTax    = Tools_Tax_Tax::calculateProductTax($product);
-        //$cartContent   = $cart->getCartContent();
-        $productExists = false;
-        $cartContent   = array_map(function($cartItem) use($productId, &$productExists) {
-            if($cartItem['product_id'] == $productId) {
-                $cartItem['qty']++;
-                $productExists = true;
-            }
-            return $cartItem;
-        }, $cart->getCartContent());
+        $products = array();
+        $product  = Models_Mapper_ProductMapper::getInstance()->find($ids);
+        if(!is_array($product)) {
+            $products[] = $product;
+        } else {
+            $products = $product;
+        }
+        $cart          = Quote_Tools_Tools::invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($data['qid']));
+        foreach($products as $product) {
+            $currentTax    = Tools_Tax_Tax::calculateProductTax($product);
+            //$cartContent   = $cart->getCartContent();
+            $productExists = false;
+            $cartContent   = $cart->getCartContent();
 
-        if(!$productExists) {
-            $cartContent[] = array(
-                'product_id' => $product->getId(),
-                'price'      => $product->getPrice(),
-                'options'    => array(), //$this->_proccessOptions($this->_request->getParam('opts', array()), $product),
-                'qty'        => $this->_request->getParam('qty', 1),
-                'tax'        => $currentTax,
-                'tax_price'  => $product->getPrice() + $currentTax
-            );
+            if($cartContent && !empty($cartContent)) {
+                $cartContent   = array_map(function($cartItem) use($product, &$productExists) {
+                    if($cartItem['product_id'] == $product->getId()) {
+                        $cartItem['qty']++;
+                        $productExists = true;
+                    }
+                    return $cartItem;
+                }, $cart->getCartContent());
+            }
+
+
+            if(!$productExists) {
+                $cartContent[] = array(
+                    'product_id' => $product->getId(),
+                    'price'      => $product->getPrice(),
+                    'options'    => array(), //$this->_proccessOptions($this->_request->getParam('opts', array()), $product),
+                    'qty'        => $this->_request->getParam('qty', 1),
+                    'tax'        => $currentTax,
+                    'tax_price'  => $product->getPrice() + $currentTax
+                );
+            }
         }
         Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
-        return $quoteMapper->save($quoteMapper->find($quoteId))->toArray();
+        return $quoteMapper->save($quoteMapper->find($data['qid']))->toArray();
     }
 
     public function putAction() {
@@ -83,6 +101,12 @@ class Api_Quote_Products extends Api_Service_Abstract {
                 }
                 Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
                 $result = $quote;
+            break;
+            case self::UPDATE_TYPE_OPTIONS:
+                if(isset($updateData['options'])) {
+                    parse_str($updateData['options'], $updateData['options']);
+                }
+
             break;
         }
         return (array)$result;

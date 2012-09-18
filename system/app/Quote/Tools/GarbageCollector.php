@@ -20,12 +20,14 @@ class Quote_Tools_GarbageCollector extends Tools_System_GarbageCollector {
      */
     protected function _runOnUpdate() {
         $cacheHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('cache');
-        $page        = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($this->_object->getId() . '.html');
-        $cacheTags   = array(
-            preg_replace('/[^\w\d_]/', '', $page->getTemplateId()),
-            'pageid_' . $page->getId()
-        );
-        $cacheHelper->clean('', '', $cacheTags);
+        $page        =  Application_Model_Mappers_PageMapper::getInstance()->findByUrl($this->_object->getId() . '.html');
+        if($page instanceof Application_Model_Models_Page) {
+            $cacheTags   = array(
+                preg_replace('/[^\w\d_]/', '', $page->getTemplateId()),
+                'pageid_' . $page->getId()
+            );
+            $cacheHelper->clean('', '', $cacheTags);
+        }
         unset($page);
     }
 }

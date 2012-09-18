@@ -14,7 +14,7 @@ define([
         paginator_ui: {
             firstPage:    0,
             currentPage:  0,
-            perPage:     10,
+            perPage:     30,
             totalPages:  10
         },
         server_api: {
@@ -30,8 +30,30 @@ define([
             }
             this.totalPages = Math.floor(this.totalRecords / this.perPage);
             return this.server_api.count ? response.data : response;
+        },
+        batch: function(method, data, options) {
+            var checked = this.where({checked: true});
+            var url     = $('#website_url').val() + 'api/quote/products/';
+            var ids     = _.pluck(checked, 'id').join(',');
+
+            url += 'id/' + ids + '/';
+
+            $.ajax({
+                type: method,
+                url: url,
+                dataType: 'json',
+                beforeSend: showSpinner,
+                data: JSON.stringify(data)
+            }).done(function() {
+                appView.products.pager();
+                if(typeof options != 'undefined' && (options instanceof Object)) {
+                    if(options.hasOwnProperty('success')) {
+                       options.success();
+                    }
+                }
+
+            })
         }
-        //url: $('#website_url').val() + 'api/store/products/'
     });
 
 	return productsCollection;

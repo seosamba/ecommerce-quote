@@ -304,6 +304,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$this->_view->options    = $currentOptions;
 				$this->_view->weightSign = $shoppingConfig['weightUnit'];
 				$this->_view->pid        = $cartItem['product_id'];
+                $this->_view->qid        = $this->_quote->getId();
 				$content                 = $this->_view->render('options.quote.item.phtml');
 			break;
 			case 'price':

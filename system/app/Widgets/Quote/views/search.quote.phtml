@@ -1,16 +1,3 @@
-<?php $this->headStyle()->captureStart() ?>
-	.ui-autocomplete {
-	    background: rgba(204, 204, 204, 0.85);
-		height: 400px;
-		overflow: auto;
-	}
-	.ui-menu-item {
-    	border-bottom: 1px dashed #eee;
-		list-style-type: none;
-	}
-<?php $this->headStyle()->captureEnd() ?>
-<?php echo $this->headStyle(); ?>
-
 <?php echo $this->formText('quoteSearch', '', array(
 	'id'          => 'quote-search',
 	'placeholder' => 'Start typing id, name or e-mail to search among addresses',
@@ -20,11 +7,11 @@
 	var searchBox  = $('#quote-search');
 	searchBox.autocomplete({
 		source: function(request, callback) {
-            $.getJSON('/api/quote/customers/search/' + request.term, callback);
+            $.getJSON($('#website_url').val() + 'api/quote/customers/search/' + request.term, callback);
         },
-		minLength: 3,
+		minLength: 2,
 		select: function(event, ui) {
-			var billingForm = $('#quote-user-address');
+			var billingForm = $('#billing-user-address');
 			$(':input[name]', billingForm).each(function() {
 				$(this).val(ui.item[$(this).attr('name')]);
 			});
@@ -43,3 +30,13 @@
 			.appendTo(ul);
 	};
 </script>
+<style type="text/css">
+    .ui-autocomplete {
+        max-height: 280px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 5px;
+        background: url('/system/images/bg-strip.png');
+        box-shadow: #999 0px 4px 10px;
+    }
+</style>

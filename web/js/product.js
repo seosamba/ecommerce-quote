@@ -1,8 +1,9 @@
 require.config({
     paths: {
-        'underscore'         : '/plugins/quote/web/js/libs/underscore/underscore',
-        'backbone'           : '/plugins/quote/web/js/libs/backbone/backbone',
-        'backbone.paginator' : '/plugins/shopping/web/js/libs/backbone/backbone.paginator.min'
+        'underscore'         : '/plugins/shopping/web/js/libs/underscore/underscore-min',
+        'backbone'           : '/plugins/shopping/web/js/libs/backbone/backbone-min',
+        'backbone.paginator' : '/plugins/shopping/web/js/libs/backbone/backbone.paginator.min',
+        'text'               : '/plugins/shopping/web/js/libs/require/text'
     },
     shim: {
         'underscore': {exports: '_'},

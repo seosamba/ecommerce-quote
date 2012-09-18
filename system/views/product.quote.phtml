@@ -1,24 +1,19 @@
-<?php $this->placeholder('extraClasses')->set('refreshOnClose'); ?>
-<!-- product template -->
-<script id="productTemplate" type="text/html">
-    <p class="brand"><%= brand %></p>
-    <img class="lazy" src="" data-original="<?php echo $this->websiteUrl;?><% if (photo) { %>media/<%= photo.replace('/', '/product/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" />
-    <p class="name"><%= name %></p>
-    <p class="sku"><%= sku %></p>
-    <a class="btn-add" data-pid="<%= id %>" href="javascript:;"><?php echo $this->translate('Add'); ?></a>
-</script>
-
+<?php
+    $this->placeholder('headerContent')->set('Add products to the quote&nbsp|&nbsp;Search: ' . $this->formText('search', '', array('placeholder' => 'search products')));
+    $this->placeholder('extraClasses')->set('refreshOnClose');
+    $this->placeholder('containerId')->set('products-container');
+?>
 <div class="mt5px"></div>
 <div id="products" class="ui-widget-content ui-helper-clearfix h450 grid_12" style="overflow-x: hidden; overflow-y: auto;"></div>
 <div class="grid_12 mt5px">
-    <button class="save-and-close <?php echo $this->extraClasses; ?>"><?php echo $this->translate('Save and close'); ?></button>
+    <button class="add-products" id="save-btn"><?php echo $this->translate('Add products and close'); ?></button>
 </div>
 <?php
-    $this->headScript()->setAllowArbitraryAttributes(true)->appendFile($this->websiteUrl . 'plugins/quote/web/js/libs/require/require.js', null,
-        array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/product.js'))
-        ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/lazyload/jquery.lazyload.min.js');
-    echo $this->headScript();
+        $this->headScript()->setAllowArbitraryAttributes(true)
+            ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/product.js'))
+            ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/lazyload/jquery.lazyload.min.js');
+        echo $this->headScript();
+        echo $this->headLink()->appendStylesheet($this->websiteUrl . 'plugins/quote/web/css/add.products.quote.css');
 ?>
-<?php echo $this->headLink()->appendStylesheet($this->websiteUrl . 'plugins/quote/web/css/add.products.quote.css'); ?>
 
 

@@ -122,6 +122,7 @@ class Quote extends Tools_PaymentGateway {
      *
      */
     public function optionsAction() {
+        $this->_view->quoteId = $this->_request->getParam('qid');
         $this->_show();
     }
 
