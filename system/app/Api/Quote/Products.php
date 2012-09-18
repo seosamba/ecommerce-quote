@@ -41,11 +41,12 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $products = $product;
         }
         $cart          = Quote_Tools_Tools::invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($data['qid']));
+        $cartContent   = $cart->getCartContent();
         foreach($products as $product) {
             $currentTax    = Tools_Tax_Tax::calculateProductTax($product);
             //$cartContent   = $cart->getCartContent();
             $productExists = false;
-            $cartContent   = $cart->getCartContent();
+
 
             if($cartContent && !empty($cartContent)) {
                 $cartContent   = array_map(function($cartItem) use($product, &$productExists) {
@@ -54,7 +55,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
                         $productExists = true;
                     }
                     return $cartItem;
-                }, $cart->getCartContent());
+                }, $cartContent);
             }
 
 
