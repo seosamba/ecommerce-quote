@@ -63,7 +63,7 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
 		if(!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
 			//if quote template not secified in configs, get first template by type 'quote'
-			$quoteTemplates = $templateMapper->findByType(Application_Model_Models_Template::TYPE_QUOTE);
+			$quoteTemplates = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
 			$quoteTemplate  = reset($quoteTemplates);
 			unset($quoteTemplates);
 		} else {
