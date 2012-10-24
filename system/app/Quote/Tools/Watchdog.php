@@ -17,7 +17,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 	 */
 	private $_options = array();
 
-	public function __construct($options = array()) {
+	public function     __construct($options = array()) {
 		$this->_options = $options;
 	}
 
@@ -46,7 +46,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         }
 
         $pageHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
-        $page       = Application_Model_Mappers_PageMapper::getInstance()->find($this->_quote->getId());
+        $page       = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($pageHelper->filterUrl($this->_quote->getId()));
         if(!$page instanceof Application_Model_Models_Page) {
             $page = new Application_Model_Models_Page();
         }
@@ -57,7 +57,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
                 ->setHeaderTitle($this->_quote->getTitle())
                 ->setTargetedKeyPhrase($this->_quote->getTitle())
                 ->setTemplateId($quoteTemplate->getName())
-                ->setUrl($pageHelper->filterUrl($this->_quote->getTitle()))
+                ->setUrl($pageHelper->filterUrl($this->_quote->getId()))
                 ->setParentId(Quote::QUOTE_CATEGORY_ID)
                 ->setSystem(true)
                 ->setLastUpdate(date(DATE_ATOM))

@@ -7,6 +7,8 @@
  */
 class Quote_Tools_Tools {
 
+    const TITLE_PREFIX = 'New quote: ';
+
     /**
      * Create quote
      *
@@ -17,20 +19,20 @@ class Quote_Tools_Tools {
      */
     public static function createQuote($cart, $options = array()) {
         $quoteId     = substr(md5(uniqid(time(true)) . time(true)), 0, 15);
-        $date        = date(DATE_ATOM);
+        $date        = date(Tools_System_Tools::DATE_MYSQL);
         $quote       = new Quote_Models_Model_Quote();
 
         $quote->registerObserver(new Quote_Tools_Watchdog(array(
             'gateway' => new Tools_PaymentGateway(array(), array())
         )))
         ->registerObserver(new Tools_Mail_Watchdog(array(
-            'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
+            'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
         )));
 
         $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->save(
             $quote->setId($quoteId)
                 ->setStatus(Quote_Models_Model_Quote::STATUS_NEW)
-                ->setTitle($quoteId)
+                ->setTitle(self::TITLE_PREFIX . $quoteId)
                 ->setCartId($cart->getId())
                 ->setCreatedAt($date)
                 ->setUpdatedAt($date)

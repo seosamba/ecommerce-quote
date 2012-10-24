@@ -1,13 +1,12 @@
 define([
     'underscore',
-    'backbone',
-    'text!../templates/gridRow.html'
-], function(_, Backbone, GridRowTmpl) {
+    'backbone'
+], function(_, Backbone) {
 
     var quoteRowView = Backbone.View.extend({
         tagName   : 'tr',
         className : 'quote-grid-row',
-        template  : _.template(GridRowTmpl),
+        template  : _.template($('#quote-grid-row').text()),
         events    : {
             'click .quote-grid-delete': 'deleteAction',
             'change .quote-status': 'statusAction',

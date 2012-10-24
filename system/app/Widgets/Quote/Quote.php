@@ -14,6 +14,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
 	const DATE_TYPE_EXPIRES   = 'expires';
 
+    const NEWSLIST_DEFAULTS_PERPAGE = 15;
+
+    const NEWSLIST_DEFAULTS_ORDER   = 'DESC';
+
 	protected $_quote         = null;
 
 	protected $_previewMode   = false;
@@ -219,19 +223,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	/**
 	 * Render print quote button with print css
 	 *
+     * @deprecated Will be removed in next iterations
 	 * @return mixed
 	 */
 	protected function _renderPrint() {
-		$configHelper              = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
-        $currentTheme = $configHelper->getConfig('currentTheme');
-		$printCssFile = $this->_websiteHelper->getUrl() . 'themes/' . $currentTheme . '/print.quote.css';
-        if(!file_exists($printCssFile)) {
-            $this->_view->printCss = false;
-        } else {
-            $this->_view->currentTheme = $currentTheme;
-            $this->_view->printCss     = $printCssFile;
-        }
-		return $this->_view->render('print.quote.phtml');
+        return 'this widget is deprecated. Please use media type in your css.';
 	}
 
 	/**
@@ -354,6 +350,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	}
 
     protected function _renderGrid() {
+        $this->_view->quotes     = Quote_Models_Mapper_QuoteMapper::getInstance()->fetchAll(null, array('created_at ' . self::NEWSLIST_DEFAULTS_ORDER), self::NEWSLIST_DEFAULTS_PERPAGE, 0, null, true);
         $this->_view->websiteUrl = $this->_websiteHelper->getUrl();
         return $this->_view->render('grid.quote.phtml');
     }

@@ -1,18 +1,17 @@
-define([
+    define([
     'underscore',
     'backbone',
     '../collections/quotes',
-    './quoteGridRow',
-    'text!../templates/pager.html'
-], function(_, Backbone, QuotesCollection, QuoteGridRowView, PagerTmpl) {
+    './quoteGridRow'
+], function(_, Backbone, QuotesCollection, QuoteGridRowView) {
 
     var QuoteGridView = Backbone.View.extend({
         el: $('#quote-grid'),
         events: {
-            'click #quote-grid-add': 'addAction',
+            'click a.quote-grid-add': 'addAction',
             'click a.page': 'navigateAction',
             'keypress #quote-grid-search': 'searchAction',
-            'change #quote-grid-select-all': function(e) {
+                'change #quote-grid-select-all': function(e) {
                 this.quotes.each(function(quote) {
                     quote.set('checked', e.currentTarget.checked);
                     this.$('#quote-grid-select-all').attr('checked', e.currentTarget.checked);
@@ -30,9 +29,10 @@ define([
             }
         },
         templates: {
-            pager:_.template(PagerTmpl)
+            pager: _.template($('#quote-grid-pager').text())
         },
         initialize: function() {
+
             this.quotes = new QuotesCollection();
             this.quotes.on('reset', this.render, this);
             this.quotes.on('add', this.render, this);
@@ -41,13 +41,15 @@ define([
             this.quotes.server_api = _.extend(this.quotes.server_api, {
                 search: function() {return $('#quote-grid-search').val()}
             });
-
-            this.quotes.pager();
         },
         addAction: function(e) {
+            showSpinner();
+            var self = this;
             this.quotes.create({type: 'build'}, {
                 wait: true,
                 success: function(model) {
+                    hideSpinner();
+                    self.quotes.pager();
                     showMessage('New quote [' + model.get('title') + '] has been generated.');
                 }
             });

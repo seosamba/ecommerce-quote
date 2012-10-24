@@ -1,11 +1,37 @@
+<!-- quote grid row template -->
+<script type="text/template" id="quote-grid-row">
+    <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
+    <td><%= id %></td>
+    <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
+    <td><%= $.datepicker.formatDate('dd M, yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
+    <td>
+        <select name="quoteStatus" class="quote-status" id="<%= id %>">
+            <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>>New</option>
+            <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>>Sent</option>
+            <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>>Sold</option>
+            <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>>Lost</option>
+        </select>
+    </td>
+    <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html?mode=preview">Preview</a></td>
+    <td><a href="javascript:;" class="quote-grid-delete" data-sid="<%= id %>"><img src="<%= $('#website_url').val() %>system/images/delete.png" alt="delete"/></a></td>
+</script>
+<!-- /quote grid row template -->
+
+<!-- paginator template -->
+<?php echo $this->render('quote.grid.pager.phtml'); ?>
+<!-- /paginator template -->
+
 <?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)): ?>
     <div id="quote-grid">
         <div class="quote-grid-block" id="quote-grid-top">
-            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search', 'placeholder' => $this->translate('search quote by title'))); ?>
-            <a id="quote-grid-add" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
+            <?php //echo $this->formText('search', '', array('id' => 'quote-grid-search', 'placeholder' => $this->translate('search quote by title'))); ?>
+            <a class="quote-grid-add btn-text fl-right mb7px" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
         </div>
-        <table id="quote-grid-quotes" style="width: 100%;">
+        <table id="quote-grid-quotes" class="widget">
             <thead>
+                <tr class="search-line">
+                    <th class="gray-bg" colspan="7"><label><?php echo $this->translate('Search');?></label><?php echo $this->formText('search', '', array('id' => 'quote-grid-search', 'placeholder' => $this->translate('search quote by title'))); ?></th>
+                </tr>
                 <tr>
                     <th><input type="checkbox" id="quote-grid-select-all" /></th>
                     <th><?php echo $this->translate('Id'); ?></th>
@@ -17,27 +43,48 @@
                 </tr>
             </thead>
             <tbody>
-
+                <td colspan="7">
+                    <?php if(isset($this->quotes['total']) && ($this->quotes['total'] > 0)): ?>
+                        <img src="<?php echo $this->websiteUrl;?>plugins/quote/web/images/spinner.gif" border="0" alt="loading..." />
+                    <?php else: ?>
+                        <?php echo $this->translate('There are no quotes, yet'); ?>.
+                        <a href="javascript:;" class="quote-grid-add"><?php echo $this->translate('Add one now'); ?>?</a>
+                    <?php endif; ?>
+                </td>
             </tbody>
             <tfoot>
+                <tfoot>
                 <tr>
-                    <td class="pager" colspan="7"></td>
+                    <td colspan="3" class="text-left">
+    					<?php echo $this->translate('With selected'); ?>
+                        <?php echo $this->formSelect('withSelected', $this->translate('select an action'), array('id' => 'batch-action'), array(
+                            '0'      => $this->translate('select an action'),
+                            'remove' => $this->translate('Remove'),
+                        )); ?>
+    				</td>
+                    <td class="pager" colspan="5"></td>
                 </tr>
             </tfoot>
+            </tfoot>
         </table>
-        <div class="quote-grid-block" id="quote-grid-bottom">
-            <span><?php echo $this->translate('With selected'); ?></span>
-            <div>
-                <?php echo $this->formSelect('withSelected', $this->translate('select an action'), array('id' => 'batch-action'), array(
-                    '0'      => $this->translate('select an action'),
-                    'remove' => $this->translate('Remove'),
-                )); ?>
-            </div>
-        </div>
     </div>
     <?php
         $this->headScript()->setAllowArbitraryAttributes(true)
             ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/grid.js'));
         echo $this->headScript();
+        echo $this->headLink()->appendStylesheet($this->websiteUrl . 'system/css/reset-widgets.css');
     ?>
+<?php endif; ?>
+
+<?php if(isset($this->quotes['total']) && ($this->quotes['total'] > 0)): ?>
+    <script type="text/javascript">
+        $(function() {
+            $(document).one('grid:loaded', function() {
+                appView.quotes.paginator_ui = _.extend(appView.quotes.paginator_ui, {
+                    perPage: <?php echo Widgets_Quote_Quote::NEWSLIST_DEFAULTS_PERPAGE; ?>
+                });
+                appView.quotes.init(<?php echo Zend_Json::encode($this->quotes); ?>);
+            });
+        });
+    </script>
 <?php endif; ?>

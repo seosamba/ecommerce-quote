@@ -44,6 +44,24 @@ define([
             }).done(function() {
                 appView.quotes.pager();
             })
+        },
+        init: function(data) {
+            var self = this;
+
+            _.defaults(self.paginator_ui, {
+                firstPage   : 0,
+                currentPage : 1,
+                perPage     : 10,
+                totalPages  : 10
+            });
+
+            // Change scope of 'paginator_ui' object values
+            _.each(self.paginator_ui, function(value, key) {
+                if( _.isUndefined(self[key]) ) {
+                    self[key] = self.paginator_ui[key];
+                }
+            });
+            self.reset(self.parse(data));
         }
     });
 
