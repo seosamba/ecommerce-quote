@@ -10,6 +10,8 @@ class  Quote_Forms_Settings extends Zend_Form {
             'action' => $this->getView()->websiteUrl . 'plugin/quote/run/settings/'
 		));
 
+        $this->setDecorators(array('FormElements', 'Form'));
+
 		$this->addElement(new Zend_Form_Element_Checkbox(array(
 			'name'  => 'autoQuote',
 			'id'    => 'auto-quote',
@@ -25,14 +27,22 @@ class  Quote_Forms_Settings extends Zend_Form {
 			'name'         => 'quoteTemplate',
 			'id'           => 'quote-template',
 			'label'        => 'Quote template',
-			'class'        => 'grid_8 alpha ',
+			'class'        => 'grid_7',
 			'multiOptions' => $quoteTemplateOptions
 		)));
+
+        //default quote expiration delay
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'expirationDelay',
+            'id'    => 'expiration-delay',
+            'class' => 'grid_3',
+            'label' => 'Default quote expiration delay'
+        )));
 
 		$this->setDecorators(array('FormElements', 'Form'))
 			->setElementDecorators(array(
 				'ViewHelper',
-				array('Label', array('class' => 'grid_4 omega ')),
+				array('Label', array('class' => 'grid_4')),
 				array('HtmlTag', array('tag' => 'div', 'class' => 'clearfix mt5px' ))
 			));
 

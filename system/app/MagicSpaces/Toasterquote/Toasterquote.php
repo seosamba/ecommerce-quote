@@ -32,7 +32,7 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 			$content  = $parser->parseSimple();
 		} else {
             $translator = Zend_Controller_Action_HelperBroker::getStaticHelper('language');
-            return '<tr><td colspan="7" class="empty-quote-content">' . $translator->translate('We are sorry, but your quote is empty yet!') . '</td></tr>';
+            return '<tr><td colspan="7" class="empty-quote-content">' . $translator->translate('This quote is empty.') . '</td></tr>';
         }
 		return $content;
 	}
