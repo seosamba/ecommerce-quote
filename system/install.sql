@@ -21,4 +21,7 @@ ALTER TABLE `shopping_quote`
   ADD CONSTRAINT `shopping_quote_ibfk_2` FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION;
 
+INSERT INTO `template_type` (`id`, `title`) VALUES
+('typequote', 'Quote');
+
 UPDATE `plugin` SET `tags`='ecommerce' WHERE `name` = 'quote';
