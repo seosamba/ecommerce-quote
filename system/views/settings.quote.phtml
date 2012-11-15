@@ -4,3 +4,30 @@
 <div id="quote-settings" class="ui-widget clearfix">
     <?php echo $this->form; ?>
 </div>
+<script type="text/javascript">
+$(document).ready(function(){
+
+    $(document).on("click", "#applySettings", function(e){
+          e.preventDefault();
+          $.ajax({
+            type: "POST",
+            url: '<?php echo $this->websiteUrl;?>plugin/quote/run/settings/',
+            dataType: "json",
+            data: {
+                autoQuote: $('#auto-quote').val(),
+                quoteTemplate: $('#quote-template option:selected').val(),
+                expirationDelay: $('#expiration-delay').val()
+            },
+            success: function(responce){
+                smoke.signal('<?php echo $this->translate('Saved');?>');
+            }
+            
+          });
+          return false;
+
+          
+     });
+     
+     
+});
+</script>
