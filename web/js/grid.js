@@ -2,10 +2,10 @@ require.config({
     deps: ['modules/grid/application'],
 
     paths: {
-        'underscore'         : '/plugins/shopping/web/js/libs/underscore/underscore-min',
-        'backbone'           : '/plugins/shopping/web/js/libs/backbone/backbone-min',
-        'backbone.paginator' : '/plugins/shopping/web/js/libs/backbone/backbone.paginator.min',
-        'text'               : '/plugins/shopping/web/js/libs/require/text'
+        'underscore'         : '../../../shopping/web/js/libs/underscore/underscore-min',
+        'backbone'           : '../../../shopping/web/js/libs/backbone/backbone-min',
+        'backbone.paginator' : '../../../shopping/web/js/libs/backbone/backbone.paginator.min',
+        'text'               : '../../../shopping/web/js/libs/require/text'
     },
 
     shim: {
