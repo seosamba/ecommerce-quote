@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `shopping_quote` (
   `status` enum('new','sent','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new',
   `cart_id` int(10) unsigned DEFAULT NULL,
   `edited_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `valid_until` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
