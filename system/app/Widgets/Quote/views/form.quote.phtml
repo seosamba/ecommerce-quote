@@ -1,6 +1,7 @@
 <?php echo $this->form; ?>
 <script type="text/javascript">
     $(function() {
+        $('#state').parent('div').hide();
         $(document).on('submit', '#billing-user-address', function(e) {
             e.preventDefault();
             var form = $(e.currentTarget);
