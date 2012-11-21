@@ -4,6 +4,7 @@
         $(document).on('submit', '#billing-user-address', function(e) {
             e.preventDefault();
             var form = $(e.currentTarget);
+
             $.ajax({
                 type: 'post',
                 url: $(form).attr('action'),
@@ -19,6 +20,19 @@
                 }
             });
             return false;
-        });
+        }).on('change', '#country', function(e) {
+            var self = this;
+            $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
+                var statesHolder = $('#state');
+                if(!response.length) {
+                    statesHolder.parent('div').fadeOut();
+                } else {
+                    statesHolder.empty().parent('div').fadeIn();
+                    $.each(response, function(key, option) {
+                        statesHolder.append($("<option></option>").attr("value", option.state).text(option.name))
+                    })
+                }
+            });
+        })
     })
 </script>
