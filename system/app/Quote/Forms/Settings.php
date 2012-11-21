@@ -4,7 +4,7 @@ class  Quote_Forms_Settings extends Zend_Form {
 	public function init() {
 
 		$this->setAttribs(array(
-            'id'     => 'quote-settings',
+            'id'     => 'quote-settings-info',
             'class'  => 'quote-settings _fajax',
             'method' => Zend_Form::METHOD_POST,
             'action' => $this->getView()->websiteUrl . 'plugin/quote/run/settings/'

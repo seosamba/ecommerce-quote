@@ -97,7 +97,7 @@ class Quote extends Tools_PaymentGateway {
         $form = new Quote_Forms_Settings();
         if($this->_request->isPost()) {
             if($form->isValid($this->_request->getParams())) {
-                if(Models_Mapper_ShoppingConfig::getInstance()->save($form->getValues())) {
+                if(Models_Mapper_ShoppingConfig::getInstance()->save($this->_request->getParams())) {
                     $this->_responseHelper->success($this->_translator->translate('Configuration updated'));
                 }
                 $this->_responseHelper->fail($this->_translator->translate('Cannot update quote configuration.'));
