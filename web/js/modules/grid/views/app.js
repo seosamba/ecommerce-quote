@@ -1,4 +1,8 @@
-    define([
+/**
+ * Quote grid application view
+ *
+ */
+define([
     'underscore',
     'backbone',
     '../collections/quotes',
@@ -8,31 +12,17 @@
     var QuoteGridView = Backbone.View.extend({
         el: $('#quote-grid'),
         events: {
-            'click a.quote-grid-add': 'addAction',
-            'click a.page': 'navigateAction',
-            'keypress #quote-grid-search': 'searchAction',
-                'change #quote-grid-select-all': function(e) {
-                this.quotes.each(function(quote) {
-                    quote.set('checked', e.currentTarget.checked);
-                    this.$('#quote-grid-select-all').attr('checked', e.currentTarget.checked);
-                })
-            },
-            'change #batch-action': function(e) {
-                var action = e.currentTarget.value;
-                if(action == 'remove') {
-                    var self = this;
-                    showConfirm('Your are about to remove a bunch of quotes! Are you sure?', function() {
-                        self.quotes.batch('delete');
-                    });
-                }
-                this.$(e.currentTarget).val('');
-            }
+            'click a.quote-grid-add'        : 'addAction',
+            'click a.page'                  : 'navigateAction',
+            'keypress #quote-grid-search'   : 'searchAction',
+            'change #quote-grid-select-all' : 'checkAllAction',
+            'change #batch-action'          : 'batchAction',
+            'click .sortable'               : 'sortGridAction'
         },
         templates: {
             pager: _.template($('#quote-grid-pager').text())
         },
         initialize: function() {
-
             this.quotes = new QuotesCollection();
             this.quotes.on('reset', this.render, this);
             this.quotes.on('add', this.render, this);
@@ -41,6 +31,39 @@
             this.quotes.server_api = _.extend(this.quotes.server_api, {
                 search: function() {return $('#quote-grid-search').val()}
             });
+        },
+        sortGridAction: function(e) {
+            var self = this;
+            self.quotes.order = $(e.currentTarget).data('sort');
+            self.quotes.pager().done(function() {
+                if(self.quotes.orderType == 'desc') {
+                    self.quotes.orderType = 'asc';
+                } else {
+                    self.quotes.orderType = 'desc'
+                }
+            });
+        },
+        batchAction: function(e) {
+            var action = e.currentTarget.value;
+            if(action == 'remove') {
+                var self = this;
+                var selected = self.quotes.where({checked: true});
+                if(_.isEmpty(selected)) {
+                    showMessage('You should pick at least one item!', true);
+                    $('#batch-action').val($('option:first', $('#batch-action')).val());
+                    return false;
+                }
+                showConfirm('Your are about to remove a bunch of quotes! Are you sure?', function() {
+                    self.quotes.batch('delete');
+                });
+            }
+            this.$(e.currentTarget).val('');
+        },
+        checkAllAction: function(e) {
+            this.quotes.each(function(quote) {
+                quote.set('checked', e.currentTarget.checked);
+                this.$('#quote-grid-select-all').attr('checked', e.currentTarget.checked);
+            })
         },
         addAction: function(e) {
             showSpinner();
@@ -51,6 +74,10 @@
                     hideSpinner();
                     self.quotes.pager();
                     showMessage('New quote [' + model.get('title') + '] has been generated.');
+                },
+                error: function(mode, xhr) {
+                    hideSpinner();
+                    showMessage(xhr.responseText, true);
                 }
             });
         },

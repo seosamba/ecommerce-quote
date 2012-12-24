@@ -32,13 +32,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_error(null, self::REST_STATUS_NOT_FOUND);
         }
         //retrieve and validate additional parameters
-        $offset = filter_var($this->_request->getParam('offset'), FILTER_SANITIZE_NUMBER_INT);
-        $limit  = filter_var($this->_request->getParam('limit'), FILTER_SANITIZE_NUMBER_INT);
-        $order  = filter_var($this->_request->getParam('order'), FILTER_SANITIZE_STRING);
-        $search = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
-        $quotes = $this->_quoteMapper->fetchAll(
+        $offset    = filter_var($this->_request->getParam('offset'), FILTER_SANITIZE_NUMBER_INT);
+        $limit     = filter_var($this->_request->getParam('limit'), FILTER_SANITIZE_NUMBER_INT);
+        $order     = filter_var($this->_request->getParam('order', 'created_at'), FILTER_SANITIZE_STRING);
+        $orderType = filter_var($this->_request->getParam('orderType', 'desc'), FILTER_SANITIZE_STRING);
+        $search    = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
+        $quotes    = $this->_quoteMapper->fetchAll(
             null,
-            ($order)  ? array('created_at ' . strtoupper($order)) : array(),
+            ($order)  ? array($order . ' ' . strtoupper($orderType)) : array(),
             ($limit)  ? $limit : null,
             ($offset) ? $offset : null,
             ($search) ? $search : null,
@@ -82,7 +83,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $this->_error();
             break;
         }
-        $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy));
+        try {
+            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy));
+        } catch (Exception $e) {
+            $this->_error($e->getMessage());
+        }
+
         if($quote instanceof Quote_Models_Model_Quote) {
             return $quote->toArray();
         }
@@ -131,7 +137,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         if(empty($ids)) {
             $this->_error();
         }
-        $quotes = $this->_quoteMapper->find($ids);
+        $quotes = $this->_quoteMapper->fetchAll('`id` IN (' . join(', ', array_map(function($id) {return "'" . $id . "'"; }, $ids)) . ')');
         if($quotes) {
             $result = array();
             if(is_array($quotes)) {

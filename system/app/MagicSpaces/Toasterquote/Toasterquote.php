@@ -14,7 +14,11 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$content         = '';
 
 		$tmpPageContent  = $this->_content;
-		$this->_content  = $this->_findQuoteTemplateContent();
+        try {
+		    $this->_content  = $this->_findQuoteTemplateContent();
+        } catch (Exceptions_SeotoasterMagicSpaceException $smse) {
+            return $smse->getMessage();
+        }
 		$spaceContent    = $this->_parse();
 		$this->_content  = $tmpPageContent;
 
@@ -69,6 +73,10 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		} else {
 			$quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
 		}
+        if(!$quoteTemplate) {
+            error_log('Quote template not found! Cannot parse MagicSpace');
+            throw new Exceptions_SeotoasterMagicSpaceException('Sorry, but we can not render the quote page at this moment. Please, try again later.');
+        }
 	    return $quoteTemplate->getContent();
 	}
 

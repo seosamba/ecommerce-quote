@@ -7,7 +7,8 @@ define([
 
     var quotesCollection = Backbone.Paginator.requestPager.extend({
         model : QuoteModel,
-        order : 'desc',
+        order : 'created_at',
+        orderType: 'desc',
         paginator_core: {
             dataType : 'json',
             url      : $('#website_url').val() + 'api/quote/quotes/'
@@ -21,6 +22,7 @@ define([
         server_api: {
             count: true,
             order: function() { return this.order },
+            orderType: function() {return this.orderType},
             limit: function() { return this.perPage; },
             offset: function() { return this.currentPage * this.perPage }
         },
