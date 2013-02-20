@@ -19,6 +19,9 @@
                     hideSpinner();
                     showMessage('<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>' );
                 }
+            }).fail(function(xhr, responseText, error) {
+                hideSpinner();
+                showMessage(xhr.responseText.replace(/"/g, ''), true);
             });
             return false;
         }).on('change', '#country', function(e) {

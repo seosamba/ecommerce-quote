@@ -7,6 +7,8 @@
 
 class Quote_Tools_Watchdog implements Interfaces_Observer {
 
+    const EXTERNAL_TOASTER_URL = 'http://www.seotoaster.com/web-site-quote-system-software-tool.html';
+
 	/**
 	 * @var Quote_Models_Model_Quote
 	 */
@@ -17,7 +19,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 	 */
 	private $_options = array();
 
-	public function     __construct($options = array()) {
+	public function  __construct($options = array()) {
 		$this->_options = $options;
 	}
 
@@ -36,13 +38,14 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         $templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
 
         if(!isset($shoppingConfig['quoteTemplate']) || $shoppingConfig['quoteTemplate']) {
-            $quoteTemplate = array_shift($templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE));
+            $templates     = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
+            $quoteTemplate = array_shift($templates);
         } else {
             $quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
         }
 
         if(!$quoteTemplate instanceof Application_Model_Models_Template) {
-            throw new Exceptions_SeotoasterPluginException('Cannot find any quote template. Create one, please');
+            throw new Exceptions_SeotoasterPluginException('To use this feature, you first need to create a quote template.');
         }
 
         $pageHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
