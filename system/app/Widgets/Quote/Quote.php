@@ -383,4 +383,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         return $this->_view->render('form.quote.phtml');
     }
+
+    public static function getAllowedOptions() {
+        $translator = Zend_Registry::get('Zend_Translate');
+        return array(
+            array(
+                'alias'  => $translator->translate('Store Quote Form - Generates instantly a quote request form'),
+                'option' => 'quote:form'
+            )
+        );
+    }
 }
