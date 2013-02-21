@@ -297,6 +297,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$content             = $this->_view->render('photo.quote.item.phtml');
 			break;
 			case 'options':
+                if(!isset($cartItem['options']) || !is_array($cartItem['options']) || empty($cartItemp['options'])) {
+                    break;
+                }
 				$this->_view->options    = $currentOptions;
 				$this->_view->weightSign = $shoppingConfig['weightUnit'];
 				$this->_view->pid        = $cartItem['product_id'];
