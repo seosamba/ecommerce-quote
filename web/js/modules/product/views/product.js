@@ -8,15 +8,14 @@ define([
 		className : 'product-item',
 		template  : _.template(ProductItemTmpl),
 		events: {
-            //'click .product-item' : 'toggleAction',
-            //'click .in-quote': 'toggleAction'
             'click': 'toggleAction'
         },
+        initialize: function() {
+            this.model.on('change', this.render, this);
+        },
         toggleAction: function(e) {
-            var inQuoteCheckbox = $(e.currentTarget).find('.in-quote');
-            inQuoteCheckbox.attr('checked', !inQuoteCheckbox.attr('checked'));
-            this.model.set({checked: (inQuoteCheckbox.attr('checked') == 'checked') ? true : false });
             $(this.el).toggleClass('quote-checked');
+            this.model.set({checked: $(this.el).hasClass('quote-checked')});
         },
         addAction: function(e) {
             var productId        = $(e.currentTarget).data('pid');
