@@ -10,6 +10,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
     const TRIGGER_NEW_QUOTE         = 'quote_newquote';
 
+    const TRIGGER_QUOTE_UPDATED     = 'quote_updated';
+
     const TRIGGER_QUOTE_STATUS_SOLD = 'quotestatussold';
 
     const TRIGGER_QUOTE_STATUS_SENT = 'quotestatussent';
@@ -105,6 +107,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             ->setMailFromLabel($this->_storeConfig['company'])
             ->setSubject(isset($mailActionTrigger['subject']) ? $mailActionTrigger['subject'] : 'New quote is generated for you!');
         return ($this->_mailer->send() !== false);
+    }
+
+    protected function _sendQuoteupdatedMail() {
+
     }
 
     protected function _prepareEmailBody(Quote_Models_Model_Quote $quote) {

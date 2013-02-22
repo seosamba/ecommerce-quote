@@ -17,7 +17,7 @@
                     window.location.href = response.id + '.html';
                 } else {
                     hideSpinner();
-                    showMessage('<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>' );
+                    showMessage('<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>', false, 5000);
                 }
             }).fail(function(xhr, responseText, error) {
                 hideSpinner();

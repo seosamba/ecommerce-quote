@@ -45,7 +45,10 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         }
 
         if(!$quoteTemplate instanceof Application_Model_Models_Template) {
-            throw new Exceptions_SeotoasterPluginException('To use this feature, you first need to create a quote template.');
+            if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL)) {
+                throw new Exceptions_SeotoasterPluginException('To use this feature, you first need to create a quote template.');
+            }
+            throw new Exceptions_SeotoasterPluginException('Sorry, we can\'t generate a quote for you right now, please try again later.');
         }
 
         $pageHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('page');

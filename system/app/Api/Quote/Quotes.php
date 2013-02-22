@@ -112,6 +112,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
                 )));
 
+                if($quoteData['sendMail']) {
+                    $quote->registerObserver(new Tools_Mail_Watchdog(array(
+                        'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
+                    )));
+                }
+
                 if(isset($quoteData['billing']) && !empty($quoteData['billing'])) {
                     parse_str($quoteData['billing'], $quoteData['billing']);
                     $customer = Shopping::processCustomer($quoteData['billing']);
