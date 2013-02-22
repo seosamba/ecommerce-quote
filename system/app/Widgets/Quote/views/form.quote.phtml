@@ -1,4 +1,10 @@
 <?php echo $this->form; ?>
+<style type="text/css">
+    .quote-fail-lnk {
+        color: #fff;
+        text-decoration: underline;
+    }
+</style>
 <script type="text/javascript">
     $(function() {
         $('#state').parent('div').hide();
@@ -21,7 +27,8 @@
                 }
             }).fail(function(xhr, responseText, error) {
                 hideSpinner();
-                showMessage(xhr.responseText.replace(/"/g, ''), true);
+                var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html">Learn more</a>';
+                showMessage(xhr.responseText.replace(/"/g, '') + ' ' + msg, true);
             });
             return false;
         }).on('change', '#country', function(e) {
