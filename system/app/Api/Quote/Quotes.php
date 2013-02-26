@@ -59,6 +59,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $form = new Quote_Forms_Quote();
+                $data = $this->_request->getParams();
                 if(!$form->isValid($this->_request->getParams())) {
                     $this->_error('Parameters are invalid');
                 }
@@ -97,6 +98,18 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
     public function putAction() {
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
+
+        //we want update special fields of the quote
+        if(isset($quoteData['partial']) && $quoteData['partial']) {
+            $partial       = filter_var($quoteData['partial'], FILTER_SANITIZE_STRING);
+            $partialMethod = '_update' . ucfirst($partial);
+            if(method_exists($this, $partialMethod)) {
+                return $this->$partialMethod($quoteData);
+            }
+            return $this->_error('Requested partial method doesn\'t exist');
+        }
+
+        //updating whole quote
         if(is_array($quoteData)) {
             $customer = null;
             $quote    = $this->_quoteMapper->find($quoteData['id']);
@@ -159,5 +172,25 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             return $result;
         }
         $this->_error('Quote not found', self::REST_STATUS_NOT_FOUND);
+    }
+
+    protected function _updateShipping($data) {
+        $quoteId       = filter_var($data['id'], FILTER_SANITIZE_STRING);
+        $shippingPrice = floatval($data['shippingPrice']);
+        if(!$shippingPrice) {
+            $shippingPrice = 0;
+        }
+        $quote = $this->_quoteMapper->find($quoteId);
+        if(!$quote instanceof Quote_Models_Model_Quote) {
+            $this->_error('Quote not found.', self::REST_STATUS_NOT_FOUND);
+        }
+        $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $cart              = $cartSessionMapper->find($quote->getCartId());
+        if(!$cart instanceof Models_Model_CartSession) {
+            $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
+        }
+        $cart->setShippingPrice($shippingPrice);
+        $cartSessionMapper->save($cart);
+        return $quote;
     }
 }

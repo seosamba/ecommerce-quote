@@ -1,17 +1,25 @@
 <?php echo $this->form; ?>
 <style type="text/css">
-    .quote-fail-lnk {
-        color: #fff;
-        text-decoration: underline;
-    }
+    .quote-fail-lnk {color: #fff;text-decoration: underline;}
 </style>
 <script type="text/javascript">
     $(function() {
-        $('#state').parent('div').hide();
-        $(document).on('submit', '#billing-user-address', function(e) {
-            e.preventDefault();
-            var form = $(e.currentTarget);
+        $('#state').empty().parent('div').hide();
 
+        $(document).on('submit', '#plugi-quote-quoteform', function(e) {
+            e.preventDefault();
+
+            //validate reuired fields firs
+            var notValidElements = $('input.quote-required').filter(function() {
+                return $(this).val() === '';
+            }).css({borderColor: "indianred"});
+            if(notValidElements.length) {
+                showMessage('<?php echo $this->translate('Required fields are missing! We need to have, at least, your name and e-mail to generate a quote.'); ?>', true);
+                return false;
+            }
+
+            //working with form
+            var form = $(e.currentTarget);
             $.ajax({
                 type: 'post',
                 url: $(form).attr('action'),
@@ -30,13 +38,14 @@
                 var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html">Learn more</a>';
                 showMessage(xhr.responseText.replace(/"/g, '') + ' ' + msg, true);
             });
+
             return false;
         }).on('change', '#country', function(e) {
             var self = this;
             $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
                 var statesHolder = $('#state');
                 if(!response.length) {
-                    statesHolder.parent('div').fadeOut();
+                    statesHolder.empty().parent('div').fadeOut();
                 } else {
                     statesHolder.empty().parent('div').fadeIn();
                     $.each(response, function(key, option) {

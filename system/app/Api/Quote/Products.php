@@ -78,6 +78,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $productId  = filter_var($this->_request->getParam('id'), FILTER_SANITIZE_NUMBER_INT);
         $updateType = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
         $updateData = Zend_Json::decode($this->_request->getRawBody());
+        $mapper     = Quote_Models_Mapper_QuoteMapper::getInstance();
         $result     = null;
         switch($updateType) {
             case self::UPDATE_TYPE_QTY:
@@ -87,7 +88,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
                 if(!isset($updateData['qid'])) {
                     $this->_error('Cannot find the quote.', self::REST_STATUS_NOT_FOUND);
                 }
-                $mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+
                 $quote  = $mapper->find($updateData['qid']);
                 if(!$quote instanceof Quote_Models_Model_Quote) {
                     $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
@@ -108,6 +109,20 @@ class Api_Quote_Products extends Api_Service_Abstract {
                     parse_str($updateData['options'], $updateData['options']);
                 }
 
+                $quote  = $mapper->find($updateData['qid']);
+                if(!$quote instanceof Quote_Models_Model_Quote) {
+                    $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
+                }
+                $cart        = Quote_Tools_Tools::invokeCart($quote);
+                $cartContent = $cart->getCartContent();
+                foreach($cartContent as $key => $cartItem) {
+                    if($cartItem['product_id'] == $productId) {
+                        $cartContent[$key]['options'] = array($updateData['options']['option'] => $updateData['options']['selection']);
+                        break;
+                    }
+                }
+                Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
+                $result = $quote;
             break;
         }
         return (array)$result;

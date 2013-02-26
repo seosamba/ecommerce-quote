@@ -13,7 +13,7 @@ $(function() {
         }
     }).on('click', '#same-for-shipping', function(e) {  // billing form "same for shipping" checkbox handling
         var shippingForm = $('#shipping-user-address');
-        var billingForm  = $('#billing-user-address');
+        var billingForm  = $('#plugin-quote-quoteform');
         var check        = $(e.currentTarget);
         if(shippingForm.length) {
             $(':input[name]', billingForm).each(function() {
@@ -61,6 +61,23 @@ $(function() {
                 $('.smoke-base').remove();
             }
         }, {classname:"errors", 'ok':'Yes', 'cancel':'No'});
+    }).on('blur', '#quote-shipping-price', function() {
+        var quoteId = $('.save-action:first').data('qid');
+        var shippingPrice = parseFloat($(this).val());
+        if(!shippingPrice) {
+            $(this).val(0);
+            return false;
+        }
+        $.ajax({
+            url      : $('#website_url').val() + 'api/quote/quotes/',
+            type     : 'put',
+            data     : JSON.stringify({
+                id: quoteId,
+                partial: 'shipping',
+                shippingPrice: shippingPrice
+            }),
+            dataType : 'json'
+        }).done(function(response) {});
     });
 });
 
@@ -79,9 +96,10 @@ function updateQuote(quoteId, sendMail, mailMessage) {
         createdAt   : $('#datepicker-created').val(),
         expiresAt   : $('#datepicker-expires').val(),
         shipping    : $('#shipping-user-address').serialize(),
-        billing     : $('#billing-user-address').serialize(),
+        billing     : $('#plugin-quote-quoteform').serialize(),
         mailMessage : mailMessage
     };
+    console.log(data);
     $.ajax({
         url        : $('#website_url').val() + 'api/quote/quotes/',
         type       : 'put',

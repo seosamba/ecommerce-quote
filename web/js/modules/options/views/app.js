@@ -19,13 +19,16 @@ define([
             this.product.on('change', this.render, this);
             this.product.fetch();
 
-			//product.on('change:name', this.loadSelections, product);
-			//this.productView = new ProductView({model:  product});
+            //@todo modify this, to parse url options diferent way
+            this.currentSelection = splitedUrl[splitedUrl.length - 5];
+
 		},
 		render: function(){
+            console.log(this.product);
             $('#manage-product-options-main').empty();
             var view = new ProductView({model: this.product});
 			$(view.render().el).appendTo('#manage-product-options-main');
+            $('#manage-product-options-main').data({currentSelection: this.currentSelection})
 			return this;
         },
 		saveAction: function(e) {
@@ -41,7 +44,9 @@ define([
                 }),
                 beforeSend: showSpinner
             }).done(function(response) {
-                console.log(response);
+                hideSpinner();
+                showMessage('Changes saved. Refreshing a quote page...');
+                window.parent.location.reload();
             });
 		}
 	});

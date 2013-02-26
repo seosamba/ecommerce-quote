@@ -37,7 +37,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
         $templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
 
-        if(!isset($shoppingConfig['quoteTemplate']) || $shoppingConfig['quoteTemplate']) {
+        if(!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
             $templates     = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
             $quoteTemplate = array_shift($templates);
         } else {

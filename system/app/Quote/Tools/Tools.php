@@ -18,9 +18,9 @@ class Quote_Tools_Tools {
      * @return bool|string
      */
     public static function createQuote($cart, $options = array()) {
-        $quoteId     = substr(md5(uniqid(time(true)) . time(true)), 0, 15);
-        $date        = date(Tools_System_Tools::DATE_MYSQL);
-        $quote       = new Quote_Models_Model_Quote();
+        $quoteId = substr(md5(uniqid(time(true)) . time(true)), 0, 15);
+        $date    = date(Tools_System_Tools::DATE_MYSQL);
+        $quote   = new Quote_Models_Model_Quote();
 
         $quote->registerObserver(new Quote_Tools_Watchdog(array(
             'gateway' => new Tools_PaymentGateway(array(), array())
@@ -29,6 +29,11 @@ class Quote_Tools_Tools {
             'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
         )));
 
+        $expirationDelay = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('expirationDelay');
+        if(!$expirationDelay) {
+            $expirationDelay = 1;
+        }
+
         $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->save(
             $quote->setId($quoteId)
                 ->setStatus(Quote_Models_Model_Quote::STATUS_NEW)
@@ -36,7 +41,7 @@ class Quote_Tools_Tools {
                 ->setCartId($cart->getId())
                 ->setCreatedAt($date)
                 ->setUpdatedAt($date)
-                ->setExpiresAt($date, strtotime('+1 day', strtotime($date)))
+                ->setExpiresAt(date(Tools_System_Tools::DATE_MYSQL, strtotime('+' . (($expirationDelay == 1) ? '1 day' : $expirationDelay . ' days'))))
                 ->setUserId($cart->getUserId())
                 ->setEditedBy($options['editedBy'])
         );
@@ -55,6 +60,7 @@ class Quote_Tools_Tools {
         $mapper = Models_Mapper_CartSessionMapper::getInstance();
         if(!$quote instanceof Quote_Models_Model_Quote) {
             $cartStorage = Tools_ShoppingCart::getInstance();
+            $cartStorage->saveCartSession();
             $cart        = $mapper->find($cartStorage->getCartId());
         } else {
             $cart = $mapper->find($quote->getCartId());

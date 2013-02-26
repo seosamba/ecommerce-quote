@@ -121,7 +121,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	 * @return mixed
 	 */
 	protected function _renderShipping() {
-		return $this->_currency->toCurrency($this->_cart->getShippingPrice());
+		$this->_view->quoteShipping = $this->_cart->getShippingPrice();
+        return $this->_view->render('shipping.quote.phtml');
 	}
 
 	/**
@@ -212,7 +213,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 			return $this->_currency->toCurrency($totalTax);
 		}
 		if($totalType == 'sub') {
-			return '<span class="quote-grand-total-val">' . $this->_currency->toCurrency($subTotal) . '</span>';
+			return '<span class="quote-sub-total-val">' . $this->_currency->toCurrency($subTotal) . '</span>';
 		}
 		$shippingPrice = $this->_cart->getShippingPrice();
 		//@todo Probably we will have to change this, because discount will be moved to the cart
@@ -297,7 +298,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$content             = $this->_view->render('photo.quote.item.phtml');
 			break;
 			case 'options':
-                if(!isset($cartItem['options']) || !is_array($cartItem['options']) || empty($cartItemp['options'])) {
+                if(!isset($cartItem['options']) || !is_array($cartItem['options']) || empty($cartItem['options'])) {
                     break;
                 }
 				$this->_view->options    = $currentOptions;

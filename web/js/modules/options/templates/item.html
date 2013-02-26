@@ -12,7 +12,7 @@
         <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
         <select name="selection" id="product-<%= id %>-option-<%= value.id %>">
             <% _.each(value.selection, function(sel, key) { %>
-                <option value="<%= sel.id %>" <% if (sel.isDefault == '1') { %> selected="selected" <% } %>><%= sel.title %></option>
+                <option value="<%= sel.id %>" <% if (($('#manage-product-options-main').data('currentSelection') == sel.id)) { %> selected="selected" <% } %>><%= sel.title %></option>
             <% }) %>
         </select>
         <input type="hidden" name="option" value="<%= value.id %>">
