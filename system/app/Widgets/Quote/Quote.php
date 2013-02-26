@@ -121,7 +121,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	 * @return mixed
 	 */
 	protected function _renderShipping() {
-		$this->_view->quoteShipping = $this->_cart->getShippingPrice();
+        $shippingPrice              = $this->_cart->getShippingPrice();
+		$this->_view->quoteShipping = ($shippingPrice) ? $shippingPrice : 0;
         return $this->_view->render('shipping.quote.phtml');
 	}
 

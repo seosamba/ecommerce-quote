@@ -6,9 +6,30 @@
 
 
 <div id="manage-product-options-main" class="grid_12 h310"></div>
-<div class="grid_12 mt10px" style="text-align: right;">
+<div class="grid_12" style="text-align: right;padding: 5px 0;">
     <a data-qid="<?php echo $this->quoteId; ?>" href="javascript:;" id="save-options"><?php echo $this->translate('Save options'); ?></a>
 </div>
+<style type="text/css">
+    .product-item {overflow: hidden;position: relative;}
+    .product-data img {
+        max-height: 231px;
+    }
+    #product-name {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 7px;
+        color: white;
+        width: 218px;
+        text-align: center;
+    }
+    .product-details {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 7px;
+        width: 218px;
+    }
+</style>
 
 <?php
     $this->headScript()->setAllowArbitraryAttributes(true)

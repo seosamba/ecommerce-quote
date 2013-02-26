@@ -1,23 +1,24 @@
-<div class="product-data grid_4 h300">
+<div class="mt5px"></div>
+<div class="product-data grid_5 h300">
     <p id="product-name"><%= name %></p>
     <img class="lazy" src="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/small/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" />
-    <p><span>sku: </span><span><%= sku %></span></p>
-    <p><span>brand: </span><span><%= brand %></span></p>
+    <div class="product-details">
+        <p><span>sku: </span><span><%= sku %></span></p>
+        <p><span>brand: </span><span><%= brand %></span></p>
+    </div>
 </div>
-<div data-productid="<%= id %>" class="product-options-listing h300 grid_8">
-    <%
-        _.each(defaultOptions, function(value, index) {
+<div data-productid="<%= id %>" class="product-options-listing h300 grid_7">
+        <% _.each(defaultOptions, function(value, index) {
             if(value.type == 'dropdown') {
-    %>
-        <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
-        <select name="selection" id="product-<%= id %>-option-<%= value.id %>">
-            <% _.each(value.selection, function(sel, key) { %>
-                <option value="<%= sel.id %>" <% if (($('#manage-product-options-main').data('currentSelection') == sel.id)) { %> selected="selected" <% } %>><%= sel.title %></option>
-            <% }) %>
-        </select>
-        <input type="hidden" name="option" value="<%= value.id %>">
-    <%      }
-        })
-    %>
-
+        %>
+        <fieldset class="option">
+            <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
+            <select name="selection" id="product-<%= id %>-option-<%= value.id %>">
+                <% _.each(value.selection, function(sel, key) { %>
+                    <option value="<%= sel.id %>" <% if (($('#manage-product-options-main').data('currentSelection') == sel.id)) { %> selected="selected" <% } %>><%= sel.title + ' (price: ' + sel.priceSign + sel.priceValue + ' / weight: ' + sel.weightSign + sel.weightValue + ')' %></option>
+                <% }) %>
+            </select>
+            <input type="hidden" name="option" value="<%= value.id %>">
+        </fieldset>
+        <% }}) %>
 </div>
