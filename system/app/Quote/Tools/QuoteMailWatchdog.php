@@ -109,8 +109,67 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         return ($this->_mailer->send() !== false);
     }
 
-    protected function _sendQuoteupdatedMail() {
+    /**
+     * Sending updated quote email
+     *
+     * For now supports only customer and store owner recipients
+     *
+     * @param Quote_Models_Model_Quote $quote
+     * @return boolean
+     */
+    protected function _sendQuoteupdatedMail(Quote_Models_Model_Quote $quote) {
+        $recipient = null;
+        switch($this->_options['recipient']) {
+            case self::RECIPIENT_CUSTOMER:
+                $recipient = Application_Model_Mappers_UserMapper::getInstance()->find($quote->getUserId());
 
+                //send updated quote to the shipping and billing e-mails
+                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+                if(!$cart instanceof Models_Model_CartSession) {
+                    if(Tools_System_Tools::debugMode()) {
+                        error_log('Cannot find cart with id: ' . $quote->getCartId() . ' for the quote with id: ' . $quote->getId());
+                    }
+                    return;
+                }
+
+                $shippingAddress = Tools_ShoppingCart::getAddressById($cart->getShippingAddressId());
+                $billingAddress  = Tools_ShoppingCart::getAddressById($cart->getBillingAddressId());
+
+                $this->_mailer->setMailToLabel($recipient->getFullName());
+
+                $recipientEmails = array();
+
+                if($billingAddress && isset($billingAddress['email'])) {
+                    if(isset($billingAddress['firstname']) && isset($billingAddress['lastname'])) {
+                        $fullName = $billingAddress['firstname'] . ' ' . $billingAddress['lastname'];
+                    }
+                    $recipientEmails[][(isset($fullName) ? $fullName : $recipient->getFullName())] = $billingAddress['email'];
+                }
+                if($shippingAddress && isset($shippingAddress['email'])) {
+                    if(isset($shippingAddress['firstname']) && isset($shippingAddress['lastname'])) {
+                        $fullName = $shippingAddress['firstname'] . ' ' . $shippingAddress['lastname'];
+                    }
+                    $recipientEmails[][(isset($fullName) ? $fullName : $recipient->getFullName())] = $shippingAddress['email'];
+                }
+
+                $this->_mailer->setMailTo($recipientEmails);
+            break;
+            case self::RECIPIENT_STOREOWNER:
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])
+                    ->setMailTo($this->_storeConfig['email']);
+            break;
+        }
+
+        if (false === ($body = $this->_prepareEmailBody($quote))) {
+            return false;
+        }
+
+        $this->_entityParser->objectToDictionary($quote);
+        $this->_mailer->setBody($this->_entityParser->parse($body));
+        $this->_mailer->setMailFrom((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from'])
+            ->setMailFromLabel($this->_storeConfig['company'])
+            ->setSubject(isset($mailActionTrigger['subject']) ? $mailActionTrigger['subject'] : 'Quote has been updated');
+        return $this->_mailer->send();
     }
 
     protected function _prepareEmailBody(Quote_Models_Model_Quote $quote) {

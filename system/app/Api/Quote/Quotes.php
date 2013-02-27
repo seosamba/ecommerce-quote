@@ -127,7 +127,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 if($quoteData['sendMail']) {
                     $quote->registerObserver(new Tools_Mail_Watchdog(array(
-                        'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
+                        'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED
                     )));
                 }
 
@@ -191,6 +191,18 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
         $cart->setShippingPrice($shippingPrice);
         $cartSessionMapper->save($cart);
-        return $quote;
+
+        $totalQty = array_reduce($cart->getCartContent(), function($result, $item) {
+            return ($result += $item['qty']);
+        }, 0);
+
+        $currency   = Zend_Registry::get('Zend_Currency');
+        $grandTotal = ($cart->getTotal() * $totalQty) + $shippingPrice;
+        return array(
+            'shippingPrice'         => $shippingPrice,
+            'shippingPriceCurrency' => $currency->toCurrency($shippingPrice),
+            'grandTotal'            => $grandTotal,
+            'grandTotalCurrency'    => $currency->toCurrency($grandTotal)
+        );
     }
 }

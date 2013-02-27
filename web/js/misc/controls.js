@@ -77,7 +77,9 @@ $(function() {
                 shippingPrice: shippingPrice
             }),
             dataType : 'json'
-        }).done(function(response) {});
+        }).done(function(response) {
+           $('.quote-grand-total-val').text(response.grandTotalCurrency);
+        });
     });
 });
 
