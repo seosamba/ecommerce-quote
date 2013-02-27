@@ -299,7 +299,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$content             = $this->_view->render('photo.quote.item.phtml');
 			break;
 			case 'options':
-                if(!isset($cartItem['options']) || !is_array($cartItem['options']) || empty($cartItem['options'])) {
+                if(!isset($cartItem['defaultOptions']) || !is_array($cartItem['defaultOptions']) || empty($cartItem['defaultOptions'])) {
                     break;
                 }
 				$this->_view->options    = $currentOptions;
