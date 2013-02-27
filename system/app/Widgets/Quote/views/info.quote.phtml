@@ -33,22 +33,24 @@
 	</div>
 	<?php endif; ?>
 <?php endif; ?>
-<script type="text/javascript">
-    $(function() {
-        $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state').empty().parent('div').hide();
-        $(document).on('change', '#<?php echo $this->addressForm->getAttrib('id'); ?> select.country', function(e) {
-            var self = this;
-            $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
-                var statesHolder = $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state');
-                if(!response.length) {
-                    statesHolder.empty().parent('div').fadeOut();
-                } else {
-                    statesHolder.empty().parent('div').fadeIn();
-                    $.each(response, function(key, option) {
-                        statesHolder.append($("<option></option>").attr("value", option.state).text(option.name))
-                    })
-                }
-            });
-        })
-    });
-</script>
+<?php if(isset($this->addressForm)): ?>
+    <script type="text/javascript">
+        $(function() {
+            $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state').empty().parent('div').hide();
+            $(document).on('change', '#<?php echo $this->addressForm->getAttrib('id'); ?> select.country', function(e) {
+                var self = this;
+                $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
+                    var statesHolder = $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state');
+                    if(!response.length) {
+                        statesHolder.empty().parent('div').fadeOut();
+                    } else {
+                        statesHolder.empty().parent('div').fadeIn();
+                        $.each(response, function(key, option) {
+                            statesHolder.append($("<option></option>").attr("value", option.state).text(option.name))
+                        })
+                    }
+                });
+            })
+        });
+    </script>
+<?php endif; ?>
