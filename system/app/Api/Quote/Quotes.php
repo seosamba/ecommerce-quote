@@ -59,7 +59,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $form = new Quote_Forms_Quote();
-                $data = $this->_request->getParams();
                 if(!$form->isValid($this->_request->getParams())) {
                     $this->_error('Parameters are invalid');
                 }
