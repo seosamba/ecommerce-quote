@@ -63,15 +63,24 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $this->_error('Parameters are invalid');
                 }
                 $formData = $form->getValues();
-                $cart     = Quote_Tools_Tools::invokeCart();
+
+                //if we have a product id passed then this is a single product quote request and we should add product to the cart
+                $initialProducts = array();
+                if(isset($formData['productId']) && $formData['productId']) {
+                    $initialProducts[] = Models_Mapper_ProductMapper::getInstance()->find($formData['productId']);
+                }
+
+                $cart     = Quote_Tools_Tools::invokeCart(null, $initialProducts);
                 $customer = Shopping::processCustomer($formData);
                 if(!$cart) {
                     $this->_error('Server encountered a problem. Unable to create quote');
                 }
+
                 $cart = $cartMapper->save(
                     $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($form->getValues(), Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer))
                         ->setUserId($customer->getId())
                 );
+
                 if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
                     $editedBy = Quote_Models_Model_Quote::QUOTE_TYPE_AUTO;
                 }

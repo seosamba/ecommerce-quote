@@ -40,11 +40,12 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 		$this->getDisplayGroup('leftColumn')->setDecorators(array('FormElements', 'Fieldset'));
 		$this->getDisplayGroup('rightColumn')->setDecorators(array('FormElements', 'Fieldset'));
 
-		$this->setElementDecorators(array(
-			'ViewHelper',
-			'Label',
-			array('HtmlTag', array('tag' => 'div'))
-		));
+        $this->addElement(new Zend_Form_Element_Hidden(array(
+            'name'  => 'productId',
+            'value' => 0
+        )));
+
+		$this->_applyDecorators();
 
 		$this->addElement(new Zend_Form_Element_Submit(array(
 			'name'   => 'sendQuote',
@@ -53,5 +54,13 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 			'ignore' => true
 		)));
 	}
+
+    private function _applyDecorators() {
+        $this->setElementDecorators(array(
+            'ViewHelper',
+            'Label',
+            array('HtmlTag', array('tag' => 'div'))
+        ));
+    }
 
 }

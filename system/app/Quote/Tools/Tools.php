@@ -53,13 +53,24 @@ class Quote_Tools_Tools {
      * Invoke cart session
      *
      * @param Quote_Models_Model_Quote $quote
+     * @param array $initialProducts
      * @return Models_Model_CartSession
      */
-    public static function invokeCart($quote = null) {
+    public static function invokeCart($quote = null, $initialProducts = array()) {
         $cart   = null;
         $mapper = Models_Mapper_CartSessionMapper::getInstance();
         if(!$quote instanceof Quote_Models_Model_Quote) {
             $cartStorage = Tools_ShoppingCart::getInstance();
+
+            if(is_array($initialProducts) && !empty($initialProducts)) {
+                foreach($initialProducts as $product) {
+                    if(!$product instanceof Models_Model_Product) {
+                        continue;
+                    }
+                    $cartStorage->add($product);
+                }
+            }
+
             $cartStorage->saveCartSession();
             $cart        = $mapper->find($cartStorage->getCartId());
         } else {

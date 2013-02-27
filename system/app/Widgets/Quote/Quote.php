@@ -385,6 +385,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $quoteForm->populate($address);
             }
         }
+
+        //trying to get a product if this page is product page
+        $product = Models_Mapper_ProductMapper::getInstance()->findByPageId($this->_toasterOptions['id']);
+        if($product instanceof Models_Model_Product) {
+            $quoteForm->getElement('productId')->setValue($product->getId());
+        }
+
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         return $this->_view->render('form.quote.phtml');
     }
