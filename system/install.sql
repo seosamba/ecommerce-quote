@@ -21,4 +21,5 @@ ALTER TABLE `shopping_quote`
   ADD CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION;
 UPDATE `plugin` SET `tags`='ecommerce' WHERE `name` = 'quote';
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_newquote', 'Quote_Tools_QuoteMailWatchdog');
+INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_updated', 'Quote_Tools_QuoteMailWatchdog');
 INSERT INTO `template_type` (`id`, `title`) VALUES ('typequote', 'Quote');
