@@ -16,14 +16,17 @@ $(function() {
         var billingForm  = $('#plugin-quote-quoteform');
         var check        = $(e.currentTarget);
         if(shippingForm.length) {
-            $(':input[name]', billingForm).each(function() {
-                $('[name=' + $(this).attr('name') + ']', shippingForm).val((check.prop('checked') ? $(this).val() : ''))
-                    .attr('readonly', true);
-                shippingForm.find('input, select').each(function() {
-                    if(!check.prop('checked')) {
-                        $(this).removeAttr('readonly');
+            $(':input[name], select[name]', billingForm).each(function() {
+                var shippingFormEl = $('[name=' + $(this).attr('name') + ']', shippingForm);
+                if(check.prop('checked')) {
+                    if($(this).hasClass('state') && $(this).is(':visible')) {
+                        $('select.state', shippingForm).html($(this).html()).parent('div').show();
                     }
-                });
+                    shippingFormEl.val($(this).val()).attr('readonly', true);
+                } else {
+                    shippingFormEl.val('').removeAttr('readonly');
+                    $('select.state', shippingForm).parent('div').hide();
+                }
             });
         }
     }).on('blur', '.quote-qty', function(e) { // product quantity control handling
