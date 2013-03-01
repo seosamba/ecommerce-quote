@@ -29,7 +29,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
 	protected $_currency      = null;
 
-	protected $_cart          = null;
+    /**
+     * @var null|Models_Model_CartSession
+     */
+    protected $_cart          = null;
 
 	protected $_websiteHelper = null;
 
@@ -191,54 +194,22 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 	 * @return mixed
 	 */
 	protected function _renderTotal() {
+
+        $cartSession = Tools_ShoppingCart::getInstance();
+        $cartSession->setContent($this->_cart->getCartContent());
+
+        $total = $cartSession->calculate();
+
 		$totalType = isset($this->_options[0]) ? $this->_options[0] : 'sub';
-		$cartContent = $this->_cart->getCartContent();
-		if(!$cartContent || !is_array($cartContent)) {
-			return $this->_currency->toCurrency(0);
-		}
-
-		$totalTax = array_reduce($cartContent, function($result, $item) {
-			return ($result += $item['tax']);
-		}, 0);
-
-		$subTotal = array_reduce($cartContent, function($result, $item) {
-			$product        = Models_Mapper_ProductMapper::getInstance()->find($item['product_id']);
-			$defaultOptions = $product->getDefaultOptions();
-			foreach($item['options'] as $optionId => $selectionId) {
-				foreach($defaultOptions as $defaultOption) {
-					if($optionId != $defaultOption['id']) {
-						continue;
-					}
-				}
-				$selections = array_filter($defaultOption['selection'], function($selection) use($selectionId) {
-					if($selectionId == $selection['id']) {
-						return $selection;
-					}
-				});
-			}
-			if(!empty($selection)) {
-				foreach($selections as $selection) {
-					if($selection['priceType'] == 'unit') {
-						$modifier = $selection['priceValue'];
-					} else {
-						$modifier = ($item['tax_price'] / 100) * $selection['priceValue'];
-					}
-					$item['tax_price'] = ($selection['priceSign'] == '+') ? $item['tax_price'] + $modifier : $item['tax_price'] - $modifier;
-				}
-			}
-			return ($result += ($item['tax_price'] * $item['qty']));
-		}, 0);
 
 		if($totalType == 'tax') {
-			return $this->_currency->toCurrency($totalTax);
+			return $this->_currency->toCurrency($total['totalTax']);
 		}
 		if($totalType == 'sub') {
-			return '<span class="quote-sub-total-val">' . $this->_currency->toCurrency($subTotal) . '</span>';
+			return '<span class="quote-sub-total-val">' . $this->_currency->toCurrency($total['subTotal']) . '</span>';
 		}
 		$shippingPrice = $this->_cart->getShippingPrice();
-		//@todo Probably we will have to change this, because discount will be moved to the cart
-		$discount      = $this->_quote->getDiscount();
-		return '<span class="quote-grand-total-val">' . $this->_currency->toCurrency($totalTax + $subTotal + $shippingPrice + $discount) . '</span>';
+        return '<span class="quote-grand-total-val">' . $this->_currency->toCurrency($total['total'] + $shippingPrice) . '</span>';
 	}
 
 	/**

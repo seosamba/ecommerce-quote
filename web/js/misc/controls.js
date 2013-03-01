@@ -44,7 +44,7 @@ $(function() {
         }).done(function(response) {
                 hideSpinner();
                 var itemTotalPrice   = qtyControl.closest('tr').find('span.price-total').text();
-                var totalPriceValue  = qtyControl.closest('tr').find('span.price-total').text().replace(/[^\d]*/, '');
+                var totalPriceValue  = itemTotalPrice.replace(/[^\d]*/, '');
                 var singlePriceValue = qtyControl.closest('tr').find('span.price-unit').text().replace(/[^\d]*/, '');
                 var totalPriceRecounted = parseFloat(singlePriceValue) * data.qty;
                 qtyControl.closest('tr').find('span.price-total').text(itemTotalPrice.replace(totalPriceValue, totalPriceRecounted.toFixed(2)));
