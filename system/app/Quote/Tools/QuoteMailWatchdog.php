@@ -27,6 +27,11 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
     const RECIPIENT_SALESPERSON     = 'sales person';
 
     /**
+     * Quote mail recipient 'admin'
+     */
+    const RECIPIENT_ADMIN           = 'admin';
+
+    /**
      * Quote mail recipient 'customer'
      *
      */
@@ -206,6 +211,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             break;
             case self::RECIPIENT_STOREOWNER:
             case self::RECIPIENT_SALESPERSON:
+            case self::RECIPIENT_ADMIN:
                 $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($this->_storeConfig['email']);
             break;
             default:
@@ -256,6 +262,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             break;
             case self::RECIPIENT_STOREOWNER:
             case self::RECIPIENT_SALESPERSON:
+            case self::RECIPIENT_ADMIN:
                 $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($this->_storeConfig['email']);
             break;
         }
