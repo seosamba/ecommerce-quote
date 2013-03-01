@@ -93,7 +93,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy));
+            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'disclaimer' => $formData['disclaimer']));
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }

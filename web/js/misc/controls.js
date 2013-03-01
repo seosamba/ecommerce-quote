@@ -98,6 +98,7 @@ function updateQuote(quoteId, sendMail, mailMessage) {
         id          : quoteId,
         sendMail    : sendMail,
         title       : $('#quote-title').val(),
+        disclaimer  : $('.quote-disclaimer-text').val(),
         createdAt   : $('#datepicker-created').val(),
         expiresAt   : $('#datepicker-expires').val(),
         shipping    : $('#shipping-user-address').serialize(),

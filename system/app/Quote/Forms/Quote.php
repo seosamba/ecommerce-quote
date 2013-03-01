@@ -24,7 +24,12 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $this->getElement('country')->setRegisterInArrayValidator(false);
         $this->getElement('state')->clearValidators();
 
-		$this->addElement(new Zend_Form_Element_Checkbox(array(
+		$this->addElement(new Zend_Form_Element_Textarea(array(
+            'name'  => 'disclaimer',
+            'label' => 'Notes'
+        )));
+
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
 			'name'  => 'sameForShipping',
 			'id'    => 'same-for-shipping',
 			'label' => 'Use same data for shipping?',
@@ -33,7 +38,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 		//adding display groups
         $this->addDisplayGroups(array(
 			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
-			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'sameForShipping')
+			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'disclaimer', 'sameForShipping')
 		));
 
         //set display groups decorators

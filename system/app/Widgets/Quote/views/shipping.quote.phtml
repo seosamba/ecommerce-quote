@@ -1,1 +1,1 @@
-<?php echo (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS) ? $this->formText('quoteShipping', $this->quoteShipping, array('id' => 'quote-shipping-price')) : $this->quoteShipping);
+<?php echo ($this->editAllowed ? $this->formText('quoteShipping', $this->quoteShipping, array('id' => 'quote-shipping-price')) : $this->currency($this->quoteShipping));

@@ -1,0 +1,5 @@
+<?php if($this->editAllowed): ?>
+    <textarea class="quote-disclaimer-text"><?php echo $this->disclaimer; ?></textarea>
+<?php else: ?>
+    <span class="quote-disclaimer-text"><?php echo $this->disclaimer; ?></span>
+<?php endif; ?>

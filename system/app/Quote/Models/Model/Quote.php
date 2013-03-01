@@ -41,8 +41,6 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_shippingMethod  = '';
 
-	protected $_notes           = array();
-
 	protected $_userId          = 0;
 
 	protected $_createdAt       = '';

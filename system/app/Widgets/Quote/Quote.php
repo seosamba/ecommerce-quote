@@ -18,7 +18,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
     const NEWSLIST_DEFAULTS_ORDER   = 'DESC';
 
-	protected $_quote         = null;
+    /**
+     * Quote model instance
+     *
+     * @var null|Quote_Models_Model_Quote
+     */
+    protected $_quote         = null;
 
 	protected $_previewMode   = false;
 
@@ -126,6 +131,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return $this->_view->render('shipping.quote.phtml');
 	}
 
+    protected function _renderDisclaimer() {
+        $this->_view->disclaimer = $this->_quote->getDisclaimer();
+        return $this->_view->render('disclaimer.quote.phtml');
+    }
+
 	/**
 	 * Render discount amount
 	 *
@@ -152,6 +162,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 			if($infoType == self::INFO_TYPE_BILLING) {
 				$addressForm = new Quote_Forms_Quote();
 				$addressForm->removeElement('sendQuote');
+                $addressForm->removeElement('disclaimer');
 			} else {
 				$addressForm = new Forms_Checkout_Shipping();
 				$addressForm->removeElement('calculateAndCheckout');

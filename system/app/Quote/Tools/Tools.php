@@ -44,6 +44,7 @@ class Quote_Tools_Tools {
                 ->setExpiresAt(date(Tools_System_Tools::DATE_MYSQL, strtotime('+' . (($expirationDelay == 1) ? '1 day' : $expirationDelay . ' days'))))
                 ->setUserId($cart->getUserId())
                 ->setEditedBy($options['editedBy'])
+                ->setDisclaimer($options['disclaimer'])
         );
         Tools_ShoppingCart::getInstance()->clean();
         return $quote;
