@@ -159,6 +159,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 				$addressForm->removeElement('shippingInstructions');
 				$addressForm->removeDisplayGroup('bottom');
 			}
+
+            if(isset($address['state'])) {
+                $state = Tools_Geo::getStateByCode($address['state']);
+                if(!is_null($state) && !empty($state)) {
+                    $address['state'] = $state['id'];
+                }
+            }
+
 			$addressForm->setAttrib('action', '#')
 				->populate(($address) ? $address : array());
 			$this->_view->addressForm = $addressForm;
