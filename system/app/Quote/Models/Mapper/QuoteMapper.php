@@ -27,10 +27,10 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 			'status'            => $quote->getStatus(),
 			'cart_id'           => $quote->getCartId(),
 			'edited_by'         => $quote->getEditedBy(),
-			'expires_at'        => date(DATE_ATOM, strtotime($quote->getExpiresAt())),
+			'expires_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getExpiresAt())),
 			'user_id'           => $quote->getUserId(),
-			'created_at'        => date(DATE_ATOM, strtotime($quote->getCreatedAt())),
-			'updated_at'        => date(DATE_ATOM, strtotime($quote->getUpdatedAt()))
+			'created_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),
+			'updated_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getUpdatedAt()))
 		);
 
 		$exists = $this->find($quote->getId());

@@ -26,7 +26,7 @@ class Quote_Tools_Tools {
             'gateway' => new Tools_PaymentGateway(array(), array())
         )))
         ->registerObserver(new Tools_Mail_Watchdog(array(
-            'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE
+            'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
         )));
 
         $expirationDelay = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('expirationDelay');

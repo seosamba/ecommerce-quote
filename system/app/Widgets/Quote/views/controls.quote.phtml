@@ -10,7 +10,7 @@
     </a>
 
     <!-- save quote and send e-mail controll -->
-	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="1" data-trigger="<?php echo Quote_Tools_QuoteMailWatchdog::TRIGGER_NEW_QUOTE; ?>" class="quote-control save-action">
+	<a href="javascript:;" data-qid="<?php echo $this->quoteId; ?>" data-sendmail="1" data-trigger="<?php echo Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED; ?>" class="quote-control save-action">
         <?php echo $this->translate('Save and Send quote'); ?>
     </a>
 </div>
