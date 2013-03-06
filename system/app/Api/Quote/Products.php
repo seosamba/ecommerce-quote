@@ -43,7 +43,11 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         $quote       = $quoteMapper->find($data['qid']);
         $cartStorage = Tools_ShoppingCart::getInstance();
+        $cart        = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
         $cartStorage->restoreCartSession($quote->getCartId());
+        $cartStorage->setCustomerId($quote->getUserId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
 
         foreach($products as $product)  {
             $cartStorage->add($product, Quote_Tools_Tools::getProductDefaultOptions($product));
