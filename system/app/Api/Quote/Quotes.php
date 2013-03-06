@@ -1,6 +1,7 @@
 <?php
 /**
  * Quote
+ *
  * @author: iamne <eugene@seotoaster.com> Seotoaster core team
  * Date: 9/5/12
  * Time: 12:59 PM
@@ -11,7 +12,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
     private $_shoppingConfig = null;
 
-    protected $_accessList  = array(
+    protected $_accessList   = array(
         Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete')),
         Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('get', 'post'))
     );
@@ -200,17 +201,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $cart->setShippingPrice($shippingPrice);
         $cartSessionMapper->save($cart);
 
-        $totalQty = array_reduce($cart->getCartContent(), function($result, $item) {
-            return ($result += $item['qty']);
-        }, 0);
-
         $currency   = Zend_Registry::get('Zend_Currency');
-        $grandTotal = ($cart->getTotal() * $totalQty) + $shippingPrice;
+
         return array(
             'shippingPrice'         => $shippingPrice,
             'shippingPriceCurrency' => $currency->toCurrency($shippingPrice),
-            'grandTotal'            => $grandTotal,
-            'grandTotalCurrency'    => $currency->toCurrency($grandTotal)
+            'grandTotal'            => $cart->getTotal() + $shippingPrice,
+            'grandTotalCurrency'    => $currency->toCurrency($cart->getTotal() + $shippingPrice)
         );
     }
 }

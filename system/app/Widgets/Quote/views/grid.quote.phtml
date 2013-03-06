@@ -81,7 +81,7 @@
         $(function() {
             $(document).one('grid:loaded', function() {
                 appView.quotes.paginator_ui = _.extend(appView.quotes.paginator_ui, {
-                    perPage: <?php echo Widgets_Quote_Quote::NEWSLIST_DEFAULTS_PERPAGE; ?>
+                    perPage: <?php echo Widgets_Quote_Quote::QUOTEGRID_DEFAULTS_PERPAGE; ?>
                 });
                 appView.quotes.init(<?php echo Zend_Json::encode($this->quotes); ?>);
             });

@@ -1,0 +1,59 @@
+<?php if($this->editAllowed): ?>
+	<div class="quote-info" id="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
+		<p class="title"><?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
+		<?php echo $this->addressForm; ?>
+	</div>
+<?php else: ?>
+	<?php if(!empty($this->address)): ?>
+        <div class="quote-info" id="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
+            <p class="title"><?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
+            <p><?php echo $this->address['firstname'], ' ', $this->address['lastname']; ?></p>
+            <p><?php echo $this->address['company']; ?></p>
+            <p>
+                <?php echo $this->address['address1']; ?>
+                <?php if($this->address['address2']): ?>
+                    <?php echo ', ', $this->address['address2']; ?>
+                <?php endif; ?>
+            </p>
+            <p>
+                <?php echo $this->address['city'];?>
+                <?php if($this->address['state']): ?>
+                    <?php $stateData = Tools_Geo::getStateById($this->address['state']);?>
+                    <?php echo ', ', $stateData['state'], ', '; ?>
+                <?php endif; ?>
+                <?php echo $this->address['zip']; ?>
+            </p>
+            <p>
+                <?php $countries = Tools_Geo::getCountries(true); ?>
+                <?php echo $countries[$this->address['country']];?>
+            </p>
+            <p>
+                <a href="mailto:<?php echo $this->address['email'];?>"><?php echo $this->address['email'];?></a>
+            </p>
+        </div>
+	<?php endif; ?>
+<?php endif; ?>
+<?php if(isset($this->addressForm)): ?>
+    <script type="text/javascript">
+        $(function() {
+            <?php if(!$this->address || !isset($this->address['state']) || !$this->address['state']) : ?>
+                $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state').empty().parent('div').hide();
+            <?php endif; ?>
+
+            $(document).on('change', '#<?php echo $this->addressForm->getAttrib('id'); ?> select.country', function(e) {
+                var self = this;
+                $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
+                    var statesHolder = $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state');
+                    if(!response.length) {
+                        statesHolder.empty().parent('div').fadeOut();
+                    } else {
+                        statesHolder.empty().parent('div').fadeIn();
+                        $.each(response, function(key, option) {
+                            statesHolder.append($("<option></option>").attr("value", option.state).text(option.name))
+                        })
+                    }
+                });
+            })
+        });
+    </script>
+<?php endif; ?>

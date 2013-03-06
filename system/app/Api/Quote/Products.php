@@ -16,23 +16,23 @@ class Api_Quote_Products extends Api_Service_Abstract {
         Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete'))
     );
 
-    /**
-     * Only for search through the customer
-     *
-     */
+    protected $_mapper = null;
+
+    public function init() {
+        $this->_mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+    }
+
     public function getAction() {}
 
     public function postAction() {
-        $pageHelper  = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-
-        $ids     = array_filter(filter_var_array(explode(',', $this->_request->getParam('id')), FILTER_SANITIZE_NUMBER_INT));
-        $data    = Zend_Json::decode($this->_request->getRawBody());
-        //$quoteId = $pageHelper->clean(filter_var($this->_request->getParam('qid'), FILTER_SANITIZE_STRING));
+        $ids         = array_filter(filter_var_array(explode(',', $this->_request->getParam('id')), FILTER_SANITIZE_NUMBER_INT));
+        $data        = Zend_Json::decode($this->_request->getRawBody());
 
         if(!$ids) {
             $this->_error();
         }
+
         $products = array();
         $product  = Models_Mapper_ProductMapper::getInstance()->find($ids);
         if(!is_array($product)) {
@@ -40,46 +40,26 @@ class Api_Quote_Products extends Api_Service_Abstract {
         } else {
             $products = $product;
         }
-        $cart          = Quote_Tools_Tools::invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($data['qid']));
-        $cartContent   = $cart->getCartContent();
-        foreach($products as $product) {
-            $currentTax    = Tools_Tax_Tax::calculateProductTax($product);
-            //$cartContent   = $cart->getCartContent();
-            $productExists = false;
 
+        $quote       = $quoteMapper->find($data['qid']);
+        $cartStorage = Tools_ShoppingCart::getInstance();
+        $cartStorage->restoreCartSession($quote->getCartId());
 
-            if($cartContent && !empty($cartContent)) {
-                $cartContent   = array_map(function($cartItem) use($product, &$productExists) {
-                    if($cartItem['product_id'] == $product->getId()) {
-                        $cartItem['qty']++;
-                        $productExists = true;
-                    }
-                    return $cartItem;
-                }, $cartContent);
-            }
-
-
-            if(!$productExists) {
-                $cartContent[] = array(
-                    'product_id' => $product->getId(),
-                    'price'      => $product->getPrice(),
-                    'options'    => array(), //$this->_proccessOptions($this->_request->getParam('opts', array()), $product),
-                    'qty'        => $this->_request->getParam('qty', 1),
-                    'tax'        => $currentTax,
-                    'tax_price'  => $product->getPrice() + $currentTax
-                );
-            }
+        foreach($products as $product)  {
+            $cartStorage->add($product, Quote_Tools_Tools::getProductDefaultOptions($product));
         }
-        Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
-        return $quoteMapper->save($quoteMapper->find($data['qid']))->toArray();
+
+        $cartStorage->saveCartSession();
+        return $quoteMapper->save($quote)->toArray();
     }
 
     public function putAction() {
-        $productId  = filter_var($this->_request->getParam('id'), FILTER_SANITIZE_NUMBER_INT);
-        $updateType = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
-        $updateData = Zend_Json::decode($this->_request->getRawBody());
-        $mapper     = Quote_Models_Mapper_QuoteMapper::getInstance();
-        $result     = null;
+        $productId   = filter_var($this->_request->getParam('id'), FILTER_SANITIZE_NUMBER_INT);
+        $updateType  = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
+        $updateData  = Zend_Json::decode($this->_request->getRawBody());
+        $cartStorage = Tools_ShoppingCart::getInstance();
+        $result      = null;
+
         switch($updateType) {
             case self::UPDATE_TYPE_QTY:
                 if(!isset($updateData['qty'])) {
@@ -89,27 +69,38 @@ class Api_Quote_Products extends Api_Service_Abstract {
                     $this->_error('Cannot find the quote.', self::REST_STATUS_NOT_FOUND);
                 }
 
-                $quote  = $mapper->find($updateData['qid']);
+                $quote  = $this->_mapper->find($updateData['qid']);
+
                 if(!$quote instanceof Quote_Models_Model_Quote) {
                     $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
                 }
-                $cart        = Quote_Tools_Tools::invokeCart($quote);
-                $cartContent = $cart->getCartContent();
+
+                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+                $cartStorage->restoreCartSession($quote->getCartId());
+                $cartStorage->setCustomerId($quote->getUserId())
+                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
+
+                $cartContent = $cartStorage->getContent();
+
                 foreach($cartContent as $key => $cartItem) {
-                    if($cartItem['product_id'] == $productId) {
-                        $cartContent[$key]['qty'] = $updateData['qty'];
-                        break;
+                    if($cartItem['product_id'] != $productId) {
+                        continue;
                     }
+                    $cartContent[$key]['qty'] = $updateData['qty'];
                 }
-                Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
-                $result = $quote;
+                $cartStorage->setContent($cartContent)
+                    ->saveCartSession();
+
+
+                return $this->_sendResponse($cartStorage);
             break;
             case self::UPDATE_TYPE_OPTIONS:
                 if(isset($updateData['options'])) {
                     parse_str($updateData['options'], $updateData['options']);
                 }
 
-                $quote  = $mapper->find($updateData['qid']);
+                $quote  = $this->_mapper->find($updateData['qid']);
                 if(!$quote instanceof Quote_Models_Model_Quote) {
                     $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
                 }
@@ -131,6 +122,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
     public function deleteAction() {
         $ids  = array_filter(filter_var_array(explode(',', $this->_request->getParam('id')), FILTER_VALIDATE_INT));
         $data = Zend_Json::decode($this->_request->getRawBody());
+
         if(empty($ids)) {
             $this->_error();
         }
@@ -139,16 +131,56 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $this->_error('Cannot find a quote', self::REST_STATUS_NOT_FOUND);
         }
 
-        $cart        = Quote_Tools_Tools::invokeCart(Quote_Models_Mapper_QuoteMapper::getInstance()->find($data['qid']));
-        $cartContent = $cart->getCartContent();
+        $quote       = Quote_Models_Mapper_QuoteMapper::getInstance()->find($data['qid']);
+        $cartStorage = Tools_ShoppingCart::getInstance();
+        $cart        = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
 
-        if(!empty($cartContent)) {
-            foreach($cartContent as $key => $cartItem) {
-                if(in_array($cartItem['product_id'], $ids)) {
-                    unset($cartContent[$key]);
+        $cartStorage->restoreCartSession($quote->getCartId());
+        $cartStorage->setCustomerId($quote->getUserId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
+
+        $cartStorage->restoreCartSession($quote->getCartId());
+        $cartStorage->setCustomerId($quote->getUserId());
+
+        $cartContent = $cartStorage->getContent();
+
+        foreach($ids as $id) {
+            if(sizeof($cartContent) > 1) {
+                foreach($cartContent as $key => $cartItem) {
+                    if(isset($cartItem['product_id']) && $cartItem['product_id'] == $id) {
+                        unset($cartContent[$key]);
+                    }
                 }
+                $cartStorage->setContent($cartContent);
+            } else {
+                $cartStorage->setContent(null);
             }
         }
-        return Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent))->toArray();
+        $cartStorage->saveCartSession();
+        return $this->_sendResponse($cartStorage);
+    }
+
+    /**
+     *
+     *
+     * @param $storage
+     * @param bool $currency
+     * @return mixed
+     */
+    protected function _sendResponse($storage, $currency = true) {
+        $cart          = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
+        $shippingPrice = $cart->getShippingPrice();
+        $data          = $storage->calculate();
+        unset($data['showPriceIncTax']);
+        $data['total'] += $shippingPrice;
+        if(!$currency) {
+            return $data;
+        }
+        $currency = Zend_Registry::get('Zend_Currency');
+        foreach($data as $key => $value) {
+            $data[$key] = $currency->toCurrency($value);
+        }
+        return $data;
     }
 }

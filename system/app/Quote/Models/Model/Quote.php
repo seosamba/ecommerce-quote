@@ -35,12 +35,6 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_expiresAt       = '';
 
-	protected $_discount        = '';
-
-	protected $_discountTaxRate = 1;
-
-	protected $_shippingMethod  = '';
-
 	protected $_userId          = 0;
 
 	protected $_createdAt       = '';
@@ -72,24 +66,6 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	public function getDisclaimer() {
 		return $this->_disclaimer;
-	}
-
-	public function setDiscount($discount) {
-		$this->_discount = $discount;
-		return $this;
-	}
-
-	public function getDiscount() {
-		return $this->_discount;
-	}
-
-	public function setDiscountTaxRate($discountTaxRate) {
-		$this->_discountTaxRate = $discountTaxRate;
-		return $this;
-	}
-
-	public function getDiscountTaxRate() {
-		return $this->_discountTaxRate;
 	}
 
 	public function setEditedBy($editedBy) {
@@ -144,15 +120,6 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	public function getUserId() {
 		return $this->_userId;
-	}
-
-	public function setShippingMethod($shippingMethod) {
-		$this->_shippingMethod = $shippingMethod;
-		return $this;
-	}
-
-	public function getShippingMethod() {
-		return $this->_shippingMethod;
 	}
 
 	public function setId($id) {

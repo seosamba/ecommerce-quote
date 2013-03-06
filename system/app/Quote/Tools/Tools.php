@@ -111,4 +111,24 @@ class Quote_Tools_Tools {
         return Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $addressData, $type);
     }
 
+    public static function getProductDefaultOptions(Models_Model_Product $product, $flat = true) {
+        $options        = array();
+        $defaultOptions = $product->getDefaultOptions();
+        if(!is_array($defaultOptions) || empty($defaultOptions)) {
+            return null;
+        }
+        foreach($defaultOptions as $option){
+            foreach ($option['selection'] as $item) {
+                if($item['isDefault'] == 1) {
+                    if(!$flat) {
+                        $options[] = $item;
+                    } else {
+                        $options[$option['id']] = $item['id'];
+                    }
+                }
+            }
+        }
+        return $options;
+    }
+
 }

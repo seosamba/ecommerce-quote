@@ -48,6 +48,8 @@ $(function() {
                 var singlePriceValue = qtyControl.closest('tr').find('span.price-unit').text().replace(/[^\d]*/, '');
                 var totalPriceRecounted = parseFloat(singlePriceValue) * data.qty;
                 qtyControl.closest('tr').find('span.price-total').text(itemTotalPrice.replace(totalPriceValue, totalPriceRecounted.toFixed(2)));
+
+                updateTotal(response);
         });
     }).on('click', '.remove-product', function(event) {
         smoke.confirm('You are about to remove an item. Are you sure?', function(e) {
@@ -56,9 +58,12 @@ $(function() {
                     url      : $('#website_url').val() + 'api/quote/products/id/' + $(event.currentTarget).data('pid'),
                     type     : 'delete',
                     data     : JSON.stringify({qid: $('.save-action:first').data('qid')}),
-                    dataType : 'json'
+                    dataType : 'json',
+                    beforeSend: showSpinner
                 }).done(function(response) {
                     $(event.currentTarget).closest('tr').remove();
+                    hideSpinner();
+                    updateTotal(response);
                 });
             } else {
                 $('.smoke-base').remove();
@@ -81,11 +86,17 @@ $(function() {
             }),
             dataType : 'json'
         }).done(function(response) {
-           $('.quote-grand-total-val').text(response.grandTotalCurrency);
+           $('.grand-total').text(response.grandTotalCurrency);
         });
     });
 });
 
+
+function updateTotal(options) {
+    $('.sub-total').text(options.subTotal);
+    $('.tax-total').text(options.totalTax);
+    $('.grand-total').text(options.total);
+}
 
 function updateQuote(quoteId, sendMail, mailMessage) {
     if(typeof sendMail == 'undefined') {
@@ -105,7 +116,6 @@ function updateQuote(quoteId, sendMail, mailMessage) {
         billing     : $('#plugin-quote-quoteform').serialize(),
         mailMessage : mailMessage
     };
-    console.log(data);
     $.ajax({
         url        : $('#website_url').val() + 'api/quote/quotes/',
         type       : 'put',
@@ -114,5 +124,6 @@ function updateQuote(quoteId, sendMail, mailMessage) {
         beforeSend : showSpinner
     }).done(function(response) {
             hideSpinner();
+            showMessage('Quote information updated.');
     });
 }

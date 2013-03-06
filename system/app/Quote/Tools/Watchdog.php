@@ -29,8 +29,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 		}
 		$this->_quote = $object;
 		$this->_updateCartStatus()
-            ->_updateQuotePage()
-            ->_recalculate();
+            ->_updateQuotePage();
 	}
 
     protected function _updateQuotePage() {

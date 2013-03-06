@@ -207,6 +207,9 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             case self::RECIPIENT_CUSTOMER:
             case self::RECIPIENT_MEMBER:
                 $recipient = $this->_getCustomerRecipient();
+                if(!$recipient) {
+                    return false;
+                }
                 $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
             break;
             case self::RECIPIENT_STOREOWNER:
@@ -343,8 +346,9 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $userId = $this->_quote->getUserId();
         if(!$userId) {
             if($this->_debugEnabled) {
-                error_log('Quote Mail Watchdog report: Quote' . $this->_quote->getId() . ' is missing user id');
+                error_log('Quote Mail Watchdog report: Quote ' . $this->_quote->getId() . ' is missing user id');
             }
+            return null;
         }
         return Application_Model_Mappers_UserMapper::getInstance()->find($userId);
     }
