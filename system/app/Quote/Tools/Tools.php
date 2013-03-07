@@ -111,6 +111,58 @@ class Quote_Tools_Tools {
         return Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $addressData, $type);
     }
 
+    public static function getProductOptions(Models_Model_Product $product, $optionSelectionPairs = array()) {
+        if(empty($optionSelectionPairs)) {
+            return self::getProductDefaultOptions($product);
+        }
+
+        $options    = array();
+
+        // get all available product options
+        $allOptions = $product->getDefaultOptions();
+
+        if(empty($allOptions)) {
+            return null;
+        }
+
+        foreach($optionSelectionPairs as $optionId => $selectionId) {
+            foreach($allOptions as $option) {
+                if($option['id'] == $optionId) {
+                    if($option['type'] == Models_Model_Option::TYPE_TEXT || $option['type'] == Models_Model_Option::TYPE_DATE) {
+                        $option['selection'] = $selectionId;
+                        $options[] = $option;
+                    } else {
+                        $selection = array_filter($option['selection'], function($selection) use ($selectionId) {
+                            if($selection['id'] == $selectionId) {
+                                return $selection;
+                            }
+                        });
+                        if(!is_array($selection) || empty($selection)) {
+                            continue;
+                        }
+                        $options[] = array_shift($selection);
+                    }
+                }
+            }
+
+//        $options = array_filter($allOptions, function($option) use($optionId, $selectionId) {
+//            if($option['id'] == $optionId) {
+//                $selection = array_filter($option['selection'], function($selection) use($selectionId) {
+//
+//                    if($selection['id'] == $selectionId) {
+//                        return $selection;
+//                    }
+//                });
+//                if(is_array($selection) && !empty($selection)) {
+//                    return $selection;
+//                }
+//            }
+//        });
+
+        }
+        return $options;
+    }
+
     public static function getProductDefaultOptions(Models_Model_Product $product, $flat = true) {
         $options        = array();
         $defaultOptions = $product->getDefaultOptions();

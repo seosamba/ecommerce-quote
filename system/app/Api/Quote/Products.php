@@ -101,23 +101,37 @@ class Api_Quote_Products extends Api_Service_Abstract {
             break;
             case self::UPDATE_TYPE_OPTIONS:
                 if(isset($updateData['options'])) {
-                    parse_str($updateData['options'], $updateData['options']);
+                    $updateData['options'] = $this->_parseOptions($updateData['options']);
                 }
 
                 $quote  = $this->_mapper->find($updateData['qid']);
                 if(!$quote instanceof Quote_Models_Model_Quote) {
                     $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
                 }
-                $cart        = Quote_Tools_Tools::invokeCart($quote);
-                $cartContent = $cart->getCartContent();
+                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+
+                $storage = Tools_ShoppingCart::getInstance();
+                $storage->restoreCartSession($quote->getCartId());
+                $storage->setCustomerId($quote->getUserId())
+                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
+
+                $cartContent = $storage->getContent();
                 foreach($cartContent as $key => $cartItem) {
                     if($cartItem['product_id'] == $productId) {
-                        $cartContent[$key]['options'] = array($updateData['options']['option'] => $updateData['options']['selection']);
+                        //$cartContent[$key]['options'] = $updateData['options'];
+                        unset($cartContent[$key]);
                         break;
                     }
                 }
-                Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
-                $result = $quote;
+
+                $storage->setContent($cartContent);
+
+                $storage->add(Models_Mapper_ProductMapper::getInstance()->find($productId), $updateData['options']);
+
+                //Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
+                $storage->saveCartSession();
+                return $this->_sendResponse($cartStorage);
             break;
         }
         return (array)$result;
@@ -186,5 +200,15 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $data[$key] = $currency->toCurrency($value);
         }
         return $data;
+    }
+
+    private function _parseOptions($options) {
+        parse_str($options, $options);
+        $parsed = array();
+        foreach($options as $keyString => $option) {
+            $key          = preg_replace('~product-[0-9]*\-option\-([0-9])*~', '$1', $keyString);
+            $parsed[$key] = $option;
+        }
+        return $parsed;
     }
 }

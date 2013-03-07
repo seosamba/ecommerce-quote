@@ -150,7 +150,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 if(isset($quoteData['shipping']) && !empty($quoteData['shipping'])) {
                     parse_str($quoteData['shipping'], $quoteData['shipping']);
-                    $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
+                    if($this->_validateAddress($quoteData['shipping'])) {
+                        $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
+                    } else {
+                        $cart->setShippingAddressId(null);
+                    }
+
                 }
                 if($customer) {
                     Models_Mapper_CartSessionMapper::getInstance()->save($cart->setUserId($customer->getId()));
@@ -209,5 +214,20 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             'grandTotal'            => $cart->getTotal() + $shippingPrice,
             'grandTotalCurrency'    => $currency->toCurrency($cart->getTotal() + $shippingPrice)
         );
+    }
+
+    protected function _validateAddress($address) {
+        if(!is_array($address)) {
+            return false;
+        }
+        $valid = true;
+        $excludeFields = array('lastname', 'address2', 'state', 'phone');
+        foreach($address as $field => $value) {
+            if(in_array($field, $excludeFields)) {
+                continue;
+            }
+            $valid &= (bool)$value;
+        }
+        return $valid;
     }
 }

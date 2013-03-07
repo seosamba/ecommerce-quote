@@ -432,7 +432,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $this->_view->name   = $item['name'];
             break;
             case 'price':
-                $price                  = Tools_ShoppingCart::getInstance()->calculateProductPrice($product, $this->_getProductActualOptions($product, $item['options']));
+                $price                  = Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
                 $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price * $item['qty']);
                 $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
             break;
@@ -441,7 +441,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(!$defaultOptions || empty($defaultOptions)) {
                     return false;
                 }
-                $value                   = $this->_getProductActualOptions($product, $item['options'], false);
+                $value                   = Quote_Tools_Tools::getProductOptions($product, $item['options']);
                 $this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
             break;
             case 'qty':
@@ -458,35 +458,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
         return $this->_view->render('item/' . $widgetOption . '.quote.item.phtml');
-    }
-
-    protected function _getProductActualOptions(Models_Model_Product $product, $options, $flat = true) {
-        $actualOptions = array();
-        if(empty($options)) {
-            $actualOptions = $this->_getProductDefaultOptions($product, $flat);
-        } else {
-            $defaultOptions = $product->getDefaultOptions();
-            foreach($options as $optionId => $selectionId) {
-                foreach($defaultOptions as $defaultOption) {
-                    if($optionId != $defaultOption['id']) {
-                        continue;
-                    }
-                    $actualOptions = array_filter($defaultOption['selection'], function($selection) use($selectionId) {
-                        if($selectionId == $selection['id']) {
-                            return $selection;
-                        }
-                    });
-                    if($flat) {
-                        $flatOpts = array();
-                        foreach($actualOptions as $key => $selection) {
-                            $flatOpts[$selection['option_id']] = $selection['id'];
-                        }
-                        $actualOptions = $flatOpts;
-                    }
-                }
-            }
-        }
-        return $actualOptions;
     }
 
     protected function _getProductDefaultOptions(Models_Model_Product $product, $flat = true) {

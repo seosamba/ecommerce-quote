@@ -4,31 +4,39 @@
 	'class'       => 'quote-address-search'
 )); ?>
 <script type="text/javascript">
-	var searchBox  = $('#quote-search');
-	searchBox.autocomplete({
-		source: function(request, callback) {
-            $.getJSON($('#website_url').val() + 'api/quote/customers/search/' + request.term, callback);
-        },
-		minLength: 2,
-		select: function(event, ui) {
-			var billingForm = $('#plugin-quote-quoteform');
-			$(':input[name]', billingForm).each(function() {
-				$(this).val(ui.item[$(this).attr('name')]);
-			});
-		   	if($('#same-for-shipping').attr('checked')) {
-				var shippingForm = $('#shipping-user-address');
-				$(':input[name]', shippingForm).each(function() {
-					$(this).val(ui.item[$(this).attr('name')]);
-				});
-			}
-		}
-	}).data('autocomplete')._renderItem = function(ul, item) {
-		return $('<li></li>')
-			.data('item.autocomplete', item)
-			.append('<a><strong>Quote: #' + item.id + '</strong><br/>' + item.firstname + ' ' + item.lastname +
-				'<br/> ' + item.email + '<br/> Address type: ' + item.address_type + '</a>')
-			.appendTo(ul);
-	};
+	$(function() {
+        var searchBox  = $('#quote-search');
+        searchBox.autocomplete({
+            source: function(request, callback) {
+                $.getJSON($('#website_url').val() + 'api/quote/customers/search/' + request.term, callback);
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                var billingForm = $('#plugin-quote-quoteform');
+                console.log(ui.item);
+                if(ui.item.state) {
+
+                }
+
+
+                $(':input[name]', billingForm).each(function() {
+                    $(this).val(ui.item[$(this).attr('name')]);
+                });
+                if($('#same-for-shipping').attr('checked')) {
+                    var shippingForm = $('#shipping-user-address');
+                    $(':input[name]', shippingForm).each(function() {
+                        $(this).val(ui.item[$(this).attr('name')]);
+                    });
+                }
+            }
+        }).data('autocomplete')._renderItem = function(ul, item) {
+            return $('<li></li>')
+                .data('item.autocomplete', item)
+                .append('<a><strong>Quote: #' + item.id + '</strong><br/>' + item.firstname + ' ' + item.lastname +
+                    '<br/> ' + item.email + '<br/> Address type: ' + item.address_type + '</a>')
+                .appendTo(ul);
+        };
+    });
 </script>
 <style type="text/css">
     .ui-autocomplete {

@@ -3,8 +3,12 @@
 	<?php foreach($this->options as $optData): ?>
 	    <p>
 		    <?php echo $optData['title']; ?>
-		    <?php echo '<br />(', $optData['priceSign'], $this->currency($optData['priceValue']), ')'; ?>
-		    <?php echo '<br />(', $optData['weightSign'], $optData['weightValue'], ' ', $this->weightSign, ')'; ?>
+            <?php if(isset($optData['selection'])): ?>
+                <span><?php echo $optData['selection']; ?></span>
+            <?php else: ?>
+                <?php echo '<br />(', $optData['priceSign'], $this->currency($optData['priceValue']), ')'; ?>
+                <?php echo '<br />(', $optData['weightSign'], $optData['weightValue'], ' ', $this->weightSign, ')'; ?>
+            <?php endif; ?>
 	    </p>
 	<?php endforeach; ?>
 

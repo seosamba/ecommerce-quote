@@ -8,17 +8,45 @@
     </div>
 </div>
 <div data-productid="<%= id %>" class="product-options-listing h300 grid_7">
-        <% _.each(defaultOptions, function(value, index) {
-            if(value.type == 'dropdown') {
-        %>
-        <fieldset class="option">
-            <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
-            <select name="selection" id="product-<%= id %>-option-<%= value.id %>">
-                <% _.each(value.selection, function(sel, key) { %>
-                    <option value="<%= sel.id %>" <% if (($('#manage-product-options-main').data('currentSelection') == sel.id)) { %> selected="selected" <% } %>><%= sel.title + ' (price: ' + sel.priceSign + sel.priceValue + ' / weight: ' + sel.weightSign + sel.weightValue + ')' %></option>
-                <% }) %>
-            </select>
-            <input type="hidden" name="option" value="<%= value.id %>">
-        </fieldset>
-        <% }}) %>
+
+        <% _.each(defaultOptions, function(value, index) { %>
+
+            <!-- option type dropdown -->
+            <% if(value.type == 'dropdown' || value.type == 'radio') { %>
+                <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
+                    <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
+                    <% if(value.type == 'dropdown') { %>
+                        <select name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>">
+                            <% _.each(value.selection, function(sel, key) { %>
+                                <option value="<%= sel.id %>"><%= sel.title + ' (price: ' + sel.priceSign + sel.priceValue + ' / weight: ' + sel.weightSign + sel.weightValue + ')' %></option>
+                            <% }) %>
+                        </select>
+                    <% } else { %>
+                        <% _.each(value.selection, function(sel, key) { %>
+                            <p><input type="radio" id="product-<%= id %>-option-<%= value.id %>-<%= sel.id %>" name="product-<%= id %>-option-<%= value.id %>" value="<%= sel.id %>" /><%= sel.title %> (price: <%= sel.priceSign + sel.priceValue %> / weight <%= sel.weightSign + sel.weightValue %>)</p>
+                        <% }) %>
+                    <% } %>
+                </fieldset>
+            <% } %>
+            <!-- /option type dropdown -->
+
+            <!-- option type text -->
+            <% if(value.type == 'text') { %>
+                <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
+                    <label><%= value.title %></label>
+                     <input type="text" name="product-<%= id %>-option-<%= value.id %>" />
+                </fieldset>
+            <% } %>
+            <!-- /option type text -->
+
+            <!-- option type date -->
+            <% if(value.type == 'date') { %>
+                <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
+                    <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
+                    <input type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" />
+                </fieldset>
+            <% } %>
+            <!-- /option type date -->
+
+        <% }) %>
 </div>
