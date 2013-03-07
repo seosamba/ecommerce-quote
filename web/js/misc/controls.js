@@ -74,7 +74,7 @@ $(function() {
         var shippingPrice = parseFloat($(this).val());
         if(!shippingPrice) {
             $(this).val(0);
-            return false;
+            shippingPrice = 0;
         }
         $.ajax({
             url      : $('#website_url').val() + 'api/quote/quotes/',
