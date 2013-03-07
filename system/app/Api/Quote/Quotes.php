@@ -161,6 +161,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     Models_Mapper_CartSessionMapper::getInstance()->save($cart->setUserId($customer->getId()));
                 }
                 $this->_quoteMapper->save($quote);
+
+                $storage = Tools_ShoppingCart::getInstance();
+                $storage->restoreCartSession($cart->getId());
+                $storage->setCustomerId($quote->getUserId())
+                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
+                $storage->saveCartSession();
+                return $this->_sendResponse($storage);
             }
         }
     }
@@ -229,5 +237,29 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $valid &= (bool)$value;
         }
         return $valid;
+    }
+
+    /**
+     *
+     *
+     * @param $storage
+     * @param bool $currency
+     * @return mixed
+     */
+    protected function _sendResponse($storage, $currency = true) {
+        $cart          = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
+        $shippingPrice = $cart->getShippingPrice();
+        $data          = $storage->calculate();
+        unset($data['showPriceIncTax']);
+        $data['shipping'] = $shippingPrice;
+        $data['total']   += $shippingPrice;
+        if(!$currency) {
+            return $data;
+        }
+        $currency = Zend_Registry::get('Zend_Currency');
+        foreach($data as $key => $value) {
+            $data[$key] = $currency->toCurrency($value);
+        }
+        return $data;
     }
 }

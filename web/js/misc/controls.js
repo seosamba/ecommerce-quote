@@ -124,6 +124,7 @@ function updateQuote(quoteId, sendMail, mailMessage) {
         beforeSend : showSpinner
     }).done(function(response) {
             hideSpinner();
+            updateTotal(response);
             showMessage('Quote information updated.');
     });
 }
