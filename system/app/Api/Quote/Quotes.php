@@ -138,6 +138,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quote->registerObserver(new Tools_Mail_Watchdog(array(
                         'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED
                     )));
+                    $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
                 }
 
                 if(isset($quoteData['billing']) && !empty($quoteData['billing'])) {

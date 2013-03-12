@@ -6,7 +6,7 @@ $(function() {
         var sendMail    = control.data('sendmail');
         if(parseInt(sendMail)) {
             showMailMessageEdit(control.data('trigger'), function(message) {
-                updateQuote(control.data('qid'),sendMail, message);
+                updateQuote(control.data('qid'), sendMail, message);
             });
         } else {
             updateQuote(control.data('qid'), sendMail);
