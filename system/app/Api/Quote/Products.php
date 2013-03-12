@@ -87,14 +87,19 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
                 $cartContent = $cartStorage->getContent();
 
+                $tmpItem = array();
                 foreach($cartContent as $key => $cartItem) {
-                    if($cartItem['product_id'] != $productId) {
-                        continue;
+                    if($cartItem['product_id'] == $productId) {
+                        $tmpItem = $cartItem;
+                        unset($cartContent[$key]);
+                        break;
                     }
-                    $cartContent[$key]['qty'] = $updateData['qty'];
+
+                    //$cartContent[$key]['qty'] = $updateData['qty'];
                 }
-                $cartStorage->setContent($cartContent)
-                    ->saveCartSession();
+                $cartStorage->setContent($cartContent);
+                $cartStorage->add(Models_Mapper_ProductMapper::getInstance()->find($tmpItem['product_id']), $tmpItem['options'], $updateData['qty']);
+                $cartStorage->saveCartSession();
 
 
                 return $this->_sendResponse($cartStorage);
