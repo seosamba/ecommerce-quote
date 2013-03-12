@@ -315,7 +315,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     protected function _renderControls() {
         // if controls are not available for the current user role - rise exception
         if(!$this->_editAllowed) {
-            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Controlls are available for administrator only.');
+            //throw new Exceptions_SeotoasterWidgetException('Quote widget error: Controlls are available for administrator only.');
+            return '';
         }
 
         // if quote is not initialized rise apropriate exception
