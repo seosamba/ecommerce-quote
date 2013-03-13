@@ -102,9 +102,11 @@ function updateQuote(quoteId, sendMail, mailMessage) {
     if(typeof sendMail == 'undefined') {
         sendMail = false;
     }
-    if(typeof mailMesage == 'undefined') {
+
+    if(typeof mailMessage == 'undefined') {
         mailMessage = '';
     }
+
     var data = {
         id          : quoteId,
         sendMail    : sendMail,
