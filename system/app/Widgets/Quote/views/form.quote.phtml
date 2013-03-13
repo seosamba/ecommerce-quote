@@ -13,6 +13,7 @@
             var notValidElements = $('input.quote-required').filter(function() {
                 return $(this).val() === '';
             }).css({borderColor: "indianred"});
+
             if(notValidElements.length) {
                 showMessage('<?php echo $this->translate('Required fields are missing! We need to have, at least, your name and e-mail to generate a quote.'); ?>', true);
                 return false;
@@ -20,6 +21,13 @@
 
             //working with form
             var form = $(e.currentTarget);
+
+            //check if this is a single-product quote form
+            if($('#productId').val() != '') {
+                var options = $('.product-options-listing *').serialize();
+                form.find('input[name="productOptions"]').val(options);
+            }
+
             $.ajax({
                 type: 'post',
                 url: $(form).attr('action'),

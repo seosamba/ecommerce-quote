@@ -8,23 +8,50 @@
  */
 class Api_Quote_Quotes extends Api_Service_Abstract {
 
+    /**
+     * Instance of quote mapper
+     *
+     * @var Quote_Models_Mapper_QuoteMapper
+     */
     private $_quoteMapper    = null;
 
+    /**
+     * E-commerce preferences
+     *
+     * @var null| array
+     */
     private $_shoppingConfig = null;
 
+    /**
+     * Session based cart storage. Storage is able to do all calculation process
+     *
+     * @var null|Tools_ShoppingCart
+     */
+    private $_cartStorage    = null;
+
+    /**
+     * Access list for the API resources
+     *
+     * @var array
+     */
     protected $_accessList   = array(
         Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete')),
         Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('get', 'post'))
     );
 
+    /**
+     * Initialization
+     *
+     */
     public function init() {
         $this->_quoteMapper    = Quote_Models_Mapper_QuoteMapper::getInstance();
         $this->_shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        $this->_cartStorage    = Tools_ShoppingCart::getInstance();
     }
 
     public function getAction() {
         $quoteId = filter_var($this->_request->getParam('id'), FILTER_SANITIZE_STRING);
-        $count   = (bool) $this->_request->has('count');
+
         if($quoteId) {
             $quote = $this->_quoteMapper->find($quoteId);
             if($quote instanceof Quote_Models_Model_Quote) {
@@ -32,12 +59,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
             $this->_error(null, self::REST_STATUS_NOT_FOUND);
         }
+
         //retrieve and validate additional parameters
+        $count     = (bool) $this->_request->has('count');
         $offset    = filter_var($this->_request->getParam('offset'), FILTER_SANITIZE_NUMBER_INT);
         $limit     = filter_var($this->_request->getParam('limit'), FILTER_SANITIZE_NUMBER_INT);
         $order     = filter_var($this->_request->getParam('order', 'created_at'), FILTER_SANITIZE_STRING);
         $orderType = filter_var($this->_request->getParam('orderType', 'desc'), FILTER_SANITIZE_STRING);
         $search    = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
+
         $quotes    = $this->_quoteMapper->fetchAll(
             null,
             ($order)  ? array($order . ' ' . strtoupper($orderType)) : array(),
@@ -46,6 +76,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             ($search) ? $search : null,
             ($count)  ? $count : null
         );
+
         if($count) {
             return $quotes;
         }
@@ -68,7 +99,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart
                 $initialProducts = array();
                 if(isset($formData['productId']) && $formData['productId']) {
-                    $initialProducts[] = Models_Mapper_ProductMapper::getInstance()->find($formData['productId']);
+                    $initialProducts[] = array(
+                        'product' => Models_Mapper_ProductMapper::getInstance()->find($formData['productId']),
+                        'options' => Quote_Tools_Tools::parseOptionsString($formData['productOptions'])
+                    );
                 }
 
                 $cart     = Quote_Tools_Tools::invokeCart(null, $initialProducts);

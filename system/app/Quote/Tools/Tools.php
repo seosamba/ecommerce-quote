@@ -64,11 +64,11 @@ class Quote_Tools_Tools {
             $cartStorage = Tools_ShoppingCart::getInstance();
 
             if(is_array($initialProducts) && !empty($initialProducts)) {
-                foreach($initialProducts as $product) {
-                    if(!$product instanceof Models_Model_Product) {
+                foreach($initialProducts as $initialData) {
+                    if(!$initialData['product'] instanceof Models_Model_Product) {
                         continue;
                     }
-                    $cartStorage->add($product);
+                    $cartStorage->add($initialData['product'], $initialData['options']);
                 }
             }
 
@@ -144,21 +144,6 @@ class Quote_Tools_Tools {
                     }
                 }
             }
-
-//        $options = array_filter($allOptions, function($option) use($optionId, $selectionId) {
-//            if($option['id'] == $optionId) {
-//                $selection = array_filter($option['selection'], function($selection) use($selectionId) {
-//
-//                    if($selection['id'] == $selectionId) {
-//                        return $selection;
-//                    }
-//                });
-//                if(is_array($selection) && !empty($selection)) {
-//                    return $selection;
-//                }
-//            }
-//        });
-
         }
         return $options;
     }
@@ -181,6 +166,17 @@ class Quote_Tools_Tools {
             }
         }
         return $options;
+    }
+
+    public static function parseOptionsString($optionsString) {
+        $options = array();
+        $parsed = array();
+        parse_str($optionsString, $options);
+        foreach($options as $keyString => $option) {
+            $key          = preg_replace('~product-[0-9]*\-option\-([0-9])*~', '$1', $keyString);
+            $parsed[$key] = $option;
+        }
+        return $parsed;
     }
 
 }

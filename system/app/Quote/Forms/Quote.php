@@ -47,7 +47,12 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
         $this->addElement(new Zend_Form_Element_Hidden(array(
             'name'  => 'productId',
-            'value' => 0
+            'value' => ''
+        )));
+
+        $this->addElement(new Zend_Form_Element_Hidden(array(
+            'name'  => 'productOptions',
+            'value' => ''
         )));
 
 		$this->_applyDecorators();
