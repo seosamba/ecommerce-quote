@@ -108,7 +108,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $storage->setContent($cartContent);
         $storage->add($product, $itemData['options'], $itemData['qty']);
 
-        return Quote_Tools_Tools::calculate($storage, false, true);
+        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }
 
     public function deleteAction() {
@@ -138,7 +138,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
                 $storage->setContent(null);
             }
         }
-        return Quote_Tools_Tools::calculate($storage, false, true);
+        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }
 
     /**
