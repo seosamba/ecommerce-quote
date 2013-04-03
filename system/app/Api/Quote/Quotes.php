@@ -141,71 +141,88 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
     public function putAction() {
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
+        $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
 
-        //we want update special fields of the quote
-        if(isset($quoteData['partial']) && $quoteData['partial']) {
-            $partial       = filter_var($quoteData['partial'], FILTER_SANITIZE_STRING);
-            $partialMethod = '_update' . ucfirst($partial);
-            if(method_exists($this, $partialMethod)) {
-                return $this->$partialMethod($quoteData);
-            }
-            return $this->_error('Requested partial method doesn\'t exist');
+        if(!$quoteId) {
+            $this->_error('Not enough parameters', self::REST_STATUS_BAD_REQUEST);
         }
 
-        //updating whole quote
-        if(is_array($quoteData)) {
-            $customer = null;
-            $quote    = $this->_quoteMapper->find($quoteData['id']);
-            if($quote->getId()) {
-                $quote->setOptions($quoteData);
+        $quote = $this->_quoteMapper->find($quoteId);
 
-                $cart = Quote_Tools_Tools::invokeCart($quote);
+        if(!$quote instanceof Quote_Models_Model_Quote) {
+            $this->_error('Quote not found', self:: REST_STATUS_NOT_FOUND);
+        }
 
-                $quote->registerObserver(new Quote_Tools_Watchdog(array(
-                    'gateway' => new Tools_PaymentGateway(array(), array())
-                )))
-                ->registerObserver(new Quote_Tools_GarbageCollector(array(
-                    'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
-                )));
+        $customer          = null;
+        $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $cart              = $cartSessionMapper->find($quote->getCartId());
 
-                if($quoteData['sendMail']) {
-                    $quote->registerObserver(new Tools_Mail_Watchdog(array(
-                        'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
-                        'mailMessage' => $quoteData['mailMessage']
-                    )));
-                    $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
-                }
+        if(!$cart instanceof Models_Model_CartSession) {
+            $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
+        }
 
-                if(isset($quoteData['billing']) && !empty($quoteData['billing'])) {
-                    parse_str($quoteData['billing'], $quoteData['billing']);
-                    $customer = Shopping::processCustomer($quoteData['billing']);
-                    $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
-                    $quote->setUserId($customer->getId())
-                        ->setCartId($cart->getId());
-                }
-
-                if(isset($quoteData['shipping']) && !empty($quoteData['shipping'])) {
-                    parse_str($quoteData['shipping'], $quoteData['shipping']);
-                    if($this->_validateAddress($quoteData['shipping'])) {
-                        $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
-                    } else {
-                        $cart->setShippingAddressId(null);
-                    }
-
-                }
-                if($customer) {
-                    Models_Mapper_CartSessionMapper::getInstance()->save($cart->setUserId($customer->getId()));
-                }
-                $this->_quoteMapper->save($quote);
-
-                $storage = Tools_ShoppingCart::getInstance();
-                $storage->restoreCartSession($cart->getId());
-                $storage->setCustomerId($quote->getUserId())
-                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
-                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
-                $storage->saveCartSession();
-                return $this->_sendResponse($storage);
+        if(isset($quoteData['type']) && $quoteData['type']) {
+            $value = floatval($quoteData['value']);
+            if(!$value) {
+                $value = 0;
             }
+
+            switch($quoteData['type']) {
+                case 'shipping': $cart->setShippingPrice($value); break;
+                case 'discount': $cart->setDiscount($value); break;
+                case 'taxrate':
+                    $quote->setDiscountTaxRate($value);
+                    $this->_quoteMapper->save($quote);
+                break;
+                default: $this->_error('Wrong partial option');
+            }
+
+            $cartSessionMapper->save($cart);
+
+            return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
+
+        } else {
+            $quote->setOptions($quoteData);
+
+            // setting up observers
+            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+                'gateway' => new Tools_PaymentGateway(array(), array())
+            )))
+            ->registerObserver(new Quote_Tools_GarbageCollector(array(
+                'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
+            )));
+
+            if($quoteData['sendMail']) {
+                $quote->registerObserver(new Tools_Mail_Watchdog(array(
+                    'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
+                    'mailMessage' => $quoteData['mailMessage']
+                )));
+                $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
+            }
+
+            if(isset($quoteData['billing']) && !empty($quoteData['billing'])) {
+                parse_str($quoteData['billing'], $quoteData['billing']);
+                $customer = Shopping::processCustomer($quoteData['billing']);
+                $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
+                $quote->setUserId($customer->getId())
+                    ->setCartId($cart->getId());
+            }
+
+            if(isset($quoteData['shipping']) && !empty($quoteData['shipping'])) {
+                parse_str($quoteData['shipping'], $quoteData['shipping']);
+                if($this->_validateAddress($quoteData['shipping'])) {
+                    $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
+                } else {
+                    $cart->setShippingAddressId(null);
+                }
+            }
+
+            if($customer) {
+                $cart->setUserId($customer->getId());
+                Models_Mapper_CartSessionMapper::getInstance()->save($cart);
+            }
+
+            $this->_quoteMapper->save($quote);
         }
     }
 

@@ -179,4 +179,76 @@ class Quote_Tools_Tools {
         return $parsed;
     }
 
+    public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null) {
+        $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
+        $shippingPrice    = $cart->getShippingPrice();
+        $data             = $storage->calculate(true);
+        $data['discount'] = $cart->getDiscount();
+
+        if($forceSave) {
+            $storage->setDiscount($cart->getDiscount());
+            $storage->saveCartSession();
+        }
+
+        unset($data['showPriceIncTax']);
+
+        $data['total']       = ($data['total'] - $data['discount']) + $shippingPrice;
+        $data['shipping']    = $shippingPrice;
+        $data['discountTax'] = ($quoteId) ? self::calculateDiscountTax(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId)) : $data['totalTax'];
+
+
+        if(!$currency) {
+            return $data;
+        }
+        $currency = Zend_Registry::get('Zend_Currency');
+        foreach($data as $key => $value) {
+            $data[$key] = $currency->toCurrency($value);
+        }
+        return $data;
+    }
+
+    public static function invokeQuoteStorage($quoteId) {
+        $mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $quote  = $mapper->find($quoteId);
+        if(!$quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_NewslogException('Quote cannot be found');
+        }
+        $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+        if(!$cart instanceof Models_Model_CartSession) {
+            throw new Exceptions_NewslogException('Requested quote has no cart');
+        }
+        $storage = Tools_ShoppingCart::getInstance();
+        $storage->restoreCartSession($quote->getCartId());
+        $storage->setCustomerId($quote->getUserId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
+        return $storage;
+    }
+
+    public static function calculateDiscountTax(Quote_Models_Model_Quote $quote) {
+        $cart    = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+        $taxRate = $quote->getDiscountTaxRate();
+        $tax     = null;
+        if(!$taxRate) {
+            return $cart->getTotalTax();
+        }
+        $rateGetter = 'getRate' . $taxRate;
+        $address    = $cart->getShippingAddressId();
+        if(!$address) {
+            $address = $cart->getBillingAddressId();
+        }
+        if($address) {
+            $zoneId = Tools_Tax_Tax::getZone(Tools_ShoppingCart::getAddressById($address));
+            if($zoneId) {
+                $tax = Models_Mapper_Tax::getInstance()->findByZoneId($zoneId);
+            }
+        } else {
+            $tax = Models_Mapper_Tax::getInstance()->getDefaultRule();
+        }
+
+        if($tax) {
+            return $cart->getTotalTax() - (($cart->getDiscount() / 100) * $tax->$rateGetter());
+        }
+        return $cart->getTotalTax();
+    }
 }

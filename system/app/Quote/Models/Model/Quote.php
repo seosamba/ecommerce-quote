@@ -41,6 +41,16 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_updatedAt       = '';
 
+    protected $_discountTaxRate = 0;
+
+    public function setDiscountTaxRate($discountTaxRate) {
+        $this->_discountTaxRate = $discountTaxRate;
+    }
+
+    public function getDiscountTaxRate() {
+        return $this->_discountTaxRate;
+    }
+
 	public function setCartId($cartId) {
 		$this->_cartId = $cartId;
 		return $this;

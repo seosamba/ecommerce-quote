@@ -12,14 +12,25 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
     const UPDATE_TYPE_OPTIONS = 'options';
 
-    protected $_accessList  = array(
-        Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete'))
+    const UPDATE_TYPE_PRICE   = 'price';
+
+    protected $_debugMode     = false;
+
+    protected $_accessList    = array(
+        Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete')),
+        Tools_Security_Acl::ROLE_ADMIN      => array('allow' => array('get', 'post', 'put', 'delete'))
     );
 
+    /**
+     * Instance of the Quote_Models_Mapper_QuoteMapper. Using to invoke quote's cart storage
+     *
+     * @var Quote_Models_Mapper_QuoteMapper
+     */
     protected $_mapper = null;
 
     public function init() {
-        $this->_mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $this->_debugMode = Tools_System_Tools::debugMode();
+        $this->_mapper    = Quote_Models_Mapper_QuoteMapper::getInstance();
     }
 
     public function getAction() {}
@@ -59,87 +70,45 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
     public function putAction() {
         $productId   = filter_var($this->_request->getParam('id'), FILTER_SANITIZE_NUMBER_INT);
-        $updateType  = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
-        $updateData  = Zend_Json::decode($this->_request->getRawBody());
-        $cartStorage = Tools_ShoppingCart::getInstance();
-        $result      = null;
+        $data        = Zend_Json::decode($this->_request->getRawBody());
 
-        switch($updateType) {
-            case self::UPDATE_TYPE_QTY:
-                if(!isset($updateData['qty'])) {
-                    $this->_error('Cannot update product quantity');
-                }
-                if(!isset($updateData['qid'])) {
-                    $this->_error('Cannot find the quote.', self::REST_STATUS_NOT_FOUND);
-                }
-
-                $quote  = $this->_mapper->find($updateData['qid']);
-
-                if(!$quote instanceof Quote_Models_Model_Quote) {
-                    $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
-                }
-
-                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
-                $cartStorage->restoreCartSession($quote->getCartId());
-                $cartStorage->setCustomerId($quote->getUserId())
-                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
-                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
-
-                $cartContent = $cartStorage->getContent();
-
-                $tmpItem = array();
-                foreach($cartContent as $key => $cartItem) {
-                    if($cartItem['product_id'] == $productId) {
-                        $tmpItem = $cartItem;
-                        unset($cartContent[$key]);
-                        break;
-                    }
-
-                    //$cartContent[$key]['qty'] = $updateData['qty'];
-                }
-                $cartStorage->setContent($cartContent);
-                $cartStorage->add(Models_Mapper_ProductMapper::getInstance()->find($tmpItem['product_id']), $tmpItem['options'], $updateData['qty']);
-                $cartStorage->saveCartSession();
-
-
-                return $this->_sendResponse($cartStorage);
-            break;
-            case self::UPDATE_TYPE_OPTIONS:
-                if(isset($updateData['options'])) {
-                    $updateData['options'] = $this->_parseOptions($updateData['options']);
-                }
-
-                $quote  = $this->_mapper->find($updateData['qid']);
-                if(!$quote instanceof Quote_Models_Model_Quote) {
-                    $this->_error('Cannot find quote', self::REST_STATUS_NOT_FOUND);
-                }
-                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
-
-                $storage = Tools_ShoppingCart::getInstance();
-                $storage->restoreCartSession($quote->getCartId());
-                $storage->setCustomerId($quote->getUserId())
-                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
-                    ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
-
-                $cartContent = $storage->getContent();
-                foreach($cartContent as $key => $cartItem) {
-                    if($cartItem['product_id'] == $productId) {
-                        //$cartContent[$key]['options'] = $updateData['options'];
-                        unset($cartContent[$key]);
-                        break;
-                    }
-                }
-
-                $storage->setContent($cartContent);
-
-                $storage->add(Models_Mapper_ProductMapper::getInstance()->find($productId), $updateData['options']);
-
-                //Models_Mapper_CartSessionMapper::getInstance()->save($cart->setCartContent($cartContent));
-                $storage->saveCartSession();
-                return $this->_sendResponse($cartStorage);
-            break;
+        if(!isset($data['type'])) {
+            $this->_error();
         }
-        return (array)$result;
+
+        if(!isset($data['value']) || !$data['value']) {
+            $this->_error('Cannot perform an update');
+        }
+
+        $storage     = $this->_invokeQuoteStorage($data['qid']);
+        $cartContent = $storage->getContent();
+        $itemData    = null;
+
+        foreach($cartContent as $key => $item) {
+            if($item['product_id'] != $productId) {
+                continue;
+            }
+            $itemData = $item;
+            unset($cartContent[$key]);
+        }
+
+        $product = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
+        $product->setPrice($itemData['price']);
+
+        switch($data['type']) {
+            case self::UPDATE_TYPE_QTY     : $itemData['qty'] = $data['value']; break;
+            case self::UPDATE_TYPE_OPTIONS : $itemData['options'] = $this->_parseOptions($data['options']); break;
+            case self::UPDATE_TYPE_PRICE   :
+                $product->setPrice($data['value']);
+                $itemData['options'] = array();
+            break;
+            default: $this->_error('Invalid update type.'); break;
+        }
+
+        $storage->setContent($cartContent);
+        $storage->add($product, $itemData['options'], $itemData['qty']);
+
+        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }
 
     public function deleteAction() {
@@ -154,19 +123,8 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $this->_error('Cannot find a quote', self::REST_STATUS_NOT_FOUND);
         }
 
-        $quote       = Quote_Models_Mapper_QuoteMapper::getInstance()->find($data['qid']);
-        $cartStorage = Tools_ShoppingCart::getInstance();
-        $cart        = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
-
-        $cartStorage->restoreCartSession($quote->getCartId());
-        $cartStorage->setCustomerId($quote->getUserId())
-            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
-            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
-
-        $cartStorage->restoreCartSession($quote->getCartId());
-        $cartStorage->setCustomerId($quote->getUserId());
-
-        $cartContent = $cartStorage->getContent();
+        $storage     = $this->_invokeQuoteStorage($data['qid']);
+        $cartContent = $storage->getContent();
 
         foreach($ids as $id) {
             if(sizeof($cartContent) > 1) {
@@ -175,13 +133,12 @@ class Api_Quote_Products extends Api_Service_Abstract {
                         unset($cartContent[$key]);
                     }
                 }
-                $cartStorage->setContent($cartContent);
+                $storage->setContent($cartContent);
             } else {
-                $cartStorage->setContent(null);
+                $storage->setContent(null);
             }
         }
-        $cartStorage->saveCartSession();
-        return $this->_sendResponse($cartStorage);
+        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }
 
     /**
@@ -194,7 +151,8 @@ class Api_Quote_Products extends Api_Service_Abstract {
     protected function _sendResponse($storage, $currency = true) {
         $cart          = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
         $shippingPrice = $cart->getShippingPrice();
-        $data          = $storage->calculate();
+        $data          = $storage->calculate(true);
+        $storage->saveCartSession();
         unset($data['showPriceIncTax']);
         $data['total'] += $shippingPrice;
         if(!$currency) {
@@ -205,6 +163,42 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $data[$key] = $currency->toCurrency($value);
         }
         return $data;
+    }
+
+    /**
+     * Invoke quote's cart session storage
+     *
+     * @param integer $id quote id
+     * @return Tools_ShoppingCart
+     */
+    protected function _invokeQuoteStorage($id) {
+        $quote = $this->_mapper->find($id);
+        if(!$quote instanceof Quote_Models_Model_Quote) {
+            $this->_error('Quote cannot be found');
+        }
+        $cart    = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+        if(!$cart instanceof Models_Model_CartSession) {
+            $this->_error('Requested quote has no cart');
+        }
+        $storage = Tools_ShoppingCart::getInstance();
+        $storage->restoreCartSession($quote->getCartId());
+        $storage->setCustomerId($quote->getUserId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
+            ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
+        return $storage;
+    }
+
+    /**
+     * Overriding base error method to add error message to the error log file if debug mode is on
+     *
+     * @param null $message
+     * @param int $statusCode
+     */
+    protected function _error($message = null, $statusCode = self::REST_STATUS_BAD_REQUEST) {
+        if($this->_debugMode && $message) {
+            error_log('Quote products api error:' . $message);
+        }
+        parent::_error($message, $statusCode);
     }
 
     private function _parseOptions($options) {
