@@ -54,6 +54,23 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     const DATE_TYPE_EXPIRES = 'expires';
 
     /**
+     * Total option type tax
+     *
+     */
+    const TOTAL_TYPE_TAX    = 'tax';
+
+    /**
+     * Total option type subtotal
+     *
+     */
+    const TOTAL_TYPE_SUB    = 'sub';
+
+    /**
+     * Total option type grand total
+     */
+    const TOTAL_TYPE_GRAND  = 'grand';
+
+    /**
      * Flag that tells toaster cache the widget or not. Should be set to true for production
      *
      * @var bool
@@ -326,6 +343,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $this->_view->quoteId = $this->_quote->getId();
         $this->_view->status  = $this->_quote->getStatus();
+        $this->_view->symbol  = $this->_currency->getSymbol();
         return $this->_view->render('controls.quote.phtml');
     }
 
@@ -373,10 +391,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $totalType = isset($this->_options[0]) ? $this->_options[0] : 'grand';
         $total     = 0;
         switch($totalType) {
-            case Quote_Tools_Calc::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
-            case Quote_Tools_Calc::TOTAL_TYPE_SUB   : $total = $this->_cart->getSubTotal(); break;
-            case Quote_Tools_Calc::TOTAL_TYPE_GRAND : $total = ($this->_cart->getTotal() + $this->_cart->getShippingPrice()); break;
-            default                                 : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
+            case self::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
+            case self::TOTAL_TYPE_SUB   : $total = $this->_cart->getSubTotal(); break;
+            case self::TOTAL_TYPE_GRAND : $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice()); break;
+            default                     : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
         }
         $this->_view->totalType = $totalType;
         $this->_view->total     = $total;
@@ -396,6 +414,23 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $shippingPrice              = $this->_cart->getShippingPrice();
         $this->_view->quoteShipping = ($shippingPrice) ? $shippingPrice : 0;
         return $this->_view->render('shipping.quote.phtml');
+    }
+
+    protected function _renderDiscount() {
+        if(!$this->_cart instanceof Models_Model_CartSession) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: cart in not initialized, discount cannot be rendered');
+        }
+
+        $discount              = $this->_cart->getDiscount();
+        $this->_view->discount = ($discount) ? $discount : 0;
+        $this->_view->taxRates = array(
+            '0' => 'Non taxable',
+            '1' => 'Default',
+            '2' => 'Alternative',
+            '3' => 'Alternative 2'
+        );
+
+        return $this->_view->render('discount.quote.phtml');
     }
 
 
@@ -423,6 +458,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         // Models_Model_Product equivalent of the $item
         $product = Models_Mapper_ProductMapper::getInstance()->find($cartContent[$itemId]['product_id']);
+        $product->setPrice($cartContent[$itemId]['price']);
         // representation of product item that we store in the cart session
         $item    = array_merge($cartContent[$itemId], $product->toArray());
 
@@ -434,7 +470,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $this->_view->name   = $item['name'];
             break;
             case 'price':
-                $price                  = Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
+                $price                  = $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
                 $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price * $item['qty']);
                 $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
             break;

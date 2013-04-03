@@ -51,7 +51,7 @@
         }).on('change', '#country', function(e) {
             var self = this;
             $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
-                var statesHolder = $('#state');
+                var statesHolder = $('#plugin-quote-quoteform #state');
                 if(!response.length) {
                     statesHolder.empty().parent('div').fadeOut();
                 } else {

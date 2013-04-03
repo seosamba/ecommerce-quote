@@ -1,1 +1,5 @@
-<?php echo ($this->editAllowed ? $this->formText('quoteShipping', $this->quoteShipping, array('id' => 'quote-shipping-price')) : $this->currency($this->quoteShipping));
+<?php if($this->editAllowed): ?>
+    <input type="text" name="quoteShipping" data-scope="quote-partial" data-type="shipping" id="quote-shipping-price" class="quote-recalculate" value="<?php echo $this->quoteShipping; ?>" />
+<?php else: ?>
+    <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping); ?></span>
+<?php endif; ?>
