@@ -57,7 +57,17 @@ $(function() {
     })
 
     $(document).on('change', '#quote-discount-rate', function(e) {
-
+        var data = {
+            qid   : quoteId,
+            type  : 'taxrate',
+            value : $(e.currentTarget).val()
+        };
+        var request = _update('api/quote/quotes/', data);
+        request.done(function(response) {
+            hideSpinner();
+            $.extend(data, {summary:response});
+            recalculate(data);
+        });
     });
 });
 
@@ -94,13 +104,14 @@ var _update = function(apiUrl, data) {
 var recalculate = function(options) {
     var symbol = $('#quote-currency').val();
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
-        var unitPriceContainer = $('input.price-unit[data-pid]="' + options.productId + '"');
+        var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
+        console.log(unitPriceContainer);
 
         var unitPrice  = parseFloat(unitPriceContainer.val());
-        var qty        = parseInt($('input.qty-unit[data-pid]="' + options.productId + '"').val())
+        var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val())
         var totalPrice = unitPrice * qty;
 
-        $('.price-total[data-pid]="' + options.productId + '"').text(symbol + totalPrice.toFixed(2));
+        $('.price-total[data-pid="' + options.productId + '"]').text(symbol + totalPrice.toFixed(2));
         unitPriceContainer.val(parseFloat(unitPrice).toFixed(2));
     }
     var summary = options.summary;
@@ -109,6 +120,7 @@ var recalculate = function(options) {
     $('.tax-total').text(symbol + summary.totalTax.toFixed(2));
     $('#quote-shipping-price').val(parseFloat(summary.shipping).toFixed(2));
     $('#quote-discount').val(parseFloat(summary.discount).toFixed(2));
+    $('#quote-tax-discount').text(symbol + summary.discountTax.toFixed(2))
     $('.grand-total').text(symbol + summary.total.toFixed(2));
 }
 

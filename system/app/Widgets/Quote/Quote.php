@@ -57,7 +57,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * Total option type tax
      *
      */
-    const TOTAL_TYPE_TAX    = 'tax';
+    const TOTAL_TYPE_TAX          = 'tax';
+
+    /**
+     * Taxt including discount
+     *
+     */
+    const TOTAL_TYPE_TAX_DISCOUNT = 'taxdiscount';
 
     /**
      * Total option type subtotal
@@ -393,8 +399,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         switch($totalType) {
             case self::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
             case self::TOTAL_TYPE_SUB   : $total = $this->_cart->getSubTotal(); break;
-            case self::TOTAL_TYPE_GRAND : $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice()); break;
-            default                     : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
+            case self::TOTAL_TYPE_GRAND :
+                $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice());
+            break;
+            case self::TOTAL_TYPE_TAX_DISCOUNT:
+                $this->_view->taxDiscount = Quote_Tools_Tools::calculateDiscountTax($this->_quote);
+                return $this->_view->render('taxdiscount.quote.phtml');
+            break;
+            default : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
         }
         $this->_view->totalType = $totalType;
         $this->_view->total     = $total;
@@ -423,6 +435,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $discount              = $this->_cart->getDiscount();
         $this->_view->discount = ($discount) ? $discount : 0;
+        $this->_view->rate     = $this->_quote->getDiscountTaxRate();
         $this->_view->taxRates = array(
             '0' => 'Non taxable',
             '1' => 'Default',
