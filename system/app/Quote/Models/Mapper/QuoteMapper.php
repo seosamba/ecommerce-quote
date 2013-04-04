@@ -32,7 +32,8 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 			'user_id'           => $quote->getUserId(),
 			'created_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),
 			'updated_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getUpdatedAt())),
-            'discount_tax_rate' => $quote->getDiscountTaxRate()
+            'discount_tax_rate' => $quote->getDiscountTaxRate(),
+            'delivery_type'     => $quote->getDeliveryType()
 		);
 
 		$exists = $this->find($quote->getId());

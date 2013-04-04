@@ -170,16 +170,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             switch($quoteData['type']) {
                 case 'shipping': $cart->setShippingPrice($value); break;
                 case 'discount': $cart->setDiscount($value); break;
-                case 'taxrate':
-                    $quote->setDiscountTaxRate($value);
-                    $this->_quoteMapper->save($quote);
-                break;
+                case 'taxrate' :  $quote->setDiscountTaxRate($value); break;
+                case 'delivery': $quote->setDeliveryType($quoteData['value']); break;
                 default: $this->_error('Wrong partial option');
             }
 
             $cartSessionMapper->save($cart);
-
-            return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
+            $this->_quoteMapper->save($quote);
 
         } else {
             $quote->setOptions($quoteData);
@@ -224,6 +221,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             $this->_quoteMapper->save($quote);
         }
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
     }
 
     public function deleteAction() {

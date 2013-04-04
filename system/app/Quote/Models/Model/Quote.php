@@ -43,12 +43,22 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     protected $_discountTaxRate = 0;
 
+    protected $_deliveryType    = '';
+
     public function setDiscountTaxRate($discountTaxRate) {
         $this->_discountTaxRate = $discountTaxRate;
     }
 
     public function getDiscountTaxRate() {
         return $this->_discountTaxRate;
+    }
+
+    public function setDeliveryType($deliveryType) {
+        $this->_deliveryType = $deliveryType;
+    }
+
+    public function getDeliveryType() {
+        return $this->_deliveryType;
     }
 
 	public function setCartId($cartId) {

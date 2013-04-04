@@ -7,6 +7,44 @@ $(function() {
     // current quote id
     var quoteId = $('#quote-id').val();
 
+    //same fore shipping checkbox handling
+    $(document).on('click', '#same-for-shipping', function(e) {
+        var shippingForm = $('#shipping-user-address');
+        var billingForm  = $('#plugin-quote-quoteform');
+        if(shippingForm.length) {
+            $(':input[name], select[name]', billingForm).each(function() {
+                var shippingFormEl = $('[name=' + $(this).attr('name') + ']', shippingForm);
+                if($(e.currentTarget).prop('checked')) {
+                    if($(this).hasClass('state') && $(this).is(':visible')) {
+                        $('select.state', shippingForm).html($(this).html()).parent('div').show();
+                    }
+                    shippingFormEl.val($(this).val()).attr('readonly', true);
+                } else {
+                    shippingFormEl.val('').removeAttr('readonly');
+                    $('select.state', shippingForm).parent('div').hide();
+                }
+            });
+        }
+    });
+
+    // handling remove link click
+    $(document).on('click', '.remove-product', function(e) {
+        showConfirm('You are about to remove an item. Are you sure?', function() {
+            $.ajax({
+                url        : $('#website_url').val() + 'api/quote/products/id/' + $(e.currentTarget).data('pid'),
+                type       : 'delete',
+                data       : JSON.stringify({qid: quoteId}),
+                dataType   : 'json',
+                beforeSend : showSpinner
+            }).done(function(response) {
+                hideSpinner();
+                recalculate({summary: response});
+                $(e.currentTarget).closest('tr').remove();
+            });
+        });
+    })
+
+
     // quote control click handling
     $(document).on('click', '.quote-control', function(e) {
         var control  = $(e.currentTarget);
@@ -105,7 +143,6 @@ var recalculate = function(options) {
     var symbol = $('#quote-currency').val();
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
         var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
-        console.log(unitPriceContainer);
 
         var unitPrice  = parseFloat(unitPriceContainer.val());
         var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val())
@@ -120,8 +157,6 @@ var recalculate = function(options) {
     $('.tax-total').text(symbol + summary.totalTax.toFixed(2));
     $('#quote-shipping-price').val(parseFloat(summary.shipping).toFixed(2));
     $('#quote-discount').val(parseFloat(summary.discount).toFixed(2));
-    $('#quote-tax-discount').text(symbol + summary.discountTax.toFixed(2))
+    $('#quote-tax-discount').text(symbol + parseFloat(summary.discountTax).toFixed(2))
     $('.grand-total').text(symbol + summary.total.toFixed(2));
 }
-
-

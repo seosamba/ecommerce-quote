@@ -316,6 +316,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     }
 
     /**
+     * Renderer for {$quote:delivery} option
+     *
+     * @return string
+     */
+    protected function _renderDelivery() {
+        $this->_view->delivery = $this->_quote->getDeliveryType();
+        return $this->_view->render('delivery.quote.phtml');
+    }
+
+    /**
      * Render created or expires quote dates
      *
      * {$quote:date[:_created_|:expires]}
@@ -428,6 +438,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return $this->_view->render('shipping.quote.phtml');
     }
 
+    /**
+     * Render quote discount {$quote:discount}
+     *
+     * @return string
+     * @throws Exceptions_SeotoasterWidgetException
+     */
     protected function _renderDiscount() {
         if(!$this->_cart instanceof Models_Model_CartSession) {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: cart in not initialized, discount cannot be rendered');
@@ -446,7 +462,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return $this->_view->render('discount.quote.phtml');
     }
 
-
+    /**
+     * Render all quote item widgets {$quote:item:*}
+     *
+     * @return bool|string
+     * @throws Exceptions_SeotoasterWidgetException
+     */
     protected function _renderItem() {
         // if this is regular parsing - do nothing
         if(!in_array('quotemspace', $this->_options)) {
@@ -509,26 +530,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
         return $this->_view->render('item/' . $widgetOption . '.quote.item.phtml');
-    }
-
-    protected function _getProductDefaultOptions(Models_Model_Product $product, $flat = true) {
-        $options        = array();
-        $defaultOptions = $product->getDefaultOptions();
-        if(!is_array($defaultOptions) || empty($defaultOptions)) {
-            return null;
-        }
-        foreach($defaultOptions as $option){
-            foreach ($option['selection'] as $item) {
-                if($item['isDefault'] == 1) {
-                    if(!$flat) {
-                        $options[] = $item;
-                    } else {
-                        $options[$option['id']] = $item['id'];
-                    }
-                }
-            }
-        }
-        return $options;
     }
 
     /**
