@@ -178,8 +178,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $cartSessionMapper->save($cart);
             $this->_quoteMapper->save($quote);
 
-            return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
-
         } else {
             $quote->setOptions($quoteData);
 
@@ -223,6 +221,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             $this->_quoteMapper->save($quote);
         }
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
     }
 
     public function deleteAction() {

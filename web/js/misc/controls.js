@@ -143,7 +143,6 @@ var recalculate = function(options) {
     var symbol = $('#quote-currency').val();
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
         var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
-        console.log(unitPriceContainer);
 
         var unitPrice  = parseFloat(unitPriceContainer.val());
         var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val())
