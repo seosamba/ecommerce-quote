@@ -193,7 +193,7 @@ class Quote_Tools_Tools {
         unset($data['showPriceIncTax']);
 
         $data['total']       = ($data['total'] - $data['discount']) + $shippingPrice;
-        $data['shipping']    = $shippingPrice;
+        $data['shipping']    = ($shippingPrice) ? $shippingPrice : 0;
         $data['discountTax'] = ($quoteId) ? self::calculateDiscountTax(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId)) : $data['totalTax'];
 
 
