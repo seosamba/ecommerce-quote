@@ -183,10 +183,10 @@ class Quote_Tools_Tools {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
         $shippingPrice    = $cart->getShippingPrice();
         $data             = $storage->calculate(true);
-        $data['discount'] = $cart->getDiscount();
+        $data['discount'] = ($data['total']) ? $cart->getDiscount() : 0;
 
         if($forceSave) {
-            $storage->setDiscount($cart->getDiscount());
+            $storage->setDiscount($data['discount']);
             $storage->saveCartSession();
         }
 
@@ -237,9 +237,12 @@ class Quote_Tools_Tools {
         $address    = $cart->getShippingAddressId();
         if(!$address) {
             $address = $cart->getBillingAddressId();
+            if(!$address) {
+                $address = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+            }
         }
         if($address) {
-            $zoneId = Tools_Tax_Tax::getZone(Tools_ShoppingCart::getAddressById($address));
+            $zoneId = !is_array($address) ? Tools_Tax_Tax::getZone(Tools_ShoppingCart::getAddressById($address)) : $address;
             if($zoneId) {
                 $tax = Models_Mapper_Tax::getInstance()->findByZoneId($zoneId);
             }
