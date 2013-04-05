@@ -207,9 +207,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
             }
 
-            if(isset($quoteData['shipping']) && !empty($quoteData['shipping'])) {
+            if(isset($quoteData['shipping'])) {
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
                 if($this->_validateAddress($quoteData['shipping'])) {
+                    if(!$customer) {
+                        $customer = Shopping::processCustomer($quoteData['shipping']);
+                    }
                     $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
                 } else {
                     $cart->setShippingAddressId(null);
