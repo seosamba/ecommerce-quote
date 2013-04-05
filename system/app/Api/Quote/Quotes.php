@@ -226,7 +226,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             $this->_quoteMapper->save($quote);
         }
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId);
     }
 
     public function deleteAction() {
@@ -252,34 +252,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $this->_error('Quote not found', self::REST_STATUS_NOT_FOUND);
     }
 
-    protected function _updateShipping($data) {
-        $quoteId       = filter_var($data['id'], FILTER_SANITIZE_STRING);
-        $shippingPrice = floatval($data['shippingPrice']);
-        if(!$shippingPrice) {
-            $shippingPrice = 0;
-        }
-        $quote = $this->_quoteMapper->find($quoteId);
-        if(!$quote instanceof Quote_Models_Model_Quote) {
-            $this->_error('Quote not found.', self::REST_STATUS_NOT_FOUND);
-        }
-        $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
-        $cart              = $cartSessionMapper->find($quote->getCartId());
-        if(!$cart instanceof Models_Model_CartSession) {
-            $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
-        }
-        $cart->setShippingPrice($shippingPrice);
-        $cartSessionMapper->save($cart);
-
-        $currency   = Zend_Registry::get('Zend_Currency');
-
-        return array(
-            'shippingPrice'         => $shippingPrice,
-            'shippingPriceCurrency' => $currency->toCurrency($shippingPrice),
-            'grandTotal'            => $cart->getTotal() + $shippingPrice,
-            'grandTotalCurrency'    => $currency->toCurrency($cart->getTotal() + $shippingPrice)
-        );
-    }
-
     protected function _validateAddress($address) {
         if(!is_array($address)) {
             return false;
@@ -293,29 +265,5 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $valid &= (bool)$value;
         }
         return $valid;
-    }
-
-    /**
-     *
-     *
-     * @param $storage
-     * @param bool $currency
-     * @return mixed
-     */
-    protected function _sendResponse($storage, $currency = true) {
-        $cart          = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
-        $shippingPrice = $cart->getShippingPrice();
-        $data          = $storage->calculate();
-        unset($data['showPriceIncTax']);
-        $data['shipping'] = $shippingPrice;
-        $data['total']   += $shippingPrice;
-        if(!$currency) {
-            return $data;
-        }
-        $currency = Zend_Registry::get('Zend_Currency');
-        foreach($data as $key => $value) {
-            $data[$key] = $currency->toCurrency($value);
-        }
-        return $data;
     }
 }
