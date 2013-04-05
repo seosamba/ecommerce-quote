@@ -20,4 +20,12 @@
         <?php echo $this->translate('Save and Send quote'); ?>
     </a>
 </div>
+<?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
+<script type="text/javascript">
+    $(function() {
+        accounting.settings.currency = <?php echo Zend_Json::encode(Tools_Misc::getCurrencyFormat()); ?>;
+    });
+
+</script>
+
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/misc/controls.js'); ?>

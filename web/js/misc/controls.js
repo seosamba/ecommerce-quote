@@ -148,15 +148,15 @@ var recalculate = function(options) {
         var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val())
         var totalPrice = unitPrice * qty;
 
-        $('.price-total[data-pid="' + options.productId + '"]').text(symbol + totalPrice.toFixed(2));
-        unitPriceContainer.val(parseFloat(unitPrice).toFixed(2));
+        $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
+        unitPriceContainer.val(accounting.formatNumber(unitPrice, 2));
     }
     var summary = options.summary;
 
-    $('.sub-total').text(symbol + summary.subTotal.toFixed(2));
-    $('.tax-total').text(symbol + summary.totalTax.toFixed(2));
-    $('#quote-shipping-price').val(parseFloat(summary.shipping).toFixed(2));
-    $('#quote-discount').val(parseFloat(summary.discount).toFixed(2));
-    $('#quote-tax-discount').text(symbol + parseFloat(summary.discountTax).toFixed(2))
-    $('.grand-total').text(symbol + summary.total.toFixed(2));
+    $('.sub-total').text(accounting.formatMoney(summary.subTotal));
+    $('.tax-total').text(accounting.formatMoney(summary.totalTax));
+    $('#quote-shipping-price').val(accounting.formatNumber(summary.shipping, 2));
+    $('#quote-discount').val(accounting.formatNumber(summary.discount, 2));
+    $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax))
+    $('.grand-total').text(accounting.formatMoney(summary.total));
 }

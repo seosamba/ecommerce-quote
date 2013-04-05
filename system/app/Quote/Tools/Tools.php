@@ -226,11 +226,12 @@ class Quote_Tools_Tools {
     }
 
     public static function calculateDiscountTax(Quote_Models_Model_Quote $quote) {
-        $cart    = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
-        $taxRate = $quote->getDiscountTaxRate();
-        $tax     = null;
+        $cart     = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+        $taxRate  = $quote->getDiscountTaxRate();
+        $tax      = null;
+        $totalTax = $cart->getTotalTax();
         if(!$taxRate) {
-            return $cart->getTotalTax();
+            return $totalTax;
         }
         $rateGetter = 'getRate' . $taxRate;
         $address    = $cart->getShippingAddressId();
@@ -247,7 +248,7 @@ class Quote_Tools_Tools {
         }
 
         if($tax) {
-            return $cart->getTotalTax() - (($cart->getDiscount() / 100) * $tax->$rateGetter());
+            return ($totalTax == 0) ? $totalTax : ($cart->getTotalTax() - (($cart->getDiscount() / 100) * $tax->$rateGetter()));
         }
         return $cart->getTotalTax();
     }
