@@ -282,7 +282,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             return false;
         }
         $valid = true;
-        $excludeFields = array('lastname', 'address2', 'state', 'phone');
+        $excludeFields = array('lastname', 'address2', 'state', 'phone', 'sameForShipping', 'productId', 'productOptions');
         foreach($address as $field => $value) {
             if(in_array($field, $excludeFields)) {
                 continue;
