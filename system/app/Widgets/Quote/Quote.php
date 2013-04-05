@@ -359,7 +359,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $this->_view->quoteId = $this->_quote->getId();
         $this->_view->status  = $this->_quote->getStatus();
+
         $this->_view->symbol  = $this->_currency->getSymbol();
+
         return $this->_view->render('controls.quote.phtml');
     }
 

@@ -26,7 +26,8 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
 		$this->addElement(new Zend_Form_Element_Textarea(array(
             'name'  => 'disclaimer',
-            'label' => 'Notes'
+            'label' => 'Notes',
+            'rows'  => '3'
         )));
 
         $this->addElement(new Zend_Form_Element_Checkbox(array(
