@@ -197,12 +197,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
             }
 
-            if(isset($quoteData['billing']) && !empty($quoteData['billing'])) {
+            if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);
-                $customer = Shopping::processCustomer($quoteData['billing']);
-                $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
-                $quote->setUserId($customer->getId())
-                    ->setCartId($cart->getId());
+                if($this->_validateAddress($quoteData['billing'])) {
+                    $customer = Shopping::processCustomer($quoteData['billing']);
+                    $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
+                    $quote->setUserId($customer->getId())
+                        ->setCartId($cart->getId());
+                }
             }
 
             if(isset($quoteData['shipping']) && !empty($quoteData['shipping'])) {
