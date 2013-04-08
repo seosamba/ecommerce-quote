@@ -93,7 +93,10 @@ class Api_Quote_Products extends Api_Service_Abstract {
         }
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
+
         $basePrice = $product->getPrice();
+        $options   = $itemData['options'];
+
         $product->setPrice($itemData['price']);
 
         switch($data['type']) {
@@ -110,6 +113,12 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         $storage->setContent($cartContent);
         $storage->add($product, $itemData['options'], $itemData['qty']);
+
+        if($data['type'] == self::UPDATE_TYPE_PRICE) {
+            $content = $storage->getContent();
+            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $options);
+            $storage->setContent($content);
+        }
 
         return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }
