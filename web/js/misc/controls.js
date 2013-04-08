@@ -66,7 +66,7 @@ $(function() {
         var data = {
             qid   : quoteId,
             type  : type,
-            value : field.val()
+            value : accounting.unformat(field.val())
         };
 
         switch (scope) {
