@@ -23,7 +23,7 @@ define([
             this.currentSelection = splitedUrl[splitedUrl.length - 5];
 
 		},
-		render: function(){
+		render: function() {
             $('#manage-product-options-main').empty();
             var view = new ProductView({model: this.product});
 			$(view.render().el).appendTo('#manage-product-options-main');

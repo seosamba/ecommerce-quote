@@ -105,7 +105,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
                 $product->setPrice($basePrice);
                 $itemData['options'] = $this->_parseOptions($data['value']); break;
             case self::UPDATE_TYPE_PRICE   :
-                $product->setPrice($data['value']);
+                $product->setPrice(floatval($data['value']));
                 $itemData['options'] = array();
             break;
             default: $this->_error('Invalid update type.'); break;

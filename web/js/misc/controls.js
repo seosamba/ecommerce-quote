@@ -72,6 +72,7 @@ $(function() {
         switch (scope) {
             case 'quote-item':
                 var productId = field.data('pid');
+                data.value    = accounting.unformat(data.value);
                 var request   = _update('api/quote/products/id/' + productId, data)
                 request.done(function(response) {
                     hideSpinner();
