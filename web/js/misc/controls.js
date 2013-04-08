@@ -126,6 +126,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage) {
     var request = _update('api/quote/quotes/', data);
     request.done(function(response, status, xhr) {
         hideSpinner();
+        recalculate({summary:response});
     });
 }
 
@@ -140,7 +141,6 @@ var _update = function(apiUrl, data) {
 }
 
 var recalculate = function(options) {
-    var symbol = $('#quote-currency').val();
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
         var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
 

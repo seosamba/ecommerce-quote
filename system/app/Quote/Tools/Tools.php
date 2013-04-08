@@ -242,7 +242,7 @@ class Quote_Tools_Tools {
             }
         }
         if($address) {
-            $zoneId = !is_array($address) ? Tools_Tax_Tax::getZone(Tools_ShoppingCart::getAddressById($address)) : $address;
+            $zoneId = Tools_Tax_Tax::getZone(!is_array($address) ? Tools_ShoppingCart::getAddressById($address) : $address);
             if($zoneId) {
                 $tax = Models_Mapper_Tax::getInstance()->findByZoneId($zoneId);
             }

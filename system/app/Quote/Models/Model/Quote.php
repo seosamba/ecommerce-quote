@@ -41,7 +41,7 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_updatedAt       = '';
 
-    protected $_discountTaxRate = 0;
+    protected $_discountTaxRate = 1;
 
     protected $_deliveryType    = '';
 
