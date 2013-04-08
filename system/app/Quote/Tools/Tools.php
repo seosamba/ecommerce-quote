@@ -140,7 +140,7 @@ class Quote_Tools_Tools {
                         if(!is_array($selection) || empty($selection)) {
                             continue;
                         }
-                        $options[] = array_shift($selection);
+                        $options[$option['title']] = array_shift($selection);
                     }
                 }
             }
