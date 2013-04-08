@@ -1,13 +1,14 @@
 <?php if(!empty($this->options)): ?>
 
-	<?php foreach($this->options as $optData): ?>
+	<?php foreach($this->options as $title => $optData): ?>
 	    <p>
+            <span class="option-title"><?php echo $title; ?>: </span>
 		    <?php echo $optData['title']; ?>
             <?php if(isset($optData['selection'])): ?>
                 <span><?php echo $optData['selection']; ?></span>
             <?php else: ?>
-                <?php echo '<br />(', $optData['priceSign'], $this->currency($optData['priceValue']), ')'; ?>
-                <?php echo '<br />(', $optData['weightSign'], $optData['weightValue'], ' ', $this->weightSign, ')'; ?>
+                <?php echo '(', $optData['priceSign'], $this->currency($optData['priceValue']), ')'; ?>
+                <?php echo '(', $optData['weightSign'], $optData['weightValue'], ' ', $this->weightSign, ')'; ?>
             <?php endif; ?>
 	    </p>
 	<?php endforeach; ?>
