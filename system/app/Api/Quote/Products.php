@@ -92,12 +92,15 @@ class Api_Quote_Products extends Api_Service_Abstract {
             unset($cartContent[$key]);
         }
 
-        $product = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
+        $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
+        $basePrice = $product->getPrice();
         $product->setPrice($itemData['price']);
 
         switch($data['type']) {
             case self::UPDATE_TYPE_QTY     : $itemData['qty'] = $data['value']; break;
-            case self::UPDATE_TYPE_OPTIONS : $itemData['options'] = $this->_parseOptions($data['options']); break;
+            case self::UPDATE_TYPE_OPTIONS :
+                $product->setPrice($basePrice);
+                $itemData['options'] = $this->_parseOptions($data['value']); break;
             case self::UPDATE_TYPE_PRICE   :
                 $product->setPrice($data['value']);
                 $itemData['options'] = array();

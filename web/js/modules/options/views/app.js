@@ -24,7 +24,6 @@ define([
 
 		},
 		render: function(){
-            console.log(this.product);
             $('#manage-product-options-main').empty();
             var view = new ProductView({model: this.product});
 			$(view.render().el).appendTo('#manage-product-options-main');
@@ -39,8 +38,9 @@ define([
                 type: 'put',
                 dataType: 'json',
                 data: JSON.stringify({
-                    qid: $(e.currentTarget).data('qid'),
-                    options: options
+                    qid  : $(e.currentTarget).data('qid'),
+                    type : 'options',
+                    value: options
                 }),
                 beforeSend: showSpinner
             }).done(function(response) {
