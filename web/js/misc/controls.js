@@ -144,7 +144,7 @@ var recalculate = function(options) {
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
         var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
 
-        var unitPrice  = parseFloat(unitPriceContainer.val());
+        var unitPrice  = parseFloat(accounting.unformat(unitPriceContainer.val()));
         var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val())
         var totalPrice = unitPrice * qty;
 
