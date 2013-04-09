@@ -1,1 +1,5 @@
-<input type="text" name="deliveryType" data-scope="quote-partial" data-type="delivery" id="quote-delivery-type" class="quote-recalculate" value="<?php echo $this->delivery; ?>" />
+<?php if($this->editAllowed): ?>
+    <input type="text" name="deliveryType" data-scope="quote-partial" data-type="delivery" id="quote-delivery-type" class="quote-recalculate" value="<?php echo $this->delivery; ?>" />
+<?php else: ?>
+    <span class="quote-element quote-delivery-type"><?php echo $this->delivery; ?></span>
+<?php endif; ?>
