@@ -94,7 +94,8 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
 
-        $basePrice = ($product->getCurrentPrice()) ? $product->getCurrentPrice() : $product->getPrice();
+        $basePrice = $product->getCurrentPrice();
+        $basePrice = ($basePrice === null) ? $product->getPrice() : $basePrice;
         $options   = $itemData['options'];
 
         $product->setPrice($itemData['price']);
