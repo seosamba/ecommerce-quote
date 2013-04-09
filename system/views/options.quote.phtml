@@ -6,6 +6,7 @@
 
 
 <div id="manage-product-options-main" class="grid_12 h490"></div>
+<input type="hidden" id="weight-sign" value="<?php echo $this->weightSign; ?>" />
 <div class="grid_12" style="text-align: right;padding: 5px 0;">
     <a data-qid="<?php echo $this->quoteId; ?>" href="javascript:;" id="save-options"><?php echo $this->translate('Save options'); ?></a>
 </div>
@@ -42,7 +43,13 @@
         margin-right: 5px;
     }
 </style>
-
+<?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
+<script type="text/javascript">
+    $(function() {
+        accounting.settings.currency = <?php echo Zend_Json::encode(Tools_Misc::getCurrencyFormat()); ?>;
+        window.currOptions           = <?php echo Zend_Json::encode($this->currOptions); ?>;
+    });
+</script>
 <?php
     $this->headScript()->setAllowArbitraryAttributes(true)
         ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/options.js'));
