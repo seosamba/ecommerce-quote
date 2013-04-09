@@ -8,6 +8,7 @@
     </div>
 </div>
 <div data-productid="<%= id %>" class="product-options-listing h450 grid_9">
+        <% var currOptions = $('#currOptions').val() %>
 
         <% _.each(defaultOptions, function(value, index) { %>
 
@@ -15,15 +16,19 @@
             <% if(value.type == 'dropdown' || value.type == 'radio') { %>
                 <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
                     <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
+
+                    <% var curSel = window.currOptions[value.id] %>
                     <% if(value.type == 'dropdown') { %>
                         <select name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>">
                             <% _.each(value.selection, function(sel, key) { %>
-                                <option value="<%= sel.id %>"><%= sel.title + ' (price: ' + sel.priceSign + sel.priceValue + ' / weight: ' + sel.weightSign + sel.weightValue + ')' %></option>
+                                <% var price = (sel.priceType == 'unit') ? accounting.formatMoney(sel.priceValue) : (sel.priceValue + '%') %>
+                                <option <% if(curSel != 'undefined' && curSel == sel.id) { %> selected="selected" <% } %>  value="<%= sel.id %>"><%= sel.title + ' (price: ' + sel.priceSign + price + ' / weight: ' + sel.weightSign + sel.weightValue + $('#weight-sign').val() + ')' %></option>
                             <% }) %>
                         </select>
                     <% } else { %>
                         <% _.each(value.selection, function(sel, key) { %>
-                            <p><input type="radio" id="product-<%= id %>-option-<%= value.id %>-<%= sel.id %>" name="product-<%= id %>-option-<%= value.id %>" value="<%= sel.id %>" /><%= sel.title %> (price: <%= sel.priceSign + sel.priceValue %> / weight <%= sel.weightSign + sel.weightValue %>)</p>
+                            <% var price = (sel.priceType == 'unit') ? accounting.formatMoney(sel.priceValue) : (sel.priceValue + '%') %>
+                            <p><input <% if(curSel != 'undefined' && curSel == sel.id) { %> checked="checked" <% } %> type="radio" id="product-<%= id %>-option-<%= value.id %>-<%= sel.id %>" name="product-<%= id %>-option-<%= value.id %>" value="<%= sel.id %>" /><%= sel.title %> (price: <%= sel.priceSign + price %> / weight <%= sel.weightSign + sel.weightValue + $('#weight-sign').val() %>)</p>
                         <% }) %>
                     <% } %>
                 </fieldset>

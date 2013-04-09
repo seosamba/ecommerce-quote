@@ -122,7 +122,13 @@ class Quote extends Tools_PaymentGateway {
      *
      */
     public function optionsAction() {
-        $this->_view->quoteId = $this->_request->getParam('qid');
+        $this->_view->quoteId     = $this->_request->getParam('qid');
+        $this->_view->weightSign  = $this->_shoppingConfig['weightUnit'];
+
+        $currentOptions = array();
+        parse_str($this->_request->getParam('co'), $currentOptions);
+        $this->_view->currOptions = $currentOptions;
+
         $this->_show();
     }
 
