@@ -113,7 +113,7 @@ $(function() {
 
 var updateQuote = function(quoteId, sendMail, mailMessage) {
     var data = {
-        qid          : quoteId,
+        qid         : quoteId,
         sendMail    : sendMail,
         title       : $('#quote-title').val(),
         disclaimer  : $('.quote-disclaimer-text').val(),
