@@ -1,14 +1,15 @@
 <?php if($this->editAllowed): ?>
 	<?php echo $this->datePicker(
 		'datepicker-' . $this->type,
-		((intval($this->date)) ? date('M j, Y', strtotime($this->date)) : ''),
+		((intval($this->date)) ? date('d-M-Y', strtotime($this->date)) : ''),
 		array(
 			'defaultDate' => '',
-			'onClose'    => new Zend_Json_Expr('function() {saveQuote($(".save-quote:first").data("qid"), false);}')
+            'dateFormat'  => 'd-M-yy',
+			'onClose'     => new Zend_Json_Expr('function() {updateQuote($("#quote-id").val(), false);}')
 		), array(
             'class' => 'quote-edit-input'
         ));
 	?>
 <?php else: ?>
-	<?php echo date('M j, Y', strtotime($this->date)); ?>
+	<?php echo date('d-M-Y', strtotime($this->date)); ?>
 <?php endif; ?>

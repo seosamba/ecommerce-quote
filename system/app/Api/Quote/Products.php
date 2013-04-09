@@ -61,7 +61,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
             ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
 
         foreach($products as $product)  {
-            $cartStorage->add($product, Quote_Tools_Tools::getProductDefaultOptions($product));
+            $cartStorage->add($product, Quote_Tools_Tools::getProductOptions($product));
         }
 
         $cartStorage->saveCartSession();
@@ -94,7 +94,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
 
-        $basePrice = $product->getPrice();
+        $basePrice = ($product->getCurrentPrice()) ? $product->getCurrentPrice() : $product->getPrice();
         $options   = $itemData['options'];
 
         $product->setPrice($itemData['price']);
