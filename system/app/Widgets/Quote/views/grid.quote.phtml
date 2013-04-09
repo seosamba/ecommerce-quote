@@ -3,7 +3,7 @@
     <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
     <td><%= id %></td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
-    <td><%= $.datepicker.formatDate('M d, yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
+    <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
         <select name="quoteStatus" class="quote-status" id="<%= id %>">
             <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>>New</option>
