@@ -142,16 +142,16 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $cartContent = $storage->getContent();
 
         foreach($ids as $id) {
-            if(sizeof($cartContent) > 1) {
+//            if(sizeof($cartContent) > 1) {
                 foreach($cartContent as $key => $cartItem) {
                     if(isset($cartItem['product_id']) && $cartItem['product_id'] == $id) {
                         unset($cartContent[$key]);
                     }
                 }
                 $storage->setContent($cartContent);
-            } else {
-                $storage->setContent(null);
-            }
+//            } else {
+//                $storage->setContent(null);
+//            }
         }
         return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }

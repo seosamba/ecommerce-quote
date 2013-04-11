@@ -5,6 +5,7 @@
  * @author: iamne <eugene@seotoaster.com> Seotoaster core team
  * Date: 9/5/12
  * Time: 12:59 PM
+ * @TODO : refactor this damn thing
  */
 class Api_Quote_Quotes extends Api_Service_Abstract {
 
@@ -36,6 +37,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
      */
     protected $_accessList   = array(
         Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete')),
+        Tools_Security_Acl::ROLE_ADMIN      => array('allow' => array('get', 'post', 'put', 'delete')),
         Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('get', 'post'))
     );
 
@@ -199,24 +201,45 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);
-                if($this->_validateAddress($quoteData['billing'])) {
-                    $customer = Shopping::processCustomer($quoteData['billing']);
-                    $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
-                    $quote->setUserId($customer->getId())
-                        ->setCartId($cart->getId());
-                }
+
+	            if ($quote->getUserId()){
+		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
+	            } else {
+		            $customer = Shopping::processCustomer($quoteData['billing']);
+		            $quote->setUserId($customer->getId());
+	            }
+
+	            $cart->setBillingAddressId(
+		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING)
+	            );
+
+//          @todo: do we need them really?
+//                if($this->_validateAddress($quoteData['billing'])) {
+//                    $customer = Shopping::processCustomer($quoteData['billing']);
+//                    $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
+//                    $quote->setUserId($customer->getId())
+//                        ->setCartId($cart->getId());
+//                }
             }
 
             if(isset($quoteData['shipping'])) {
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
-                if($this->_validateAddress($quoteData['shipping'])) {
-                    if(!$customer) {
-                        $customer = Shopping::processCustomer($quoteData['shipping']);
-                    }
-                    $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
-                } else {
-                    $cart->setShippingAddressId(null);
-                }
+	            if (!$customer){
+                    $customer = Shopping::processCustomer($quoteData['shipping']);
+	            }
+	            $cart->setShippingAddressId(
+		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
+	            );
+
+//          @todo: do we need them really?
+//                if($this->_validateAddress($quoteData['shipping'])) {
+//                    if(!$customer) {
+//                        $customer = Shopping::processCustomer($quoteData['shipping']);
+//                    }
+//                    $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
+//                } else {
+//                    $cart->setShippingAddressId(null);
+//                }
             }
 
             if($customer) {
@@ -226,7 +249,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             $this->_quoteMapper->save($quote);
         }
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId);
+	    // @todo: check why it was using 'forceSave' parameter???
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
     }
 
     public function deleteAction() {
