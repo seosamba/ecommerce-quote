@@ -213,13 +213,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING)
 	            );
 
-//          @todo: do we need them really?
-//                if($this->_validateAddress($quoteData['billing'])) {
-//                    $customer = Shopping::processCustomer($quoteData['billing']);
-//                    $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer));
-//                    $quote->setUserId($customer->getId())
-//                        ->setCartId($cart->getId());
-//                }
             }
 
             if(isset($quoteData['shipping'])) {
@@ -231,15 +224,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
 	            );
 
-//          @todo: do we need them really?
-//                if($this->_validateAddress($quoteData['shipping'])) {
-//                    if(!$customer) {
-//                        $customer = Shopping::processCustomer($quoteData['shipping']);
-//                    }
-//                    $cart->setShippingAddressId(Quote_Tools_Tools::addAddress($quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
-//                } else {
-//                    $cart->setShippingAddressId(null);
-//                }
             }
 
             if($customer) {
@@ -250,7 +234,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_quoteMapper->save($quote);
         }
 	    // @todo: check why it was using 'forceSave' parameter???
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, false, $quoteId);
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId);
     }
 
     public function deleteAction() {

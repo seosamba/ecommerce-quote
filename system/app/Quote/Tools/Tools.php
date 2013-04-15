@@ -187,7 +187,7 @@ class Quote_Tools_Tools {
 
         if($forceSave) {
             $storage->setDiscount($data['discount']);
-            $storage->saveCartSession();
+            $storage->saveCartSession(Models_Mapper_CustomerMapper::getInstance()->find($cart->getUserId()));
         }
 
         unset($data['showPriceIncTax']);
