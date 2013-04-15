@@ -1,4 +1,4 @@
-// Quote system. Controll panel.
+// Quote system. Control panel.
 
 $(function() {
     //apply jQueryUI buttons to quote controls
@@ -57,7 +57,7 @@ $(function() {
         }
     });
 
-    // editable (qantity, price) fields handling
+    // editable (quantity, price) fields handling
     $(document).on('blur', '.quote-recalculate', function(e) {
         var field = $(e.currentTarget);
         var scope = field.data('scope');

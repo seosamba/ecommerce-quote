@@ -122,7 +122,7 @@ class Quote_Tools_Tools {
         $allOptions = $product->getDefaultOptions();
 
         if(empty($allOptions)) {
-            return null;
+            return $options;
         }
 
         foreach($optionSelectionPairs as $optionId => $selectionId) {
@@ -152,7 +152,7 @@ class Quote_Tools_Tools {
         $options        = array();
         $defaultOptions = $product->getDefaultOptions();
         if(!is_array($defaultOptions) || empty($defaultOptions)) {
-            return null;
+            return $options;
         }
         foreach($defaultOptions as $option){
             foreach ($option['selection'] as $item) {
@@ -187,7 +187,7 @@ class Quote_Tools_Tools {
 
         if($forceSave) {
             $storage->setDiscount($data['discount']);
-            $storage->saveCartSession();
+            $storage->saveCartSession(Models_Mapper_CustomerMapper::getInstance()->find($cart->getUserId()));
         }
 
         unset($data['showPriceIncTax']);
