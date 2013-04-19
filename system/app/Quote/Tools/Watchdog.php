@@ -56,7 +56,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
             $page = new Application_Model_Models_Page();
         }
 
-        Application_Model_Mappers_PageMapper::getInstance()->save(
+        $page = Application_Model_Mappers_PageMapper::getInstance()->save(
             $page->setH1($this->_quote->getTitle())
                 ->setNavName($this->_quote->getTitle())
                 ->setHeaderTitle($this->_quote->getTitle())
@@ -65,9 +65,24 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
                 ->setUrl($pageHelper->filterUrl($this->_quote->getId()))
                 ->setParentId(Quote::QUOTE_CATEGORY_ID)
                 ->setSystem(true)
-                ->setLastUpdate(date(DATE_ATOM))
+                ->setLastUpdate(date(Tools_System_Tools::DATE_MYSQL))
                 ->setShowInMenu(Application_Model_Models_Page::IN_NOMENU)
         );
+
+        // save special container for the quote page with a disclaimer
+        $containerMapper     = Application_Model_Mappers_ContainerMapper::getInstance();
+        $containerName       = $this->_quote->getId() . '-disclaimer';
+        $disclaimerContainer = $containerMapper->findByName($containerName);
+
+        if(!$disclaimerContainer instanceof Application_Model_Models_Container) {
+            $disclaimerContainer = new Application_Model_Models_Container();
+            $disclaimerContainer->setName($containerName)
+                ->setContainerType(Application_Model_Models_Container::TYPE_REGULARCONTENT)
+                ->setPageId($page->getId());
+        }
+
+        $disclaimerContainer->setContent($this->_quote->getDisclaimer());
+        $containerMapper->save($disclaimerContainer);
 
         return $this;
     }
