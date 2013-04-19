@@ -14,12 +14,12 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 			)
         );
 
-        //only neccesarry decorators
+        //only necessary decorators
 		$this->setDecorators(array('FormElements', 'Form'));
 
 		// setting required fields
-		$this->getElement('firstname')->setRequired(true)->setAttrib('class', 'quote-required');
-		$this->getElement('email')->setRequired(true)->setAttrib('class', 'quote-required');
+		$this->getElement('firstname')->setLabel('First name *')->setRequired(true)->setAttrib('class', 'quote-required');
+		$this->getElement('email')->setLabel('E-mail *')->setRequired(true)->setAttrib('class', 'quote-required');
         $this->getElement('state')->setRegisterInArrayValidator(false);
         $this->getElement('country')->setRegisterInArrayValidator(false);
         $this->getElement('state')->clearValidators();
