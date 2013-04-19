@@ -215,6 +215,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             case self::ADDRESS_TYPE_BILLING:
                 $addressForm = new Quote_Forms_Quote();
                 //remove elements that are not neccessary here (submit button, disclaimer text area)
+
                 $addressForm->removeElement('sendQuote');
                 $addressForm->removeElement('disclaimer');
             break;
@@ -240,6 +241,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         //populating the form
+        $addressForm->getElement('firstname')->setLabel('First Name');
+        $addressForm->getElement('email')->setLabel('E-mail');
+
+        $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
         return $addressForm;
     }
