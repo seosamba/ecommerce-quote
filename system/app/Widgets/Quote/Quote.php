@@ -573,6 +573,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteForm->getElement('productId')->setValue($product->getId());
         }
 
+        //set store country as default country for the form
+        $quoteForm->getElement('country')->setValue($this->_shoppingConfig['country']);
+
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         return $this->_view->render('form.quote.phtml');
     }
