@@ -133,6 +133,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     protected $_debugMode = false;
 
     /**
+     * Fields names that should be always present on the quote form
+     *
+     * @var array
+     */
+    protected $_formMandatoryFields = array('productId', 'productOptions', 'sendQuote');
+
+    /**
      * Initialize all helpers, cofigs, etc...
      *
      */
@@ -580,9 +587,58 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         //set store country as default country for the form
         $quoteForm->getElement('country')->setValue($this->_shoppingConfig['country']);
+        $states = Tools_Geo::getState($this->_shoppingConfig['country']);
+        if(is_array($states) && !empty($states)) {
+
+            $statePairs = array();
+            foreach($states as $state) {
+                $statePairs[$state['state']] = $state['name'];
+            }
+
+            $quoteForm->getElement('state')->setMultiOptions($statePairs);
+        } else {
+            $quoteForm->getElement('state')->setMultiOptions(array());
+        }
+        
+        $quoteForm = $this->_adjustFormFields($quoteForm);
 
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         return $this->_view->render('form.quote.phtml');
+    }
+
+    private function _adjustFormFields(Quote_Forms_Quote $form) {
+        if(empty($this->_options)) {
+            return $form;
+        }
+        $currentFields = array_keys($form->getElements());
+
+        // fields that should stay
+        $fields = array();
+        foreach($this->_options as $field) {
+            $required = false;
+            if(substr($field, strlen($field)-1) == '*') {
+                $required = true;
+                $field    = str_replace('*', '', $field);
+            }
+            $fields[$field] = $required;
+        }
+
+        $fieldsToRemove = array_diff(array_diff($currentFields, $this->_formMandatoryFields), array_keys($fields));
+
+        foreach($currentFields as $field) {
+            if(in_array($field, $fieldsToRemove)) {
+                $form->removeElement($field);
+                continue;
+            }
+            if(array_key_exists($field, $fields)) {
+                $element = $form->getElement($field);
+                $element->setLabel(str_replace('*', '', $element->getLabel()) . ' *')
+                    ->setAttrib('class', 'quote-required')
+                    ->setRequired($fields[$field]);
+            }
+        }
+
+        return $form;
     }
 
     /**
