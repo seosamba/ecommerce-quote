@@ -137,7 +137,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      *
      * @var array
      */
-    protected $_formMandatoryFields = array('productId', 'productOptions', 'sendQuote');
+    protected $_formMandatoryFields = array(
+        'productId'      => false,
+        'productOptions' => false,
+        'sendQuote'      => false
+    );
 
     /**
      * Initialize all helpers, cofigs, etc...
@@ -626,8 +630,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $currentElements = $form->getElements();
-        $currentFields   = array_keys($currentElements);
-
 
         // fields that should stay
         $fields = array();
@@ -640,14 +642,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $fields[$field] = $required;
         }
 
-        $fieldsToRemove = array_diff($currentFields, $this->_formMandatoryFields);
-
-        foreach($currentFields as $field) {
-            if(in_array($field, $fieldsToRemove)) {
-                $form->removeElement($field);
-            }
+        foreach($currentElements as $element) {
+            $form->removeElement($element->getName());
         }
 
+        $fields = array_merge($fields, $this->_formMandatoryFields);
         foreach($fields as $name => $required) {
             if(!array_key_exists($name, $currentElements)) {
                 continue;
