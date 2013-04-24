@@ -624,7 +624,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if(empty($this->_options)) {
             return $form;
         }
-        $currentFields = array_keys($form->getElements());
+
+        $currentElements = $form->getElements();
+        $currentFields   = array_keys($currentElements);
+
 
         // fields that should stay
         $fields = array();
@@ -637,19 +640,24 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $fields[$field] = $required;
         }
 
-        $fieldsToRemove = array_diff(array_diff($currentFields, $this->_formMandatoryFields), array_keys($fields));
+        $fieldsToRemove = array_diff($currentFields, $this->_formMandatoryFields);
 
         foreach($currentFields as $field) {
             if(in_array($field, $fieldsToRemove)) {
                 $form->removeElement($field);
+            }
+        }
+
+        foreach($fields as $name => $required) {
+            if(!array_key_exists($name, $currentElements)) {
                 continue;
             }
-            if(array_key_exists($field, $fields)) {
-                $element = $form->getElement($field);
-                $element->setLabel(str_replace('*', '', $element->getLabel()) . ' *')
-                    ->setAttrib('class', 'quote-required')
-                    ->setRequired($fields[$field]);
+            if($required) {
+                $currentElements[$name]->setLabel(str_replace('*', '', $currentElements[$name]->getLabel()) . ' *')
+                    ->setAttrib('class', 'quote-required');
             }
+            $currentElements[$name]->setRequired($required);
+            $form->addElement($currentElements[$name]);
         }
 
         return $form;
