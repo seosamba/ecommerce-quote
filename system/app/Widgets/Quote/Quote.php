@@ -251,6 +251,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $addressForm->getElement('firstname')->setLabel('First Name');
         $addressForm->getElement('email')->setLabel('E-mail');
 
+        $addressForm = $this->_fixFormCountry($addressForm);
+
         $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
         return $addressForm;
@@ -586,24 +588,36 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         //set store country as default country for the form
-        $quoteForm->getElement('country')->setValue($this->_shoppingConfig['country']);
-        $states = Tools_Geo::getState($this->_shoppingConfig['country']);
-        if(is_array($states) && !empty($states)) {
+        $quoteForm = $this->_fixFormCountry($quoteForm);
 
-            $statePairs = array();
-            foreach($states as $state) {
-                $statePairs[$state['state']] = $state['name'];
-            }
-
-            $quoteForm->getElement('state')->setMultiOptions($statePairs);
-        } else {
-            $quoteForm->getElement('state')->setMultiOptions(array());
-        }
-        
+        // adjust dynamic quote from fields
         $quoteForm = $this->_adjustFormFields($quoteForm);
 
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         return $this->_view->render('form.quote.phtml');
+    }
+
+    /**
+     * Set default country and states if needed to the address form
+     *
+     * @param $form
+     * @return Forms_Address_Abstract
+     */
+    private function _fixFormCountry($form) {
+        $form->getElement('country')->setValue($this->_shoppingConfig['country']);
+        $states = Tools_Geo::getState($this->_shoppingConfig['country']);
+        if(is_array($states) && !empty($states)) {
+            $statePairs = array();
+            foreach($states as $state) {
+                $statePairs[$state['state']] = $state['name'];
+            }
+            $currentState = Tools_Geo::getStateById($this->_shoppingConfig['state']);
+            $form->getElement('state')->setMultiOptions($statePairs)
+                ->setValue($currentState['state']);
+        } else {
+            $form->getElement('state')->setMultiOptions(array());
+        }
+        return $form;
     }
 
     private function _adjustFormFields(Quote_Forms_Quote $form) {
