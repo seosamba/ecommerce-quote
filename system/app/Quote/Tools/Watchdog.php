@@ -70,6 +70,9 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         );
 
         // save special container for the quote page with a disclaimer
+
+        $disclaimer          = $this->_quote->getDisclaimer();
+
         $containerMapper     = Application_Model_Mappers_ContainerMapper::getInstance();
         $containerName       = $this->_quote->getId() . '-disclaimer';
         $disclaimerContainer = $containerMapper->findByName($containerName);
@@ -81,7 +84,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
                 ->setPageId($page->getId());
         }
 
-        $disclaimerContainer->setContent($this->_quote->getDisclaimer());
+        $disclaimerContainer->setContent($disclaimer ? $disclaimer : '');
         $containerMapper->save($disclaimerContainer);
 
         return $this;
