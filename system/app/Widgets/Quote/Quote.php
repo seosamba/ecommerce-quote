@@ -428,7 +428,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $total     = 0;
         switch($totalType) {
             case self::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
-            case self::TOTAL_TYPE_SUB   : $total = $this->_cart->getSubTotal(); break;
+            case self::TOTAL_TYPE_SUB   :
+                $subTotal = $this->_cart->getSubTotal();
+                $total    = ($this->_shoppingConfig['showPriceIncTax']) ? $subTotal +  $this->_cart->getTotalTax() : $subTotal;
+            break;
             case self::TOTAL_TYPE_GRAND :
                 $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice());
             break;
@@ -512,7 +515,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         // Models_Model_Product equivalent of the $item
         $product = Models_Mapper_ProductMapper::getInstance()->find($cartContent[$itemId]['product_id']);
-        $product->setPrice($cartContent[$itemId]['price']);
+        $product->setPrice(($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']);
         // representation of product item that we store in the cart session
         $item    = array_merge($cartContent[$itemId], $product->toArray());
 
@@ -524,7 +527,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $this->_view->name   = $item['name'];
             break;
             case 'price':
-                $price                  = $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
+                $price                  = ($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
+
                 $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price * $item['qty']);
                 $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
             break;
