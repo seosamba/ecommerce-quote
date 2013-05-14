@@ -144,6 +144,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     public function putAction() {
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
+        if(!$quoteId) {
+            $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
+        }
 
         if(!$quoteId) {
             $this->_error('Not enough parameters', self::REST_STATUS_BAD_REQUEST);
