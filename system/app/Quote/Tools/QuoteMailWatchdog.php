@@ -215,7 +215,14 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             case self::RECIPIENT_STOREOWNER:
             case self::RECIPIENT_SALESPERSON:
             case self::RECIPIENT_ADMIN:
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($this->_storeConfig['email']);
+                // store owner
+                $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+
+                // all other recipients
+                $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                    self::RECIPIENT_SALESPERSON,
+                    self::RECIPIENT_ADMIN
+                )));
             break;
             default:
                 if($this->_debugEnabled) {
@@ -271,7 +278,16 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             case self::RECIPIENT_STOREOWNER:
             case self::RECIPIENT_SALESPERSON:
             case self::RECIPIENT_ADMIN:
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($this->_storeConfig['email']);
+                // store owner
+                $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+
+                // all other recipients
+                $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                    self::RECIPIENT_SALESPERSON,
+                    self::RECIPIENT_ADMIN
+                )));
+
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
             break;
         }
         return $this->_send(array('subject' => $this->_translator->translate($this->_storeConfig['company'] . ' Hello! Your quote has been updated')));

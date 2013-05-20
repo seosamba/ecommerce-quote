@@ -255,4 +255,15 @@ class Quote_Tools_Tools {
         }
         return $cart->getTotalTax();
     }
+
+    public static function getEmailData(array $roles) {
+        $where = null;
+        if(!empty($roles)) {
+           $where = implode(' OR ', array_map(function($role) { return '`role_id` = ' . $role; }, $roles));
+        }
+        $sql        = "SELECT `full_name`, `email` FROM `user` WHERE (" . $where . ");";
+        $usersTable = new Application_Model_DbTable_User();
+        $data       = $usersTable->getAdapter()->fetchPairs($sql);
+        return is_array($data) ? $data : array();
+    }
 }
