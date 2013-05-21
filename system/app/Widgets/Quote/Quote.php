@@ -655,13 +655,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             if(!array_key_exists($name, $currentElements)) {
                 continue;
             }
-            if($required) {
-                $currentElements[$name]->setAttribs(array(
-                    'class'     => 'quote-required required',
-                    'required'  => 'required'
-                ));
-            }
-            $currentElements[$name]->setRequired($required);
+            $currentElements[$name]->setAttribs(array(
+                'class' => ($required) ? 'quote-required required' : 'quote-optional optional'
+            ))->setRequired($required);
             $form->addElement($currentElements[$name]);
         }
 

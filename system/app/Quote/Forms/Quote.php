@@ -81,10 +81,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
     private function _setRequired(array $elements) {
         array_walk($elements, function($element) {
             $element->setRequired(true)
-            ->setAttribs(array(
-                'class'     => 'quote-required required',
-                'required'  => 'required'
-            ));
+                ->setAttribs(array('class' => 'quote-required required'));
         });
     }
 
