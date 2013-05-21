@@ -575,10 +575,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $cartStorage = Tools_ShoppingCart::getInstance();
 
         //trying to get billng address first, to pre-populate quote form
-        $addrKey = $cartStorage->getAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING);
+        $addrKey = $cartStorage->getBillingAddressKey();
         if($addrKey === null) {
             //otherwise trying to get shipping address (if shipping is not pick up)
-            $addrKey =  $cartStorage->getAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING);
+            $addrKey =  $cartStorage->getShippingAddressKey();
         }
 
         //if we have any address key -> getting an address
@@ -656,8 +656,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 continue;
             }
             if($required) {
-                $currentElements[$name]->setLabel(str_replace('*', '', $currentElements[$name]->getLabel()) . ' *')
-                    ->setAttrib('class', 'quote-required');
+                $currentElements[$name]->setAttribs(array(
+                    'class'     => 'quote-required required',
+                    'required'  => 'required'
+                ));
             }
             $currentElements[$name]->setRequired($required);
             $form->addElement($currentElements[$name]);

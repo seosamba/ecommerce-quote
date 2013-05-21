@@ -18,8 +18,12 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 		$this->setDecorators(array('FormElements', 'Form'));
 
 		// setting required fields
-		$this->getElement('firstname')->setLabel('First name *')->setRequired(true)->setAttrib('class', 'quote-required');
-		$this->getElement('email')->setLabel('E-mail *')->setRequired(true)->setAttrib('class', 'quote-required');
+		$this->_setRequired(array(
+            $this->getElement('firstname'),
+            $this->getElement('email')
+        ));
+
+        // clear some validators
         $this->getElement('state')->setRegisterInArrayValidator(false);
         $this->getElement('country')->setRegisterInArrayValidator(false);
         $this->getElement('state')->clearValidators();
@@ -72,6 +76,16 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'Label',
             array('HtmlTag', array('tag' => 'div'))
         ));
+    }
+
+    private function _setRequired(array $elements) {
+        array_walk($elements, function($element) {
+            $element->setRequired(true)
+            ->setAttribs(array(
+                'class'     => 'quote-required required',
+                'required'  => 'required'
+            ));
+        });
     }
 
 }
