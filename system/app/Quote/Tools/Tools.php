@@ -23,7 +23,8 @@ class Quote_Tools_Tools {
         $quote   = new Quote_Models_Model_Quote();
 
         $quote->registerObserver(new Quote_Tools_Watchdog(array(
-            'gateway' => new Tools_PaymentGateway(array(), array())
+            //'gateway' => new Tools_PaymentGateway(array(), array())
+            'gateway' => new Quote(array(), array())
         )))
         ->registerObserver(new Tools_Mail_Watchdog(array(
             'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
