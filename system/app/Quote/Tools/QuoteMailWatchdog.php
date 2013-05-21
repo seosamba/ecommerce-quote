@@ -310,9 +310,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             if($this->_debugEnabled) {
                 error_log('Quote Mail Watchdog report: can\'t find quote mail template. Looks like it doesn\'t exist');
             }
+	        return false;
         }
 
-        // init entity parser dictionary with proer message
+        // init entity parser dictionary with proper message
         $mailTemplate = $this->_entityParser->setDictionary(array(
             'emailmessage' => !empty($this->_options['message']) ? $this->_options['message'] : ''
         ))->parse($mailTemplate->getContent());
