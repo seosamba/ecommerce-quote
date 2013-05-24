@@ -4,6 +4,8 @@ CREATE TABLE `shopping_quote` (
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `status` enum('new','sent','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new',
   `disclaimer` text COLLATE utf8_unicode_ci,
+  `discount_tax_rate` enum('0','1','2','3') COLLATE utf8_unicode_ci DEFAULT '1',
+  `delivery_type` tinytext COLLATE utf8_unicode_ci,
   `cart_id` int(10) unsigned DEFAULT NULL,
   `edited_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
