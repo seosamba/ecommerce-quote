@@ -223,6 +223,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     self::RECIPIENT_SALESPERSON,
                     self::RECIPIENT_ADMIN
                 )));
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
             break;
             default:
                 if($this->_debugEnabled) {
