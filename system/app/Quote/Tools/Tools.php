@@ -267,4 +267,12 @@ class Quote_Tools_Tools {
         $data       = $usersTable->getAdapter()->fetchPairs($sql);
         return is_array($data) ? $data : array();
     }
+
+    public static function getValidCaptchaService() {
+        $config = Zend_Controller_Action_HelperBroker::getStaticHelper('config')->getConfig();
+        if((isset($config['recapthaPublicKey']) && $config['recapthaPublicKey']) && (isset($config['recapthaPrivateKey']) && $config['recapthaPrivateKey'])) {
+            return Quote_Forms_Quote::CAPTCHA_SERVICE_RECAPTCHA;
+        }
+        return Quote_Forms_Quote::CAPTCHA_SERVICE_CAPTCHA;
+    }
 }

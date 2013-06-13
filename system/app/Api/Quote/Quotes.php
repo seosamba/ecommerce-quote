@@ -93,8 +93,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $form = new Quote_Forms_Quote();
+
                 if(!$form->isValid($this->_request->getParams())) {
-                    $this->_error('Parameters are invalid');
+                    $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
                 }
                 $formData = $form->getValues();
 

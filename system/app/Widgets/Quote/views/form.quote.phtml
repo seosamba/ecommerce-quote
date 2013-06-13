@@ -4,7 +4,6 @@
 </style>
 <script type="text/javascript">
     $(function() {
-        console.log($('#state option').length);
         if(!$('#state option').length) {
             $('#state').empty().parent('div').hide();
         }
@@ -30,6 +29,8 @@
                 var options = $('.product-options-listing *').serialize();
                 form.find('input[name="productOptions"]').val(options);
             }
+
+            //console.log($(form).serialize()); return false;
 
             $.ajax({
                 type: 'post',
