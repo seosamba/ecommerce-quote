@@ -72,12 +72,17 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'value' => ''
         )));
 
-		$this->_applyDecorators();
+
+        $this->_applyDecorators();
 
 		$this->addElement(new Zend_Form_Element_Submit(array(
 			'name'   => 'sendQuote',
 			'id'     => 'send-quote',
 			'label'  => 'Send me a quote',
+            'decorators' => array(
+                'ViewHelper',
+                array('HtmlTag', array('tag' => 'div'))
+            ),
 			'ignore' => true
 		)));
 	}
@@ -126,15 +131,21 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
     }
 
     private function _applyDecorators() {
+        $hiddenElements = array(
+            'productId',
+            'productOptions'
+        );
+
         $this->setElementDecorators(array(
             'ViewHelper',
             'Label',
             array('HtmlTag', array('tag' => 'div'))
-        ), array(
-            'captcha',
-            'productId',
-            'productOptions'
-        ), false);
+        ), array('captcha'), false);
+
+        // remove decorator html tag from hidden elements
+        foreach($hiddenElements as $element) {
+            $this->getElement($element)->removeDecorator('HtmlTag');
+        }
     }
 
     private function _setRequired(array $elements) {
