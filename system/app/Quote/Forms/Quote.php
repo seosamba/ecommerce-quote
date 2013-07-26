@@ -89,7 +89,18 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             $recaptchaService =  new Zend_Service_ReCaptcha($websiteConfig['recapthaPublicKey'], $websiteConfig['recapthaPrivateKey']);
             $captcha          = new Zend_Form_Element_Captcha('captcha', array(
                 'captcha'        => 'ReCaptcha',
-                'captchaOptions' => array('captcha' => 'ReCaptcha', 'service' => $recaptchaService, 'theme' => 'clean')
+                'captchaOptions' => array('captcha' => 'ReCaptcha', 'service' => $recaptchaService, 'theme' => 'custom'),
+                'disableLoadDefaultDecorators' => true,
+                'decorators' => array(
+                    'Captcha_ReCaptcha',
+                    array(
+                        'ViewScript',
+                        array(
+                            'viewScript' => 'backend/form/recaptcha.phtml',
+                            'placement' => false,
+                        ),
+                    ),
+                )
             ));
         }
         if($this->_captchaService == self::CAPTCHA_SERVICE_CAPTCHA) {
