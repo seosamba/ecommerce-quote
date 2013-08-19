@@ -189,7 +189,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             // setting up observers
             $quote->registerObserver(new Quote_Tools_Watchdog(array(
-                'gateway' => new Tools_PaymentGateway(array(), array())
+                'gateway' => new Quote(array(), array())
             )))
             ->registerObserver(new Quote_Tools_GarbageCollector(array(
                 'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
