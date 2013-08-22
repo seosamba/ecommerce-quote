@@ -226,7 +226,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             case self::ADDRESS_TYPE_BILLING:
                 $addressForm = new Quote_Forms_Quote();
                 //remove elements that are not neccessary here (submit button, disclaimer text area)
-
+                $addressForm->remoceElement('captcha');
                 $addressForm->removeElement('sendQuote');
                 $addressForm->removeElement('disclaimer');
             break;
