@@ -1,5 +1,8 @@
 language: php
 php:
-  #- 5.5
-  #- 5.4
-  - 5.3
+  - 5.5
+  - 5.4
+script:
+  # Duplicate code
+  - mkdir .reports
+  - php vendor/bin/phpcpd --log-pmd .reports/pmd-cpd.xml .
