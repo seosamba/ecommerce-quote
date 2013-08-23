@@ -2,11 +2,11 @@
 <script type="text/template" id="quote-grid-pager">
     <div>
         <% if (firstPage != currentPage) { %>
-        <a href="#" class="page" data-page="first">First</a>
+        <a href="#" class="page" data-page="first"> <?php echo $this->translate('First');?></a>
         <% } %>
 
         <% if (currentPage > firstPage) { %>
-        <a href="#" class="page" data-page="prev">Previous</a>
+        <a href="#" class="page" data-page="prev"> <?php echo $this->translate('Previous');?></a>
         <% } %>
 
         <% if (currentPage - 3 > firstPage) { %>
@@ -27,16 +27,16 @@
         <% } %>
 
         <% if (currentPage < totalPages) { %>
-        <a href="#" class="page" data-page="next">Next</a>
+        <a href="#" class="page" data-page="next"> <?php echo $this->translate('Next');?></a>
         <% } %>
 
         <% if (lastPage != currentPage) { %>
-        <a href="#" class="page" data-page="last">Last</a>
+        <a href="#" class="page" data-page="last"> <?php echo $this->translate('Last');?></a>
         <% } %>
     </div>
 
     <div>
-        Total <%= totalRecords %> quotes found
+        <?php echo $this->translate('Total');?> <%= totalRecords %> <?php echo $this->translate('quotes found');?>
     </div>
 </script>
 <!-- /paginator template -->
