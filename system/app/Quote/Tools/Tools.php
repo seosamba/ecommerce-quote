@@ -308,6 +308,11 @@ class Quote_Tools_Tools {
             $form->addElement($currentElements[$name]);
         }
 
+        $displayGroups = $form->getDisplayGroups();
+        array_walk($displayGroups, function($dGroup) use($form) {
+            $form->removeDisplayGroup($dGroup);
+        });
+
         return $form;
     }
 }
