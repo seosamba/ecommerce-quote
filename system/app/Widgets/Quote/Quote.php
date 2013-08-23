@@ -599,7 +599,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $quoteForm = $this->_fixFormCountry($quoteForm);
 
         // adjust dynamic quote from fields
-        $quoteForm = $this->_adjustFormFields($quoteForm);
+        $quoteForm = Quote_Tools_Tools::adjustFormFields($quoteForm, $this->_options, $this->_formMandatoryFields);
+        Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         return $this->_view->render('form.quote.phtml');
@@ -625,42 +626,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         } else {
             $form->getElement('state')->setMultiOptions(array());
         }
-        return $form;
-    }
-
-    private function _adjustFormFields(Quote_Forms_Quote $form) {
-        if(empty($this->_options)) {
-            return $form;
-        }
-
-        $currentElements = $form->getElements();
-
-        // fields that should stay
-        $fields = array();
-        foreach($this->_options as $field) {
-            $required = false;
-            if(substr($field, strlen($field)-1) == '*') {
-                $required = true;
-                $field    = str_replace('*', '', $field);
-            }
-            $fields[$field] = $required;
-        }
-
-        foreach($currentElements as $element) {
-            $form->removeElement($element->getName());
-        }
-
-        $fields = array_merge($fields, $this->_formMandatoryFields);
-        foreach($fields as $name => $required) {
-            if(!array_key_exists($name, $currentElements)) {
-                continue;
-            }
-            $currentElements[$name]->setAttribs(array(
-                'class' => ($required) ? 'quote-required required' : 'quote-optional optional'
-            ))->setRequired($required);
-            $form->addElement($currentElements[$name]);
-        }
-
         return $form;
     }
 

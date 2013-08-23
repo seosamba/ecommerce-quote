@@ -36,6 +36,9 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $this->getElement('country')->setRegisterInArrayValidator(false);
         $this->getElement('state')->clearValidators();
 
+        // change email field id for compatibility with other forms
+        $this->getElement('email')->setAttrib('id', 'quote-form-email');
+
 		$this->addElement(new Zend_Form_Element_Textarea(array(
             'name'  => 'disclaimer',
             'label' => 'Notes',

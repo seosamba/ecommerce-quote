@@ -92,7 +92,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $editedBy      = '';
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
-                $form = new Quote_Forms_Quote();
+                $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
+                $form        = new Quote_Forms_Quote();
+                if($formOptions) {
+                    $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
+                }
 
                 if(!$form->isValid($this->_request->getParams())) {
                     $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
@@ -131,7 +135,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'disclaimer' => $formData['disclaimer']));
+            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '' ));
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }

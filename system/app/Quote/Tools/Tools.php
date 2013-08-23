@@ -23,7 +23,6 @@ class Quote_Tools_Tools {
         $quote   = new Quote_Models_Model_Quote();
 
         $quote->registerObserver(new Quote_Tools_Watchdog(array(
-            //'gateway' => new Tools_PaymentGateway(array(), array())
             'gateway' => new Quote(array(), array())
         )))
         ->registerObserver(new Tools_Mail_Watchdog(array(
@@ -274,5 +273,41 @@ class Quote_Tools_Tools {
             return Quote_Forms_Quote::CAPTCHA_SERVICE_RECAPTCHA;
         }
         return Quote_Forms_Quote::CAPTCHA_SERVICE_CAPTCHA;
+    }
+
+    public static function adjustFormFields(Quote_Forms_Quote $form, $options = array(), $mandatoryFields = array()) {
+        if(empty($options)) {
+            return $form;
+        }
+
+        $currentElements = $form->getElements();
+
+        // fields that should stay
+        $fields = array();
+        foreach($options as $field) {
+            $required = false;
+            if(substr($field, strlen($field)-1) == '*') {
+                $required = true;
+                $field    = str_replace('*', '', $field);
+            }
+            $fields[$field] = $required;
+        }
+
+        foreach($currentElements as $element) {
+            $form->removeElement($element->getName());
+        }
+
+        $fields = array_merge($fields, $mandatoryFields);
+        foreach($fields as $name => $required) {
+            if(!array_key_exists($name, $currentElements)) {
+                continue;
+            }
+            $currentElements[$name]->setAttribs(array(
+                'class' => ($required) ? 'quote-required required' : 'quote-optional optional'
+            ))->setRequired($required);
+            $form->addElement($currentElements[$name]);
+        }
+
+        return $form;
     }
 }

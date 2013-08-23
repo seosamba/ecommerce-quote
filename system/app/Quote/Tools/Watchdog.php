@@ -65,6 +65,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
                 ->setUrl($pageHelper->filterUrl($this->_quote->getId()))
                 ->setParentId(Quote::QUOTE_CATEGORY_ID)
                 ->setSystem(true)
+                ->setDraft(false)
                 ->setLastUpdate(date(Tools_System_Tools::DATE_MYSQL))
                 ->setShowInMenu(Application_Model_Models_Page::IN_NOMENU)
         );
