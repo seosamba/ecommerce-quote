@@ -1,7 +1,8 @@
 define([
     'underscore',
-    'backbone'
-], function(_, Backbone) {
+    'backbone',
+    'i18n!../../../nls/'+$('input[name=system-language]').val()+'_ln'
+], function(_, Backbone, i18n) {
 
     var quoteRowView = Backbone.View.extend({
         tagName   : 'tr',
@@ -16,18 +17,18 @@ define([
             this.model.on('change', this.render, this);
         }                                              ,
         deleteAction: function(e) {
-            showConfirm('You are about to remove a quote! Are you sure?', function() {
+            showConfirm(_.isUndefined(i18n['You are about to remove a quote! Are you sure?']) ? 'You are about to remove a quote! Are you sure?':i18n['You are about to remove a quote! Are you sure?'], function() {
                 var quote = appView.quotes.get($(e.currentTarget).data('sid'));
                 showSpinner();
                 quote.destroy({
                     wait: true,
                     success: function(model, response) {
                         hideSpinner();
-                        showMessage('Quote [' + model.get('title') + '] has been removed.');
+                        showMessage((_.isUndefined(i18n['Quote']) ? 'Quote':i18n['Quote']) + ' ' + '[' + model.get('title') + ']' + ' ' + (_.isUndefined(i18n['has been removed.']) ? 'has been removed.':i18n['has been removed.']));
                     },
                     error: function(model, response) {
                         hideSpinner();
-                        showMessage('Can not remove quote [' + model.get('title') + ']. Try again later.', true);
+                        showMessage((_.isUndefined(i18n['Can not remove quote.']) ? 'Can not remove quote.':i18n['Can not remove quote.'])  + ' ' + '[' + model.get('title') + ']'  + ' ' + (_.isUndefined(i18n['Try again later.']) ? 'Try again later.':i18n['Try again later.']), true);
                     }
                 });
             });
@@ -39,11 +40,11 @@ define([
             quote.save(null, {
                 success: function(model, response) {
                     hideSpinner();
-                    showMessage('Quote [' + model.get('title') + '] status changed to ' + model.get('status'));
+                    showMessage((_.isUndefined(i18n['Quote']) ? 'Quote':i18n['Quote']) + ' ' + '[' + model.get('title') + ']'  + ' ' + (_.isUndefined(i18n['status changed to']) ? 'status changed to':i18n['status changed to'])   + ' ' + model.get('status'));
                 },
                 error: function(model, response) {
                     hideSpinner();
-                    showMessage('Can not update quote [' + model.get('title') + '] status. Try again later.', true);
+                    showMessage((_.isUndefined(i18n['Can not update quote']) ? 'Can not update quote':i18n['Can not update quote']) +' '+ '[' + model.get('title') + ']' +' '+ (_.isUndefined(i18n['status. Try again later.']) ? 'status. Try again later.':i18n['status. Try again later.']), true);
                 }
             })
         },

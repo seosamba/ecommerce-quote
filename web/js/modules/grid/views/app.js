@@ -6,8 +6,9 @@ define([
     'underscore',
     'backbone',
     '../collections/quotes',
-    './quoteGridRow'
-], function(_, Backbone, QuotesCollection, QuoteGridRowView) {
+    './quoteGridRow',
+    'i18n!../../../nls/'+$('input[name=system-language]').val()+'_ln'
+], function(_, Backbone, QuotesCollection, QuoteGridRowView, i18n) {
 
     var QuoteGridView = Backbone.View.extend({
         el: $('#quote-grid'),
@@ -49,11 +50,11 @@ define([
                 var self = this;
                 var selected = self.quotes.where({checked: true});
                 if(_.isEmpty(selected)) {
-                    showMessage('You should pick at least one item!', true);
+                    showMessage(_.isUndefined(i18n['You should pick at least one item!']) ? 'You should pick at least one item!':i18n['You should pick at least one item!'], true);
                     $('#batch-action').val($('option:first', $('#batch-action')).val());
                     return false;
                 }
-                showConfirm('Your are about to remove a bunch of quotes! Are you sure?', function() {
+                showConfirm(_.isUndefined(i18n['Your are about to remove a bunch of quotes! Are you sure?']) ? 'Your are about to remove a bunch of quotes! Are you sure?':i18n['Your are about to remove a bunch of quotes! Are you sure?'], function() {
                     self.quotes.batch('delete');
                 });
             }
@@ -73,7 +74,7 @@ define([
                 success: function(model) {
                     hideSpinner();
                     self.quotes.pager();
-                    showMessage('New quote [' + model.get('title') + '] has been generated.');
+                    showMessage((_.isUndefined(i18n['New quote']) ? 'New quote':i18n['New quote']) +' '+ '[' + model.get('title') + ']' +' '+ (_.isUndefined(i18n['has been generated.']) ? 'has been generated.':i18n['has been generated.']));
                 },
                 error: function(mode, xhr) {
                     hideSpinner();
