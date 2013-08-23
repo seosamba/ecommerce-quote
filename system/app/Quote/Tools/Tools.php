@@ -310,7 +310,7 @@ class Quote_Tools_Tools {
 
         $displayGroups = $form->getDisplayGroups();
         array_walk($displayGroups, function($dGroup) use($form) {
-            $form->removeDisplayGroup($dGroup);
+            $form->removeDisplayGroup($dGroup->getName());
         });
 
         return $form;
