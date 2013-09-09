@@ -89,7 +89,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
-        $editedBy      = '';
+        $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+        $editedBy      = $currentUser->getFullName();
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
@@ -162,6 +163,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         if(!$quote instanceof Quote_Models_Model_Quote) {
             $this->_error('Quote not found', self:: REST_STATUS_NOT_FOUND);
         }
+
+        $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+        $editedBy      = $currentUser->getFullName();
+        $quote->setEditedBy($editedBy);
 
         $customer          = null;
         $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
