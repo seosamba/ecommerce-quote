@@ -90,7 +90,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
-        $editedBy      = $currentUser->getFullName();
+        if($currentUser instanceof Application_Model_Models_User){
+            $editedBy      = $currentUser->getFullName();
+        }else{
+            $editedBy = Shopping::ROLE_CUSTOMER;
+        }
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
