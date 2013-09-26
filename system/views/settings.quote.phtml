@@ -9,11 +9,11 @@ $(document).ready(function(){
 
     $(document).on("click", "#applySettings", function(e){
           e.preventDefault();
-          if($('#auto-quote').attr("checked")){
+          var autoQuote = 0;
+          if($('#auto-quote').prop("checked")){
               var autoQuote = 1;
-          }else{
-              var autoQuote = 0;
           }
+
           $.ajax({
             type: "POST",
             url: '<?php echo $this->websiteUrl;?>plugin/quote/run/settings/',
