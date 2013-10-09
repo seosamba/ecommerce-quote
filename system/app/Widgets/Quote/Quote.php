@@ -77,6 +77,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     const TOTAL_TYPE_GRAND  = 'grand';
 
     /**
+     * Total option type total without tax
+     */
+    const TOTAL_TYPE_WOTAX  = 'totalwotax';
+
+    /**
      * Flag that tells toaster cache the widget or not. Should be set to true for production
      *
      * @var bool
@@ -434,6 +439,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             break;
             case self::TOTAL_TYPE_GRAND :
                 $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice());
+            break;
+            case self::TOTAL_TYPE_WOTAX :
+                $total = $this->_cart->getSubTotal();
             break;
             case self::TOTAL_TYPE_TAX_DISCOUNT:
                 $this->_view->taxDiscount = Quote_Tools_Tools::calculateDiscountTax($this->_quote);
