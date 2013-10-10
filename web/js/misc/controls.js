@@ -160,4 +160,5 @@ var recalculate = function(options) {
     $('#quote-discount').val(accounting.formatNumber(summary.discount, 2));
     $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax))
     $('.grand-total').text(accounting.formatMoney(summary.total));
+    $('.totalwotax-total').text(accounting.formatMoney(summary.total- summary.totalTax));
 }
