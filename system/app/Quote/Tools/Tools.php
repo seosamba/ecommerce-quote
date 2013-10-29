@@ -125,15 +125,15 @@ class Quote_Tools_Tools {
             return $options;
         }
 
-        foreach($optionSelectionPairs as $optionId => $selectionId) {
+        foreach($optionSelectionPairs as $selectionId) {
             foreach($allOptions as $option) {
-                if($option['id'] == $optionId) {
-                    if($option['type'] == Models_Model_Option::TYPE_TEXT || $option['type'] == Models_Model_Option::TYPE_DATE) {
+                if ($option['id'] == $selectionId['option_id']) {
+                    if ($option['type'] == Models_Model_Option::TYPE_TEXT || $option['type'] == Models_Model_Option::TYPE_DATE) {
                         $option['selection'] = $selectionId;
                         $options[] = $option;
                     } else {
                         $selection = array_filter($option['selection'], function($selection) use ($selectionId) {
-                            if($selection['id'] == $selectionId) {
+                            if ($selection['id'] == $selectionId['id']) {
                                 return $selection;
                             }
                         });
