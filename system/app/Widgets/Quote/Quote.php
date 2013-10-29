@@ -441,7 +441,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice());
             break;
             case self::TOTAL_TYPE_WOTAX :
-                $total = $this->_cart->getSubTotal();
+                $total = (($this->_cart->getTotal() - $this->_cart->getDiscount() - $this->_cart->getTotalTax()) + $this->_cart->getShippingPrice());
             break;
             case self::TOTAL_TYPE_TAX_DISCOUNT:
                 $this->_view->taxDiscount = Quote_Tools_Tools::calculateDiscountTax($this->_quote);
