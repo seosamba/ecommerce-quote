@@ -319,6 +319,16 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             'emailmessage' => !empty($this->_options['message']) ? $this->_options['message'] : ''
         ))->parse($mailTemplate->getContent());
         // parse mail template for the {quote:quote_model_property} occurences
+        $cartId = $this->_quote->getCartId();
+        $orderMapper = Models_Mapper_OrdersMapper::getInstance();
+        $where = $orderMapper->getDbTable()->getAdapter()->quoteInto('oc.cart_id=?', $cartId);
+        $currentOrder = Models_Mapper_OrdersMapper::getInstance()->fetchAll($where);
+        if(!empty($currentOrder)){
+           foreach($currentOrder[0] as $orderKey=>$value){
+                $orderDictionary['customer:'.$orderKey] = $value;
+           }
+           $this->_entityParser->addToDictionary($orderDictionary);
+        }
         $mailTemplate = $this->_entityParser->objectToDictionary($this->_quote)->parse($mailTemplate);
 
         // gethering options for the toaster parser
