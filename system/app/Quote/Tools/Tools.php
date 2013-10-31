@@ -173,7 +173,7 @@ class Quote_Tools_Tools {
         $parsed = array();
         parse_str($optionsString, $options);
         foreach($options as $keyString => $option) {
-            $key          = preg_replace('~product-[0-9]*\-option\-([0-9])*~', '$1', $keyString);
+            $key          = preg_replace('~product-[0-9]*\-option\-([^0-9]*)*~', '$1', $keyString);
             $parsed[$key] = $option;
         }
         return $parsed;

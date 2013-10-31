@@ -25,8 +25,9 @@
             var form = $(e.currentTarget);
 
             //check if this is a single-product quote form
-            if($('#productId').val() != '') {
-                var options = $('.product-options-listing *').serialize();
+            var productId = $('#productId').val();
+            if(productId != '') {
+                var options = $('#product-'+productId+'-options-listing *').serialize();
                 form.find('input[name="productOptions"]').val(options);
             }
 

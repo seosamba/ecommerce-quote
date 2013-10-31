@@ -96,7 +96,6 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         $basePrice = $product->getCurrentPrice();
         $basePrice = ($basePrice === null) ? $product->getPrice() : $basePrice;
-        $options   = $itemData['options'];
 
         $product->setPrice($itemData['price']);
 
@@ -115,11 +114,11 @@ class Api_Quote_Products extends Api_Service_Abstract {
         }
 
         $storage->setContent($cartContent);
-        $storage->add($product, $itemData['options'], $itemData['qty']);
+        $storage->add($product, Quote_Tools_Tools::getProductOptions($product), $itemData['qty']);
 
         if($data['type'] == self::UPDATE_TYPE_PRICE) {
             $content = $storage->getContent();
-            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $options);
+            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
             $storage->setContent($content);
         }
 
