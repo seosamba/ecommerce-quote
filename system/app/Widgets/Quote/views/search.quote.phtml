@@ -29,9 +29,9 @@
                     });
                 }
             }
-        }).data('autocomplete')._renderItem = function(ul, item) {
+        }).data('ui-autocomplete')._renderItem = function(ul, item) {
             return $('<li></li>')
-                .data('item.autocomplete', item)
+                .data('ui-autocomplete-item', item)
                 .append('<a><strong>Quote: #' + item.id + '</strong><br/>' + item.firstname + ' ' + item.lastname +
                     '<br/> ' + item.email + '<br/> Address type: ' + item.address_type + '</a>')
                 .appendTo(ul);

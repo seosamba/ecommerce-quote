@@ -436,17 +436,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             case self::TOTAL_TYPE_SUB   :
                 $subTotal = $this->_cart->getSubTotal();
                 $total    = ($this->_shoppingConfig['showPriceIncTax']) ? $subTotal +  $this->_cart->getTotalTax() : $subTotal;
-            break;
+                break;
             case self::TOTAL_TYPE_GRAND :
-                $total = (($this->_cart->getTotal() - $this->_cart->getDiscount()) + $this->_cart->getShippingPrice());
-            break;
+                $total = (($this->_cart->getTotal()));
+                break;
             case self::TOTAL_TYPE_WOTAX :
-                $total = (($this->_cart->getTotal() - $this->_cart->getDiscount() - $this->_cart->getTotalTax()) + $this->_cart->getShippingPrice());
-            break;
+                $total = (($this->_cart->getTotal() - $this->_cart->getTotalTax()));
+                break;
             case self::TOTAL_TYPE_TAX_DISCOUNT:
                 $this->_view->taxDiscount = Quote_Tools_Tools::calculateDiscountTax($this->_quote);
                 return $this->_view->render('taxdiscount.quote.phtml');
-            break;
+                break;
             default : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
         }
         $this->_view->totalType = $totalType;
