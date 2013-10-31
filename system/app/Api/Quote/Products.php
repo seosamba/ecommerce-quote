@@ -63,7 +63,8 @@ class Api_Quote_Products extends Api_Service_Abstract {
         foreach($products as $product)  {
             $cartStorage->add($product, Quote_Tools_Tools::getProductOptions($product));
         }
-
+        
+        $cartStorage->setShippingData(array('price'=>$cart->getShippingPrice()));
         $cartStorage->saveCartSession();
         return $quoteMapper->save($quote)->toArray();
     }

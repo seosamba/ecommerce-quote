@@ -182,6 +182,8 @@ class Quote_Tools_Tools {
     public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null) {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
         $shippingPrice    = $cart->getShippingPrice();
+        $storage->setDiscount($cart->getDiscount());
+        $storage->setShippingData(array('price'=>$shippingPrice));
         $data             = $storage->calculate(true);
         $data['discount'] = ($data['total']) ? $cart->getDiscount() : 0;
 
@@ -192,7 +194,7 @@ class Quote_Tools_Tools {
 
         unset($data['showPriceIncTax']);
 
-        $data['total']       = ($data['total'] - $data['discount']) + $shippingPrice;
+        $data['total']       = ($data['total']);
         $data['shipping']    = ($shippingPrice) ? $shippingPrice : 0;
         $data['discountTax'] = ($quoteId) ? self::calculateDiscountTax(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId)) : $data['totalTax'];
 
