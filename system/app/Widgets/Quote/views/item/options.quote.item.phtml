@@ -8,11 +8,6 @@
                     <?php echo $optData['title']; ?>
                     <?php if(isset($optData['selection'])): ?>
                         <span><?php echo $optData['selection']; ?></span>
-                    <?php else: ?>
-                        <?php if (is_numeric($optData['priceValue'])): ?>
-                            <?php echo '(', $optData['priceSign'], $this->currency($optData['priceValue']), ')'; ?>
-                        <?php endif; ?>
-                        <?php echo '(', $optData['weightSign'], $optData['weightValue'], ' ', $this->weightSign, ')'; ?>
                     <?php endif; ?>
                 </p>
 	        <?php endif; ?>
