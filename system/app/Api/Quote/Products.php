@@ -93,9 +93,9 @@ class Api_Quote_Products extends Api_Service_Abstract {
         }
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
-
         $basePrice = $product->getCurrentPrice();
         $basePrice = ($basePrice === null) ? $product->getPrice() : $basePrice;
+        $options   = $itemData['options'];
 
         $product->setPrice($itemData['price']);
 
@@ -118,7 +118,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         if($data['type'] == self::UPDATE_TYPE_PRICE) {
             $content = $storage->getContent();
-            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
+            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $options);
             $storage->setContent($content);
         }
 
