@@ -27,6 +27,10 @@ $(function() {
         }
     });
 
+    $(document).on('blur', '#quote-title', function(e){
+        updateQuote(quoteId, false);
+    });
+
     // handling remove link click
     $(document).on('click', '.remove-product', function(e) {
         showConfirm('You are about to remove an item. Are you sure?', function() {
