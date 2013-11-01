@@ -96,7 +96,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
         $basePrice = $product->getCurrentPrice();
         $basePrice = ($basePrice === null) ? $product->getPrice() : $basePrice;
-        $options   = $itemData['options'];
+        $options   = Quote_Tools_Tools::getProductOptions($product);
 
         $product->setPrice($itemData['price']);
 
@@ -105,21 +105,21 @@ class Api_Quote_Products extends Api_Service_Abstract {
             case self::UPDATE_TYPE_OPTIONS :
                 $product->setPrice($basePrice);
                 $product->setCurrentPrice(floatval($basePrice));
-                $itemData['options'] = $this->_parseOptions($data['value']); break;
+                $options = $this->_parseOptions($data['value']); break;
             case self::UPDATE_TYPE_PRICE   :
                 $product->setPrice(floatval($data['value']));
                 $product->setCurrentPrice(floatval($data['value']));
-                $itemData['options'] = array();
+                $options = array();
             break;
             default: $this->_error('Invalid update type.'); break;
         }
 
         $storage->setContent($cartContent);
-        $storage->add($product, Quote_Tools_Tools::getProductOptions($product), $itemData['qty']);
+        $storage->add($product, $options, $itemData['qty']);
 
         if($data['type'] == self::UPDATE_TYPE_PRICE) {
             $content = $storage->getContent();
-            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $options);
+            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
             $storage->setContent($content);
         }
 
@@ -220,7 +220,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
         parse_str($options, $options);
         $parsed = array();
         foreach($options as $keyString => $option) {
-            $key          = preg_replace('~product-[0-9]*\-option\-([0-9])*~', '$1', $keyString);
+            $key          = preg_replace('~product-[0-9]*\-option\-([^0-9*])*~', '$1', $keyString);
             $parsed[$key] = $option;
         }
         return $parsed;
