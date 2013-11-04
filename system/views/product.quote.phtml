@@ -4,9 +4,9 @@
     $this->placeholder('containerId')->set('products-container');
 ?>
 <div class="mt5px"></div>
-<div id="products" class="ui-widget-content ui-helper-clearfix h450 grid_12" style="overflow-x: hidden; overflow-y: auto;"></div>
+<div id="products" class="grid_12"></div>
 <div class="grid_12 mt5px">
-    <button class="add-products" id="save-btn"><?php echo $this->translate('Add products and close'); ?></button>
+    <button class="add-products icon-save" id="save-btn"><?php echo $this->translate('Add products and close'); ?></button>
 </div>
 <?php
         $this->headScript()->setAllowArbitraryAttributes(true)

@@ -43,7 +43,7 @@ class  Quote_Forms_Settings extends Zend_Form {
 			->setElementDecorators(array(
 				'ViewHelper',
 				array('Label', array('class' => 'grid_4')),
-				array('HtmlTag', array('tag' => 'div', 'class' => 'clearfix mt5px' ))
+				array('HtmlTag', array('tag' => 'p', 'class' => 'clearfix' ))
 			));
 
         $this->addElement(new Zend_Form_Element_Submit(array(
@@ -52,7 +52,7 @@ class  Quote_Forms_Settings extends Zend_Form {
             'ignore'     => true,
 	        'decorators' => array(
 		        'ViewHelper',
-                array('HtmlTag', array('tag' => 'div', 'class' => 'clearfix mt5px grid_12' ))
+                array('HtmlTag', array('tag' => 'p', 'class' => 'clearfix grid_12' ))
             )
         )));
 	}
