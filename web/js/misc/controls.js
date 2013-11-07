@@ -39,7 +39,7 @@ $(function() {
                 type       : 'delete',
                 data       : JSON.stringify({qid: quoteId}),
                 dataType   : 'json',
-                beforeSend : showSpinner
+                beforeSend : showSpinner()
             }).done(function(response) {
                 hideSpinner();
                 recalculate({summary: response});
@@ -141,7 +141,7 @@ var _update = function(apiUrl, data) {
         url        : $('#website_url').val() + apiUrl,
         dataType   : 'json',
         data       : JSON.stringify(data),
-        beforeSend : showSpinner
+        beforeSend : showSpinner()
     });
 }
 

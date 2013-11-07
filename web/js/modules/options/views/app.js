@@ -42,7 +42,7 @@ define([
                     type : 'options',
                     value: options
                 }),
-                beforeSend: showSpinner
+                beforeSend: showSpinner()
             }).done(function(response) {
                 hideSpinner();
                 showMessage('Changes saved. Refreshing a quote page...');

@@ -42,7 +42,7 @@ define([
                 type: method,
                 url: url,
                 dataType: 'json',
-                beforeSend: showSpinner,
+                beforeSend: showSpinner(),
                 data: JSON.stringify(data)
             }).done(function() {
                 appView.products.pager();

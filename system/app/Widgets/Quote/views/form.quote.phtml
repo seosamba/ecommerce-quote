@@ -38,7 +38,7 @@
                 url: $(form).attr('action'),
                 data: $(form).serialize(),
                 dataType: 'json',
-                beforeSend: showSpinner
+                beforeSend: showSpinner()
             }).done(function(response) {
                 if($(form).hasClass('_reload') && (response instanceof Object)) {
                     window.location.href = response.id + '.html';
