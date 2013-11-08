@@ -162,7 +162,8 @@ var recalculate = function(options) {
     $('.tax-total').text(accounting.formatMoney(summary.totalTax));
     $('#quote-shipping-price').val(accounting.formatNumber(summary.shipping, 2));
     $('#quote-discount').val(accounting.formatNumber(summary.discount, 2));
-    $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax))
+    $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax));
+    $('#quote-discount-with-tax').text(accounting.formatMoney(summary.finalDiscount));
     $('.grand-total').text(accounting.formatMoney(summary.total));
     $('.totalwotax-total').text(accounting.formatMoney(summary.total- summary.totalTax));
 }

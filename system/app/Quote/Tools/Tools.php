@@ -186,24 +186,23 @@ class Quote_Tools_Tools {
 
     public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null) {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
+        $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
         $shippingPrice    = $cart->getShippingPrice();
         $storage->setDiscount($cart->getDiscount());
         $storage->setShippingData(array('price'=>$shippingPrice));
+        $storage->setDiscountTaxRate($cart->getDiscountTaxRate());
         $data             = $storage->calculate(true);
-        $data['discount'] = ($data['total']) ? $cart->getDiscount() : 0;
 
         if($forceSave) {
-            $storage->setDiscount($data['discount']);
             $storage->saveCartSession(Models_Mapper_CustomerMapper::getInstance()->find($cart->getUserId()));
         }
 
         unset($data['showPriceIncTax']);
-
-        $data['total']       = ($data['total']);
-        $data['shipping']    = ($shippingPrice) ? $shippingPrice : 0;
-        $data['discountTax'] = ($quoteId) ? self::calculateDiscountTax(Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId)) : $data['totalTax'];
-
-
+        //$shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+//        if(isset($shoppingConfig['showPriceIncTax']) && $shoppingConfig['showPriceIncTax'] === '1'){
+//            $data['subTotal']    = $data['subTotal'] + $data['discountTax'];
+//        }
+        $data['finalDiscount'] = $data['discount'] + $data['discountTax'];
         if(!$currency) {
             return $data;
         }
@@ -321,5 +320,26 @@ class Quote_Tools_Tools {
         });
 
         return $form;
+    }
+
+    public static function getTaxFromProductPrice(Models_Model_Product $product, $destinationAddress){
+        if(($taxClass = $product->getTaxClass()) != 0) {
+            $rateMethodName = 'getRate' . $taxClass;
+
+            if (null !== $destinationAddress){
+                $zoneId = Tools_Tax_Tax::getZone($destinationAddress);
+                if ($zoneId) {
+                    $tax = Models_Mapper_Tax::getInstance()->findByZoneId($zoneId);
+                }
+            } else {
+                $tax = Models_Mapper_Tax::getInstance()->getDefaultRule();
+            }
+
+            if (isset($tax) && $tax !== null) {
+                $productPrice = $product->getPrice();
+                return ($productPrice - $productPrice /(1 + ($tax->$rateMethodName()/100)));
+            }
+        }
+        return 0;
     }
 }

@@ -2,11 +2,12 @@
 
     <select name="discountRate" id="quote-discount-rate">
         <?php foreach($this->taxRates as $key => $value): ?>
-            <option value="<?php echo $key; ?>" <?php echo ($key == $this->rate) ? 'selected="selected"' : ''; ?>><?php echo $value; ?></option>
+            <option value="<?php echo $key; ?>" <?php echo ($key == $this->rate) ? 'selected="selected"' : ''; ?>><?php echo $this->translate($value); ?></option>
         <?php endforeach; ?>
     </select>
 
     <input type="text" class="quote-recalculate" data-scope="quote-partial" data-type="discount" name="quoteDiscount" id="quote-discount"  value="<?php echo $this->discount; ?>" />
+    <span id="quote-discount-with-tax"><?php echo $this->currency($this->discount + $this->discountTax);?></span>
 <?php else: ?>
     <span class="quote-discount"><?php echo $this->currency($this->discount); ?></span>
 <?php endif; ?>

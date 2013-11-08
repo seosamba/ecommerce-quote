@@ -435,7 +435,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             case self::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
             case self::TOTAL_TYPE_SUB   :
                 $subTotal = $this->_cart->getSubTotal();
-                $total    = ($this->_shoppingConfig['showPriceIncTax']) ? $subTotal +  $this->_cart->getTotalTax() : $subTotal;
+                $total    = ($this->_shoppingConfig['showPriceIncTax']) ? $subTotal +  $this->_cart->getSubTotalTax() : $subTotal;
                 break;
             case self::TOTAL_TYPE_GRAND :
                 $total = (($this->_cart->getTotal()));
@@ -444,7 +444,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $total = (($this->_cart->getTotal() - $this->_cart->getTotalTax()));
                 break;
             case self::TOTAL_TYPE_TAX_DISCOUNT:
-                $this->_view->taxDiscount = Quote_Tools_Tools::calculateDiscountTax($this->_quote);
+                $this->_view->taxDiscount = ($this->_shoppingConfig['showPriceIncTax']) ? $this->_cart->getDiscount() + $this->_cart->getDiscountTax():$this->_cart->getDiscount();
                 return $this->_view->render('taxdiscount.quote.phtml');
                 break;
             default : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
@@ -480,9 +480,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: cart in not initialized, discount cannot be rendered');
         }
 
-        $discount              = $this->_cart->getDiscount();
-        $this->_view->discount = ($discount) ? $discount : 0;
-        $this->_view->rate     = $this->_quote->getDiscountTaxRate();
+        $discount                   = $this->_cart->getDiscount();
+        $this->_view->discount      = ($discount) ? $discount : 0;
+        $this->_view->rate          = $this->_cart->getDiscountTaxRate();
+        $this->_view->discountTax   = $this->_cart->getDiscountTax();
         $this->_view->taxRates = array(
             '0' => 'Non taxable',
             '1' => 'Default',
