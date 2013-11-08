@@ -31,6 +31,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
     public function init() {
         $this->_debugMode = Tools_System_Tools::debugMode();
         $this->_mapper    = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $this->_shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
     }
 
     public function getAction() {}
@@ -109,6 +110,13 @@ class Api_Quote_Products extends Api_Service_Abstract {
             case self::UPDATE_TYPE_PRICE   :
                 $product->setPrice(floatval($data['value']));
                 $product->setCurrentPrice(floatval($data['value']));
+                if(isset($this->_shoppingConfig['showPriceIncTax']) && $this->_shoppingConfig['showPriceIncTax'] === '1'){
+                    $shippingAddressKey = $storage->getShippingAddressKey();
+                    $destinationAddress = Tools_ShoppingCart::getInstance()->getAddressById($shippingAddressKey);
+                    $productTax = Quote_Tools_Tools::getTaxFromProductPrice($product, $destinationAddress);
+                    $product->setPrice(floatval($data['value'] - $productTax));
+                    $product->setCurrentPrice(floatval($data['value'] - $productTax));
+                }
                 $options = array();
             break;
             default: $this->_error('Invalid update type.'); break;

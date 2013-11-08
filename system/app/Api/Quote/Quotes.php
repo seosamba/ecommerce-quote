@@ -133,7 +133,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
             break;
             case Quote::QUOTE_TYPE_BUILD:
-                $cart = $cartMapper->save(new Models_Model_CartSession());
+                $cartSessionModel = new Models_Model_CartSession();
+                $cartSessionModel->setDiscountTaxRate(1);
+                $cart = $cartMapper->save($cartSessionModel);
             break;
             default:
                 $this->_error();
@@ -189,7 +191,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             switch($quoteData['type']) {
                 case 'shipping': $cart->setShippingPrice($value); break;
                 case 'discount': $cart->setDiscount($value); break;
-                case 'taxrate' :  $quote->setDiscountTaxRate($value); break;
+                case 'taxrate' : $quote->setDiscountTaxRate($value); $cart->setDiscountTaxRate($value); break;
                 case 'delivery': $quote->setDeliveryType($quoteData['value']); break;
                 default: $this->_error('Wrong partial option');
             }
