@@ -186,7 +186,6 @@ class Quote_Tools_Tools {
 
     public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null) {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
-        $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
         $shippingPrice    = $cart->getShippingPrice();
         $storage->setDiscount($cart->getDiscount());
         $storage->setShippingData(array('price'=>$shippingPrice));
@@ -198,10 +197,10 @@ class Quote_Tools_Tools {
         }
 
         unset($data['showPriceIncTax']);
-        //$shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-//        if(isset($shoppingConfig['showPriceIncTax']) && $shoppingConfig['showPriceIncTax'] === '1'){
-//            $data['subTotal']    = $data['subTotal'] + $data['discountTax'];
-//        }
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        if(isset($shoppingConfig['showPriceIncTax']) && $shoppingConfig['showPriceIncTax'] === '1'){
+            $data['subTotal']    = $data['subTotal'] + $data['subTotalTax'];
+        }
         $data['discountWithTax'] = $data['discount'] + $data['discountTax'];
         $data['shippingWithTax'] = $data['shipping'] + $data['shippingTax'];
         if(!$currency) {
