@@ -1,5 +1,10 @@
 <?php if($this->editAllowed): ?>
     <input type="text" name="quoteShipping" data-scope="quote-partial" data-type="shipping" id="quote-shipping-price" class="quote-recalculate" value="<?php echo $this->quoteShipping; ?>" />
+    <span id="quote-shipping-with-tax"><?php echo $this->currency($this->quoteShipping + $this->shippingTax);?></span>
 <?php else: ?>
-    <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping); ?></span>
+    <?php if(($this->shoppingConfig['showPriceIncTax'])):?>
+        <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping + $this->shippingTax);?></span>
+    <?php else:?>
+        <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping); ?></span>
+    <?php endif;?>
 <?php endif; ?>
