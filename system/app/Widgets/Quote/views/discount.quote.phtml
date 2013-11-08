@@ -9,5 +9,10 @@
     <input type="text" class="quote-recalculate" data-scope="quote-partial" data-type="discount" name="quoteDiscount" id="quote-discount"  value="<?php echo $this->discount; ?>" />
     <span id="quote-discount-with-tax"><?php echo $this->currency($this->discount + $this->discountTax);?></span>
 <?php else: ?>
-    <span class="quote-discount"><?php echo $this->currency($this->discount); ?></span>
+    <?php if(($this->shoppingConfig['showPriceIncTax'])):?>
+        <span class="quote-discount"><?php echo $this->currency($this->discount+$this->discountTax); ?></span>
+    <?php else:?>
+        <span class="quote-discount"><?php echo $this->currency($this->discount); ?></span>
+    <?php endif;?>
+
 <?php endif; ?>

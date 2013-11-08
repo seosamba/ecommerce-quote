@@ -465,6 +465,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: cart in not initialized, no total will be rendered');
         }
         $shippingPrice              = $this->_cart->getShippingPrice();
+        $this->_view->shoppingConfig = $this->_shoppingConfig;
+        $this->_view->shippingTax   = $this->_cart->getShippingTax();
         $this->_view->quoteShipping = ($shippingPrice) ? $shippingPrice : 0;
         return $this->_view->render('shipping.quote.phtml');
     }
@@ -484,6 +486,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->discount      = ($discount) ? $discount : 0;
         $this->_view->rate          = $this->_cart->getDiscountTaxRate();
         $this->_view->discountTax   = $this->_cart->getDiscountTax();
+        $this->_view->shoppingConfig = $this->_shoppingConfig;
         $this->_view->taxRates = array(
             '0' => 'Non taxable',
             '1' => 'Default',

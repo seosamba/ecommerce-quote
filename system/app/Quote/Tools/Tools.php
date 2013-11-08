@@ -202,7 +202,8 @@ class Quote_Tools_Tools {
 //        if(isset($shoppingConfig['showPriceIncTax']) && $shoppingConfig['showPriceIncTax'] === '1'){
 //            $data['subTotal']    = $data['subTotal'] + $data['discountTax'];
 //        }
-        $data['finalDiscount'] = $data['discount'] + $data['discountTax'];
+        $data['discountWithTax'] = $data['discount'] + $data['discountTax'];
+        $data['shippingWithTax'] = $data['shipping'] + $data['shippingTax'];
         if(!$currency) {
             return $data;
         }
