@@ -411,12 +411,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     protected function _renderAddress() {
         $addressType = isset($this->_options[0]) ? $this->_options[0] : self::ADDRESS_TYPE_BILLING;
         $address     = Tools_ShoppingCart::getAddressById(($addressType == self::ADDRESS_TYPE_BILLING) ? $this->_cart->getBillingAddressId() : $this->_cart->getShippingAddressId());
-        if($this->_editAllowed) {
-            $this->_view->addressForm = $this->_initAddressForm($addressType, $address);
-        }
         $this->_view->addressType = $addressType;
         $this->_view->address     = $address;
-        return $this->_view->render('address.quote.phtml');
+        if($this->_editAllowed && (!isset($this->_options[1]) || (isset($this->_options[1]) && $this->_options[1] == 'html'))){
+            $this->_view->addressForm = $this->_initAddressForm($addressType, $address);
+            return $this->_view->render('address.quote.phtml');
+        }elseif(!$this->_editAllowed && isset($this->_options[1]) && is_array($address)){
+            if(array_key_exists($this->_options[1], $address)){
+                return $address[$this->_options[1]];
+            }elseif($this->_options[1] == 'html'){
+                return $this->_view->render('address.quote.phtml');
+            }
+        }
     }
 
     /**
