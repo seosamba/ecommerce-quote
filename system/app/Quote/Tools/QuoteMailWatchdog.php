@@ -235,7 +235,11 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
         //changing quote status to send
         $this->_quote->removeObserver(new Tools_Mail_Watchdog());
-        Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT));
+        if($this->_quote->getEditedBy() == 'auto'){
+            Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT));
+        }else{
+            Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW));
+        }
 
         return $this->_send(array('subject' => $this->_translator->translate($this->_storeConfig['company'] . ' Hello! We created a new quote for you')));
     }
