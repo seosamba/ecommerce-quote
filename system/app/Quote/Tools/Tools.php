@@ -34,15 +34,10 @@ class Quote_Tools_Tools {
             $expirationDelay = 1;
         }
 
-        $titlePrefix = self::TITLE_PREFIX;
-        if($options['disableTitlePrefix'] === '1'){
-            $titlePrefix = '';
-        }
-
         $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->save(
             $quote->setId($quoteId)
                 ->setStatus(Quote_Models_Model_Quote::STATUS_NEW)
-                ->setTitle($titlePrefix . $quoteId)
+                ->setTitle($quoteId)
                 ->setCartId($cart->getId())
                 ->setCreatedAt($date)
                 ->setUpdatedAt($date)

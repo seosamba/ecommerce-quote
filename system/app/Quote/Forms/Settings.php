@@ -39,13 +39,7 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => 'Default quote expiration delay'
         )));
 
-        $this->addElement(new Zend_Form_Element_Checkbox(array(
-            'name'  => 'disableTitlePrefix',
-            'id'    => 'disable-title-prefix',
-            'label' => 'Disable title prefix'
-        )));
-
-		$this->setDecorators(array('FormElements', 'Form'))
+        $this->setDecorators(array('FormElements', 'Form'))
 			->setElementDecorators(array(
 				'ViewHelper',
 				array('Label', array('class' => 'grid_4')),
