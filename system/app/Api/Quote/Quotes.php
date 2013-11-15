@@ -142,7 +142,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '', 'disableTitlePrefix' => isset($this->_shoppingConfig['disableTitlePrefix']) ? $this->_shoppingConfig['disableTitlePrefix']: 0));
+            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: ''));
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }
