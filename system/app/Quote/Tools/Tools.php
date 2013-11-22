@@ -45,6 +45,7 @@ class Quote_Tools_Tools {
                 ->setUserId($cart->getUserId())
                 ->setEditedBy($options['editedBy'])
                 ->setDisclaimer($options['disclaimer'])
+                ->setCreatorId($options['creatorId'])
         );
         Tools_ShoppingCart::getInstance()->clean();
         return $quote;

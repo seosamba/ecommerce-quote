@@ -28,6 +28,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             'disclaimer'        => $quote->getDisclaimer(),
 			'cart_id'           => $quote->getCartId(),
 			'edited_by'         => $quote->getEditedBy(),
+            'creator_id'        => $quote->getCreatorId(),
 			'expires_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getExpiresAt())),
 			'user_id'           => $quote->getUserId(),
 			'created_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),

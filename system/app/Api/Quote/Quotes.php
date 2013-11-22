@@ -92,8 +92,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
         if($currentUser instanceof Application_Model_Models_User){
             $editedBy      = $currentUser->getFullName();
+            $creatorId     = $currentUser->getId();
         }else{
-            $editedBy = Shopping::ROLE_CUSTOMER;
+            $editedBy   = Shopping::ROLE_CUSTOMER;
+            $creatorId  = 0;
         }
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
@@ -142,7 +144,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: ''));
+            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'creatorId'=>$creatorId,'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: ''));
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }
@@ -172,7 +174,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
         $editedBy      = $currentUser->getFullName();
+        $creatorId     = $currentUser->getId();
         $quote->setEditedBy($editedBy);
+        $quote->setCreatorId($creatorId);
 
         $customer          = null;
         $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();

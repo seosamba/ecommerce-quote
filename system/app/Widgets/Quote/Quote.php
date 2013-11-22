@@ -503,6 +503,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return $this->_view->render('discount.quote.phtml');
     }
 
+
+    protected function _renderCreatorId() {
+        if(!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found. Renderer ' . __METHOD__ . ' has no effect');
+        }
+
+        return $this->_quote->getCreatorId();
+    }
+
     /**
      * Render all quote item widgets {$quote:item:*}
      *
