@@ -45,6 +45,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     protected $_deliveryType    = '';
 
+    protected $_creatorId       = '';
+
     public function setDiscountTaxRate($discountTaxRate) {
         $this->_discountTaxRate = $discountTaxRate;
     }
@@ -158,5 +160,14 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     public function getExpiresAt() {
         return $this->_expiresAt;
+    }
+
+    public function setCreatorId($creatorId) {
+        $this->_creatorId = $creatorId;
+        return $this;
+    }
+
+    public function getCreatorId() {
+        return $this->_creatorId;
     }
 }
