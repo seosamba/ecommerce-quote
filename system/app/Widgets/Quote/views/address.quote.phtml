@@ -24,8 +24,10 @@
                 <?php echo $this->address['zip']; ?>
             </p>
             <p>
+                <?php if($this->address['country']):?>
                 <?php $countries = Tools_Geo::getCountries(true); ?>
                 <?php echo $countries[$this->address['country']];?>
+                <?php endif; ?>
             </p>
             <p>
                 <a href="mailto:<?php echo $this->address['email'];?>"><?php echo $this->address['email'];?></a>
