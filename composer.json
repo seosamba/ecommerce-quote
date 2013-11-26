@@ -1,0 +1,23 @@
+{
+    "name": "seosamba/quote",
+    "description": "Quote generation plugin for SEOToaster CMS v2.0",
+    "type": "plugin",
+    "require": {
+        "php": ">=5.3.7"
+    },
+    "require-dev": {
+        "sebastian/phpcpd": "dev-master",
+        "squizlabs/php_codesniffer": "1.*",
+        "phpmd/phpmd": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "Eugene Nezhuta",
+            "email": "eugene@seosamba.com"
+        },
+        {
+            "name": "Pavel Kovalyov",
+            "email": "pavel.k@seosamba.com"
+        }
+    ]
+}

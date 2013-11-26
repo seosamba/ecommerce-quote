@@ -1,8 +1,18 @@
 language: php
 php:
-  - 5.5
+  - 5.3
   - 5.4
+  - 5.5
+before_script:
+  # Composer
+  - composer self-update
+  - composer update
 script:
-  # Duplicate code
   - mkdir .reports
-  - php vendor/bin/phpcpd --log-pmd .reports/pmd-cpd.xml .
+  # PHP Copy/Paste Detector
+  - php vendor/bin/phpcpd --log-pmd .reports/pmd-cpd.xml ./system/app
+  # PHP Mess Detector
+  - php vendor/bin/phpmd ./system/app text codesize,naming
+  # PHP_CodeSniffer
+  - php vendor/bin/phpcs ./system/app --standard=PSR1
+  - php vendor/bin/phpcs ./system/app --standard=PSR2
