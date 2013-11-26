@@ -49,11 +49,11 @@ define([
             });
         },
         searchAction: function(e, force) {
-            if(e.keyCode == 13 || force) {
+            //if(e.keyCode == 13 || force) {
                 this.products.server_api.key = function() {return e.currentTarget.value; }
                 this.products.pager();
                 $(e.target).autocomplete('close');
-            }
+            //}
 		}
 	});
 
