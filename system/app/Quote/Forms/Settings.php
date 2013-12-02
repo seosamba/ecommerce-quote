@@ -27,7 +27,7 @@ class  Quote_Forms_Settings extends Zend_Form {
 			'name'         => 'quoteTemplate',
 			'id'           => 'quote-template',
 			'label'        => 'Quote template',
-			'class'        => 'grid_7',
+			'class'        => 'grid_6 alpha',
 			'multiOptions' => $quoteTemplateOptions
 		)));
 
@@ -35,24 +35,25 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Text(array(
             'name'  => 'expirationDelay',
             'id'    => 'expiration-delay',
-            'class' => 'grid_3',
+            'class' => 'grid_6 alpha',
             'label' => 'Default quote expiration delay'
         )));
 
         $this->setDecorators(array('FormElements', 'Form'))
 			->setElementDecorators(array(
 				'ViewHelper',
-				array('Label', array('class' => 'grid_4')),
-				array('HtmlTag', array('tag' => 'p', 'class' => 'clearfix' ))
+				array('Label', array('class' => 'grid_6')),
+				array('HtmlTag', array('tag' => 'p'))
 			));
 
         $this->addElement(new Zend_Form_Element_Submit(array(
             'name'       => 'applySettings',
             'label'      => 'Update quote configuration',
+            'class'      => 'block',
             'ignore'     => true,
 	        'decorators' => array(
 		        'ViewHelper',
-                array('HtmlTag', array('tag' => 'p', 'class' => 'clearfix grid_12' ))
+                array('HtmlTag', array('tag' => 'p', 'class' => 'grid_12' ))
             )
         )));
 	}
