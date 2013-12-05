@@ -343,7 +343,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
         // init toaster parser, parse mail template for the standart toaster widgets and return the result
         $parser = new Tools_Content_Parser($mailTemplate, Application_Model_Mappers_PageMapper::getInstance()->findByUrl($this->_quote->getId() . '.html')->toArray(), $parserOptions);
-        return $parser->parseSimple();
+        return Tools_Content_Tools::stripEditLinks($parser->parseSimple());
     }
 
     /**
