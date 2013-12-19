@@ -208,11 +208,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             Zend_Controller_Action_HelperBroker::getStaticHelper('page')->clean($requestedUri)
         );
 
-        if(!$this->_quote instanceof Quote_Models_Model_Quote) {
-            throw new Exceptions_SeotoasterWidgetException('Cannot instantiate quote.');
-        }
-
-        if(Quote_Tools_Tools::checkExpired($this->_quote)) {
+        if(($this->_quote instanceof Quote_Models_Model_Quote) && Quote_Tools_Tools::checkExpired($this->_quote)) {
             $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
             $this->_quote = $mapper->save($this->_quote);
         }
