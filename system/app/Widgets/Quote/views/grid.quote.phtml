@@ -3,7 +3,7 @@
     <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
     <td><%= id %></td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
-    <td><%= ownerName %></td>
+    <td><%= (ownerName != null) ? ownerName : "<?php echo $this->translate('unknown'); ?>" %></td>
     <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
         <select name="quoteStatus" class="quote-status" id="<%= id %>">
