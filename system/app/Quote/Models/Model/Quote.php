@@ -47,6 +47,17 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     protected $_creatorId       = '';
 
+    protected $_ownerName       = '';
+
+    public function setOwnerName($ownerName) {
+        $this->_ownerName = $ownerName;
+        return $this;
+    }
+
+    public function getOwnerName() {
+        return $this->_ownerName;
+    }
+
     public function setDiscountTaxRate($discountTaxRate) {
         $this->_discountTaxRate = $discountTaxRate;
     }
