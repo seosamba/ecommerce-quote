@@ -77,13 +77,15 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
         if($search !== null) {
 			$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%")');
 		}
+        $table = $this->getDbTable();
 
         if($includeCount) {
-            $table = $this->getDbTable();
             $select = $table->select()
                 ->setIntegrityCheck(false)
                 ->from(array('s_q'=>'shopping_quote'))
-                ->joinLeft(array('u'=>'user'), 's_q.user_id=u.id', array('creatorName'=>'full_name'));
+                ->joinLeft(array('u1'=>'user'), 's_q.user_id=u1.id', '')
+                ->joinLeft(array('u2'=>'user'), 's_q.creator_id=u2.id', '')
+                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')));
 
             ($where) ? $select->where($where) : $select;
             ($order) ? $select->order($order) : $select;
@@ -94,9 +96,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 'total'  => sizeof($result),
                 'data'   => array_slice(array_map(function($item){
                     $quote = new Quote_Models_Model_Quote($item);
-                    $quoteData = $quote->toArray();
-                    $quoteData['creatorName'] = $item['creatorName'];
-                    return $quoteData;
+                    return $quote->toArray();
                 }, $result), $offset, $limit),
                 'offset' => $offset,
                 'limit'  => $limit
@@ -104,7 +104,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
         }
 
-        $result = $this->getDbTable()->fetchAll($where, $order, $limit, $offset);
+        $result = $table->fetchAll($where, $order, $limit, $offset);
 
         if(null === $result) {
 			return null;

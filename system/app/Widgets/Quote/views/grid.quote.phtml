@@ -3,7 +3,7 @@
     <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
     <td><%= id %></td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
-    <td><%= creatorName %></td>
+    <td><%= ownerName %></td>
     <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
         <select name="quoteStatus" class="quote-status" id="<%= id %>">
@@ -37,7 +37,7 @@
                     <th><input type="checkbox" id="quote-grid-select-all" /></th>
                     <th data-sort="id" class="sortable"><?php echo $this->translate('Id'); ?></th>
                     <th data-sort="title" class="sortable"><?php echo $this->translate('Title'); ?></th>
-                    <th data-sort="creatorName" class="sortable"><?php echo $this->translate('Owner'); ?>
+                    <th data-sort="ownerName" class="sortable"><?php echo $this->translate('Owner'); ?>
                     <th data-sort="created_at" class="sortable"><?php echo $this->translate('Date'); ?></th>
                     <th data-sort="status" class="sortable"><?php echo $this->translate('Status'); ?></th>
                     <th><?php echo $this->translate('Preview'); ?></th>
