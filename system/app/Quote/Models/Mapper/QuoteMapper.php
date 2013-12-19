@@ -79,12 +79,24 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 		}
 
         if($includeCount) {
-            $result = $this->getDbTable()->fetchAll($where, $order)->toArray();
+            $table = $this->getDbTable();
+            $select = $table->select()
+                ->setIntegrityCheck(false)
+                ->from(array('s_q'=>'shopping_quote'))
+                ->joinLeft(array('u'=>'user'), 's_q.user_id=u.id', array('creatorName'=>'full_name'));
+
+            ($where) ? $select->where($where) : $select;
+            ($order) ? $select->order($order) : $select;
+
+            $result = $table->getAdapter()->fetchAll($select);
+
             return array(
                 'total'  => sizeof($result),
                 'data'   => array_slice(array_map(function($item){
                     $quote = new Quote_Models_Model_Quote($item);
-                    return $quote->toArray();
+                    $quoteData = $quote->toArray();
+                    $quoteData['creatorName'] = $item['creatorName'];
+                    return $quoteData;
                 }, $result), $offset, $limit),
                 'offset' => $offset,
                 'limit'  => $limit

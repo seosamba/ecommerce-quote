@@ -3,6 +3,7 @@
     <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
     <td><%= id %></td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
+    <td><%= creatorName %></td>
     <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
         <select name="quoteStatus" class="quote-status" id="<%= id %>">
@@ -30,12 +31,13 @@
         <table id="quote-grid-quotes" class="widget">
             <thead>
                 <tr class="search-line">
-                    <th class="gray-bg" colspan="7"><label><?php echo $this->translate('Search');?></label><?php echo $this->formText('search', '', array('id' => 'quote-grid-search', 'placeholder' => $this->translate('search quote by title, by creator'))); ?></th>
+                    <th class="gray-bg" colspan="8"><label><?php echo $this->translate('Search');?></label><?php echo $this->formText('search', '', array('id' => 'quote-grid-search', 'placeholder' => $this->translate('search quote by title, by creator'))); ?></th>
                 </tr>
                 <tr>
                     <th><input type="checkbox" id="quote-grid-select-all" /></th>
                     <th data-sort="id" class="sortable"><?php echo $this->translate('Id'); ?></th>
                     <th data-sort="title" class="sortable"><?php echo $this->translate('Title'); ?></th>
+                    <th data-sort="creatorName" class="sortable"><?php echo $this->translate('Owner'); ?>
                     <th data-sort="created_at" class="sortable"><?php echo $this->translate('Date'); ?></th>
                     <th data-sort="status" class="sortable"><?php echo $this->translate('Status'); ?></th>
                     <th><?php echo $this->translate('Preview'); ?></th>
@@ -43,7 +45,7 @@
                 </tr>
             </thead>
             <tbody>
-                <td colspan="7">
+                <td colspan="8">
                     <?php if(isset($this->quotes['total']) && ($this->quotes['total'] > 0)): ?>
                         <img src="<?php echo $this->websiteUrl;?>plugins/quote/web/images/spinner.gif" border="0" alt="loading..." />
                     <?php else: ?>
