@@ -9,7 +9,7 @@ define([
         model: ProductModel,
         paginator_core: {
             dataType: 'json',
-            url:  $('#website_url').val() + 'api/store/products/'
+            url:  $('#website_url').val() + 'api/store/products/os/1'
         },
         paginator_ui: {
             firstPage:    0,
