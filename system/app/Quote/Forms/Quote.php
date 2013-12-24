@@ -94,19 +94,30 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $captcha = null;
         if($this->_captchaService == self::CAPTCHA_SERVICE_RECAPTCHA) {
             $websiteConfig    = Zend_Controller_Action_HelperBroker::getStaticHelper('config')->getConfig();
-            $recaptchaService =  new Zend_Service_ReCaptcha($websiteConfig['recapthaPublicKey'], $websiteConfig['recapthaPrivateKey']);
+            $recaptchaWidgetId = uniqid('recaptcha_widget_');
+            $recaptchaService = new Zend_Service_ReCaptcha(
+                $websiteConfig['recapthaPublicKey'],
+                $websiteConfig['recapthaPrivateKey'],
+                null,
+                array('custom_theme_widget' => $recaptchaWidgetId)
+            );
             $captcha          = new Zend_Form_Element_Captcha('captcha', array(
                 'captcha'        => 'ReCaptcha',
-                'captchaOptions' => array('captcha' => 'ReCaptcha', 'service' => $recaptchaService, 'theme' => 'custom'),
+                'captchaOptions' => array(
+                    'captcha' => 'ReCaptcha',
+                    'service' => $recaptchaService,
+                    'theme'   => 'custom',
+                    'custom_theme_widget' => $recaptchaWidgetId
+                ),
                 'disableLoadDefaultDecorators' => true,
                 'decorators' => array(
-                    'Captcha_ReCaptcha',
-                    array(
-                        'ViewScript',
+                    new Zend_Form_Decorator_Captcha_ReCaptcha(),
+                    new Zend_Form_Decorator_ViewScript(
                         array(
                             'viewScript' => 'backend/form/recaptcha.phtml',
                             'placement' => false,
-                        ),
+                            'recaptchaId' => $recaptchaWidgetId
+                        )
                     ),
                 )
             ));
