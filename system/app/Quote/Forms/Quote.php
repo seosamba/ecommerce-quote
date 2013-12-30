@@ -95,10 +95,17 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         if($this->_captchaService == self::CAPTCHA_SERVICE_RECAPTCHA) {
             $websiteConfig    = Zend_Controller_Action_HelperBroker::getStaticHelper('config')->getConfig();
             $recaptchaWidgetId = uniqid('recaptcha_widget_');
+            $request = Zend_Controller_Front::getInstance()->getRequest();
+            $params = null;
+            if($request->isSecure()){
+                $params = array('ssl' => true,
+                    'error' => null,
+                    'xhtml' => false);
+            }
             $recaptchaService = new Zend_Service_ReCaptcha(
                 $websiteConfig['recapthaPublicKey'],
                 $websiteConfig['recapthaPrivateKey'],
-                null,
+                $params,
                 array('custom_theme_widget' => $recaptchaWidgetId)
             );
             $captcha          = new Zend_Form_Element_Captcha('captcha', array(
