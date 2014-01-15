@@ -184,6 +184,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
         }
 
+        // Update status outdated quote
+        if ($quote->getStatus() == Quote_Models_Model_Quote::STATUS_LOST &&
+            $quote->getExpiresAt() != date(Tools_System_Tools::DATE_MYSQL, strtotime($quoteData['expiresAt'])) &&
+            date('Ymd', strtotime($quoteData['expiresAt'])) >= date('Ymd')) {
+            $quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+        }
+
         if(isset($quoteData['type']) && $quoteData['type']) {
             $value = floatval($quoteData['value']);
             if(!$value) {
