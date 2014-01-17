@@ -75,7 +75,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null, $includeCount = false) {
 		$entries   = array();
         if($search !== null) {
-			$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%")');
+			$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%")');
 		}
         $table = $this->getDbTable();
 
@@ -85,8 +85,8 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 ->from(array('s_q'=>'shopping_quote'))
                 ->joinLeft(array('u1'=>'user'), 's_q.user_id=u1.id', '')
                 ->joinLeft(array('u2'=>'user'), 's_q.creator_id=u2.id', '')
-                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')));
-
+                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')))
+                ->columns(array('clients' => new Zend_Db_Expr('COALESCE(u1.full_name)')));
             ($where) ? $select->where($where) : $select;
             ($order) ? $select->order($order) : $select;
 
