@@ -173,11 +173,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_error('Quote not found', self:: REST_STATUS_NOT_FOUND);
         }
 
-        $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
-        $editedBy      = $currentUser->getFullName();
-        $creatorId     = $currentUser->getId();
-        $quote->setEditedBy($editedBy);
-        $quote->setCreatorId($creatorId);
+        $currentUser = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+        $quote->setEditedBy($currentUser->getFullName());
 
         $customer          = null;
         $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
@@ -185,6 +182,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         if(!$cart instanceof Models_Model_CartSession) {
             $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
+        }
+
+        // Update status outdated quote
+        if ($quote->getStatus() == Quote_Models_Model_Quote::STATUS_LOST &&
+            $quote->getExpiresAt() != date(Tools_System_Tools::DATE_MYSQL, strtotime($quoteData['expiresAt'])) &&
+            date('Ymd', strtotime($quoteData['expiresAt'])) >= date('Ymd')) {
+            $quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
         }
 
         if(isset($quoteData['type']) && $quoteData['type']) {
