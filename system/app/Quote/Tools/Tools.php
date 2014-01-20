@@ -339,8 +339,13 @@ class Quote_Tools_Tools {
         return 0;
     }
 
+    /**
+     * @param Quote_Models_Model_Quote $quote
+     * @return bool
+     */
     public static function checkExpired(Quote_Models_Model_Quote $quote) {
-        $dateTime = new Zend_Date();
-        return ($dateTime->compareTimestamp(strtotime($quote->getExpiresAt())) === 1);
+        $today   = new DateTime(date('Y-m-d'));
+        $expDate = new DateTime($quote->getExpiresAt());
+        return ($expDate < $today);
     }
 }
