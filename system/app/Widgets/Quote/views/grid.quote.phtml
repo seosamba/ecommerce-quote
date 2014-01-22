@@ -4,7 +4,7 @@
     <td><%= id %></td>
     <td><%= (creatorId == 0) ? ownerName : "<?php echo $this->translate('Not set'); ?>" %></td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
-    <td><%= (userId != null) ? "<?php echo Tools_Security_Acl::ROLE_SUPERADMIN; ?>" :  ownerName  %></td>
+    <td><%= (ownerName != null) ? ownerName : "<?php echo $this->translate('unknown'); ?>" %></td>
     <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
         <select name="quoteStatus" class="quote-status" id="<%= id %>">
