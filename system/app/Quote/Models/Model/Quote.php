@@ -49,6 +49,17 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     protected $_ownerName       = '';
 
+    protected $_customerName    = '';
+
+    public function setCustomerName($customerName) {
+        $this->_customerName = $customerName;
+        return $this;
+    }
+
+    public function getCustomerName() {
+        return $this->_customerName;
+    }
+
     public function setOwnerName($ownerName) {
         $this->_ownerName = $ownerName;
         return $this;

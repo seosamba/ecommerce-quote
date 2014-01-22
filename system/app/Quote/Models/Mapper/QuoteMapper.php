@@ -75,7 +75,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null, $includeCount = false) {
 		$entries   = array();
         if($search !== null) {
-			$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%")');
+			$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR edited_by LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%")');
 		}
         $table = $this->getDbTable();
 
@@ -85,6 +85,8 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 ->from(array('s_q'=>'shopping_quote'))
                 ->joinLeft(array('u1'=>'user'), 's_q.user_id=u1.id', '')
                 ->joinLeft(array('u2'=>'user'), 's_q.creator_id=u2.id', '')
+                ->joinLeft(array('cart'=>'shopping_cart_session'), 's_q.cart_id=cart.id', '')
+                ->joinLeft(array('cust_addr'=>'shopping_customer_address'), 'cust_addr.id=cart.billing_address_id', array('cust_addr.firstname', 'cust_addr.lastname'))
                 ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')))
                 ->columns(array('clients' => new Zend_Db_Expr('COALESCE(u1.full_name)')));
             ($where) ? $select->where($where) : $select;
@@ -96,7 +98,9 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 'total'  => sizeof($result),
                 'data'   => array_slice(array_map(function($item){
                     $quote = new Quote_Models_Model_Quote($item);
-                    return $quote->toArray();
+                    $quoteData = $quote->toArray();
+                    $quoteData['customerName'] = trim($item['firstname'].' '.$item['lastname']);
+                    return $quoteData;
                 }, $result), $offset, $limit),
                 'offset' => $offset,
                 'limit'  => $limit
