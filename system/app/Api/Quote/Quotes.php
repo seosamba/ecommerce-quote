@@ -90,6 +90,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
+        $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
         $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
         if($currentUser instanceof Application_Model_Models_User){
             $editedBy      = $currentUser->getFullName();
@@ -102,6 +103,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             case Quote::QUOTE_TYPE_GENERATE:
                 $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
                 $form        = new Quote_Forms_Quote();
+                $data        = $this->_request->getParams();
+
                 if($formOptions) {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
@@ -113,11 +116,19 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart
                 $initialProducts = array();
-                if(isset($formData['productId']) && $formData['productId']) {
+                if (isset($formData['productId']) && $formData['productId']) {
                     $initialProducts[] = array(
                         'product' => Models_Mapper_ProductMapper::getInstance()->find($formData['productId']),
                         'options' => Quote_Tools_Tools::parseOptionsString($formData['productOptions'])
                     );
+                    if (!isset($data[md5($formData['productId'])]) || $data[md5($formData['productId'])] !== '') {
+                        $responseHelper->success('');
+                    }
+                } else {
+                    $cartId = $this->_cartStorage->getCartId();
+                    if (!isset($data[md5($cartId)]) || $data[md5($cartId)] !== '') {
+                        $responseHelper->success('');
+                    }
                 }
 
                 $cart     = Quote_Tools_Tools::invokeCart(null, $initialProducts);

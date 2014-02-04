@@ -633,6 +633,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         // adjust dynamic quote from fields
         $quoteForm = Quote_Tools_Tools::adjustFormFields($quoteForm, $this->_options, $this->_formMandatoryFields);
+        if ($product instanceof Models_Model_Product) {
+            $quoteForm->addElement('text', md5($product->getId()), array('style' => 'display:none;'));
+        } elseif ($cartStorage !== null) {
+            $quoteForm->addElement('text', md5($cartStorage->getCartId()), array('style' => 'display:none;'));
+        }
         Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
