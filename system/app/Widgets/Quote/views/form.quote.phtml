@@ -38,11 +38,16 @@
                 dataType: 'json',
                 beforeSend: showSpinner()
             }).done(function(response) {
+                hideSpinner();
+                var formMessage = '<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>';
+                if(typeof response.error !== "undefined"){
+                    showMessage(formMessage, false, 5000);
+                    return false;
+                }
                 if($(form).hasClass('_reload') && (response instanceof Object)) {
                     window.location.href = response.id + '.html';
                 } else {
-                    hideSpinner();
-                    showMessage('<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>', false, 5000);
+                    showMessage(formMessage, false, 5000);
                 }
             }).fail(function(xhr, responseText, error) {
                 hideSpinner();
