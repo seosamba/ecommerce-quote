@@ -68,7 +68,12 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 	public function delete(Quote_Models_Model_Quote $quote) {
 		$where        = $this->getDbTable()->getAdapter()->quoteInto('id = ?', $quote->getId());
 		$deleteResult = $this->getDbTable()->delete($where);
+
+        $quote->registerObserver(new Quote_Tools_GarbageCollector(array(
+            'action' => Tools_System_GarbageCollector::CLEAN_ONDELETE
+        )));
 		$quote->notifyObservers();
+
 		return $deleteResult;
 	}
 
