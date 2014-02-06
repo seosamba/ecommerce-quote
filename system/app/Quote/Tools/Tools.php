@@ -156,12 +156,14 @@ class Quote_Tools_Tools {
             return $options;
         }
         foreach($defaultOptions as $option){
-            foreach ($option['selection'] as $item) {
-                if($item['isDefault'] == 1) {
-                    if(!$flat) {
-                        $options[] = $item;
-                    } else {
-                        $options[$option['id']] = $item['id'];
+            if(!empty($option['selection'])){
+                foreach ($option['selection'] as $item) {
+                    if($item['isDefault'] == 1) {
+                        if(!$flat) {
+                            $options[] = $item;
+                        } else {
+                            $options[$option['id']] = $item['id'];
+                        }
                     }
                 }
             }

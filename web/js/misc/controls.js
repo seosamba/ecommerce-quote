@@ -33,9 +33,10 @@ $(function() {
 
     // handling remove link click
     $(document).on('click', '.remove-product', function(e) {
+        var selfEl = $(this);
         showConfirm('You are about to remove an item. Are you sure?', function() {
             $.ajax({
-                url        : $('#website_url').val() + 'api/quote/products/id/' + $(e.currentTarget).data('pid'),
+                url        : $('#website_url').val() + 'api/quote/products/id/' + selfEl.data('pid'),
                 type       : 'delete',
                 data       : JSON.stringify({qid: quoteId}),
                 dataType   : 'json',
@@ -43,7 +44,7 @@ $(function() {
             }).done(function(response) {
                 hideSpinner();
                 recalculate({summary: response});
-                $(e.currentTarget).closest('tr').remove();
+                selfEl.closest('tr').remove();
             });
         });
     })
