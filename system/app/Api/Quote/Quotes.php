@@ -147,9 +147,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
             break;
             case Quote::QUOTE_TYPE_BUILD:
-                $cartSessionModel = new Models_Model_CartSession();
-                $cartSessionModel->setDiscountTaxRate(1);
-                $cart = $cartMapper->save($cartSessionModel);
+                if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                    $cartSessionModel = new Models_Model_CartSession();
+                    $cartSessionModel->setDiscountTaxRate(1);
+                    $cart = $cartMapper->save($cartSessionModel);
+                } else {
+                    $this->_error();
+                }
             break;
             default:
                 $this->_error();
