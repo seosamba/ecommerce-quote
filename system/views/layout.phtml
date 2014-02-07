@@ -14,6 +14,7 @@
                 ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster-plugins.css', 'screen', 'IE')
                 ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster-lite.css', 'screen', 'IE')
                 ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster-ui.css', 'screen', 'IE')
+                ->prependStylesheet($this->websiteUrl . 'plugins/shopping/web/css/store.css')
                 ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster.css')
                 ->prependStylesheet($this->websiteUrl . 'system/css/reset.css');
             echo $this->headLink();
@@ -22,8 +23,7 @@
             $this->jQuery()->uiEnable();
 			$this->jQuery()->addJavascriptFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
 	            ->addJavascriptFile($this->websiteUrl . 'system/js/external/jquery/plugins/cookie/jquery.cookie.js')
-			    ->addJavascriptFile($this->websiteUrl . 'system/js/internal/system.js')
-                ->addJavascriptFile($this->websiteUrl . 'system/js/ie/ie-pack.js');
+			    ->addJavascriptFile($this->websiteUrl . 'system/js/internal/system.js');
 	        echo $this->jQuery();
             $this->headScript()->setAllowArbitraryAttributes(true);
 	        echo $this->headScript();
@@ -39,6 +39,10 @@
             <div class="header">
                 <div class="closebutton">
                     <a class="close icon-close btn link icon inverse-error" href="javascript:;" title="<?php echo $this->translate('Close'); ?>"></a>
+                </div>
+                <div class="grid_5">
+                    <label class="grid_2 alpha omega" for="product-list-search"><?php echo $this->translate('Search');?>:</label>
+                    <input class="grid_10 mt5px" type="text" name="search" id="search" placeholder="<?php echo $this->translate('search products');?>"/>
                 </div>
                 <?php echo $this->placeholder('headerContent'); ?>
             </div>

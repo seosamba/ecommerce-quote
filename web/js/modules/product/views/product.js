@@ -5,7 +5,7 @@ define([
 ], function(_, Backbone, ProductItemTmpl) {
 
 	var productView = Backbone.View.extend({
-		className : 'product-item',
+		className : 'productlisting pointer',
 		template  : _.template(ProductItemTmpl),
 		events: {
             'click': 'toggleAction'
