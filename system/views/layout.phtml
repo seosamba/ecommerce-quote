@@ -11,9 +11,6 @@
 	        echo $this->headMeta();
             echo $this->headTitle();
 	        $this->headLink()
-                ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster-plugins.css', 'screen', 'IE')
-                ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster-lite.css', 'screen', 'IE')
-                ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster-ui.css', 'screen', 'IE')
                 ->prependStylesheet($this->websiteUrl . 'plugins/shopping/web/css/store.css')
                 ->prependStylesheet($this->websiteUrl . 'system/css/seotoaster.css')
                 ->prependStylesheet($this->websiteUrl . 'system/css/reset.css');
