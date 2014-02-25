@@ -2,4 +2,4 @@
 <span class="image"><img class="lazy" src="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/product/') %> <% } else { %>'system/images/noimage.png' <% } %>" data-original="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/product/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" /></span>
 <span class="name"><%= name %></span>
 <span class="sku"><%= sku %></span>
-<label class="checkbox-del"><input type="checkbox" data-pid="<%= id %>" <% if((typeof (checked) != 'undefined') && checked) { %> checked="checked" <% } %> class="in-quote"/><span class="checkbox_radio"></span></label>
+<label class="checkbox-del"><input type="checkbox" data-pid="<%= id %>" <% if((typeof (checked) != 'undefined') && checked) { %> checked="checked" <% } %> class="in-quote"/></label>
