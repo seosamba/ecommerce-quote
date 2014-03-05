@@ -1,9 +1,6 @@
 // Quote system. Control panel.
 
 $(function() {
-    //apply jQueryUI buttons to quote controls
-    $('.quote-control').button();
-
     // current quote id
     var quoteId = $('#quote-id').val();
 
