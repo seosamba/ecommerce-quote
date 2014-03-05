@@ -9,12 +9,12 @@ define([
         model: ProductModel,
         paginator_core: {
             dataType: 'json',
-            url:  $('#website_url').val() + 'api/store/products/os/1'
+            url:  $('#website_url').val() + 'api/store/products/'
         },
         paginator_ui: {
             firstPage:    0,
             currentPage:  0,
-            perPage:     30,
+            perPage:    100,
             totalPages:  10
         },
         server_api: {
