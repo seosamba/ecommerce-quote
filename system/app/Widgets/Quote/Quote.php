@@ -577,7 +577,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $value = $item['qty'];
             break;
             case 'remove':
-                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS)) ? '<a data-pid="' . $item['product_id'] . '" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
+                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
             break;
             default:
                 return (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
