@@ -1,6 +1,6 @@
 <!-- quote grid row template -->
 <script type="text/template" id="quote-grid-row">
-    <td class="align-middle"><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
+    <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
     <td><%= id %></td>
     <td><%= (creatorId == 0) ? ownerName : (customerName === '') ? "<?php echo $this->translate('Not set'); ?>" : customerName %></td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html"><%= title %></a></td>
