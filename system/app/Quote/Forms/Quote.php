@@ -98,52 +98,54 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             $request = Zend_Controller_Front::getInstance()->getRequest();
             $params = null;
             if($request->isSecure()){
-                $params = array('ssl' => true,
+                $params = array(
+                    'ssl'   => true,
                     'error' => null,
-                    'xhtml' => false);
+                    'xhtml' => false
+                );
             }
             $recaptchaService = new Zend_Service_ReCaptcha(
-                $websiteConfig['recapthaPublicKey'],
-                $websiteConfig['recapthaPrivateKey'],
+                $websiteConfig[Tools_System_Tools::RECAPTCHA_PUBLIC_KEY],
+                $websiteConfig[Tools_System_Tools::RECAPTCHA_PRIVATE_KEY],
                 $params,
                 array('custom_theme_widget' => $recaptchaWidgetId)
             );
-            $captcha          = new Zend_Form_Element_Captcha('captcha', array(
-                'captcha'        => 'ReCaptcha',
-                'captchaOptions' => array(
-                    'captcha' => 'ReCaptcha',
-                    'service' => $recaptchaService,
-                    'theme'   => 'custom',
+            $captcha = new Zend_Form_Element_Captcha('captcha', array(
+                'captcha'                      => 'ReCaptcha',
+                'captchaOptions'               => array(
+                    'captcha'             => 'ReCaptcha',
+                    'service'             => $recaptchaService,
+                    'theme'               => 'custom',
                     'custom_theme_widget' => $recaptchaWidgetId
                 ),
                 'disableLoadDefaultDecorators' => true,
-                'decorators' => array(
+                'decorators'                   => array(
                     new Zend_Form_Decorator_Captcha_ReCaptcha(),
                     new Zend_Form_Decorator_ViewScript(
                         array(
-                            'viewScript' => 'backend/form/recaptcha.phtml',
-                            'placement' => false,
+                            'viewScript'  => 'backend/form/recaptcha.phtml',
+                            'placement'   => false,
                             'recaptchaId' => $recaptchaWidgetId
                         )
                     ),
                 )
             ));
         }
-        if($this->_captchaService == self::CAPTCHA_SERVICE_CAPTCHA) {
+        if ($this->_captchaService == self::CAPTCHA_SERVICE_CAPTCHA) {
             $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
             $captcha = new Zend_Form_Element_Captcha('captcha', array(
                 'label'   => '',
                 'captcha' => array(
-                    'captcha' => 'Image',
-                    'name'    => 'captcha',
-                    'wordLen' => 5,
-                    'height'  => 45,
-                    'timeout' => 300,
-                    'dotNoiseLevel' => 0,
+                    'captcha'        => 'Image',
+                    'name'           => 'captcha',
+                    'wordLen'        => 5,
+                    'height'         => 45,
+                    'timeout'        => 300,
+                    'dotNoiseLevel'  => 0,
                     'LineNoiseLevel' => 0,
-                    'font'    => $websiteHelper->getPath() . 'system/fonts/Alcohole.ttf',
-                    'imgDir'  => $websiteHelper->getPath() . $websiteHelper->getTmp(),
-                    'imgUrl'  => $websiteHelper->getUrl() . $websiteHelper->getTmp()
+                    'font'           => $websiteHelper->getPath() . 'system/fonts/Alcohole.ttf',
+                    'imgDir'         => $websiteHelper->getPath() . $websiteHelper->getTmp(),
+                    'imgUrl'         => $websiteHelper->getUrl() . $websiteHelper->getTmp()
                 )
             ));
 
