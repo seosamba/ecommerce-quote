@@ -45,7 +45,15 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$pageHelper  = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
 		$front       = Zend_Controller_Front::getInstance();
 		$quote       = Quote_Models_Mapper_QuoteMapper::getInstance()->find($pageHelper->clean($front->getRequest()->getParams('page')));
+        if (!$quote instanceof Quote_Models_Model_Quote) {
+            error_log(__CLASS__.': Quote not found.');
+            return null;
+        }
 		$cart        = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+        if (!$cart instanceof Models_Model_CartSession) {
+            error_log(__CLASS__.': Cart not found.');
+            return null;
+        }
 		$cartContent = $cart->getCartContent();
 		if(!$cartContent) {
 			return null;

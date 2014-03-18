@@ -201,14 +201,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * Initialize quote model via page url (should be a quote page)
      *
      */
-    protected function _initQuote() {
+    protected function _initQuote()
+    {
         $requestedUri = isset($this->_toasterOptions['url']) ? $this->_toasterOptions['url'] : Tools_System_Tools::getRequestUri();
-        $mapper       = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
         $this->_quote = $mapper->find(
             Zend_Controller_Action_HelperBroker::getStaticHelper('page')->clean($requestedUri)
         );
-
-        if(($this->_quote instanceof Quote_Models_Model_Quote) && Quote_Tools_Tools::checkExpired($this->_quote)) {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote not found.');
+        }
+        if (Quote_Tools_Tools::checkExpired($this->_quote)) {
             $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
             $this->_quote = $mapper->save($this->_quote);
         }
