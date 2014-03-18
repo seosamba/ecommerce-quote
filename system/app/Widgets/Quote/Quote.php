@@ -208,10 +208,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_quote = $mapper->find(
             Zend_Controller_Action_HelperBroker::getStaticHelper('page')->clean($requestedUri)
         );
-        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
-            throw new Exceptions_SeotoasterWidgetException('Quote not found.');
-        }
-        if (Quote_Tools_Tools::checkExpired($this->_quote)) {
+
+        if (($this->_quote instanceof Quote_Models_Model_Quote) && Quote_Tools_Tools::checkExpired($this->_quote)) {
             $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
             $this->_quote = $mapper->save($this->_quote);
         }
@@ -353,6 +351,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return string
      */
     protected function _renderDelivery() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
         $this->_view->delivery = $this->_quote->getDeliveryType();
         return $this->_view->render('delivery.quote.phtml');
     }
@@ -365,6 +366,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @throws Exceptions_SeotoasterWidgetException
      */
     protected function _renderDate() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
         $dateType          = isset($this->_options[0]) ? $this->_options[0] : self::DATE_TYPE_CREATED;
         $this->_view->date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getExpiresAt();
         $this->_view->type = $dateType;
@@ -543,8 +547,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return '';
         }
 
-        if(!isset($this->_options[0])) {
+        if (!isset($this->_options[0])) {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: Not enough parameters passed.');
+        } elseif (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
         }
 
         // unset a special option for the options list
