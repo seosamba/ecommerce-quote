@@ -46,7 +46,7 @@
             <tbody>
                 <td class="text-center" colspan="9">
                     <?php if(isset($this->quotes['total']) && ($this->quotes['total'] > 0)): ?>
-                        <img src="<?php echo $this->websiteUrl;?>plugins/quote/web/images/spinner.gif" border="0" alt="loading..." />
+                        <img src="<?php echo $this->websiteUrl;?>system/images/spinner-small.gif" border="0" alt="loading..." />
                     <?php else: ?>
                         <?php echo $this->translate('There are no quotes, yet'); ?>.
                         <a href="javascript:;" class="quote-grid-add"><?php echo $this->translate('Add one now'); ?>?</a>
