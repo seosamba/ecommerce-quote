@@ -581,6 +581,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             case 'price':
                 $price                  = ($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
 
+                if($cartContent[$itemId]['freebies'] === '1'){
+                    $this->_view->freebies = true;
+                }
                 $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price * $item['qty']);
                 $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
             break;

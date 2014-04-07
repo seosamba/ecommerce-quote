@@ -1,5 +1,9 @@
 <?php if($this->editAllowed && $this->unitPrice == 'unit'): ?>
     <input data-pid="<?php echo $this->productId; ?>" data-scope="quote-item" data-type="price" class="quote-recalculate price-unit" type="text" value="<?php echo round($this->price,2); ?>" />
 <?php else: ?>
-    <span data-pid="<?php echo $this->productId; ?>" class="price-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $this->currency($this->price); ?></span>
+    <?php if(isset($this->freebies)):?>
+        <span data-pid="<?php echo $this->productId; ?>" class="price-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $this->translate('free'); ?></span>
+    <?php else:?>
+        <span data-pid="<?php echo $this->productId; ?>" class="price-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $this->currency($this->price); ?></span>
+    <?php endif;?>
 <?php endif; ?>
