@@ -132,6 +132,23 @@ class Quote extends Tools_PaymentGateway {
         $this->_show();
     }
 
+    public function internalnoteSaveAction()
+    {
+        $accessList = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+        if (in_array($this->_sessionHelper->getCurrentUser()->getRoleId(), $accessList)) {
+            $content     = filter_var($this->_request->getParam('content'), FILTER_SANITIZE_STRING);
+            $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+            $data        = $quoteMapper->find(filter_var($this->_request->getParam('id'), FILTER_SANITIZE_STRING));
+            if ($data instanceof Quote_Models_Model_Quote && $data->getInternalNote() != $content) {
+                $quoteMapper->save($data->setInternalNote($content));
+            }
+        }
+    }
+
     /**
      * Render a proper view script
      *

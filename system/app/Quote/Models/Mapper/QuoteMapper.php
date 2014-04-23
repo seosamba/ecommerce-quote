@@ -26,6 +26,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 			'title'             => $quote->getTitle(),
 			'status'            => $quote->getStatus(),
             'disclaimer'        => $quote->getDisclaimer(),
+            'internal_note'     => $quote->getInternalNote(),
 			'cart_id'           => $quote->getCartId(),
 			'edited_by'         => $quote->getEditedBy(),
             'creator_id'        => $quote->getCreatorId(),
