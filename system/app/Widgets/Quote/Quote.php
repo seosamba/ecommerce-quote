@@ -724,6 +724,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('internalnote.quote.phtml');
         }
 
-        return $this->_quote->getInternalNote();
+        return '';
     }
 }
