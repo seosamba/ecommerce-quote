@@ -80,7 +80,7 @@ define([
                 relateds.server_api.count = false;
                 relateds.on('reset', function (collection) {
                     placeholder.remove();
-                    collec  tion.each(function (product) {
+                    collection.each(function (product) {
                         var view = new ProductView({model: product});
                         $(view.render().el).appendTo('#products');
                     });
