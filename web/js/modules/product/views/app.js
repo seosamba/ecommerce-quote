@@ -13,6 +13,7 @@ define([
         },
         initialize: function () {
             this.products = new ProductsCollection();
+            this.products.server_api.order = 'p.price DESC';
             this.products.on('reset', this.render, this);
             this.products.fetch();
 
@@ -37,7 +38,6 @@ define([
                                 }
                                 return true;
                             });
-                            console.info(data, list);
                             resp(list);
                         },
                         select: function (event, ui) {
@@ -71,7 +71,6 @@ define([
             });
         },
         renderRelatedFor: function (product) {
-            console.log(product.get('related'));
             if (!_.isEmpty(product.get('related'))) {
                 var relateds = new ProductsCollection(),
                     placeholder = $('<img class="mt50px" src="' + $('#website_url').val() + 'system/images/spinner2.gif">');
