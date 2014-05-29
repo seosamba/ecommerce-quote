@@ -703,4 +703,27 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             )
         );
     }
+
+    /**
+     * Renderer for a quote fild {$quote:internalnote}
+     *
+     * @return string
+     */
+    protected function _renderInternalnote()
+    {
+        $currentRole = Zend_Controller_Action_HelperBroker::getStaticHelper('Session')->getCurrentUser()->getRoleId();
+        $accessList  = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+        if (in_array($currentRole, $accessList)) {
+            $this->_view->content = $this->_quote->getInternalNote();
+            $this->_view->id      = $this->_quote->getId();
+
+            return $this->_view->render('internalnote.quote.phtml');
+        }
+
+        return '';
+    }
 }

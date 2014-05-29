@@ -1,0 +1,16 @@
+{$header:internalnote:static}
+<?php echo $this->formTextarea('internalnote', html_entity_decode($this->content), array('class' => 'quote-internalnote')); ?>
+<script>
+    $(function() {
+        $(document).on('blur', '.quote-internalnote', function() {
+            $.ajax({
+                type: 'POST',
+                url:  '<?php echo $this->websiteUrl; ?>plugin/quote/run/internalnoteSave',
+                data: {
+                    content: $(this).val(),
+                    id:      '<?php echo $this->id; ?>'
+                }
+            });
+        });
+    });
+</script>

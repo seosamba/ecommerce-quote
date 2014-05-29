@@ -27,6 +27,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_disclaimer      = '';
 
+    protected $_internalNote      = '';
+
 	protected $_internalMessage = '';
 
 	protected $_cartId          = 0;
@@ -111,6 +113,15 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 	public function getDisclaimer() {
 		return $this->_disclaimer;
 	}
+
+    public function setInternalNote($internalNote) {
+        $this->_internalNote = $internalNote;
+        return $this;
+    }
+
+    public function getInternalNote() {
+        return $this->_internalNote;
+    }
 
 	public function setEditedBy($editedBy) {
 		$this->_editedBy = $editedBy;
