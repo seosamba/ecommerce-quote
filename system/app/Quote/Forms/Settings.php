@@ -46,10 +46,10 @@ class  Quote_Forms_Settings extends Zend_Form {
 				array('HtmlTag', array('tag' => 'p'))
 			));
 
-        $this->addElement(new Zend_Form_Element_Submit(array(
+        $this->addElement(new Zend_Form_Element_Button(array(
             'name'       => 'applySettings',
             'label'      => 'Update quote configuration',
-            'class'      => 'block',
+            'class'      => 'btn block',
             'ignore'     => true,
 	        'decorators' => array(
 		        'ViewHelper',
