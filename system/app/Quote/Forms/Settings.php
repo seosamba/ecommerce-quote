@@ -49,6 +49,7 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Button(array(
             'name'       => 'applySettings',
             'label'      => 'Update quote configuration',
+            'type'       => 'submit',
             'class'      => 'btn block',
             'ignore'     => true,
 	        'decorators' => array(
