@@ -159,7 +159,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     if (!empty($shippingService)) {
                         $flatratePlugin = Tools_Factory_PluginFactory::createPlugin(Shopping::SHIPPING_FLATRATE);
                         $result = $flatratePlugin->calculateAction(true);
-                        if (!empty($result)) {
+                        if (!empty($result) && isset($result['price'])) {
                             $cart = $cartMapper->save($cart->setShippingPrice($result['price']));
                         }
                     }
