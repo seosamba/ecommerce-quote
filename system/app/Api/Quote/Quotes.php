@@ -142,6 +142,29 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         ->setUserId($customer->getId())
                 );
 
+                $shippingServices = Models_Mapper_ShippingConfigMapper::getInstance()->fetchByStatus(
+                    Models_Mapper_ShippingConfigMapper::STATUS_ENABLED
+                );
+                if (!empty($shippingServices)) {
+                    $shippingServices = array_map(
+                        function ($shipper) {
+                            return in_array($shipper['name'], array(Shopping::SHIPPING_FLATRATE)) ? array(
+                                'name' => $shipper['name'],
+                                'title' => isset($shipper['config']) && isset($shipper['config']['title']) ? $shipper['config']['title'] : null
+                            ) : null;
+                        },
+                        $shippingServices
+                    );
+                    $shippingService = array_values(array_filter($shippingServices));
+                    if (!empty($shippingService)) {
+                        $flatratePlugin = Tools_Factory_PluginFactory::createPlugin(Shopping::SHIPPING_FLATRATE);
+                        $result = $flatratePlugin->calculateAction(true);
+                        if (!empty($result)) {
+                            $cart = $cartMapper->save($cart->setShippingPrice($result['price']));
+                        }
+                    }
+                }
+
                 if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
                     $editedBy = Quote_Models_Model_Quote::QUOTE_TYPE_AUTO;
                 }
