@@ -139,6 +139,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 $cart = $cartMapper->save(
                     $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($form->getValues(), Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer))
+                        ->setShippingAddressId(Quote_Tools_Tools::addAddress($form->getValues(), Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $customer))
                         ->setUserId($customer->getId())
                 );
 
