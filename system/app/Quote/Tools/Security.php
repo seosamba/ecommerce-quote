@@ -8,7 +8,7 @@
 class Quote_Tools_Security {
 
     public static function isEditAllowed($privew = false) {
-        return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL) && !$privew);
+        return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_STORE_MANAGEMENT) && !$privew);
     }
 
 }
