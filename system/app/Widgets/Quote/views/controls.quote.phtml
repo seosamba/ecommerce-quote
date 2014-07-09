@@ -6,17 +6,17 @@
     <input type="hidden" name="currencySymbol" id="quote-currency" value="<?php echo $this->symbol; ?>" />
 
     <!-- add product to quote controll -->
-    <a href="javascript:;" class="quote-control tpopup btn" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
+    <a href="javascript:;" class="tpopup btn-toaster" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
         <?php echo $this->translate('Add product'); ?>
     </a>
 
     <!-- save quote controll -->
-	<a href="javascript:;" class="quote-control btn" data-sendmail="0">
+	<a href="javascript:;" class="quote-control btn-toaster" data-sendmail="0">
         <?php echo $this->translate('Save quote'); ?>
     </a>
 
     <!-- save quote and send e-mail controll -->
-	<a href="javascript:;" class="quote-control btn" data-sendmail="1" data-trigger="<?php echo ($this->status == Quote_Models_Model_Quote::STATUS_NEW) ? Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED : Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED; ?>">
+	<a href="javascript:;" class="quote-control btn-toaster" data-sendmail="1" data-trigger="<?php echo ($this->status == Quote_Models_Model_Quote::STATUS_NEW) ? Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED : Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED; ?>">
         <?php echo $this->translate('Save and Send quote'); ?>
     </a>
 </div>

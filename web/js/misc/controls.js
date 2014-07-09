@@ -24,12 +24,12 @@ $(function() {
         }
     });
 
-    $(document).on('blur', '#quote-title', function(e){
+    $(document).on('blur', '#quote-title', function(){
         updateQuote(quoteId, false);
     });
 
     // handling remove link click
-    $(document).on('click', '.remove-product', function(e) {
+    $(document).on('click', '.remove-product', function() {
         var selfEl = $(this);
         showConfirm('You are about to remove an item. Are you sure?', function() {
             $.ajax({
@@ -44,7 +44,7 @@ $(function() {
                 selfEl.closest('tr').remove();
             });
         });
-    })
+    });
 
 
     // quote control click handling
@@ -55,6 +55,7 @@ $(function() {
                 updateQuote(quoteId, true, message);
             });
         } else {
+            showLoader();
             updateQuote(quoteId, false);
         }
     });
@@ -75,7 +76,7 @@ $(function() {
             case 'quote-item':
                 var productId = field.data('pid');
                 data.value    = accounting.unformat(data.value);
-                var request   = _update('api/quote/products/id/' + productId, data)
+                var request   = _update('api/quote/products/id/' + productId, data);
                 request.done(function(response) {
                     hideSpinner();
                     $.extend(data, {
@@ -85,7 +86,7 @@ $(function() {
                     });
                     recalculate(data);
                 });
-            break;
+                break;
             case 'quote-partial':
                 var request = _update('api/quote/quotes/', data);
                 request.done(function(response) {
@@ -93,9 +94,9 @@ $(function() {
                     $.extend(data, {summary:response});
                     recalculate(data);
                 });
-            break;
+                break;
         }
-    })
+    });
 
     $(document).on('change', '#quote-discount-rate', function(e) {
         var data = {
@@ -128,10 +129,10 @@ var updateQuote = function(quoteId, sendMail, mailMessage) {
 
     var request = _update('api/quote/quotes/', data);
     request.done(function(response, status, xhr) {
-        hideSpinner();
+        hideLoader();
         recalculate({summary:response});
     });
-}
+};
 
 var _update = function(apiUrl, data) {
     return $.ajax({
@@ -141,14 +142,14 @@ var _update = function(apiUrl, data) {
         data       : JSON.stringify(data),
         beforeSend : showSpinner()
     });
-}
+};
 
 var recalculate = function(options) {
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
         var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
 
         var unitPrice  = parseFloat(accounting.unformat(unitPriceContainer.val()));
-        var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val())
+        var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val());
         var totalPrice = unitPrice * qty;
 
         $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
@@ -165,4 +166,4 @@ var recalculate = function(options) {
     $('.grand-total').text(accounting.formatMoney(summary.total));
     $('.totalwotax-total').text(accounting.formatMoney(summary.total- summary.totalTax));
     $('#quote-shipping-with-tax').text(accounting.formatMoney(summary.shippingWithTax));
-}
+};
