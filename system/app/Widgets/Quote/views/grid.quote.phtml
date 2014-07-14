@@ -15,7 +15,7 @@
         </select>
     </td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html?mode=preview"><?php echo $this->translate('Preview');?></a></td>
-    <td class="text-center"><a href="javascript:;" class="quote-grid-delete icon18 icon-cancel red" data-sid="<%= id %>">Delete</a></td>
+    <td class="text-center"><a href="javascript:;" class="quote-grid-delete icon18 ticon-cancel red" data-sid="<%= id %>">Delete</a></td>
 </script>
 <!-- /quote grid row template -->
 <input type="hidden" name="system-language" value="<?php echo Tools_Misc::getJsTranslationLanguage();?>"/>
@@ -27,7 +27,7 @@
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
             <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_6 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
-            <a class="quote-grid-add btn green fl-right icon-plus" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
+            <a class="quote-grid-add btn green fl-right ticon-plus" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
         </div>
         <table id="quote-grid-quotes" class="widget table-hover">
             <thead>
