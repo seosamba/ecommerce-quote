@@ -19,6 +19,11 @@
 	<a href="javascript:;" class="quote-control btn-toaster" data-sendmail="1" data-trigger="<?php echo ($this->status == Quote_Models_Model_Quote::STATUS_NEW) ? Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED : Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED; ?>">
         <?php echo $this->translate('Save and Send quote'); ?>
     </a>
+
+    <!-- preview quote controll -->
+	<a href="<?php echo $this->websiteUrl;?><?php echo $this->quoteId; ?>.html?mode=preview" class="quote-control btn-toaster" target="_blank">
+        <?php echo $this->translate('Preview quote'); ?>
+    </a>
 </div>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
 <script type="text/javascript">
