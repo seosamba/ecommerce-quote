@@ -16,6 +16,7 @@ define([
         toggleAction: function(e) {
             $(this.el).toggleClass('quote-checked');
             this.model.set({checked: $(this.el).hasClass('quote-checked')});
+            checkboxRadioStyle();
         },
         addAction: function(e) {
             var productId        = $(e.currentTarget).data('pid');
