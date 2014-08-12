@@ -698,6 +698,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $translator = Zend_Registry::get('Zend_Translate');
         return array(
             array(
+                'group'  => $translator->translate('Shopping Shortcuts'),
                 'alias'  => $translator->translate('Store Quote Form - Generates instantly a quote request form'),
                 'option' => 'quote:form'
             )
