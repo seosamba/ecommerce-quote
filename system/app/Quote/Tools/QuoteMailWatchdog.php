@@ -370,8 +370,9 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
         $this->_mailer->setMailFrom((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from'])
             ->setMailFromLabel($this->_storeConfig['company'])
-            ->setSubject(isset($this->_options['subject']) ? $this->_options['subject'] : $defaults['subject']);
+            ->setSubject(isset($this->_options['subject']) ? $this->_entityParser->parse($this->_options['subject']) : $defaults['subject']);
         return $this->_mailer->send();
+
     }
 
     /**
