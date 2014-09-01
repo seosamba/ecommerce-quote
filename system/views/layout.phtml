@@ -23,7 +23,7 @@
             $this->jQuery()->uiEnable();
 			$this->jQuery()->addJavascriptFile($this->websiteUrl . 'system/js/external/smoke/smoke.min.js')
 	            ->addJavascriptFile($this->websiteUrl . 'system/js/external/jquery/plugins/cookie/jquery.cookie.js')
-			    ->addJavascriptFile($this->websiteUrl . 'system/js/internal/system.js');
+			    ->addJavascriptFile($this->websiteUrl . 'system/js/internal/system.min.js');
 	        echo $this->jQuery();
             $this->headScript()->setAllowArbitraryAttributes(true);
 	        echo $this->headScript();
