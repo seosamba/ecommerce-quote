@@ -24,6 +24,12 @@
 <!-- /paginator template -->
 
 <?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)): ?>
+    <?php
+        $this->inlineScript()
+            ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/grid.js'));
+        $this->headLink()
+            ->appendStylesheet($this->websiteUrl . 'system/css/reset-widgets.css');
+    ?>
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
             <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_6 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
@@ -67,12 +73,6 @@
             </tfoot>
         </table>
     </div>
-    <?php
-        $this->headScript()->setAllowArbitraryAttributes(true)
-            ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/grid.js'));
-        echo $this->headScript();
-        echo $this->headLink()->appendStylesheet($this->websiteUrl . 'system/css/reset-widgets.css');
-    ?>
 <?php endif; ?>
 
 <?php if(isset($this->quotes['total']) && ($this->quotes['total'] > 0)): ?>
