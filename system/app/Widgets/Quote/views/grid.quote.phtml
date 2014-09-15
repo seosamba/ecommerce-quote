@@ -25,7 +25,7 @@
 
 <?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)): ?>
     <?php
-        $this->inlineScript()
+        $this->headScript()
             ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/grid.js'));
         $this->headLink()
             ->appendStylesheet($this->websiteUrl . 'system/css/reset-widgets.css');
