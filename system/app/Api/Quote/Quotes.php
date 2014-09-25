@@ -200,7 +200,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
 
         // Update status outdated quote
-        if ($quote->getStatus() == Quote_Models_Model_Quote::STATUS_LOST &&
+        if (isset($quoteData['expiresAt']) && $quote->getStatus() == Quote_Models_Model_Quote::STATUS_LOST &&
             $quote->getExpiresAt() != date(Tools_System_Tools::DATE_MYSQL, strtotime($quoteData['expiresAt'])) &&
             date('Ymd', strtotime($quoteData['expiresAt'])) >= date('Ymd')) {
             $quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
