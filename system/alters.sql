@@ -1,3 +1,5 @@
+-- version: 2.2.0
+
 -- version: 2.2.3
 ALTER TABLE `shopping_quote` ADD COLUMN `internal_note` text COLLATE utf8_unicode_ci AFTER `disclaimer`;
 
