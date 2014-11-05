@@ -58,12 +58,14 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         //adding display groups
         $this->addDisplayGroups(array(
 			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
-			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'disclaimer', 'sameForShipping', 'captcha')
+			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'disclaimer', 'sameForShipping'),
+			'bottomRow' => array('captcha')
 		));
 
         //set display groups decorators
 		$this->getDisplayGroup('leftColumn')->setDecorators(array('FormElements', 'Fieldset'));
 		$this->getDisplayGroup('rightColumn')->setDecorators(array('FormElements', 'Fieldset'));
+		$this->getDisplayGroup('bottomRow')->setDecorators(array('FormElements', 'Fieldset'));
 
         $this->addElement(new Zend_Form_Element_Hidden(array(
             'name'  => 'productId',
@@ -85,7 +87,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'type'   => 'submit',
             'decorators' => array(
                 'ViewHelper',
-                array('HtmlTag', array('tag' => 'div'))
+                array('HtmlTag', array('tag' => 'p'))
             ),
 			'ignore' => true
 		)));
@@ -163,7 +165,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $this->setElementDecorators(array(
             'ViewHelper',
             'Label',
-            array('HtmlTag', array('tag' => 'div'))
+            array('HtmlTag', array('tag' => 'p'))
         ), array('captcha'), false);
 
         // remove decorator html tag from hidden elements
