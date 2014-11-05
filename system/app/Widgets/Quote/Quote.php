@@ -301,7 +301,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             if($this->_debugMode) {
                 error_log($swe->getMessage());
             }
-            return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_ADMINPANEL) ? $swe->getMessage() : '');
+            return (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT) ? $swe->getMessage() : '');
         }
     }
 
