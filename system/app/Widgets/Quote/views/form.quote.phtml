@@ -36,9 +36,9 @@
                 url: $(form).attr('action'),
                 data: $(form).serialize(),
                 dataType: 'json',
-                beforeSend: showSpinner()
+                beforeSend: showLoader('Sending quote...')
             }).done(function(response) {
-                hideSpinner();
+                hideLoader();
                 var formMessage = '<?php echo $this->translate('Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details');?>';
                 if(typeof response.error !== "undefined"){
                     showMessage(formMessage, false, 5000);
@@ -48,9 +48,12 @@
                     window.location.href = response.id + '.html';
                 } else {
                     showMessage(formMessage, false, 5000);
+                    $.event.trigger({
+                        type: "quoteForm-success"
+                    });
                 }
             }).fail(function(xhr, responseText, error) {
-                hideSpinner();
+                hideLoader();
                 var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html">Learn more</a>';
                 showMessage(xhr.responseText.replace(/"/g, '') + ' ' + msg, true);
             });

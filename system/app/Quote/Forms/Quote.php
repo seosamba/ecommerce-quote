@@ -84,7 +84,6 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 			'name'   => 'sendQuote',
 			'id'     => 'send-quote',
 			'label'  => 'Send me a quote',
-            'type'   => 'submit',
             'decorators' => array(
                 'ViewHelper',
                 array('HtmlTag', array('tag' => 'p'))
