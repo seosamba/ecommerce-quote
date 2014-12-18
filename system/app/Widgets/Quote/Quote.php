@@ -660,6 +660,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         } elseif ($cartStorage !== null) {
             $quoteForm->addElement('text', md5($cartStorage->getCartId()), array('style' => 'display:none;'));
         }
+        $quoteForm->getElement(md5($product->getId()))->removeDecorator('HtmlTag');
+
         Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);

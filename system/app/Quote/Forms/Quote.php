@@ -51,21 +51,15 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 			'label' => 'Use same data for shipping?',
 		)));
 
-        if($this->_captchaService) {
-            $this->addElement($this->_generateCaptchaElement());
-        }
-
         //adding display groups
         $this->addDisplayGroups(array(
 			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
-			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'disclaimer', 'sameForShipping'),
-			'bottomRow' => array('captcha')
+			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'disclaimer', 'sameForShipping')
 		));
 
         //set display groups decorators
 		$this->getDisplayGroup('leftColumn')->setDecorators(array('FormElements', 'Fieldset'));
 		$this->getDisplayGroup('rightColumn')->setDecorators(array('FormElements', 'Fieldset'));
-		$this->getDisplayGroup('bottomRow')->setDecorators(array('FormElements', 'Fieldset'));
 
         $this->addElement(new Zend_Form_Element_Hidden(array(
             'name'  => 'productId',
@@ -78,7 +72,9 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         )));
 
 
-        $this->_applyDecorators();
+        if($this->_captchaService) {
+            $this->addElement($this->_generateCaptchaElement());
+        }
 
 		$this->addElement(new Zend_Form_Element_Submit(array(
 			'name'   => 'sendQuote',
@@ -90,6 +86,10 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             ),
 			'ignore' => true
 		)));
+
+        $this->_applyDecorators();
+        $this->getElement('sendQuote')->removeDecorator('Label');
+        $this->getElement('sendQuote')->removeDecorator('HtmlTag');
 	}
 
     private function _generateCaptchaElement() {
