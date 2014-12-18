@@ -657,10 +657,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $quoteForm = Quote_Tools_Tools::adjustFormFields($quoteForm, $this->_options, $this->_formMandatoryFields);
         if ($product instanceof Models_Model_Product) {
             $quoteForm->addElement('text', md5($product->getId()), array('style' => 'display:none;'));
+            $quoteForm->getElement(md5($product->getId()))->removeDecorator('HtmlTag');
         } elseif ($cartStorage !== null) {
             $quoteForm->addElement('text', md5($cartStorage->getCartId()), array('style' => 'display:none;'));
+            $quoteForm->getElement(md5($product->getId()))->removeDecorator('HtmlTag');
         }
-        $quoteForm->getElement(md5($product->getId()))->removeDecorator('HtmlTag');
 
         Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
