@@ -1,16 +1,21 @@
-<?php
-    $this->placeholder('extraClasses')->set('refreshOnClose');
-    $this->placeholder('containerId')->set('products-container');
-?>
-<div id="products" class="content-footer scroll pl2 pr2 column_8 full-width">
-</div>
-<div class="footer grid_12">
-    <button id="save-btn" class="btn add-products ticon-save"><?php echo $this->translate('Add products and close'); ?></button>
-    <p class="message info grid_4 pt0px pb0px alpha"><i class="ticon-info-sign"></i> <?php echo $this->translate('Select 1 or more products&nbsp'); ?></p>
+<div id="products-container" class="seotoaster container refreshOnClose">
+    <?php echo $this->partial(
+        'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
+        array(
+            'headerText' => $this->translate('Add product')
+        )
+    ); ?>
+    <div id="products" class="content-footer scroll pl2 pr2 column_8 full-width"></div>
+    <footer class="grid_12">
+        <button id="save-btn" class="btn add-products ticon-save"><?php echo $this->translate('Add products and close'); ?></button>
+        <p class="message info grid_4 pt0px pb0px alpha"><i class="ticon-info-sign"></i> <?php echo $this->translate('Select 1 or more products&nbsp'); ?></p>
+    </footer>
 </div>
 <?php
         $this->headScript()->setAllowArbitraryAttributes(true)
-            ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array('data-main' => $this->websiteUrl . 'plugins/quote/web/js/product.js'))
+            ->appendFile($this->websiteUrl . 'plugins/shopping/web/js/libs/require.min.js', null, array(
+                    'data-main' => $this->websiteUrl . 'plugins/quote/web/js/product.js'
+                ))
             ->appendFile($this->websiteUrl . 'system/js/external/jquery/plugins/lazyload/jquery.lazyload.min.js');
         echo $this->headScript();
 ?>

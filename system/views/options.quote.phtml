@@ -1,48 +1,16 @@
-<?php
-    $this->placeholder('headerContent')->set('Manage options');
-    $this->placeholder('extraClasses')->set('refreshOnClose');
-    $this->placeholder('containerId')->set('manage-product-options');
-?>
-
-
-<div id="manage-product-options-main" class="grid_12 h490"></div>
-<input type="hidden" id="weight-sign" value="<?php echo $this->weightSign; ?>" />
-<div class="grid_12" style="text-align: right;padding: 5px 0;">
-    <a data-qid="<?php echo $this->quoteId; ?>" href="javascript:;" id="save-options"><?php echo $this->translate('Save options'); ?></a>
+<div id="manage-product-options" class="seotoaster container refreshOnClose">
+    <?php echo $this->partial(
+        'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
+        array(
+            'headerText' => $this->translate('Manage options')
+        )
+    ); ?>
+    <div id="manage-product-options-main" class="grid_12 content-footer scroll"></div>
+    <footer class="grid_12">
+        <a id="save-options" class="fl-right" data-qid="<?php echo $this->quoteId; ?>" href="javascript:;"><?php echo $this->translate('Save options'); ?></a>
+    </footer>
+    <input type="hidden" id="weight-sign" value="<?php echo $this->weightSign; ?>" />
 </div>
-<style type="text/css">
-    .product-item {overflow: hidden;position: relative;}
-    .product-data img {
-        max-height: 231px;
-        max-width: 215px;
-    }
-    #product-name {
-        position: absolute;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 7px;
-        color: white;
-        width: 201px;
-        text-align: center;
-    }
-    .product-details {
-        position: absolute;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 7px;
-        width: 201px;
-    }
-    .product-options-listing {
-        overflow-y:auto;
-    }
-    .product-options-listing p {
-        font-size: 0.9em;
-    }
-    fieldset.option {
-        float:left;
-        width: 322px;
-        margin-right: 5px;
-    }
-</style>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
 <script type="text/javascript">
     $(function() {

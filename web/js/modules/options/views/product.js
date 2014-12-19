@@ -5,7 +5,7 @@ define([
 ], function(_, Backbone, ItemTmpl) {
 
 	var productView = Backbone.View.extend({
-		className : 'productlisting',
+		className : 'productlisting pt10px pb10px',
 		template  : _.template(ItemTmpl),
 		render: function() {
 			$(this.el).html(this.template(this.model.toJSON()));

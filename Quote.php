@@ -67,6 +67,10 @@ class Quote extends Tools_PaymentGateway {
     protected function _init() {
         $this->_layout = new Zend_Layout();
         $this->_layout->setLayoutPath(Zend_Layout::getMvcInstance()->getLayoutPath());
+
+        if(($scriptPaths = Zend_Layout::getMvcInstance()->getView()->getScriptPaths()) !== false) {
+            $this->_view->setScriptPath($scriptPaths);
+        }
         $this->_view->addScriptPath(__DIR__ . '/system/views/');
 
         $this->_shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();

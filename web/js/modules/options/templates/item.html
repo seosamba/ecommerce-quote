@@ -1,57 +1,54 @@
-<div class="mt5px"></div>
-<div class="product-data grid_3 h300">
-    <p id="product-name"><%= name %></p>
+<div class="product-data grid_2">
     <img class="lazy" src="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/small/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" />
-    <div class="product-details">
-        <p><span>sku: </span><span><%= sku %></span></p>
-        <p><span>brand: </span><span><%= brand %></span></p>
-    </div>
+    <span id="product-name" class="gray-light-bg"><%= name %></span>
 </div>
-<div data-productid="<%= id %>" class="product-options-listing h450 grid_9">
-        <% var currOptions = $('#currOptions').val() %>
-
-        <% _.each(defaultOptions, function(value, index) { %>
-
-            <!-- option type dropdown -->
-            <% if(value.type == 'dropdown' || value.type == 'radio') { %>
-                <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
-                    <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
-
-                    <% var curSel = window.currOptions[value.id] %>
-                    <% if(value.type == 'dropdown') { %>
-                        <select name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>">
-                            <% _.each(value.selection, function(sel, key) { %>
-                                <% var price = (sel.priceType == 'unit') ? accounting.formatMoney(sel.priceValue) : (sel.priceValue + '%') %>
-                                <option <% if(curSel != 'undefined' && curSel == sel.id) { %> selected="selected" <% } %>  value="<%= sel.id %>"><%= sel.title + ' (price: ' + sel.priceSign + price + ' / weight: ' + sel.weightSign + sel.weightValue + $('#weight-sign').val() + ')' %></option>
-                            <% }) %>
-                        </select>
-                    <% } else { %>
-                        <% _.each(value.selection, function(sel, key) { %>
-                            <% var price = (sel.priceType == 'unit') ? accounting.formatMoney(sel.priceValue) : (sel.priceValue + '%') %>
-                            <p><input <% if(curSel != 'undefined' && curSel == sel.id) { %> checked="checked" <% } %> type="radio" id="product-<%= id %>-option-<%= value.id %>-<%= sel.id %>" name="product-<%= id %>-option-<%= value.id %>" value="<%= sel.id %>" /><%= sel.title %> (price: <%= sel.priceSign + price %> / weight <%= sel.weightSign + sel.weightValue + $('#weight-sign').val() %>)</p>
-                        <% }) %>
-                    <% } %>
-                </fieldset>
-            <% } %>
-            <!-- /option type dropdown -->
-
-            <!-- option type text -->
-            <% if(value.type == 'text') { %>
-                <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
-                    <label><%= value.title %></label>
-                     <input type="text" name="product-<%= id %>-option-<%= value.id %>" />
-                </fieldset>
-            <% } %>
-            <!-- /option type text -->
-
-            <!-- option type date -->
-            <% if(value.type == 'date') { %>
-                <fieldset class="option option-<%= value.title %>" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
-                    <label for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
-                    <input type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" />
-                </fieldset>
-            <% } %>
-            <!-- /option type date -->
-
-        <% }) %>
+<div class="grid_2 alpha omega text-left">
+    <strong>sku: </strong><%= sku %><br>
+    <strong>brand: </strong><%= brand %>
 </div>
+<ul class="product-options-listing list-bordered grid_8 text-left" data-productid="<%= id %>">
+    <% var currOptions = $('#currOptions').val() %>
+
+    <% _.each(defaultOptions, function(value, index) { %>
+
+        <li class="option option-<%= value.title %> clearfix" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
+        <!-- option type dropdown -->
+        <% if(value.type == 'dropdown' || value.type == 'radio') { %>
+            <label class="grid_3 mt0-5em" for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
+
+            <% var curSel = window.currOptions[value.id] %>
+            <% if(value.type == 'dropdown') { %>
+                <select class="grid_9" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>">
+                    <% _.each(value.selection, function(sel, key) { %>
+                        <% var price = (sel.priceType == 'unit') ? accounting.formatMoney(sel.priceValue) : (sel.priceValue + '%') %>
+                        <option <% if(curSel != 'undefined' && curSel == sel.id) { %> selected="selected" <% } %>  value="<%= sel.id %>"><%= sel.title + ' (price: ' + sel.priceSign + price + ' / weight: ' + sel.weightSign + sel.weightValue + $('#weight-sign').val() + ')' %></option>
+                    <% }) %>
+                </select>
+            <% } else { %>
+            <div class="grid_9">
+                <% _.each(value.selection, function(sel, key) { %>
+                    <% var price = (sel.priceType == 'unit') ? accounting.formatMoney(sel.priceValue) : (sel.priceValue + '%') %>
+                    <label class="block"><input <% if(curSel != 'undefined' && curSel == sel.id) { %> checked="checked" <% } %> type="radio" id="product-<%= id %>-option-<%= value.id %>-<%= sel.id %>" name="product-<%= id %>-option-<%= value.id %>" value="<%= sel.id %>" /><%= sel.title %> (price: <%= sel.priceSign + price %> / weight <%= sel.weightSign + sel.weightValue + $('#weight-sign').val() %>)</label>
+                <% }) %>
+            </div>
+            <% } %>
+        <% } %>
+        <!-- /option type dropdown -->
+
+        <!-- option type text -->
+        <% if(value.type == 'text') { %>
+            <label class="grid_3 mt0-5em"><%= value.title %></label>
+            <input class="grid_9" type="text" name="product-<%= id %>-option-<%= value.id %>" />
+        <% } %>
+        <!-- /option type text -->
+
+        <!-- option type date -->
+        <% if(value.type == 'date') { %>
+            <label class="grid_3 mt0-5em" for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
+            <input class="grid_9" type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" />
+        <% } %>
+        <!-- /option type date -->
+        </li>
+
+    <% }) %>
+</ul>
