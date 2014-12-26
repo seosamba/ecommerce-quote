@@ -3,13 +3,13 @@
         <?php foreach($this->options as $title => $optData):?>
            <?php if (is_array($optData) && !empty($optData)): ?>
                 <?php $currOpts[$optData['option_id']] = $optData['id']; ?>
-                <p>
-                    <span class="option-title"><?php echo $title; ?>: </span>
-                    <?php echo $optData['title']; ?>
+                <div class="options">
+                    <span class="option-title"><?php echo $title; ?>:</span>
+                    <span><?php echo $optData['title']; ?></span>
                     <?php if(isset($optData['selection'])): ?>
                         <span><?php echo $optData['selection']; ?></span>
                     <?php endif; ?>
-                </p>
+                </div>
 	        <?php endif; ?>
         <?php endforeach; ?>
 <?php endif; ?>
