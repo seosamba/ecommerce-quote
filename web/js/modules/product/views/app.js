@@ -9,6 +9,7 @@ define([
         el: $('#products-container'),
         events: {
             'keypress #search': 'searchAction',
+            'click .ui-menu-item': 'searchAction',
             'click .add-products': 'addAction'
         },
         initialize: function () {
@@ -42,6 +43,10 @@ define([
                         },
                         select: function (event, ui) {
                             $('#search').val(ui.item.value).trigger('keypress', true);
+                        },
+                        messages: {
+                            noResults: '',
+                            results: function() {}
                         }
                     });
             });
