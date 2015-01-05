@@ -1,8 +1,11 @@
 <div id="products-container" class="seotoaster container refreshOnClose">
-    <?php echo $this->partial(
+    <?php
+    $quoteSearch = '<div class="grid_5"><input type="text" name="search" id="search" placeholder="'.$this->translate('search products').'"/></div>';
+
+    echo $this->partial(
         'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
         array(
-            'headerText' => $this->translate('Add product')
+            'innerHeaderHtml' => $quoteSearch
         )
     ); ?>
     <div id="products" class="content-footer scroll pl2 pr2 column_8 full-width"></div>
