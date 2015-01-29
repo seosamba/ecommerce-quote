@@ -212,18 +212,24 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 }
                 $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
             break;
-            case self::RECIPIENT_STOREOWNER:
             case self::RECIPIENT_SALESPERSON:
-            case self::RECIPIENT_ADMIN:
                 // store owner
                 $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-
-                // all other recipients
+                // all other sales persons
                 $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_SALESPERSON,
-                    self::RECIPIENT_ADMIN
-                )));
+                        self::RECIPIENT_SALESPERSON
+                    )));
                 $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+            break;
+            case self::RECIPIENT_STOREOWNER:
+            case self::RECIPIENT_ADMIN:
+                // all admins
+                $emails = Quote_Tools_Tools::getEmailData(array(
+                    self::RECIPIENT_ADMIN
+                ));
+                if (!empty($emails)) {
+                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                }
             break;
             default:
                 if($this->_debugEnabled) {
@@ -280,18 +286,21 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
                 $this->_mailer->setMailTo($recipientEmails);
             break;
-            case self::RECIPIENT_STOREOWNER:
             case self::RECIPIENT_SALESPERSON:
-            case self::RECIPIENT_ADMIN:
                 // store owner
                 $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-
                 // all other recipients
                 $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_SALESPERSON,
-                    self::RECIPIENT_ADMIN
+                    self::RECIPIENT_SALESPERSON
                 )));
-
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+            break;
+            case self::RECIPIENT_STOREOWNER:
+            case self::RECIPIENT_ADMIN:
+                // all admins
+                $emails = Quote_Tools_Tools::getEmailData(array(
+                    self::RECIPIENT_ADMIN
+                ));
                 $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
             break;
         }
