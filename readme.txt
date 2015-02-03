@@ -61,6 +61,7 @@ MAGICSPACE: quoteexpired
 MAGICSPACE: toasterquote
 Renders magic space using quote template
 Here you can put quote item widgets
+{toasterquote}
 <tr>
     <td class="product-img"> {$quote:item:photo} </td>
     <td class="product-info"><p class="item-name">{$quote:item:name}</p>
@@ -73,4 +74,4 @@ Here you can put quote item widgets
     <td class="product-total">{$quote:item:price}</td>
     <td class="product-remove">{$quote:item:remove}</td>
 </tr>
-
+{/toasterquote}
