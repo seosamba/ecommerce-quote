@@ -1,5 +1,12 @@
 <?php
-
+/**
+ *
+ * MAGICSPACE: quoteexpired
+ * {quoteexpired}{/quoteexpired} - display content if quote have status lost
+ * {quoteexpired:not}{/quoteexpired} - display content if quote doesn't have status lost
+ *
+ * Class MagicSpaces_Quoteexpired_Quoteexpired
+ */
 
 class MagicSpaces_Quoteexpired_Quoteexpired extends Tools_MagicSpaces_Abstract {
 
