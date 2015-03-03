@@ -39,7 +39,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         Tools_Security_Acl::ROLE_SUPERADMIN => array('allow' => array('get', 'post', 'put', 'delete')),
         Tools_Security_Acl::ROLE_ADMIN      => array('allow' => array('get', 'post', 'put', 'delete')),
         Shopping::ROLE_SALESPERSON          => array('allow' => array('get', 'post', 'put', 'delete')),
-        Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('get', 'post'))
+        Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('post'))
     );
 
     /**

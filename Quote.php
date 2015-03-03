@@ -39,6 +39,11 @@ class Quote extends Tools_PaymentGateway {
     const QUOTE_CATEGORY_ID    = -5;
 
     /**
+     * Secure token
+     */
+    const QUOTE_SECURE_TOKEN = 'QuoteConfig';
+
+    /**
      * Layout instance
      *
      * @var Zend_Layout
@@ -100,6 +105,11 @@ class Quote extends Tools_PaymentGateway {
     public function settingsAction() {
         $form = new Quote_Forms_Settings();
         if($this->_request->isPost()) {
+            $secureToken = $this->_request->getParam(Tools_System_Tools::CSRF_SECURE_TOKEN, false);
+            $tokenValid = Tools_System_Tools::validateToken($secureToken, self::QUOTE_SECURE_TOKEN);
+            if (!$tokenValid) {
+                $this->_responseHelper->fail('');
+            }
             if($form->isValid($this->_request->getParams())) {
                 if(Models_Mapper_ShoppingConfig::getInstance()->save($this->_request->getParams())) {
                     $this->_responseHelper->success($this->_translator->translate('Configuration updated'));

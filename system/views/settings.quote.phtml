@@ -3,6 +3,7 @@
 ?>
 <div id="quote-settings" class="ui-widget clearfix">
     <?php echo $this->form; ?>
+    <input type="hidden" class="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" name="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" value="<?php echo Tools_System_Tools::initSecureToken(Quote::QUOTE_SECURE_TOKEN);?>">
 </div>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -23,7 +24,8 @@ $(document).ready(function(){
             data: {
                 autoQuote: autoQuote,
                 quoteTemplate: $('#quote-template option:selected').val(),
-                expirationDelay: $('#expiration-delay').val()
+                expirationDelay: $('#expiration-delay').val(),
+                secureToken: $('.secureToken').val()
             },
             success: function(responce){
                 smoke.signal('<?php echo $this->translate('Saved');?>');
