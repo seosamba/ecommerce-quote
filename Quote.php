@@ -41,7 +41,7 @@ class Quote extends Tools_PaymentGateway {
     /**
      * Secure token
      */
-    const QUOTE_SECURE_TOKEN = 'QuoteConfig';
+    const QUOTE_SECURE_TOKEN = 'QuoteToken';
 
     /**
      * Layout instance

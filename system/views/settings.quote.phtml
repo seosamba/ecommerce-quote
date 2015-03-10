@@ -3,7 +3,7 @@
 ?>
 <div id="quote-settings" class="ui-widget clearfix">
     <?php echo $this->form; ?>
-    <input type="hidden" class="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" name="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" value="<?php echo Tools_System_Tools::initSecureToken(Quote::QUOTE_SECURE_TOKEN);?>">
+    <input type="hidden" class="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" name="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" value="<?php echo $this->secureToken;?>" />
 </div>
 <script type="text/javascript">
 $(document).ready(function(){
