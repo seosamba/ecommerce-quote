@@ -68,6 +68,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
                 ->setDraft(false)
                 ->setLastUpdate(date(Tools_System_Tools::DATE_MYSQL))
                 ->setShowInMenu(Application_Model_Models_Page::IN_NOMENU)
+                ->setPageType(Quote::QUOTE_PAGE_TYPE)
         );
 
         // save special container for the quote page with a disclaimer
