@@ -112,7 +112,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if(!$form->isValid($this->_request->getParams())) {
                     $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
                 }
-                $formData = $form->getValues();
+                $formData = filter_var_array($form->getValues(), FILTER_SANITIZE_STRING);
 
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart
                 $initialProducts = array();
