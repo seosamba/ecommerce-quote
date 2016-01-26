@@ -408,11 +408,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @throws Exceptions_SeotoasterWidgetException
      */
     protected function _renderSearch() {
-        // if controls are not available for the current user role - rise exception
-        if(!$this->_editAllowed) {
-            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Search are available for administrator only.');
+        if($this->_editAllowed) {
+            return $this->_view->render('search.quote.phtml');
         }
-        return $this->_view->render('search.quote.phtml');
     }
 
 
