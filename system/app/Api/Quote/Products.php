@@ -110,6 +110,9 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $itemData    = null;
 
         foreach($cartContent as $key => $item) {
+            if (empty($item['originalPrice'])) {
+                $cartContent[$key]['originalPrice'] = $item['price'];
+            }
             if($item['product_id'] != $productId) {
                 continue;
             }

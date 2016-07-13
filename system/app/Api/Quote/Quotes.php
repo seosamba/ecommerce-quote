@@ -294,9 +294,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
                         $response->fail('Wrong format for email address');
                     }
+                    $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
+                    $quote->setUserId($customer->getId());
                 }
-                $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
-                $quote->setUserId($customer->getId());
+
 	            $cart->setShippingAddressId(
 		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
 	            );
