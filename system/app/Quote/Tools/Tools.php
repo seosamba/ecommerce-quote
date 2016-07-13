@@ -188,6 +188,16 @@ class Quote_Tools_Tools {
         $storage->setDiscount($cart->getDiscount());
         $storage->setShippingData(array('price'=>$shippingPrice));
         $storage->setDiscountTaxRate($cart->getDiscountTaxRate());
+
+        $cartContent = $storage->getContent();
+        if (!empty($cartContent)) {
+            foreach ($cartContent as $key => $content) {
+                if (empty($content['originalPrice']) && !empty($content['price'])) {
+                    $cartContent[$key]['originalPrice'] = $content['price'];
+                }
+            }
+            $storage->setContent($cartContent);
+        }
         $data             = $storage->calculate(true);
 
         if($forceSave) {
@@ -350,4 +360,46 @@ class Quote_Tools_Tools {
         $expDate = new DateTime($quote->getExpiresAt());
         return ($expDate < $today);
     }
+
+    /**
+     * Create customer if not exists. Based on user info array data.
+     *
+     * @param array $data user info data
+     * @return Models_Model_Customer
+     */
+    public static function processCustomer(array $data)
+    {
+        if (null === ($customer = Models_Mapper_CustomerMapper::getInstance()->findByEmail($data['email']))) {
+            $fullName = isset($data['firstname']) ? $data['firstname'] : '';
+            $fullName .= isset($data['lastname']) ? ' ' . $data['lastname'] : '';
+            $mobilePhone = isset($data['mobile']) ? $data['mobile'] : '';
+            $password = md5(uniqid('customer_' . time()));
+            $customer = new Models_Model_Customer();
+            $customer->setRoleId(Shopping::ROLE_CUSTOMER)
+                ->setEmail($data['email'])
+                ->setFullName($fullName)
+                ->setIpaddress($_SERVER['REMOTE_ADDR'])
+                ->setMobilePhone($mobilePhone)
+                ->setPassword($password);
+            $newCustomerId = Models_Mapper_CustomerMapper::getInstance()->save($customer);
+            if ($newCustomerId) {
+                $customer->setId($newCustomerId);
+            }
+        }
+
+        return $customer;
+    }
+
+    /**
+     * Generate product cart unique id
+     *
+     * @param array $item product data
+     * @param array $options product options
+     * @return string
+     */
+    public static function generateStorageKey(array $item, $options = array())
+    {
+        return substr(md5($item['name'] . $item['sku'] . http_build_query($options)), 0, 10);
+    }
+
 }

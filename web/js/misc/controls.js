@@ -130,6 +130,10 @@ var updateQuote = function(quoteId, sendMail, mailMessage) {
     var request = _update('api/quote/quotes/', data);
     request.done(function(response, status, xhr) {
         hideLoader();
+        if (response.error == 1) {
+            showMessage(response.responseText, true, 5000);
+            return false;
+        }
         recalculate({summary:response});
     });
 };

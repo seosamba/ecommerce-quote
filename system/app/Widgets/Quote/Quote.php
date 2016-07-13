@@ -269,10 +269,33 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $addressForm = $this->_fixFormCountry($addressForm);
 
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+            $addressForm = $this->_addOverwriteUserCheckbox($addressForm, $addressType);
+        }
+
         $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
         return $addressForm;
     }
+
+    /**
+     * Add checkbox to the form for overwriting user
+     *
+     * @param Zend_Form $addressForm form address object
+     * @param string $labelSuffix suffix for element
+     * @return Zend_Form
+     */
+    protected function _addOverwriteUserCheckbox(Zend_Form $addressForm, $labelSuffix)
+    {
+        $addressForm->addElement(new Zend_Form_Element_Checkbox(array(
+            'name' => 'overwriteQuoteUser' . ucfirst($labelSuffix),
+            'id' => 'overwrite-quote-user-' . ($labelSuffix),
+            'label' => 'Overwrite quote user using ' . $labelSuffix . ' address email',
+        )));
+
+        return $addressForm;
+    }
+
 
     /**
      * Serve widget proccessing
