@@ -189,15 +189,6 @@ class Quote_Tools_Tools {
         $storage->setShippingData(array('price'=>$shippingPrice));
         $storage->setDiscountTaxRate($cart->getDiscountTaxRate());
 
-        $cartContent = $storage->getContent();
-        if (!empty($cartContent)) {
-            foreach ($cartContent as $key => $content) {
-                if (empty($content['originalPrice']) && !empty($content['price'])) {
-                    $cartContent[$key]['originalPrice'] = $content['price'];
-                }
-            }
-            $storage->setContent($cartContent);
-        }
         $data             = $storage->calculate(true);
 
         if($forceSave) {

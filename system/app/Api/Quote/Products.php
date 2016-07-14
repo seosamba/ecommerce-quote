@@ -62,23 +62,9 @@ class Api_Quote_Products extends Api_Service_Abstract {
             ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_BILLING, $cart->getBillingAddressId())
             ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
 
-        $cartContent = $cartStorage->getContent();
-        if (!empty($cartContent)) {
-            $cartContentWithProperItemKey = array();
-            foreach ($cartContent as $key => $item) {
-                $options = (!empty($item['options'])) ? $item['options'] : array();
-                if (empty($item['originalPrice']) && !empty($item['price'])) {
-                    $item['originalPrice'] = $item['price'];
-                }
-                $cartItemKey = Quote_Tools_Tools::generateStorageKey($item, $options);
-                $cartContentWithProperItemKey[$cartItemKey] = $item;
-            }
-            $cartStorage->setContent($cartContentWithProperItemKey);
-
-        }
-
-
         foreach($products as $product)  {
+            $product->setProductDiscounts(array());
+            $cartStorage->setDisableProductDiscounts(true);
             $cartStorage->add($product, Quote_Tools_Tools::getProductOptions($product));
         }
 
@@ -148,7 +134,9 @@ class Api_Quote_Products extends Api_Service_Abstract {
             default: $this->_error('Invalid update type.'); break;
         }
 
+        $product->setProductDiscounts(array());
         $storage->setContent($cartContent);
+        $storage->setDisableProductDiscounts(true);
         $storage->add($product, $options, $itemData['qty']);
 
         if($data['type'] == self::UPDATE_TYPE_PRICE) {
