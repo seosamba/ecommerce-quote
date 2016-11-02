@@ -34,10 +34,15 @@ class Quote_Tools_Tools {
             $expirationDelay = 1;
         }
 
+        $quoteTitle = $quoteId;
+        if (!empty($options['quoteTitle'])) {
+            $quoteTitle = $options['quoteTitle'];
+        }
+
         $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->save(
             $quote->setId($quoteId)
                 ->setStatus(Quote_Models_Model_Quote::STATUS_NEW)
-                ->setTitle($quoteId)
+                ->setTitle($quoteTitle)
                 ->setCartId($cart->getId())
                 ->setCreatedAt($date)
                 ->setUpdatedAt($date)
