@@ -34,10 +34,15 @@ class Quote_Tools_Tools {
             $expirationDelay = 1;
         }
 
+        $quoteTitle = $quoteId;
+        if (!empty($options['quoteTitle'])) {
+            $quoteTitle = $options['quoteTitle'];
+        }
+
         $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->save(
             $quote->setId($quoteId)
                 ->setStatus(Quote_Models_Model_Quote::STATUS_NEW)
-                ->setTitle($quoteId)
+                ->setTitle($quoteTitle)
                 ->setCartId($cart->getId())
                 ->setCreatedAt($date)
                 ->setUpdatedAt($date)
@@ -350,4 +355,34 @@ class Quote_Tools_Tools {
         $expDate = new DateTime($quote->getExpiresAt());
         return ($expDate < $today);
     }
+
+    /**
+     * Create customer if not exists. Based on user info array data.
+     *
+     * @param array $data user info data
+     * @return Models_Model_Customer
+     */
+     public static function processCustomer(array $data)
+     {
+         if (null === ($customer = Models_Mapper_CustomerMapper::getInstance()->findByEmail($data['email']))) {
+             $fullName = isset($data['firstname']) ? $data['firstname'] : '';
+             $fullName .= isset($data['lastname']) ? ' ' . $data['lastname'] : '';
+             $mobilePhone = isset($data['mobile']) ? $data['mobile'] : '';
+             $password = md5(uniqid('customer_' . time()));
+             $customer = new Models_Model_Customer();
+             $customer->setRoleId(Shopping::ROLE_CUSTOMER)
+                 ->setEmail($data['email'])
+                 ->setFullName($fullName)
+                 ->setIpaddress($_SERVER['REMOTE_ADDR'])
+                 ->setMobilePhone($mobilePhone)
+                 ->setPassword($password);
+             $newCustomerId = Models_Mapper_CustomerMapper::getInstance()->save($customer);
+             if ($newCustomerId) {
+                 $customer->setId($newCustomerId);
+             }
+         }
+
+         return $customer;
+     }
+
 }

@@ -65,9 +65,14 @@ class Api_Quote_Products extends Api_Service_Abstract {
         foreach($products as $product)  {
             $cartStorage->add($product, Quote_Tools_Tools::getProductOptions($product));
         }
-        
+
+        $customer = Models_Mapper_CustomerMapper::getInstance()->find($cartStorage->getCustomerId());
+        if ($customer === null) {
+            $customer = new Models_Model_Customer();
+        }
+
         $cartStorage->setShippingData(array('price'=>$cart->getShippingPrice()));
-        $cartStorage->saveCartSession();
+        $cartStorage->saveCartSession($customer);
         return $quoteMapper->save($quote)->toArray();
     }
 
