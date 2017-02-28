@@ -49,7 +49,11 @@ define([
             })
         },
         toggleAction: function(e) {
-            this.model.set('checked', e.currentTarget.checked);
+            var quote = appView.quotes.get(e.currentTarget.id);
+            if(typeof quote !== 'undefined'){
+                this.model.set('checked', e.currentTarget.checked);
+            }
+
         },
         render: function() {
             this.$el.html(this.template(this.model.toJSON()));
