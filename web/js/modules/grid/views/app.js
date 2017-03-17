@@ -64,7 +64,10 @@ define([
             this.quotes.each(function(quote) {
                 quote.set('checked', e.currentTarget.checked);
                 this.$('#quote-grid-select-all').attr('checked', e.currentTarget.checked);
-            })
+            });
+            if (typeof _checkboxRadio === 'function') {
+                _checkboxRadio();
+            }
         },
         addAction: function(e) {
             showSpinner();
