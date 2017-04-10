@@ -73,7 +73,6 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $customer = new Models_Model_Customer();
         }
 
-
         $cartStorage->setShippingData(array('price'=>$cart->getShippingPrice()));
         $cartStorage->saveCartSession($customer);
         return $quoteMapper->save($quote)->toArray();

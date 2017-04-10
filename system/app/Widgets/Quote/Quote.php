@@ -288,9 +288,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     protected function _addOverwriteUserCheckbox(Zend_Form $addressForm, $labelSuffix)
     {
         $addressForm->addElement(new Zend_Form_Element_Checkbox(array(
-            'name' => 'overwriteQuoteUser' . ucfirst($labelSuffix),
-            'id' => 'overwrite-quote-user-' . ($labelSuffix),
-            'label' => 'Overwrite quote user using ' . $labelSuffix . ' address email',
+            'name'  => 'overwriteQuoteUser'.ucfirst($labelSuffix),
+            'id'    => 'overwrite-quote-user-'.($labelSuffix),
+            'label' => 'Overwrite quote user using '.$labelSuffix.' address email',
         )));
 
         return $addressForm;

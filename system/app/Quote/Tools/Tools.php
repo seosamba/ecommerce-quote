@@ -363,6 +363,7 @@ class Quote_Tools_Tools {
      * @param array $data user info data
      * @return Models_Model_Customer
      */
+
     public static function processCustomer(array $data)
     {
         if (null === ($customer = Models_Mapper_CustomerMapper::getInstance()->findByEmail($data['email']))) {
@@ -397,5 +398,6 @@ class Quote_Tools_Tools {
     {
         return substr(md5($item['name'] . $item['sku'] . http_build_query($options)), 0, 10);
     }
+
 
 }

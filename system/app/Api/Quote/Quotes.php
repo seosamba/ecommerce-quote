@@ -272,7 +272,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
-                if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
+
+	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
                     if (!$emailValidator->isValid($quoteData['billing']['email'])) {
@@ -290,13 +291,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if(isset($quoteData['shipping'])) {
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
-                if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
+
+	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
                         $response->fail('Wrong format for email address');
                     }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
                     $quote->setUserId($customer->getId());
-                }
+	            }
 
 	            $cart->setShippingAddressId(
 		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
