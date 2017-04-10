@@ -52,6 +52,9 @@ define([
             var quote = appView.quotes.get(e.currentTarget.id);
             if(typeof quote !== 'undefined'){
                 this.model.set('checked', e.currentTarget.checked);
+                if (typeof _checkboxRadio === 'function') {
+                    _checkboxRadio();
+                }
             }
 
         },
