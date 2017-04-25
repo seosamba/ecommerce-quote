@@ -103,16 +103,20 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
         $basePrice = $product->getCurrentPrice();
         $basePrice = ($basePrice === null) ? $product->getPrice() : $basePrice;
-        $options   = Quote_Tools_Tools::getProductOptions($product);
+        $options   = $itemData['options'];
 
         $product->setPrice($itemData['price']);
-
+        $skipModifiersRecalculation = true;
         switch($data['type']) {
-            case self::UPDATE_TYPE_QTY     : $itemData['qty'] = $data['value']; break;
+            case self::UPDATE_TYPE_QTY     :
+                $itemData['qty'] = $data['value'];
+                break;
             case self::UPDATE_TYPE_OPTIONS :
                 $product->setPrice($basePrice);
                 $product->setCurrentPrice(floatval($basePrice));
-                $options = $this->_parseOptions($data['value']); break;
+                $options = $this->_parseOptions($data['value']);
+                $skipModifiersRecalculation = false;
+                break;
             case self::UPDATE_TYPE_PRICE   :
                 $product->setPrice(floatval($data['value']));
                 $product->setCurrentPrice(floatval($data['value']));
@@ -123,15 +127,14 @@ class Api_Quote_Products extends Api_Service_Abstract {
                     $product->setPrice(floatval($data['value'] - $productTax));
                     $product->setCurrentPrice(floatval($data['value'] - $productTax));
                 }
-                $options = array();
             break;
             default: $this->_error('Invalid update type.'); break;
         }
 
         $storage->setContent($cartContent);
-        $storage->add($product, $options, $itemData['qty']);
+        $storage->add($product, $options, $itemData['qty'], true, $skipModifiersRecalculation);
 
-        if($data['type'] == self::UPDATE_TYPE_PRICE) {
+        if($data['type'] == self::UPDATE_TYPE_PRICE || $data['type'] == self::UPDATE_TYPE_QTY) {
             $content = $storage->getContent();
             $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
             $storage->setContent($content);
