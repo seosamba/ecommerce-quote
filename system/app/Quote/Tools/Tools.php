@@ -187,13 +187,13 @@ class Quote_Tools_Tools {
         return $parsed;
     }
 
-    public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null) {
+    public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null, $skipGroupPriceRecalculation = false) {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
         $shippingPrice    = $cart->getShippingPrice();
         $storage->setDiscount($cart->getDiscount());
         $storage->setShippingData(array('price'=>$shippingPrice));
         $storage->setDiscountTaxRate($cart->getDiscountTaxRate());
-        $data             = $storage->calculate(true);
+        $data             = $storage->calculate(true, $skipGroupPriceRecalculation);
 
         if($forceSave) {
             $storage->saveCartSession(Models_Mapper_CustomerMapper::getInstance()->find($cart->getUserId()));
