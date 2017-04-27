@@ -310,8 +310,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             $this->_quoteMapper->save($quote);
         }
-	    // @todo: check why it was using 'forceSave' parameter???
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId);
+        $skipGroupPriceRecalculation = false;
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+            $skipGroupPriceRecalculation = true;
+        }
+
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
     }
 
     public function deleteAction() {
