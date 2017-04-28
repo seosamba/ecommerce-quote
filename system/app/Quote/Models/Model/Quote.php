@@ -35,6 +35,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_editedBy        = '';
 
+	protected $_editorId;
+
 	protected $_expiresAt       = '';
 
 	protected $_userId          = 0;
@@ -130,6 +132,15 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	public function getEditedBy() {
 		return $this->_editedBy;
+	}
+
+	public function setEditorId($editorId) {
+		$this->_editorId = $editorId;
+		return $this;
+	}
+
+	public function getEditorId() {
+		return $this->_editorId;
 	}
 
 	public function setInternalMessage($internalMessage) {
