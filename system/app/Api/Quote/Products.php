@@ -63,7 +63,9 @@ class Api_Quote_Products extends Api_Service_Abstract {
             ->setAddressKey(Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $cart->getShippingAddressId());
 
         foreach($products as $product)  {
-            $cartStorage->add($product, Quote_Tools_Tools::getProductOptions($product));
+            // Skip group price modifiers for quotes.
+            $product->setCurrentPrice(floatval($product->getPrice()));
+            $cartStorage->add($product, Quote_Tools_Tools::getProductOptions($product), 1, true, false, true);
         }
 
         $customer = Models_Mapper_CustomerMapper::getInstance()->find($cartStorage->getCustomerId());
@@ -101,18 +103,20 @@ class Api_Quote_Products extends Api_Service_Abstract {
         }
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
-        $basePrice = $product->getCurrentPrice();
-        $basePrice = ($basePrice === null) ? $product->getPrice() : $basePrice;
-        $options   = Quote_Tools_Tools::getProductOptions($product);
-
-        $product->setPrice($itemData['price']);
-
+        $options   = $itemData['options'];
+        $skipOptionRecalculation = true;
+        $skipGroupPriceRecalculation = true;
         switch($data['type']) {
-            case self::UPDATE_TYPE_QTY     : $itemData['qty'] = $data['value']; break;
+            case self::UPDATE_TYPE_QTY     :
+                $product->setPrice(floatval($itemData['price']));
+                $product->setCurrentPrice(floatval($product->getPrice()));
+                $itemData['qty'] = $data['value'];
+                break;
             case self::UPDATE_TYPE_OPTIONS :
-                $product->setPrice($basePrice);
-                $product->setCurrentPrice(floatval($basePrice));
-                $options = $this->_parseOptions($data['value']); break;
+                $product->setCurrentPrice(floatval($product->getPrice()));
+                $options = $this->_parseOptions($data['value']);
+                $skipOptionRecalculation = false;
+                break;
             case self::UPDATE_TYPE_PRICE   :
                 $product->setPrice(floatval($data['value']));
                 $product->setCurrentPrice(floatval($data['value']));
@@ -122,22 +126,20 @@ class Api_Quote_Products extends Api_Service_Abstract {
                     $productTax = Quote_Tools_Tools::getTaxFromProductPrice($product, $destinationAddress);
                     $product->setPrice(floatval($data['value'] - $productTax));
                     $product->setCurrentPrice(floatval($data['value'] - $productTax));
-                }
-                $options = array();
-            break;
+                }break;
             default: $this->_error('Invalid update type.'); break;
         }
 
         $storage->setContent($cartContent);
-        $storage->add($product, $options, $itemData['qty']);
+        $storage->add($product, $options, $itemData['qty'], true, $skipOptionRecalculation, $skipGroupPriceRecalculation);
 
-        if($data['type'] == self::UPDATE_TYPE_PRICE) {
+        if($data['type'] == self::UPDATE_TYPE_PRICE || $data['type'] == self::UPDATE_TYPE_QTY) {
             $content = $storage->getContent();
             $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
             $storage->setContent($content);
         }
 
-        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
+        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid'], $skipGroupPriceRecalculation);
     }
 
     public function deleteAction() {

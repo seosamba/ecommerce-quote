@@ -214,6 +214,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         $currentUser = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
         $quote->setEditedBy($currentUser->getFullName());
+        $quote->setEditorId($currentUser->getId());
 
         $customer          = null;
         $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
@@ -310,8 +311,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             $this->_quoteMapper->save($quote);
         }
-	    // @todo: check why it was using 'forceSave' parameter???
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId);
+        $skipGroupPriceRecalculation = false;
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+            $skipGroupPriceRecalculation = true;
+        }
+
+        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
     }
 
     public function deleteAction() {
