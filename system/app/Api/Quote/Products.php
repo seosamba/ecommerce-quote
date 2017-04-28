@@ -103,7 +103,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
         }
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
-        $options   = $itemData['options'];
+        $options   = !empty($itemData['options']) ? $itemData['options'] : [];
         $skipOptionRecalculation = true;
         $skipGroupPriceRecalculation = true;
         switch($data['type']) {
