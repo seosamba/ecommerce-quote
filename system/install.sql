@@ -9,6 +9,7 @@ CREATE TABLE `shopping_quote` (
   `delivery_type` tinytext COLLATE utf8_unicode_ci,
   `cart_id` int(10) unsigned DEFAULT NULL,
   `edited_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `editor_id` int(10) DEFAULT NULL,
   `creator_id` int(10) unsigned DEFAULT '0',
   `expires_at` timestamp NULL DEFAULT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
@@ -30,4 +31,4 @@ INSERT INTO `template_type` (`id`, `title`) VALUES ('typequote', 'Quote');
 INSERT INTO `page_option` (`id`, `title`, `context`, `active`) VALUES ('option_quotepage', 'Quote page', 'Quote system', 1);
 INSERT INTO `page_types` (`page_type_id`, `page_type_name`) VALUES ('4', 'quote');
 
-UPDATE `plugin` SET `version` = '2.2.5' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.2.6' WHERE `name` = 'quote';
