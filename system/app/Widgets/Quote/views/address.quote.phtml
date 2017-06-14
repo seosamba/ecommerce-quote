@@ -32,7 +32,7 @@
             <p>
                 <a href="mailto:<?php echo $this->address['email'];?>"><?php echo $this->address['email'];?></a>
             </p>
-            <p><?php echo $this->address['phone'];?></p>
+            <p><?php echo $this->address['phone_country_code_value'].$this->address['phone'];?></p>
         </div>
 	<?php endif; ?>
 <?php endif; ?>

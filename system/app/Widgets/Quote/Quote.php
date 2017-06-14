@@ -465,6 +465,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
+                if ($this->_options[1] === 'phone') {
+                    return $address['phone_country_code_value'].$address[$this->_options[1]];
+                }
+                if ($this->_options[1] === 'mobile') {
+                    return $address['mobile_country_code_value'].$address[$this->_options[1]];
+                }
                 return $address[$this->_options[1]];
             } elseif ($this->_options[1] == 'default') {
                 return $this->_view->render('address.quote.phtml');
