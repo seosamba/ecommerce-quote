@@ -243,7 +243,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $addressForm->removeElement('disclaimer');
             break;
             case self::ADDRESS_TYPE_SHIPPING:
-                $addressForm = new Forms_Checkout_Shipping();
+                $addressForm = new Quote_Forms_Shipping();
                 //remove elements that are not neccessary here (submit button, mobile phone field, instructions text area)
                 $addressForm->removeElement('calculateAndCheckout');
                 $addressForm->removeElement('mobile');
@@ -275,6 +275,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
+
+        $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
+        $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
+        $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
         return $addressForm;
     }
 
@@ -686,6 +690,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
+        $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
+        $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
+        $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
         return $this->_view->render('form.quote.phtml');
     }
 

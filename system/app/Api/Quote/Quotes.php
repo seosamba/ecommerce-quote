@@ -137,6 +137,28 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $this->_error('Server encountered a problem. Unable to create quote');
                 }
 
+                if (!empty($formData['phone'])) {
+                    $formData['phone'] = preg_replace('~[^\d]~ui', '', $formData['phone']);
+                    if (!empty($formData['phonecountrycode'])) {
+                        $mobileCountryPhoneCode = Zend_Locale::getTranslation($formData['phonecountrycode'],
+                            'phoneToTerritory');
+                        $formData['phone_country_code_value'] = '+' . $mobileCountryPhoneCode;
+                    } else {
+                        $formData['phone_country_code_value'] = null;
+                    }
+                }
+
+                if (!empty($formData['mobile'])) {
+                    $formData['mobile'] = preg_replace('~[^\d]~ui', '', $formData['mobile']);
+                    if (!empty($formData['mobilecountrycode'])) {
+                        $mobileCountryPhoneCode = Zend_Locale::getTranslation($formData['mobilecountrycode'],
+                            'phoneToTerritory');
+                        $formData['mobile_country_code_value'] = '+' . $mobileCountryPhoneCode;
+                    } else {
+                        $formData['mobile_country_code_value'] = null;
+                    }
+                }
+
                 $cart = $cartMapper->save(
                     $cart->setBillingAddressId(Quote_Tools_Tools::addAddress($formData, Models_Model_Customer::ADDRESS_TYPE_BILLING, $customer))
                         ->setShippingAddressId(Quote_Tools_Tools::addAddress($formData, Models_Model_Customer::ADDRESS_TYPE_SHIPPING, $customer))
@@ -273,6 +295,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
+                $quoteData['billing']['phone'] = preg_replace('~[^\d]~ui', '', $quoteData['billing']['phone']);
+                if (!empty($quoteData['billing']['phonecountrycode'])) {
+                    $mobileCountryPhoneCode = Zend_Locale::getTranslation($quoteData['billing']['phonecountrycode'], 'phoneToTerritory');
+                    $quoteData['billing']['phone_country_code_value'] = '+'.$mobileCountryPhoneCode;
+                } else {
+                    $quoteData['billing']['phone_country_code_value'] = null;
+                }
+
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
@@ -291,6 +321,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if(isset($quoteData['shipping'])) {
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
+                $quoteData['shipping']['phone'] = preg_replace('~[^\d]~ui', '', $quoteData['shipping']['phone']);
+                if (!empty($quoteData['shipping']['phonecountrycode'])) {
+                    $mobileCountryPhoneCode = Zend_Locale::getTranslation($quoteData['shipping']['phonecountrycode'], 'phoneToTerritory');
+                    $quoteData['shipping']['phone_country_code_value'] = '+'.$mobileCountryPhoneCode;
+                } else {
+                    $quoteData['shipping']['phone_country_code_value'] = null;
+                }
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
                         $response->fail('Wrong format for email address');
