@@ -46,6 +46,8 @@
             var mobileMasks = JSON.parse('<?php echo json_encode($this->mobileMasks);?>'),
                 desktopCountryCodeShipping =  $('#shipping-user-address select[name="phonecountrycode"]').val(),
                 desktopCountryCodeBilling =  $('#plugin-quote-quoteform select[name="phonecountrycode"]').val(),
+                mobileCountryCodeBilling =  $('#plugin-quote-quoteform select[name="mobilecountrycode"]').val(),
+                mobileCountryCodeShipping = $('#shipping-user-address select[name="mobilecountrycode"]').val(),
                 desktopMasks = JSON.parse('<?php echo json_encode($this->desktopMasks);?>');
 
             if (typeof desktopMasks[desktopCountryCodeShipping] !== 'undefined') {
@@ -58,6 +60,18 @@
                 $('#plugin-quote-quoteform input[name="phone"]').mask(desktopMasks[desktopCountryCodeBilling].mask_value, {autoclear: false});
             } else {
                 $('#plugin-quote-quoteform input[name="phone"]').mask('(999) 999 9999', {autoclear: false});
+            }
+
+            if (typeof mobileMasks[mobileCountryCodeBilling] !== 'undefined') {
+                $('#plugin-quote-quoteform input[name="mobile"]').mask(mobileMasks[mobileCountryCodeBilling].mask_value, {autoclear: false});
+            } else {
+                $('#plugin-quote-quoteform input[name="mobile"]').mask('(999) 999 9999', {autoclear: false});
+            }
+
+            if (typeof mobileMasks[mobileCountryCodeShipping] !== 'undefined') {
+                $('#shipping-user-address input[name="mobile"]').mask(mobileMasks[mobileCountryCodeShipping].mask_value, {autoclear: false});
+            } else {
+                $('#shipping-user-address input[name="mobile"]').mask('(999) 999 9999', {autoclear: false});
             }
 
             $(document).on('change', '#shipping-user-address select[name="phonecountrycode"]', function(e) {
@@ -81,6 +95,30 @@
                     $('#plugin-quote-quoteform input[name="phone"]').mask(desktopMasks[chosenCountryCode].mask_value, {autoclear: false});
                 } else {
                     $('#plugin-quote-quoteform input[name="phone"]').mask('(999) 999 9999', {autoclear: false});
+                }
+            });
+
+            $(document).on('change', '#shipping-user-address select[name="mobilecountrycode"]', function(e) {
+                var countryEl = $(e.currentTarget),
+                    chosenCountryCode = countryEl.val(),
+                    mobileMasks = JSON.parse('<?php echo json_encode($this->mobileMasks);?>');
+
+                if (typeof mobileMasks[chosenCountryCode] !== 'undefined') {
+                    $('#shipping-user-address input[name="mobile"]').mask(mobileMasks[chosenCountryCode].mask_value, {autoclear: false});
+                } else {
+                    $('#shipping-user-address input[name="mobile"]').mask('(999) 999 9999', {autoclear: false});
+                }
+            });
+
+            $(document).on('change', '#plugin-quote-quoteform select[name="mobilecountrycode"]', function(e) {
+                var countryEl = $(e.currentTarget),
+                    chosenCountryCode = countryEl.val(),
+                    mobileMasks = JSON.parse('<?php echo json_encode($this->mobileMasks);?>');
+
+                if (typeof mobileMasks[chosenCountryCode] !== 'undefined') {
+                    $('#plugin-quote-quoteform input[name="mobile"]').mask(mobileMasks[chosenCountryCode].mask_value, {autoclear: false});
+                } else {
+                    $('#plugin-quote-quoteform input[name="mobile"]').mask('(999) 999 9999', {autoclear: false});
                 }
             });
 

@@ -385,4 +385,15 @@ class Quote_Tools_Tools {
          return $customer;
      }
 
+    /**
+     * Remove all non digits
+     *
+     * @param string $number
+     * @return mixed
+     */
+    public static function cleanNumber($number)
+    {
+        return preg_replace('~[^\d]~ui', '', $number);
+    }
+
 }

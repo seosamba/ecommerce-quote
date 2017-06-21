@@ -138,7 +138,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!empty($formData['phone'])) {
-                    $formData['phone'] = preg_replace('~[^\d]~ui', '', $formData['phone']);
+                    $formData['phone'] = Quote_Tools_Tools::cleanNumber($formData['phone']);
                     if (!empty($formData['phonecountrycode'])) {
                         $mobileCountryPhoneCode = Zend_Locale::getTranslation($formData['phonecountrycode'],
                             'phoneToTerritory');
@@ -149,7 +149,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!empty($formData['mobile'])) {
-                    $formData['mobile'] = preg_replace('~[^\d]~ui', '', $formData['mobile']);
+                    $formData['mobile'] = Quote_Tools_Tools::cleanNumber($formData['mobile']);
                     if (!empty($formData['mobilecountrycode'])) {
                         $mobileCountryPhoneCode = Zend_Locale::getTranslation($formData['mobilecountrycode'],
                             'phoneToTerritory');
@@ -295,12 +295,20 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
-                $quoteData['billing']['phone'] = preg_replace('~[^\d]~ui', '', $quoteData['billing']['phone']);
+                $quoteData['billing']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['phone']);
+                $quoteData['billing']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['mobile']);
                 if (!empty($quoteData['billing']['phonecountrycode'])) {
                     $mobileCountryPhoneCode = Zend_Locale::getTranslation($quoteData['billing']['phonecountrycode'], 'phoneToTerritory');
                     $quoteData['billing']['phone_country_code_value'] = '+'.$mobileCountryPhoneCode;
                 } else {
                     $quoteData['billing']['phone_country_code_value'] = null;
+                }
+
+                if (!empty($quoteData['billing']['mobilecountrycode'])) {
+                    $mobileCountryPhoneCode = Zend_Locale::getTranslation($quoteData['billing']['mobilecountrycode'], 'phoneToTerritory');
+                    $quoteData['billing']['mobile_country_code_value'] = '+'.$mobileCountryPhoneCode;
+                } else {
+                    $quoteData['billing']['mobile_country_code_value'] = null;
                 }
 
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
@@ -321,12 +329,19 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if(isset($quoteData['shipping'])) {
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
-                $quoteData['shipping']['phone'] = preg_replace('~[^\d]~ui', '', $quoteData['shipping']['phone']);
+                $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);
+                $quoteData['shipping']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['mobile']);
                 if (!empty($quoteData['shipping']['phonecountrycode'])) {
                     $mobileCountryPhoneCode = Zend_Locale::getTranslation($quoteData['shipping']['phonecountrycode'], 'phoneToTerritory');
                     $quoteData['shipping']['phone_country_code_value'] = '+'.$mobileCountryPhoneCode;
                 } else {
                     $quoteData['shipping']['phone_country_code_value'] = null;
+                }
+                if (!empty($quoteData['shipping']['mobilecountrycode'])) {
+                    $mobileCountryPhoneCode = Zend_Locale::getTranslation($quoteData['shipping']['mobilecountrycode'], 'phoneToTerritory');
+                    $quoteData['shipping']['mobile_country_code_value'] = '+'.$mobileCountryPhoneCode;
+                } else {
+                    $quoteData['shipping']['mobile_country_code_value'] = null;
                 }
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {

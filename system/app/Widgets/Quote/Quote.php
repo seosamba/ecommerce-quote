@@ -246,7 +246,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $addressForm = new Quote_Forms_Shipping();
                 //remove elements that are not neccessary here (submit button, mobile phone field, instructions text area)
                 $addressForm->removeElement('calculateAndCheckout');
-                $addressForm->removeElement('mobile');
                 $addressForm->removeElement('shippingInstructions');
                 $addressForm->removeDisplayGroup('bottom');
             break;
