@@ -322,6 +322,14 @@ class Quote_Tools_Tools {
             $form->removeDisplayGroup($dGroup->getName());
         });
 
+        if (!array_key_exists('mobilecountrycode', $fields) && array_key_exists('mobile', $fields)) {
+            $form->getElement('mobile')->setLabel('Mobile');
+        }
+
+        if (!array_key_exists('phonecountrycode', $fields) && array_key_exists('phone', $fields)) {
+            $form->getElement('phone')->setLabel('Phone');
+        }
+
         return $form;
     }
 
