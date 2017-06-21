@@ -31,6 +31,9 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             $this->getElement('email')
         ));
 
+        $this->getElement('phonecountrycode')->setLabel('Phone');
+        $this->getElement('phone')->setLabel(null);
+
         // clear some validators
         $this->getElement('state')->setRegisterInArrayValidator(false);
         $this->getElement('country')->setRegisterInArrayValidator(false);
