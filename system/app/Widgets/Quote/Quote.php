@@ -461,6 +461,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
+                if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
+                    $stateData = Tools_Geo::getStateById($address['state']);
+                    if (!empty($stateData['state'])) {
+                        return $stateData['state'];
+                    }
+                }
+
                 return $address[$this->_options[1]];
             } elseif ($this->_options[1] == 'default') {
                 return $this->_view->render('address.quote.phtml');
