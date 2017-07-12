@@ -1,0 +1,16 @@
+<?php return array(
+'First Name' => 'Nombre',
+'Last Name' => 'Apellido',
+'Company' => 'Empressa',
+'E-mail' => 'Correo Eletrónico',
+'Address 1' => 'Dirección 1',
+'Address 2' => 'Dirección 2',
+'City' => 'Ciudad/Pueblo/Poblado',
+'State/Province/Region' => 'Departamento/Estado/Provincia/Región',
+'Notes' => 'Notas',
+'Phone' => 'Teléfono',
+'Get another CAPTCHA' => 'Cargar otro CAPTCHA',
+'Get an audion CAPTCHA' => 'Cargar audio de CAPTCHA',
+'Enter the words from picture' => 'Ingresar palabras de la imagen',
+'Send me a quote' => 'Enviarme Cotización'
+);
