@@ -470,6 +470,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if ($this->_options[1] === 'mobile') {
                     return $address['mobile_country_code_value'].$address[$this->_options[1]];
                 }
+                if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
+                    $stateData = Tools_Geo::getStateById($address['state']);
+                    if (!empty($stateData['state'])) {
+                        return $stateData['state'];
+                    }
+                }
+
                 return $address[$this->_options[1]];
             } elseif ($this->_options[1] == 'default') {
                 return $this->_view->render('address.quote.phtml');
