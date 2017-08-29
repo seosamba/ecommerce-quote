@@ -132,10 +132,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 $cart     = Quote_Tools_Tools::invokeCart(null, $initialProducts);
-                $customer = Shopping::processCustomer($formData);
-                if(!$cart) {
-                    $this->_error('Server encountered a problem. Unable to create quote');
-                }
 
                 if (!empty($formData['phone'])) {
                     $formData['phone'] = Quote_Tools_Tools::cleanNumber($formData['phone']);
@@ -157,6 +153,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     } else {
                         $formData['mobile_country_code_value'] = null;
                     }
+                }
+
+                $customer = Shopping::processCustomer($formData);
+                if(!$cart) {
+                    $this->_error('Server encountered a problem. Unable to create quote');
                 }
 
                 $cart = $cartMapper->save(
