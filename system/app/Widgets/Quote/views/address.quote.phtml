@@ -39,7 +39,7 @@
 <?php if(isset($this->addressForm)): ?>
     <script type="text/javascript">
         $(function() {
-            <?php if(!$this->address || !isset($this->address['state']) || !$this->address['state']) : ?>
+            <?php if((!$this->address || !isset($this->address['state']) || !$this->address['state']) && empty($this->preventRemovingOptions)) : ?>
                 $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state').empty().parent('div').hide();
             <?php endif; ?>
 

@@ -272,6 +272,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $addressForm = $this->_addOverwriteUserCheckbox($addressForm, $addressType);
         }
 
+        if (empty($address['state']) && empty($address['country'])) {
+            $state = $this->_shoppingConfig['state'];
+            $stateCodes = Tools_Geo::getState($this->_shoppingConfig['country'], true);
+            if (array_key_exists($state, $stateCodes)) {
+                $address['state'] = $state;
+                $this->_view->preventRemovingOptions = true;
+            }
+        }
+
+
         $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
 
