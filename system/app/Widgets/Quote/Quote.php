@@ -711,6 +711,30 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
+
+        $elements = $quoteForm->getElements();
+        if (!empty($elements['captcha'])) {
+            $captchaEl = $elements['captcha'];
+        }
+
+        if (!empty($elements['sendQuote'])) {
+            $sendQuoteEl = $elements['sendQuote'];
+        }
+
+        if (!empty($elements['captcha']) && !empty($elements['sendQuote']) && !empty($captchaEl) && !empty($sendQuoteEl)) {
+            unset($elements['captcha']);
+            unset($elements['sendQuote']);
+            $elements['captcha'] = $captchaEl;
+            $elements['sendQuote'] = $sendQuoteEl;
+            $quoteForm->setElements($elements);
+        }
+
+        if (!empty($elements['sendQuote']) && !empty($sendQuoteEl) && empty($elements['captcha'])) {
+            unset($elements['sendQuote']);
+            $elements['sendQuote'] = $sendQuoteEl;
+            $quoteForm->setElements($elements);
+        }
+
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
