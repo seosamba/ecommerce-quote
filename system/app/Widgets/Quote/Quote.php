@@ -244,6 +244,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             break;
             case self::ADDRESS_TYPE_SHIPPING:
                 $addressForm = new Quote_Forms_Shipping();
+                $addressForm->getElement('phonecountrycode')->setLabel('Phone');
+                $addressForm->getElement('phone')->setLabel(null);
                 //remove elements that are not neccessary here (submit button, mobile phone field, instructions text area)
                 $addressForm->removeElement('calculateAndCheckout');
                 $addressForm->removeElement('shippingInstructions');
