@@ -8,7 +8,7 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
         $this->addElement(new Zend_Form_Element_Select(array(
             'name'         => 'mobilecountrycode',
             'label'        => 'Mobile',
-            'multiOptions' => Tools_System_Tools::getCountryPhoneCodesList(true, array(), true),
+            'multiOptions' => Tools_System_Tools::getFullCountryPhoneCodesList(true, array(), true),
             'value'        => Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('country'),
             'style'        => 'width: 41.667%;',
         )));
