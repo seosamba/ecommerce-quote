@@ -15,7 +15,7 @@
         </select>
     </td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html?mode=preview"><?php echo $this->translate('Preview');?></a></td>
-    <td class="text-center"><a href="javascript:;" class="quote-grid-delete icon18 ticon-cancel red" data-sid="<%= id %>">Delete</a></td>
+    <td class="text-center"><a href="javascript:;" class="quote-grid-delete icon18 ticon-cancel red" data-sid="<%= id %>"><?php echo $this->translate('Delete');?></a></td>
 </script>
 <!-- /quote grid row template -->
 <input type="hidden" name="system-language" value="<?php echo Tools_Misc::getJsTranslationLanguage();?>"/>
