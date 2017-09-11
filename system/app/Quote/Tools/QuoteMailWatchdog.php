@@ -377,6 +377,15 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $this->_entityParser->objectToDictionary($this->_quote);
         $this->_mailer->setBody($this->_entityParser->parse($body));
 
+        $createdId = $this->_quote->getCreatorId();
+        if (!empty($createdId)) {
+            $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($createdId);
+            if ($userModel instanceof Application_Model_Models_User) {
+                $this->_entityParser->addToDictionary(array('quoteowner:email' => $userModel->getEmail()));
+            }
+        }
+        $this->_options['from'] = $this->_entityParser->parse($this->_options['from']);
+
         $this->_mailer->setMailFrom((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from'])
             ->setMailFromLabel($this->_storeConfig['company'])
             ->setSubject(isset($this->_options['subject']) ? $this->_entityParser->parse($this->_options['subject']) : $defaults['subject']);
