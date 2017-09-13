@@ -33,10 +33,9 @@
 'Add one now' => 'Crear',
 'There are no quotes, yet' => 'Aún no hay presupuestos',
 'Delete' => 'Eliminar',
-
-'Overwrite quote user using shipping address email' => 'Overwrite quote user using shipping address email',
-'Overwrite quote user using billing address email' => 'Overwrite quote user using billing address email',
-'Use same data for shipping?' => 'Use same data for shipping?',
-'This quote is empty.' => 'This quote is empty.',
+'Overwrite quote user using shipping address email' => 'Actualizar presupuesto con la dirección de email de envío',
+'Overwrite quote user using billing address email' => 'Actualizar presupuesto con la dirección de email de facturación',
+'Use same data for shipping?' => '¿Utilizar los mismos datos para la dirección de entrega?',
+'This quote is empty.' => 'El presupuesto está vacío.',
 
 );
