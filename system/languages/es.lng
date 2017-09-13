@@ -37,5 +37,12 @@
 'Overwrite quote user using billing address email' => 'Actualizar presupuesto con la dirección de email de facturación',
 'Use same data for shipping?' => '¿Utilizar los mismos datos para la dirección de entrega?',
 'This quote is empty.' => 'El presupuesto está vacío.',
+'Billing info' => 'Información de facturación',
+'Shipped to' => 'Entregado a',
+'Start typing name or e-mail to search among addresses' => 'Comience a escribir el nombre o el correo electrónico para buscar entre las direcciones',
+'Add product' => 'Añadir producto',
+'Save quote' => 'Salvar presupuesto',
+'Save and Send quote' => ' Guardar y enviar presupuesto',
+'Preview quote' => 'Avance presupuesto'
 
 );
