@@ -10,7 +10,8 @@ define({
         'New quote'                : 'nuevo presupuesto',
         'has been generated.'      : 'Presupuesto generado',
         'Your are about to remove a bunch of quotes! Are you sure?' : '¿Desea eliminar los presupuestos seleccionados?',
-        'You should pick at least one item!' : 'Debe seleccionar al menos un producto'
+        'You should pick at least one item!' : 'Debe seleccionar al menos un producto',
+        'status changed to' : 'cambio de estado a'
 
     }
 });

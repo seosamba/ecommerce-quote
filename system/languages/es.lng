@@ -5,7 +5,7 @@
 'E-mail' => 'Correo Eletrónico',
 'Address 1' => 'Dirección 1',
 'Address 2' => 'Dirección 2',
-'City' => 'Ciudad / Pueblo / Poblado',
+'City' => 'Localidad',
 'State/Province/Region' => 'Departamento/Estado/Provincia/Región',
 'Notes' => 'Notas',
 'Phone' => 'Teléfono',
@@ -43,6 +43,7 @@
 'Add product' => 'Añadir producto',
 'Save quote' => 'Salvar presupuesto',
 'Save and Send quote' => ' Guardar y enviar presupuesto',
-'Preview quote' => 'Avance presupuesto'
+'Preview quote' => 'Previsualizar presupuesto',
+'Manage options' => 'Gestioanr opciones'
 
 );
