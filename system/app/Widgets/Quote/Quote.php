@@ -286,6 +286,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
+        if (!empty($address['customer_notes'])) {
+            $addressForm->getElement('customerNotes')->setValue($address['customer_notes']);
+        }
 
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);

@@ -54,6 +54,11 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 			'label' => 'Use same data for shipping?',
 		)));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'customerNotes',
+            'label' => 'Notes'
+        )));
+
         //adding display groups
         $this->addDisplayGroups(array(
 			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
@@ -215,6 +220,18 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $phonesBlock->setDecorators(array(
             'FormElements',
             array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+        ));
+
+        $this->getElement('customerNotes')->removeDecorator('HtmlTag');
+
+        $this->addDisplayGroup(array(
+            'customerNotes'
+        ),'customernotesBlock',array('HtmlTag', array('tag' => 'div')));
+
+        $customerNotesBlock = $this->getDisplayGroup('customernotesBlock');
+        $customerNotesBlock->setDecorators(array(
+            'FormElements',
+            array('HtmlTag',array('tag'=>'p', 'class' => 'customer-notes-block-billing'))
         ));
 
         $this->addDisplayGroup(array(

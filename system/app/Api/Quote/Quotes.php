@@ -155,6 +155,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
+                if (!empty($formData['customerNotes'])) {
+                    $formData['customer_notes'] = $formData['customerNotes'];
+                }
+
                 $customer = Shopping::processCustomer($formData);
                 if(!$cart) {
                     $this->_error('Server encountered a problem. Unable to create quote');
@@ -312,6 +316,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['billing']['mobile_country_code_value'] = null;
                 }
 
+                if (!empty($quoteData['billing']['customerNotes'])) {
+                    $quoteData['billing']['customer_notes'] = $quoteData['billing']['customerNotes'];
+                }
+
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
@@ -344,6 +352,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 } else {
                     $quoteData['shipping']['mobile_country_code_value'] = null;
                 }
+
+                if (!empty($quoteData['shipping']['customerNotes'])) {
+                    $quoteData['shipping']['customer_notes'] = $quoteData['shipping']['customerNotes'];
+                }
+
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
                         $response->fail('Wrong format for email address');
