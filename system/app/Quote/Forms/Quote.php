@@ -223,6 +223,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         ));
 
         $this->getElement('customerNotes')->removeDecorator('HtmlTag');
+        $this->getElement('sameForShipping')->removeDecorator('HtmlTag');
 
         $this->addDisplayGroup(array(
             'customerNotes'
@@ -241,7 +242,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $sameForShipping = $this->getDisplayGroup('sameForShippingGroup');
         $sameForShipping->setDecorators(array(
             'FormElements',
-            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+            array('HtmlTag',array('tag'=>'p', 'class' => 'sameForShipping-block'))
         ));
     }
 

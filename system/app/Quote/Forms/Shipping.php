@@ -20,6 +20,12 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
             'style'    => 'width: 58.333%;'
         )));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'customerNotes',
+            'label' => 'Notes'
+        )));
+
+
         $this->addDisplayGroups(array(
             'lcol' => array(
                 'firstname',
@@ -67,10 +73,6 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
         $this->getElement('mobile')->removeDecorator('HtmlTag');
         $this->getElement('mobilecountrycode')->removeDecorator('HtmlTag');
 
-        $this->addElement(new Zend_Form_Element_Text(array(
-            'name'  => 'customerNotes',
-            'label' => 'Notes'
-        )));
 
         $this->addDisplayGroup(array(
             'mobilecountrycode',
