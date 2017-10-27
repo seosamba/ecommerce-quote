@@ -31,6 +31,9 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             $this->getElement('email')
         ));
 
+        $this->getElement('phonecountrycode')->setLabel('Phone');
+        $this->getElement('phone')->setLabel(null);
+
         // clear some validators
         $this->getElement('state')->setRegisterInArrayValidator(false);
         $this->getElement('country')->setRegisterInArrayValidator(false);
@@ -54,7 +57,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         //adding display groups
         $this->addDisplayGroups(array(
 			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
-			'rightColumn' => array('country', 'city', 'state', 'zip', 'phone', 'disclaimer', 'sameForShipping')
+			'rightColumn' => array('country', 'city', 'state', 'zip', 'disclaimer')
 		));
 
         //set display groups decorators
@@ -86,6 +89,21 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             ),
 			'ignore' => true
 		)));
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'         => 'mobilecountrycode',
+            'label'        => 'Mobile',
+            'multiOptions' => Tools_System_Tools::getFullCountryPhoneCodesList(true, array(), true),
+            'value'        => Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('country'),
+            'style'        => 'width: 41.667%;',
+        )));
+
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'     => 'mobile',
+            'label'    => null,
+            'value'    => '',
+            'style'    => 'width: 58.333%;',
+         )));
 
         $this->_applyDecorators();
         $this->getElement('sendQuote')->removeDecorator('Label');
@@ -171,6 +189,43 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         foreach($hiddenElements as $element) {
             $this->getElement($element)->removeDecorator('HtmlTag');
         }
+
+        $this->getElement('phone')->removeDecorator('HtmlTag');
+        $this->getElement('phonecountrycode')->removeDecorator('HtmlTag');
+        $this->getElement('mobile')->removeDecorator('HtmlTag');
+        $this->getElement('mobilecountrycode')->removeDecorator('HtmlTag');
+
+        $this->addDisplayGroup(array(
+            'mobilecountrycode',
+            'mobile'
+        ),'mobilesBlock',array('HtmlTag', array('tag' => 'div')));
+
+        $this->addDisplayGroup(array(
+            'phonecountrycode',
+            'phone'
+        ),'phonesBlock',array('HtmlTag', array('tag' => 'div')));
+
+        $mobilesBlock = $this->getDisplayGroup('mobilesBlock');
+        $mobilesBlock->setDecorators(array(
+            'FormElements',
+            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+        ));
+
+        $phonesBlock = $this->getDisplayGroup('phonesBlock');
+        $phonesBlock->setDecorators(array(
+            'FormElements',
+            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+        ));
+
+        $this->addDisplayGroup(array(
+            'sameForShipping'
+        ),'sameForShippingGroup',array('HtmlTag', array('tag' => 'div')));
+
+        $sameForShipping = $this->getDisplayGroup('sameForShippingGroup');
+        $sameForShipping->setDecorators(array(
+            'FormElements',
+            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+        ));
     }
 
     private function _setRequired(array $elements) {

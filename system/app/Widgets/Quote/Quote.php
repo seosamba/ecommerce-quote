@@ -243,10 +243,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $addressForm->removeElement('disclaimer');
             break;
             case self::ADDRESS_TYPE_SHIPPING:
-                $addressForm = new Forms_Checkout_Shipping();
+                $addressForm = new Quote_Forms_Shipping();
+                $addressForm->getElement('phonecountrycode')->setLabel('Phone');
+                $addressForm->getElement('phone')->setLabel(null);
                 //remove elements that are not neccessary here (submit button, mobile phone field, instructions text area)
                 $addressForm->removeElement('calculateAndCheckout');
-                $addressForm->removeElement('mobile');
                 $addressForm->removeElement('shippingInstructions');
                 $addressForm->removeDisplayGroup('bottom');
             break;
@@ -273,8 +274,22 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $addressForm = $this->_addOverwriteUserCheckbox($addressForm, $addressType);
         }
 
+        if (empty($address['state']) && empty($address['country'])) {
+            $state = $this->_shoppingConfig['state'];
+            $stateCodes = Tools_Geo::getState($this->_shoppingConfig['country'], true);
+            if (array_key_exists($state, $stateCodes)) {
+                $address['state'] = $state;
+                $this->_view->preventRemovingOptions = true;
+            }
+        }
+
+
         $addressForm->getElement('country')->setValue($this->_shoppingConfig['country']);
         $addressForm->setAttrib('action', '#')->populate(($address) ? $address : array());
+
+        $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
+        $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
+        $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
         return $addressForm;
     }
 
@@ -287,10 +302,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     protected function _addOverwriteUserCheckbox(Zend_Form $addressForm, $labelSuffix)
     {
+        $translator = Zend_Registry::get('Zend_Translate');
         $addressForm->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'overwriteQuoteUser'.ucfirst($labelSuffix),
             'id'    => 'overwrite-quote-user-'.($labelSuffix),
-            'label' => 'Overwrite quote user using '.$labelSuffix.' address email',
+            'label' => $translator->translate('Overwrite quote user using '.$labelSuffix.' address email'),
         )));
 
         return $addressForm;
@@ -462,6 +478,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
+                if ($this->_options[1] === 'phone') {
+                    return $address['phone_country_code_value'].$address[$this->_options[1]];
+                }
+                if ($this->_options[1] === 'mobile') {
+                    return $address['mobile_country_code_value'].$address[$this->_options[1]];
+                }
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
                     $stateData = Tools_Geo::getStateById($address['state']);
                     if (!empty($stateData['state'])) {
@@ -693,7 +715,34 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
 
+
+        $elements = $quoteForm->getElements();
+        if (!empty($elements['captcha'])) {
+            $captchaEl = $elements['captcha'];
+        }
+
+        if (!empty($elements['sendQuote'])) {
+            $sendQuoteEl = $elements['sendQuote'];
+        }
+
+        if (!empty($elements['captcha']) && !empty($elements['sendQuote']) && !empty($captchaEl) && !empty($sendQuoteEl)) {
+            unset($elements['captcha']);
+            unset($elements['sendQuote']);
+            $elements['captcha'] = $captchaEl;
+            $elements['sendQuote'] = $sendQuoteEl;
+            $quoteForm->setElements($elements);
+        }
+
+        if (!empty($elements['sendQuote']) && !empty($sendQuoteEl) && empty($elements['captcha'])) {
+            unset($elements['sendQuote']);
+            $elements['sendQuote'] = $sendQuoteEl;
+            $quoteForm->setElements($elements);
+        }
+
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
+        $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
+        $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
+        $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
         return $this->_view->render('form.quote.phtml');
     }
 

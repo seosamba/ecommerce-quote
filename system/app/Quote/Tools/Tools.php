@@ -322,6 +322,14 @@ class Quote_Tools_Tools {
             $form->removeDisplayGroup($dGroup->getName());
         });
 
+        if (!array_key_exists('mobilecountrycode', $fields) && array_key_exists('mobile', $fields)) {
+            $form->getElement('mobile')->setLabel('Mobile');
+        }
+
+        if (!array_key_exists('phonecountrycode', $fields) && array_key_exists('phone', $fields)) {
+            $form->getElement('phone')->setLabel('Phone');
+        }
+
         return $form;
     }
 
@@ -362,31 +370,48 @@ class Quote_Tools_Tools {
      * @param array $data user info data
      * @return Models_Model_Customer
      */
+     public static function processCustomer(array $data)
+     {
+         if (null === ($customer = Models_Mapper_CustomerMapper::getInstance()->findByEmail($data['email']))) {
+             $fullName = isset($data['firstname']) ? $data['firstname'] : '';
+             $fullName .= isset($data['lastname']) ? ' ' . $data['lastname'] : '';
+             $mobilePhone = isset($data['mobile']) ? $data['mobile'] : '';
+             $desktopPhone = isset($data['phone']) ? $data['phone'] : '';
+             $mobileCountryCode = isset($data['mobilecountrycode']) ? $data['mobilecountrycode'] : '';
+             $mobileCountryCodeValue = isset($data['mobile_country_code_value']) ? $data['mobile_country_code_value'] : null;
+             $phoneCountryCode = isset($data['phonecountrycode']) ? $data['phonecountrycode'] : '';
+             $phoneCountryCodeValue = isset($data['phone_country_code_value']) ? $data['phone_country_code_value'] : null;
 
-    public static function processCustomer(array $data)
-    {
-        if (null === ($customer = Models_Mapper_CustomerMapper::getInstance()->findByEmail($data['email']))) {
-            $fullName = isset($data['firstname']) ? $data['firstname'] : '';
-            $fullName .= isset($data['lastname']) ? ' ' . $data['lastname'] : '';
-            $mobilePhone = isset($data['mobile']) ? $data['mobile'] : '';
-            $password = md5(uniqid('customer_' . time()));
-            $customer = new Models_Model_Customer();
-            $customer->setRoleId(Shopping::ROLE_CUSTOMER)
-                ->setEmail($data['email'])
-                ->setFullName($fullName)
-                ->setIpaddress($_SERVER['REMOTE_ADDR'])
-                ->setMobilePhone($mobilePhone)
-                ->setPassword($password);
-            $newCustomerId = Models_Mapper_CustomerMapper::getInstance()->save($customer);
-            if ($newCustomerId) {
-                $customer->setId($newCustomerId);
-            }
-        }
+             $configHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
+             $userDefaultTimezone = $configHelper->getConfig('userDefaultTimezone');
 
-        return $customer;
-    }
+             $password = md5(uniqid('customer_' . time()));
+             $customer = new Models_Model_Customer();
+             if (empty($data['timezone']) && !empty($userDefaultTimezone)) {
+                 $customer->setTimezone($userDefaultTimezone);
+             }
 
-    /**
+             $customer->setRoleId(Shopping::ROLE_CUSTOMER)
+                 ->setEmail($data['email'])
+                 ->setFullName($fullName)
+                 ->setIpaddress($_SERVER['REMOTE_ADDR'])
+                 ->setMobilePhone($mobilePhone)
+                 ->setMobileCountryCode($mobileCountryCode)
+                 ->setMobileCountryCodeValue($mobileCountryCodeValue)
+                 ->setDesktopPhone($desktopPhone)
+                 ->setDesktopCountryCode($phoneCountryCode)
+                 ->setDesktopCountryCodeValue($phoneCountryCodeValue)
+                 ->setPassword($password);
+             $newCustomerId = Models_Mapper_CustomerMapper::getInstance()->save($customer);
+             if ($newCustomerId) {
+                 $customer->setId($newCustomerId);
+             }
+         }
+
+         return $customer;
+     }
+
+         /**
      * Generate product cart unique id
      *
      * @param array $item product data
@@ -398,5 +423,16 @@ class Quote_Tools_Tools {
         return substr(md5($item['name'] . $item['sku'] . http_build_query($options)), 0, 10);
     }
 
+
+    /**
+     * Remove all non digits
+     *
+     * @param string $number
+     * @return mixed
+     */
+    public static function cleanNumber($number)
+    {
+        return preg_replace('~[^\d]~ui', '', $number);
+    }
 
 }

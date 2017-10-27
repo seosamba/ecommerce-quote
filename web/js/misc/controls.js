@@ -46,6 +46,9 @@ $(function() {
         });
     });
 
+    $(document).on('click', '#add-product-to-quote', function(e) {
+        updateQuote(quoteId, false);
+    });
 
     // quote control click handling
     $(document).on('click', '.quote-control', function(e) {
