@@ -31,7 +31,7 @@ $(function() {
     // handling remove link click
     $(document).on('click', '.remove-product', function() {
         var selfEl = $(this);
-        showConfirm('You are about to remove an item. Are you sure?', function() {
+        showConfirm($('#remove-confirm').val(), function() {
             $.ajax({
                 url        : $('#website_url').val() + 'api/quote/products/id/' + selfEl.data('pid'),
                 type       : 'delete',

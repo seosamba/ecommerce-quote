@@ -223,6 +223,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     }
 
     public function putAction() {
+
+        $translator = Zend_Controller_Action_HelperBroker::getStaticHelper('language');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
@@ -324,7 +326,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
                     if (!$emailValidator->isValid($quoteData['billing']['email'])) {
-                        $response->fail('Wrong format for email address');
+                        $response->fail($translator->translate('Wrong format for email address'));
                     }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
 		            $quote->setUserId($customer->getId());
@@ -359,7 +361,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
-                        $response->fail('Wrong format for email address');
+                        $response->fail($translator->translate('Wrong format for email address'));
                     }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
                     $quote->setUserId($customer->getId());
