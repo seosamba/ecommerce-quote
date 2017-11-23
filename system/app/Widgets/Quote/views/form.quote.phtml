@@ -1,7 +1,21 @@
+<?php
+$this->inlineScript()->appendFile('https://www.google.com/recaptcha/api.js');
+$websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config')->getConfig();
+?>
 <?php echo $this->form; ?>
 
 <script type="text/javascript">
     $(function() {
+
+        var grecaptchaContainer = document.createElement("div");
+        grecaptchaContainer.classList.add('g-recaptcha');
+        grecaptchaContainer.dataset.sitekey = '<?php echo $websiteConfig[Tools_System_Tools::GRECAPTCHA_PUBLIC_KEY];?>';
+//        var grecaptchaPlace = $('#plugin-quote-quoteform p:last');
+        var grecaptchaPlace = $('#plugin-quote-quoteform input[type="submit"]');
+        if (grecaptchaPlace.length) {
+            grecaptchaPlace.before(grecaptchaContainer);
+        }
+
         if(!$('#state option').length) {
             $('#state').empty().parent('div').hide();
         }

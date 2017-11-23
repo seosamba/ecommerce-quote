@@ -108,8 +108,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if($formOptions) {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
+                if (isset($data['g-recaptcha-response'])) {
+                    $googleRecaptcha = new Tools_System_GoogleRecaptcha();
+                }
 
-                if(!$form->isValid($this->_request->getParams())) {
+                if (!$form->isValid($this->_request->getParams()) || !$googleRecaptcha || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
                     $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
                 }
                 $formData = filter_var_array($form->getValues(), FILTER_SANITIZE_STRING);

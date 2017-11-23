@@ -75,9 +75,9 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         )));
 
 
-        if($this->_captchaService) {
+        /*if($this->_captchaService) {
             $this->addElement($this->_generateCaptchaElement());
-        }
+        }*/
 
 		$this->addElement(new Zend_Form_Element_Submit(array(
 			'name'   => 'sendQuote',
@@ -110,7 +110,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
         $this->getElement('sendQuote')->removeDecorator('HtmlTag');
 	}
 
-    private function _generateCaptchaElement() {
+    /*private function _generateCaptchaElement() {
         $captcha = null;
         if($this->_captchaService == self::CAPTCHA_SERVICE_RECAPTCHA) {
             $websiteConfig    = Zend_Controller_Action_HelperBroker::getStaticHelper('config')->getConfig();
@@ -171,7 +171,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
         }
         return $captcha;
-    }
+    }*/
 
     private function _applyDecorators() {
         $hiddenElements = array(
@@ -179,11 +179,11 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'productOptions'
         );
 
-        $this->setElementDecorators(array(
+        /*$this->setElementDecorators(array(
             'ViewHelper',
             'Label',
             array('HtmlTag', array('tag' => 'p'))
-        ), array('captcha'), false);
+        ), array('captcha'), false);*/
 
         // remove decorator html tag from hidden elements
         foreach($hiddenElements as $element) {
