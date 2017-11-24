@@ -108,13 +108,19 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if($formOptions) {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
-                if (isset($data['g-recaptcha-response'])) {
+
+                $customerRole = Tools_ShoppingCart::getInstance()->getCustomer()->getRoleId();
+                if ($customerRole != Tools_Security_Acl::ROLE_SUPERADMIN && $customerRole != Tools_Security_Acl::ROLE_ADMIN) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
+                    if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
+                        $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
+                    }
+                } else {
+                    if (!$form->isValid($this->_request->getParams())) {
+                        $this->_error('Sorry, but you didn\'t feel all the required fields. Please try again.');
+                    }
                 }
 
-                if (!$form->isValid($this->_request->getParams()) || !$googleRecaptcha || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
-                    $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
-                }
                 $formData = filter_var_array($form->getValues(), FILTER_SANITIZE_STRING);
 
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart

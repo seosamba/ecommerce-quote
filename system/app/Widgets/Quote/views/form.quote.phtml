@@ -6,16 +6,17 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
 
 <script type="text/javascript">
     $(function() {
-
-        var grecaptchaContainer = document.createElement("div");
-        grecaptchaContainer.classList.add('g-recaptcha');
-        grecaptchaContainer.dataset.sitekey = '<?php echo $websiteConfig[Tools_System_Tools::GRECAPTCHA_PUBLIC_KEY];?>';
-//        var grecaptchaPlace = $('#plugin-quote-quoteform p:last');
-        var grecaptchaPlace = $('#plugin-quote-quoteform input[type="submit"]');
-        if (grecaptchaPlace.length) {
-            grecaptchaPlace.before(grecaptchaContainer);
-        }
-
+        <?php
+        $customerRole = Tools_ShoppingCart::getInstance()->getCustomer()->getRoleId();
+        if($customerRole != Tools_Security_Acl::ROLE_SUPERADMIN && $customerRole != Tools_Security_Acl::ROLE_ADMIN):?>
+            var grecaptchaContainer = document.createElement("div");
+                grecaptchaContainer.classList.add('g-recaptcha');
+                grecaptchaContainer.dataset.sitekey = '<?php echo $websiteConfig[Tools_System_Tools::GRECAPTCHA_PUBLIC_KEY];?>';
+            var grecaptchaPlace = $('#plugin-quote-quoteform input[type="submit"]');
+                if (grecaptchaPlace.length) {
+                  grecaptchaPlace.before(grecaptchaContainer);
+                }
+        <?php endif;?>
         if(!$('#state option').length) {
             $('#state').empty().parent('div').hide();
         }
