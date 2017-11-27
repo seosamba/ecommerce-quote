@@ -7,8 +7,7 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
 <script type="text/javascript">
     $(function() {
         <?php
-        $customerRole = Tools_ShoppingCart::getInstance()->getCustomer()->getRoleId();
-        if($customerRole != Tools_Security_Acl::ROLE_SUPERADMIN && $customerRole != Tools_Security_Acl::ROLE_ADMIN):?>
+        if(!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)):?>
             var grecaptchaContainer = document.createElement("div");
                 grecaptchaContainer.classList.add('g-recaptcha');
                 grecaptchaContainer.dataset.sitekey = '<?php echo $websiteConfig[Tools_System_Tools::GRECAPTCHA_PUBLIC_KEY];?>';

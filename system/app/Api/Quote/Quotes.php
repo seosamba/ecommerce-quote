@@ -109,8 +109,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
 
-                $customerRole = Tools_ShoppingCart::getInstance()->getCustomer()->getRoleId();
-                if ($customerRole != Tools_Security_Acl::ROLE_SUPERADMIN && $customerRole != Tools_Security_Acl::ROLE_ADMIN) {
+                if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
                         $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
