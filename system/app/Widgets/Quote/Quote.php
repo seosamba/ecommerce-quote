@@ -767,6 +767,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteForm->addDisplayGroups($displayGroups);
         }
 
+        $quoteForm->removeDisplayGroup('sameForShippingGroup');
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);

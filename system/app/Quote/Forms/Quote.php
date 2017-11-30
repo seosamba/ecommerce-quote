@@ -145,11 +145,11 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'sameForShipping'
         ),'sameForShippingGroup',array('HtmlTag', array('tag' => 'div')));
 
-        $sameForShipping = $this->getDisplayGroup('sameForShippingGroup');
-        $sameForShipping->setDecorators(array(
-            'FormElements',
-            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
-        ));
+//        $sameForShipping = $this->getDisplayGroup('sameForShippingGroup');
+//        $sameForShipping->setDecorators(array(
+//            'FormElements',
+//            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+//        ));
     }
 
     private function _setRequired(array $elements) {
