@@ -163,6 +163,27 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
+                if (empty($formData['country'])) {
+                    $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                    if (!empty($shoppingConfig['country'])) {
+                        if (empty($countryCode)) {
+                            $formData['country'] = $shoppingConfig['country'];
+                        }
+                    }
+                }
+
+                $configHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
+                $userDefaultMobileCountryCode = $configHelper->getConfig('userDefaultPhoneMobileCode');
+                if (!empty($userDefaultMobileCountryCode)) {
+                    if (empty($formData['mobilecountrycode'])) {
+                        $formData['mobilecountrycode'] = $userDefaultMobileCountryCode;
+                    }
+
+                    if (empty($formData['phonecountrycode'])) {
+                        $formData['phonecountrycode'] = $userDefaultMobileCountryCode;
+                    }
+                }
+
                 $customer = Shopping::processCustomer($formData);
                 if(!$cart) {
                     $this->_error('Server encountered a problem. Unable to create quote');
