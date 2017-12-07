@@ -306,7 +306,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $addressForm->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'overwriteQuoteUser'.ucfirst($labelSuffix),
             'id'    => 'overwrite-quote-user-'.($labelSuffix),
-            'label' => $translator->translate('Overwrite quote user using '.$labelSuffix.' address email'),
+            'label' => $translator->translate('Assign quote to customer using the email address provided in '.$labelSuffix.' info'),
         )));
 
         return $addressForm;
