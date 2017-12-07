@@ -46,6 +46,10 @@
 'Preview quote' => 'Previsualizar presupuesto',
 'Manage options' => 'Gestioanr opciones',
 'You are about to remove an item. Are you sure?' => 'Está apunto de eliminar un elemento. ¿Está seguro?',
-'Wrong format for email address' => 'Formato de dirección de correo electrónico incorrecta'
+'Wrong format for email address' => 'Formato de dirección de correo electrónico incorrecta',
+'yes' => 'sí',
+'Yes' => 'Sí',
+'No' => 'No',
+'no' => 'no'
 
 );

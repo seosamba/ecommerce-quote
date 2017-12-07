@@ -13,7 +13,11 @@ define({
         'You should pick at least one item!' : 'Debe seleccionar al menos un producto',
         'status changed to' : 'cambio de estado a',
         'Products added to the quote. Refreshing the quote page...' : 'Producto añadido al presupuesto. Actualizando la pagina de presupuesto.',
-        'You are about to remove an item. Are you sure?' : 'Está apunto de eliminar un elemento. ¿Está seguro?'
+        'You are about to remove an item. Are you sure?' : 'Está apunto de eliminar un elemento. ¿Está seguro?',
+        'yes'             : 'sí',
+        'Yes'             : 'Sí',
+        'no'              : 'no',
+        'No'              : 'No'
 
     }
 });

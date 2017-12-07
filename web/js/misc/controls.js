@@ -30,8 +30,9 @@ $(function() {
 
     // handling remove link click
     $(document).on('click', '.remove-product', function() {
-        var selfEl = $(this);
-        showConfirm($('#remove-confirm').val(), function() {
+        var selfEl = $(this),
+            removeConfirmEl = $('#remove-confirm');
+        showConfirmCustom(removeConfirmEl.val(), removeConfirmEl.data('yes'), removeConfirmEl.data('no'), function() {
             $.ajax({
                 url        : $('#website_url').val() + 'api/quote/products/id/' + selfEl.data('pid'),
                 type       : 'delete',

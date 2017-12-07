@@ -54,7 +54,7 @@ define([
                     $('#batch-action').val($('option:first', $('#batch-action')).val());
                     return false;
                 }
-                showConfirm(_.isUndefined(i18n['Your are about to remove a bunch of quotes! Are you sure?']) ? 'Your are about to remove a bunch of quotes! Are you sure?':i18n['Your are about to remove a bunch of quotes! Are you sure?'], function() {
+                showConfirmCustom(_.isUndefined(i18n['Your are about to remove a bunch of quotes! Are you sure?']) ? 'Your are about to remove a bunch of quotes! Are you sure?':i18n['Your are about to remove a bunch of quotes! Are you sure?'], _.isUndefined(i18n['Yes'])?'Yes':i18n['Yes'], _.isUndefined(i18n['No'])?'No':i18n['No'], function() {
                     self.quotes.batch('delete');
                 });
             }
