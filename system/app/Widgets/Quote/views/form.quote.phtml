@@ -1,5 +1,4 @@
 <?php
-$this->inlineScript()->appendFile('https://www.google.com/recaptcha/api.js');
 $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config')->getConfig();
 ?>
 <?php echo $this->form; ?>
@@ -10,7 +9,6 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
         if(!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)):?>
             var grecaptchaContainer = document.createElement("div");
                 grecaptchaContainer.classList.add('g-recaptcha');
-                grecaptchaContainer.dataset.sitekey = '<?php echo $websiteConfig[Tools_System_Tools::GRECAPTCHA_PUBLIC_KEY];?>';
             var grecaptchaPlace = $('#plugin-quote-quoteform input[type="submit"]');
                 if (grecaptchaPlace.length) {
                   grecaptchaPlace.before(grecaptchaContainer);
