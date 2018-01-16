@@ -231,6 +231,33 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $this->_error();
                 }
             break;
+            case Quote::QUOTE_TYPE_CLONE:
+                if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                    $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+
+                    $errMsg = 'Can\'t duplicate Quote';
+                    if(!empty($quoteId)){
+                        $quote = $this->_quoteMapper->find($quoteId);
+                        if($quote instanceof Quote_Models_Model_Quote){
+
+                            $errMsg = 'Empty cart ID';
+                            if(!empty($quote->getCartId())){
+                                $currentCart = $cartMapper->find($quote->getCartId());
+                                if($currentCart instanceof Models_Model_CartSession){
+                                    $errMsg = '';
+                                    $currentCart->setId(null);
+                                    $cart =  $cartMapper->save($currentCart);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    $this->_error();
+                }
+                if(!empty($errMsg)){
+                    $this->_error($errMsg);
+                }
+            break;
             default:
                 $this->_error();
             break;
