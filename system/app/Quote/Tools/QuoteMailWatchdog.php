@@ -201,6 +201,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      * Can send mails to the customer, sales person and store owner
      * @return bool
      */
+
+
     protected function _sendQuoteCreatedMail() {
         // switch through the recipients and init proper mailer values for them
         switch($this->_options['recipient']) {
@@ -383,6 +385,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             if ($userModel instanceof Application_Model_Models_User) {
                 $this->_entityParser->addToDictionary(array('quoteowner:email' => $userModel->getEmail()));
             }
+        } else {
+            $this->_entityParser->addToDictionary(array('quoteowner:email' => $this->_storeConfig['email']));
         }
         $this->_options['from'] = $this->_entityParser->parse($this->_options['from']);
 
