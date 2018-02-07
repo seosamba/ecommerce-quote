@@ -320,7 +320,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
-            $emailValidator = new Zend_Validate_EmailAddress();
+            $emailValidator = new Tools_System_CustomEmailValidator();
 
             if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);
