@@ -56,6 +56,12 @@ class Quote_Tools_PurchaseWatchdog implements Interfaces_Observer
                     $currentQuoteModelStatus = $quoteModel->getStatus();
                     if (in_array($cartStatus, self::$_cartQuoteLostStatuses,
                             true) && $currentQuoteModelStatus !== Quote_Models_Model_Quote::STATUS_LOST) {
+                        if ($cartStatus === Models_Model_CartSession::CART_STATUS_REFUNDED) {
+                            $total = $cartSessionModel->getTotal();
+                            if ($total !== '0.00') {
+                                return '';
+                            }
+                        }
                         $quoteModel->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
                         $quoteModel->setUpdatedAt(date(Tools_System_Tools::DATE_MYSQL));
                         $quoteMapper->save($quoteModel);
