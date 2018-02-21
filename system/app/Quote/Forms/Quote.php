@@ -103,6 +103,12 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'productOptions'
         );
 
+        $this->setElementDecorators(array(
+            'ViewHelper',
+            'Label',
+            array('HtmlTag', array('tag' => 'p'))
+        ), array('captcha'), false);
+
         // remove decorator html tag from hidden elements
         foreach($hiddenElements as $element) {
             $this->getElement($element)->removeDecorator('HtmlTag');
@@ -139,11 +145,11 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
             'sameForShipping'
         ),'sameForShippingGroup',array('HtmlTag', array('tag' => 'div')));
 
-        $sameForShipping = $this->getDisplayGroup('sameForShippingGroup');
-        $sameForShipping->setDecorators(array(
-            'FormElements',
-            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
-        ));
+//        $sameForShipping = $this->getDisplayGroup('sameForShippingGroup');
+//        $sameForShipping->setDecorators(array(
+//            'FormElements',
+//            array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+//        ));
     }
 
     private function _setRequired(array $elements) {

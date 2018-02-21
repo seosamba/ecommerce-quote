@@ -306,7 +306,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $addressForm->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'overwriteQuoteUser'.ucfirst($labelSuffix),
             'id'    => 'overwrite-quote-user-'.($labelSuffix),
-            'label' => $translator->translate('Overwrite quote user using '.$labelSuffix.' address email'),
+            'label' => $translator->translate('Assign quote to customer using the email address provided in '.$labelSuffix.' info'),
         )));
 
         return $addressForm;
@@ -767,6 +767,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteForm->addDisplayGroups($displayGroups);
         }
 
+        $quoteForm->removeDisplayGroup('sameForShippingGroup');
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
