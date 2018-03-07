@@ -75,3 +75,6 @@ Here you can put quote item widgets
     <td class="product-remove">{$quote:item:remove}</td>
 </tr>
 {/toasterquote}
+
+Quote action emails lexems:
+{quoteowner:email} - This lexem return quote owner email address
