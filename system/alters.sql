@@ -13,6 +13,10 @@ INSERT INTO `page_types` (`page_type_id`, `page_type_name`) VALUES ('4', 'quote'
 ALTER TABLE `shopping_quote`
 ADD `editor_id` int NULL AFTER `edited_by`;
 
+-- 07/02/2018
+-- version: 2.2.6
+INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.2.6' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.2.7' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

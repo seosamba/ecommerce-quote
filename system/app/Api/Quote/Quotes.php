@@ -109,9 +109,17 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
 
-                if(!$form->isValid($this->_request->getParams())) {
-                    $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
+                if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                    $googleRecaptcha = new Tools_System_GoogleRecaptcha();
+                    if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
+                        $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
+                    }
+                } else {
+                    if (!$form->isValid($this->_request->getParams())) {
+                        $this->_error('Sorry, but you didn\'t feel all the required fields. Please try again.');
+                    }
                 }
+
                 $formData = filter_var_array($form->getValues(), FILTER_SANITIZE_STRING);
 
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart
@@ -157,6 +165,27 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 if (!empty($formData['customerNotes'])) {
                     $formData['customer_notes'] = $formData['customerNotes'];
+                }
+
+                if (empty($formData['country'])) {
+                    $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                    if (!empty($shoppingConfig['country'])) {
+                        if (empty($countryCode)) {
+                            $formData['country'] = $shoppingConfig['country'];
+                        }
+                    }
+                }
+
+                $configHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
+                $userDefaultMobileCountryCode = $configHelper->getConfig('userDefaultPhoneMobileCode');
+                if (!empty($userDefaultMobileCountryCode)) {
+                    if (empty($formData['mobilecountrycode'])) {
+                        $formData['mobilecountrycode'] = $userDefaultMobileCountryCode;
+                    }
+
+                    if (empty($formData['phonecountrycode'])) {
+                        $formData['phonecountrycode'] = $userDefaultMobileCountryCode;
+                    }
                 }
 
                 $customer = Shopping::processCustomer($formData);
@@ -297,7 +326,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
-            $emailValidator = new Zend_Validate_EmailAddress();
+            $emailValidator = new Tools_System_CustomEmailValidator();
 
             if(isset($quoteData['billing'])) {
                 parse_str($quoteData['billing'], $quoteData['billing']);

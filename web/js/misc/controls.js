@@ -57,7 +57,7 @@ $(function() {
         if(parseInt(control.data('sendmail')) == 1) {
             showMailMessageEdit(control.data('trigger'), function(message) {
                 updateQuote(quoteId, true, message);
-            });
+            }, 'customer');
         } else {
             showLoader();
             updateQuote(quoteId, false);

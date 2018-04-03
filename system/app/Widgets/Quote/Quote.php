@@ -741,6 +741,36 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteForm->setElements($elements);
         }
 
+        $mobileEl = $quoteForm->getElement('mobile');
+        $mobileCountryCodeEl = $quoteForm->getElement('mobilecountrycode');
+        $desktopPhoneEl = $quoteForm->getElement('phone');
+        $desktopCountryCodeEl = $quoteForm->getElement('phonecountrycode');
+
+        $displayGroups = array();
+        $originalQuoteForm = new Quote_Forms_Quote();
+        if (!empty($mobileEl) && !empty($mobileCountryCodeEl)) {
+            $quoteForm->getElement('mobile')->setLabel(null);
+            $quoteForm->getElement('mobilecountrycode')->setLabel('Mobile');
+            $position = array_search('mobilecountrycode', array_keys($quoteForm->getElements()));
+            $mobilesBlockGroup = $originalQuoteForm->getDisplayGroups()['mobilesBlock'];
+            $mobilesBlockGroup->setOrder($position);
+            $displayGroups[]  = $mobilesBlockGroup;
+        }
+
+        if (!empty($desktopPhoneEl) && !empty($desktopCountryCodeEl)) {
+            $quoteForm->getElement('phone')->setLabel(null);
+            $quoteForm->getElement('phonecountrycode')->setLabel('Phone');
+            $position = array_search('phonecountrycode', array_keys($quoteForm->getElements()));
+            $phonesBlockGroup = $originalQuoteForm->getDisplayGroups()['phonesBlock'];
+            $phonesBlockGroup->setOrder($position);
+            $displayGroups[]  = $phonesBlockGroup;
+        }
+
+        if (!empty($displayGroups)) {
+            $quoteForm->addDisplayGroups($displayGroups);
+        }
+
+        $quoteForm->removeDisplayGroup('sameForShippingGroup');
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);

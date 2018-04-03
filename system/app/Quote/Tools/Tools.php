@@ -276,14 +276,6 @@ class Quote_Tools_Tools {
         return is_array($data) ? $data : array();
     }
 
-    public static function getValidCaptchaService() {
-        $config = Zend_Controller_Action_HelperBroker::getStaticHelper('config')->getConfig();
-        if (!empty($config[Tools_System_Tools::RECAPTCHA_PUBLIC_KEY]) && !empty($config[Tools_System_Tools::RECAPTCHA_PRIVATE_KEY])) {
-            return Quote_Forms_Quote::CAPTCHA_SERVICE_RECAPTCHA;
-        }
-        return Quote_Forms_Quote::CAPTCHA_SERVICE_CAPTCHA;
-    }
-
     public static function adjustFormFields(Quote_Forms_Quote $form, $options = array(), $mandatoryFields = array()) {
         if(empty($options)) {
             return $form;
