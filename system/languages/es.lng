@@ -50,6 +50,9 @@
 'yes' => 'sí',
 'Yes' => 'Sí',
 'No' => 'No',
-'no' => 'no'
+'no' => 'no',
+'search products' => 'buscar productos',
+'Add products and close' => 'Añadir producto y cerrar',
+'Select 1 or more products&nbsp' => 'Seleccione 1 o más productos'
 
 );
