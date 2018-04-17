@@ -241,7 +241,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         if($quote instanceof Quote_Models_Model_Quote){
 
                             $errMsg = 'Empty cart ID';
-                            if(!empty($quote->getCartId())){
+                            $cartId = $quote->getCartId();
+                            if(!empty($cartId)){
                                 $currentCart = $cartMapper->find($quote->getCartId());
                                 if($currentCart instanceof Models_Model_CartSession){
                                     $errMsg = '';
