@@ -1,7 +1,19 @@
+<?php
+$websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config')->getConfig();
+?>
 <?php echo $this->form; ?>
 
 <script type="text/javascript">
     $(function() {
+        <?php
+        if(!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)):?>
+            var grecaptchaContainer = document.createElement("div");
+                grecaptchaContainer.classList.add('g-recaptcha');
+            var grecaptchaPlace = $('#plugin-quote-quoteform input[type="submit"]');
+                if (grecaptchaPlace.length) {
+                  grecaptchaPlace.before(grecaptchaContainer);
+                }
+        <?php endif;?>
         if(!$('#state option').length) {
             $('#state').empty().parent('div').hide();
         }

@@ -24,6 +24,11 @@
 	<a href="<?php echo $this->websiteUrl;?><?php echo $this->quoteId; ?>.html?mode=preview" class="quote-control btn-toaster" target="_blank">
         <?php echo $this->translate('Preview quote'); ?>
     </a>
+
+    <!-- clone quote -->
+    <a href="javascript:;" class="clone-quote btn-toaster">
+        <?php echo $this->translate('Duplicate quote'); ?>
+    </a>
 </div>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
 <script type="text/javascript">

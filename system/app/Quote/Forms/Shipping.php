@@ -20,6 +20,8 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
             'style'    => 'width: 58.333%;'
         )));
 
+        $this->getElement('firstname')->setRequired(true)->setAttribs(array('class' => 'quote-required required'));
+
         $this->addDisplayGroups(array(
             'lcol' => array(
                 'firstname',

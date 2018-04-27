@@ -29,6 +29,11 @@ class Quote extends Tools_PaymentGateway
     const QUOTE_TYPE_GENERATE = 'generate';
 
     /**
+     * Quote clone type. Clone already created quote
+     */
+    const QUOTE_TYPE_CLONE = 'clone';
+
+    /**
      * Quote template type id
      *
      */

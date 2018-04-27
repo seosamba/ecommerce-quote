@@ -306,7 +306,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $addressForm->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'overwriteQuoteUser'.ucfirst($labelSuffix),
             'id'    => 'overwrite-quote-user-'.($labelSuffix),
-            'label' => $translator->translate('Overwrite quote user using '.$labelSuffix.' address email'),
+            'label' => $translator->translate('Assign quote to customer using the email address provided in '.$labelSuffix.' info'),
         )));
 
         return $addressForm;
@@ -739,6 +739,48 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteForm->setElements($elements);
         }
 
+        $mobileEl = $quoteForm->getElement('mobile');
+        $mobileCountryCodeEl = $quoteForm->getElement('mobilecountrycode');
+        $desktopPhoneEl = $quoteForm->getElement('phone');
+        $desktopCountryCodeEl = $quoteForm->getElement('phonecountrycode');
+
+        $displayGroups = array();
+        $originalQuoteForm = new Quote_Forms_Quote();
+        if (!empty($mobileEl) && !empty($mobileCountryCodeEl)) {
+            $required = false;
+            if(in_array('mobile*', $this->_options)){
+                $required = true;
+            }
+            $quoteForm->getElement('mobile')->setLabel(null);
+            $quoteForm->getElement('mobilecountrycode')->setLabel('Mobile');
+            $position = array_search('mobilecountrycode', array_keys($quoteForm->getElements()));
+            $mobilesBlockGroup = $originalQuoteForm->getDisplayGroups()['mobilesBlock'];
+            $mobilesBlockGroup->setOrder($position);
+            $mobilesBlockGroup->getElement('mobile')->setAttribs(array('class' => ($required) ? 'quote-required required' : ''))->setValue($mobileEl->getValue());
+            $mobilesBlockGroup->getElement('mobilecountrycode')->setRequired($required)->setValue($mobileCountryCodeEl->getValue());
+            $displayGroups[]  = $mobilesBlockGroup;
+        }
+
+        if (!empty($desktopPhoneEl) && !empty($desktopCountryCodeEl)) {
+            $required = false;
+            if(in_array('phone*', $this->_options)){
+                $required = true;
+            }
+            $quoteForm->getElement('phone')->setLabel(null);
+            $quoteForm->getElement('phonecountrycode')->setLabel('Phone');
+            $position = array_search('phonecountrycode', array_keys($quoteForm->getElements()));
+            $phonesBlockGroup = $originalQuoteForm->getDisplayGroups()['phonesBlock'];
+            $phonesBlockGroup->setOrder($position);
+            $phonesBlockGroup->getElement('phone')->setAttribs(array('class' => ($required) ? 'quote-required required' : ''))->setValue($desktopPhoneEl->getValue());
+            $phonesBlockGroup->getElement('phonecountrycode')->setRequired($required)->setValue($desktopCountryCodeEl->getValue());
+            $displayGroups[]  = $phonesBlockGroup;
+        }
+
+        if (!empty($displayGroups)) {
+            $quoteForm->addDisplayGroups($displayGroups);
+        }
+
+        $quoteForm->removeDisplayGroup('sameForShippingGroup');
         $this->_view->form = $quoteForm->setAction($this->_websiteHelper->getUrl() . 'api/quote/quotes/type/' . Quote::QUOTE_TYPE_GENERATE);
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);

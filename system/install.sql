@@ -31,4 +31,6 @@ INSERT INTO `template_type` (`id`, `title`) VALUES ('typequote', 'Quote');
 INSERT INTO `page_option` (`id`, `title`, `context`, `active`) VALUES ('option_quotepage', 'Quote page', 'Quote system', 1);
 INSERT INTO `page_types` (`page_type_id`, `page_type_name`) VALUES ('4', 'quote');
 
-UPDATE `plugin` SET `version` = '2.2.6' WHERE `name` = 'quote';
+INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
+
+UPDATE `plugin` SET `version` = '2.2.7' WHERE `name` = 'quote';

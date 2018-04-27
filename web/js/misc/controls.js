@@ -56,11 +56,27 @@ $(function() {
         if(parseInt(control.data('sendmail')) == 1) {
             showMailMessageEdit(control.data('trigger'), function(message) {
                 updateQuote(quoteId, true, message);
-            });
+            }, 'customer');
         } else {
             showLoader();
             updateQuote(quoteId, false);
         }
+    });
+
+    //clone quote
+    $(document).on('click', '.clone-quote', function(e) {
+        $.ajax({
+            url        : $('#website_url').val() + 'api/quote/quotes/',
+            type       : 'post',
+            data       : {type: 'clone', quoteId: quoteId},
+            dataType   : 'json',
+            beforeSend : showSpinner()
+        }).done(function(response) {
+            var quoteUrl = '<a href="'+ $('#website_url').val() + response.id +'.html" target="_blank" title="'+ response.id +'">'+ $('#website_url').val() +response.id + '.html</a>';
+            hideSpinner();
+            showMessage('The quote has been duplicated. ' + '<br/>' + quoteUrl, false, 15000);
+            recalculate({summary: response});
+        });
     });
 
     // editable (quantity, price) fields handling
