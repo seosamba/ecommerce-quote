@@ -620,11 +620,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         // representation of product item that we store in the cart session
         $item    = array_merge($cartContent[$itemId], $product->toArray());
 
+        $options = ($item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+        $item['sid'] = Quote_Tools_Tools::generateStorageKey($product, $options);
+
         $widgetOption = $this->_options[0];
         switch($widgetOption) {
             case 'photo':
+                $img = $product->getPhoto();
+                $imgArr = explode('/', $img);
+
                 $value               = $item['photo'];
-                $this->_view->folder = (isset($this->_options[1]) && $this->_options[1] && is_dir($this->_websiteHelper->getMedia() . $this->_options[1])) ?  ('/' . $this->_options[1] . '/') : '/product/';
+                $this->_view->imgArr = $imgArr;
                 $this->_view->name   = $item['name'];
             break;
             case 'price':
@@ -648,7 +654,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $value = $item['qty'];
             break;
             case 'remove':
-                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
+                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" data-sid="'. $item['sid'] .'" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
             break;
             default:
                 return (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
@@ -657,6 +663,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->$widgetOption = $value;
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
+        $this->_view->sid           = $item['sid'];
+
         return $this->_view->render('item/' . $widgetOption . '.quote.item.phtml');
     }
 

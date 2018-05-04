@@ -414,4 +414,19 @@ class Quote_Tools_Tools {
         return preg_replace('~[^\d]~ui', '', $number);
     }
 
+    /**
+     * @param $item
+     * @param array $options
+     * @return bool|string
+     */
+    public static function generateStorageKey($item, $options = array()) {
+        if($item instanceof Models_Model_Product){
+            return substr(md5($item->getName() . $item->getSku() . http_build_query($options)), 0, 10);
+        }else{
+            return substr(md5($item['name'] . $item['sku'] . http_build_query($options)), 0, 10);
+        }
+
+
+    }
+
 }

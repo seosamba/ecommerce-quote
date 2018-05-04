@@ -27,6 +27,7 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 {$quote:item:price[:unit]} - Displays the product price.
  :unit - price for single unit
 {$quote:item:remove} - Displays remove button.
+{$quote:item:sid} - Unique product hash (product name + product sku + product options).
 
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource

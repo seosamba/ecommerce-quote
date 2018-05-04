@@ -31,11 +31,12 @@ $(function() {
     // handling remove link click
     $(document).on('click', '.remove-product', function() {
         var selfEl = $(this);
+        var sid = $(selfEl).data('sid');
         showConfirm('You are about to remove an item. Are you sure?', function() {
             $.ajax({
                 url        : $('#website_url').val() + 'api/quote/products/id/' + selfEl.data('pid'),
                 type       : 'delete',
-                data       : JSON.stringify({qid: quoteId}),
+                data       : JSON.stringify({qid: quoteId, sid: sid}),
                 dataType   : 'json',
                 beforeSend : showSpinner()
             }).done(function(response) {
@@ -84,11 +85,13 @@ $(function() {
         var field = $(e.currentTarget);
         var scope = field.data('scope');
         var type  = field.data('type');
+        var sid = $(field).data('sid');
 
         var data = {
             qid   : quoteId,
             type  : type,
-            value : field.val()
+            value : field.val(),
+            sid : sid
         };
 
         switch (scope) {
@@ -103,7 +106,7 @@ $(function() {
                         productId        : productId,
                         summary          : response
                     });
-                    recalculate(data);
+                    recalculate(data, sid);
                 });
                 break;
             case 'quote-partial':
@@ -111,7 +114,7 @@ $(function() {
                 request.done(function(response) {
                     hideSpinner();
                     $.extend(data, {summary:response});
-                    recalculate(data);
+                    recalculate(data, sid);
                 });
                 break;
         }
@@ -167,15 +170,24 @@ var _update = function(apiUrl, data) {
     });
 };
 
-var recalculate = function(options) {
+var recalculate = function(options, sid) {
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
-        var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
+        if(sid.length){
+            var unitPriceContainer = $('input.price-unit[data-sid="' + sid + '"]');
+            var qty        = parseInt($('input.qty-unit[data-sid="' + sid + '"]').val());
+        } else {
+            var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
+            var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val());
+        }
 
         var unitPrice  = parseFloat(accounting.unformat(unitPriceContainer.val()));
-        var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val());
         var totalPrice = unitPrice * qty;
 
-        $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
+        if(sid.length){
+            $('.price-total[data-sid="' + sid + '"]').text(accounting.formatMoney(totalPrice));
+        } else {
+            $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
+        }
         unitPriceContainer.val(accounting.formatNumber(unitPrice, 2));
     }
     var summary = options.summary;

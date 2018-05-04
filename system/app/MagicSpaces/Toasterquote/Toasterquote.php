@@ -37,6 +37,8 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		$cartContent = $this->_getCartContent();
 
 		if(sizeof($cartContent)) {
+            $cartContent = $this->_processSid($cartContent);
+
 			foreach($cartContent as $key => $item) {
 				$content .= preg_replace_callback('~{\$quote:(.+)}~U', function($matches) use($key) {
 					$options = array_merge(explode(':', $matches[1]), array($key, 'quotemspace'));
@@ -73,9 +75,13 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 		return array_map(function($itemData) {
 			$product = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
 			if($product instanceof Models_Model_Product) {
+                $options = ($itemData['options']) ? $itemData['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+                $sid = Quote_Tools_Tools::generateStorageKey($product, $options);
+
 				$itemData['name']  = $product->getName();
 				$itemData['photo'] = '';
 				$itemData['note']  = 'GFY';
+				$itemData['sid']  = $sid;
 				return $itemData;
 			}
 		}, $cart->getCartContent());
@@ -99,5 +105,32 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
         }
 	    return $quoteTemplate->getContent();
 	}
+
+    /**
+     * @param $cartContent
+     * @return mixed
+     */
+    private function _processSid($cartContent){
+        $sids = array();
+        $cartContentData = $cartContent;
+        $cartStorage = Tools_ShoppingCart::getInstance();
+        foreach ($cartContent as $key => $value){
+            if(!in_array($value['sid'], $sids)){
+                $sids[] = $value['sid'];
+            }else{
+                $sid = array_search($value['sid'], array_column($cartContentData, 'sid'));
+                $cartContentData[$sid]['qty'] +=  $value['qty'];
+                unset($cartContentData[$key]);
+            }
+        }
+        $cartStorage->setCartId($value['cart_id']);
+        $cartStorage->setContent($cartContentData);
+
+        Quote_Tools_Tools::calculate($cartStorage, false, true);
+
+        $cartStorage->save();
+
+        return $cartContentData;
+    }
 
 }
