@@ -118,12 +118,14 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
             if(!in_array($value['sid'], $sids)){
                 $sids[] = $value['sid'];
             }else{
-                $sid = array_search($value['sid'], array_column($cartContentData, 'sid'));
+                $sid = array_search($value['sid'], array_column($cartContent, 'sid'));
                 $cartContentData[$sid]['qty'] +=  $value['qty'];
                 unset($cartContentData[$key]);
             }
         }
         $cartStorage->setCartId($value['cart_id']);
+
+        sort($cartContentData, SORT_NUMERIC);
         $cartStorage->setContent($cartContentData);
 
         Quote_Tools_Tools::calculate($cartStorage, false, true);
