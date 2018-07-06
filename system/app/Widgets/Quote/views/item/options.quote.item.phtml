@@ -4,7 +4,9 @@
            <?php if (is_array($optData) && !empty($optData)): ?>
                 <?php $currOpts[$optData['option_id']] = $optData['id']; ?>
                 <div class="options">
-                    <span class="option-title"><?php echo $title; ?>:</span>
+                    <?php if(!isset($optData['type']) || $optData['type'] !== 'text'): ?>
+                        <span class="option-title"><?php echo $title; ?>:</span>
+                    <?php endif;?>
                     <span><?php echo $optData['title']; ?></span>
                     <?php if(isset($optData['selection'])): ?>
                         <?php if($optData['type'] === 'text'): ?>
