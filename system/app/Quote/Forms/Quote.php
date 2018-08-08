@@ -58,7 +58,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
         //adding display groups
         $this->addDisplayGroups(array(
-			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
+			'leftColumn'  => array('prefix', 'firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
 			'rightColumn' => array('country', 'city', 'state', 'zip', 'disclaimer')
 		));
 
