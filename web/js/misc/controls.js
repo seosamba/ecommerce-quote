@@ -133,6 +133,13 @@ $(function() {
             recalculate(data);
         });
     });
+
+    $(document).on('change', '.quote-disclaimer-text', function(e) {
+        e.preventDefault();
+        $('.quote-control-save').trigger('click');
+        showMessage('Quote notes has been saved', false, 3000);
+    });
+
 });
 
 
