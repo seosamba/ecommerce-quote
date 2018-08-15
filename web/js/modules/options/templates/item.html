@@ -10,8 +10,9 @@
     <% var currOptions = $('#currOptions').val() %>
 
     <% _.each(defaultOptions, function(value, index) { %>
+    <% title = value.title.replace(/[^A-Za-z0-9\-_]/g,'') %>
 
-        <li class="option option-<%= value.title %> clearfix" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
+    <li class="option option-<%= title.toLowerCase() %> clearfix" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
         <!-- option type dropdown -->
         <% if(value.type == 'dropdown' || value.type == 'radio') { %>
             <label class="grid_3 mt0-5em" for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
