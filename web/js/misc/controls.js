@@ -60,8 +60,12 @@ $(function() {
                 updateQuote(quoteId, true, message);
             }, 'customer');
         } else {
+            var eventType = '';
+            if(typeof $(this).data('type') !== 'undefined') {
+                eventType = $(this).data('type')
+            }
             showLoader();
-            updateQuote(quoteId, false);
+            updateQuote(quoteId, false, '', eventType);
         }
     });
 
