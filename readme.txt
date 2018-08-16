@@ -14,7 +14,7 @@ Widgets that working with quote page (dashboard):
 {$quote:title} - Displays the quote name.
 {$quote:date:created} - Displays the date of quote creation.
 {$quote:date:expires} - Displays the quote expiration date.
-{$quote:total[:grand]} - Displays the total price in the cart. If the option :grand is set then discount and shipping will be added to the price.
+{$quote:total[:tax|sub|grand|totalwotax|taxdiscount]} - Displays the total price in the cart. If the option :grand is set then discount and shipping will be added to the price.
 {$quote:shipping} - Displays the shipping price.
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".

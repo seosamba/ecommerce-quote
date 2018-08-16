@@ -48,7 +48,8 @@ $(function() {
     });
 
     $(document).on('click', '#add-product-to-quote', function(e) {
-        updateQuote(quoteId, false);
+        var eventType = $(this).data('type');
+        updateQuote(quoteId, false, '', eventType);
     });
 
     // quote control click handling
@@ -143,7 +144,37 @@ $(function() {
 });
 
 
-var updateQuote = function(quoteId, sendMail, mailMessage) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType) {
+
+    var quoteForm = $('#plugin-quote-quoteform'),
+        quoteShippingUserAddressForm = $('#shipping-user-address'),
+        notValidElements = [],
+        errorMessage = false;
+    
+    if(typeof quoteForm !== 'undefined') {
+        $(':input[name], select[name]', quoteForm).each(function(key, field) {
+            if($(field).hasClass('required')){
+                if($(field).attr('id') != 'quote-form-email' && $(this).val() === '') {
+                    notValidElements.push(field);
+                }
+            }
+        });
+    }
+
+    if(typeof quoteShippingUserAddressForm !== 'undefined') {
+        $(':input[name], select[name]', quoteShippingUserAddressForm).each(function(key, field) {
+            if($(field).hasClass('required')){
+                if($(field).attr('id') != 'email' && $(this).val() === '') {
+                    notValidElements.push(field);
+                }
+            }
+        });
+    }
+
+    if(notValidElements.length) {
+        errorMessage = true;
+    }
+
     var data = {
         qid         : quoteId,
         sendMail    : sendMail,
@@ -153,7 +184,9 @@ var updateQuote = function(quoteId, sendMail, mailMessage) {
         expiresAt   : $('#datepicker-expires').val(),
         shipping    : $('#shipping-user-address').serialize(),
         billing     : $('#plugin-quote-quoteform').serialize(),
-        mailMessage : (sendMail) ? mailMessage : ''
+        mailMessage : (sendMail) ? mailMessage : '',
+        errorMessage: errorMessage,
+        eventType   : (eventType) ? eventType : ''
     };
 
     var request = _update('api/quote/quotes/', data);

@@ -276,7 +276,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     }
 
     public function putAction() {
+        $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
+        $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
@@ -351,6 +353,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $emailValidator = new Tools_System_CustomEmailValidator();
 
             if(isset($quoteData['billing'])) {
+                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please fill in the required fields'));
+                }
+
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
                 $quoteData['billing']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['phone']);
@@ -372,8 +378,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
-                    if (!$emailValidator->isValid($quoteData['billing']['email'])) {
-                        $response->fail('Wrong format for email address');
+                    if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
                     }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
 		            $quote->setUserId($customer->getId());
@@ -386,6 +392,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['shipping'])) {
+                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please fill in the required fields'));
+                }
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
                 $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);
                 $quoteData['shipping']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['mobile']);
@@ -402,8 +411,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['shipping']['mobile_country_code_value'] = null;
                 }
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
-                    if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
-                        $response->fail('Wrong format for email address');
+                    if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
                     }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
                     $quote->setUserId($customer->getId());
