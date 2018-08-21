@@ -13,42 +13,52 @@ define([
             'click .add-products': 'addAction'
         },
         initialize: function () {
+            $('#product-list-holder').html('<div class="spinner"></div>');
             this.products = new ProductsCollection();
             this.products.server_api.order = 'p.price DESC';
             this.products.on('reset', this.render, this);
             this.products.fetch();
 
             //init autocomplete
-            $.getJSON($('#website_url').val() + 'plugin/shopping/run/searchindex', function (response) {
-                $('#search')
-                    .data({source: response})
-                    .autocomplete({
-                        minLength: 2,
-                        source: function (req, resp) {
-                            var data = $(this.element).data('source'),
-                                list;
-                            list = _.filter(data, function (str) {
-                                var t,
-                                    term = req.term.split(/\s+/);
-                                for (t in term) {
-                                    if (term.hasOwnProperty(t)) {
-                                        if (str.toLowerCase().search(term[t].toLowerCase()) === -1) {
-                                            return false;
-                                        }
-                                    }
-                                }
-                                return true;
-                            });
-                            resp(list);
-                        },
-                        select: function (event, ui) {
-                            $('#search').val(ui.item.value).trigger('keypress', true);
-                        },
-                        messages: {
-                            noResults: '',
-                            results: function() {}
+            $('#search').on("keydown", function(event) {
+                if ( event.keyCode === $.ui.keyCode.TAB &&
+                    $(this).autocomplete( "instance" ).menu.active) {
+                    event.preventDefault();
+                }
+            }).autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        'url': $('#website_url').val() + 'plugin/shopping/run/searchindex',
+                        'type':'GET',
+                        'dataType':'json',
+                        'data': {searchTerm: request.term}
+                    }).done(function(responseData){
+                        if (!_.isEmpty(responseData)) {
+                            response($.map(responseData, function (responseData) {
+                                return {
+                                    label: responseData,
+                                    value: responseData
+                                };
+                            }));
+                        } else {
+                            $('#search').prop('disabled', true).prop('disabled', false).focus();
                         }
                     });
+                },
+                search: function() {
+
+                },
+                focus: function() {
+                    return true;
+                },
+                select: function(event, ui) {
+                    $('#search').val(ui.item.value).trigger('keypress', true);
+                },
+                minLength: 1,
+                messages: {
+                    noResults: '',
+                    results: function() {}
+                }
             });
         },
         addAction: function (e) {
@@ -66,8 +76,11 @@ define([
                 var view = new ProductView({model: product});
                 $(view.render().el).appendTo('#products');
             });
+
             if (this.products.length === 1) {
                 this.renderRelatedFor(this.products.first());
+            } else if(this.products.length === 0) {
+                $('#products').html('<p class="nothing">'+$('#product-list-holder').data('emptymsg')+'</p>');
             }
 
             this.$('img.lazy').lazyload({
@@ -98,7 +111,8 @@ define([
             if (e.keyCode == 13 || force) {
                 this.products.server_api.key = function () {
                     return e.currentTarget.value;
-                }
+                };
+                $('#product-list-holder').html('<div class="spinner"></div>');
                 this.products.pager();
                 $(e.target).autocomplete('close');
             }
