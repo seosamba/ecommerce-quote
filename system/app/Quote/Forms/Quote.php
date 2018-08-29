@@ -5,6 +5,8 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 	public function init() {
 		parent::init();
 
+        $translator =  Zend_Registry::get('Zend_Translate');
+
         //initial params and attributes
         $this->setLegend('Billing address')
 			->setAttribs(array(
@@ -16,6 +18,14 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
         //only necessary decorators
 		$this->setDecorators(array('FormElements', 'Form'));
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'         => 'prefix',
+            'id'           => 'prefix',
+            'label'        => $translator->translate('Prefix'),
+            'value'        => $this->_prefix,
+            'multiOptions' => array('' => $translator->translate('Select')) + array_combine(Quote_Tools_Tools::$userPrefixes, Quote_Tools_Tools::$userPrefixes)
+        )));
 
 		// setting required fields
 		$this->_setRequired(array(
@@ -48,7 +58,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
         //adding display groups
         $this->addDisplayGroups(array(
-			'leftColumn'  => array('firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
+			'leftColumn'  => array('prefix', 'firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
 			'rightColumn' => array('country', 'city', 'state', 'zip', 'disclaimer')
 		));
 
