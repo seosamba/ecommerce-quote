@@ -7,10 +7,6 @@
         <a href="#" class="page" data-page="prev">Previous</a>
     <% } %>
 
-    <% if (currentPage - 3 > firstPage) { %>
-        <span>...</span>
-    <% } %>
-
     <% for (p=currentPage-3; p<=currentPage+3; p++) { %>
         <% if (p < firstPage || p > lastPage) continue %>
             <% if (currentPage == p) { %>
@@ -18,10 +14,6 @@
             <% } else { %>
                 <a href="#" class="page" data-page="<%= p %>"><%= p+1 %></a>
             <% } %>
-    <% } %>
-
-    <% if (currentPage + 3 < lastPage) { %>
-        <span>...</span>
     <% } %>
 
     <% if (currentPage < totalPages) { %>

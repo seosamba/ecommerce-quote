@@ -15,6 +15,7 @@ define([
             firstPage: 0,
             currentPage: 0,
             perPage: 24,
+            last: false,
             totalPages: 10
         },
         server_api: {
@@ -26,7 +27,8 @@ define([
         },
         parse: function (response) {
             this.totalCount = _.has(response, 'totalCount') ? response.totalCount : response.length;
-            this.totalPages = Math.ceil(this.totalCount / this.perPage);
+            //this.totalPages = Math.ceil(this.totalCount / this.perPage);
+            this.totalPages = Math.round(this.totalCount / this.perPage);
             return _.has(response, 'data') ? response.data : response;
 
         },
