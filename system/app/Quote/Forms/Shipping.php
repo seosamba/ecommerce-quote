@@ -5,6 +5,8 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
 	public function init() {
 		parent::init();
 
+        $translator =  Zend_Registry::get('Zend_Translate');
+
         $this->addElement(new Zend_Form_Element_Select(array(
             'name'         => 'mobilecountrycode',
             'label'        => 'Mobile',
@@ -22,8 +24,17 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
 
         $this->getElement('firstname')->setRequired(true)->setAttribs(array('class' => 'quote-required required'));
 
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'         => 'prefix',
+            'id'           => 'prefix',
+            'label'        => $translator->translate('Prefix'),
+            'value'        => $this->_prefix,
+            'multiOptions' => array('' => $translator->translate('Select')) + array_combine(Quote_Tools_Tools::$userPrefixes, Quote_Tools_Tools::$userPrefixes)
+        )));
+
         $this->addDisplayGroups(array(
             'lcol' => array(
+                'prefix',
                 'firstname',
                 'lastname',
                 'company',

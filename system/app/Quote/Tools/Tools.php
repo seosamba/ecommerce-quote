@@ -10,6 +10,18 @@ class Quote_Tools_Tools {
     const TITLE_PREFIX = 'New quote: ';
 
     /**
+     * Defined user prefixes
+     * @var array
+     */
+    public static $userPrefixes = array(
+        'Mr',
+        'Mrs',
+        'Ms',
+        'Miss',
+        'Dr'
+    );
+
+    /**
      * Create quote
      *
      * @static
