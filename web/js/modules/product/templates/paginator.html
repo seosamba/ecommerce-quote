@@ -1,26 +1,22 @@
 <div class="paginator" data-collection="<%= collection %>">
-    <% if (firstPage != currentPage) { %>
-        <a href="#" class="page" data-page="first">First</a>
+    <% if (_.isUndefined(pages)) { var pages = 5; } %>
+    <% if (firstPage != currentPage) { %><a href="#" class="page" data-page="first">First</a><% } else { %><span>First</span><% } %>
+
+    <% if (currentPage > firstPage) { %><a href="#" class="page" data-page="prev">Previous</a><% } %>
+
+    <% if (currentPage - pages > firstPage) { %><span>...</span><% } %>
+
+    <% for (var p = currentPage - pages; p <= currentPage + pages; p++) { %>
+        <% if (p < firstPage || p > lastPage) continue; %>
+        <% if (currentPage == p) { %>
+            <span class="page selected"><%= p %></span>
+        <% } else { %>
+            <a href="#" class="page" data-page="<%= p %>"><%= p %></a>
+        <% } %>
     <% } %>
 
-    <% if (currentPage > firstPage) { %>
-        <a href="#" class="page" data-page="prev">Previous</a>
-    <% } %>
+    <% if (currentPage + pages < lastPage) { %><span>...</span><% } %>
 
-    <% for (p=currentPage-3; p<=currentPage+3; p++) { %>
-        <% if (p < firstPage || p > lastPage) continue %>
-            <% if (currentPage == p) { %>
-                <span class="page selected"><%= p+1 %></span>
-            <% } else { %>
-                <a href="#" class="page" data-page="<%= p %>"><%= p+1 %></a>
-            <% } %>
-    <% } %>
-
-    <% if (currentPage < totalPages) { %>
-        <a href="#" class="page" data-page="next">Next</a>
-    <% } %>
-
-    <% if (lastPage != currentPage) { %>
-        <a href="#" class="page" data-page="last">Last</a>
-    <% } %>
+    <% if (currentPage < totalPages) { %><a href="#" class="page" data-page="next">Next</a><% } %>
+    <% if (lastPage != currentPage) { %><a href="#" class="page" data-page="last">Last</a><% } else { %><span>Last</span> <% } %>
 </div>

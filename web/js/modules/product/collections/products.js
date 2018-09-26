@@ -12,23 +12,23 @@ define([
             url: $('#website_url').val() + 'api/store/products/'
         },
         paginator_ui: {
-            firstPage: 0,
-            currentPage: 0,
+            firstPage: 1,
+            currentPage: 1,
             perPage: 24,
             last: false,
             totalPages: 10
         },
         server_api: {
             os: 1,
-            count: true,
+            count: false,
+            onlyEnabled: true,
             limit: function() { return this.perPage; },
-            offset: function() { return this.currentPage * this.perPage },
+            offset: function(){ return (this.currentPage - this.firstPage) * this.perPage; },
             key: function(){ return this.key; }
         },
         parse: function (response) {
             this.totalCount = _.has(response, 'totalCount') ? response.totalCount : response.length;
-            //this.totalPages = Math.ceil(this.totalCount / this.perPage);
-            this.totalPages = Math.round(this.totalCount / this.perPage);
+            this.totalPages = Math.ceil(this.totalCount / this.perPage);
             return _.has(response, 'data') ? response.data : response;
 
         },
