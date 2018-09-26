@@ -21,7 +21,6 @@ define([
         server_api: {
             os: 1,
             count: false,
-            onlyEnabled: true,
             limit: function() { return this.perPage; },
             offset: function(){ return (this.currentPage - this.firstPage) * this.perPage; },
             key: function(){ return this.key; }
