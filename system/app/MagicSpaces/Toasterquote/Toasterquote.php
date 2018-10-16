@@ -114,23 +114,32 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
         $sids = array();
         $cartContentData = $cartContent;
         $cartStorage = Tools_ShoppingCart::getInstance();
-        foreach ($cartContent as $key => $value){
-            if(!in_array($value['sid'], $sids)){
-                $sids[] = $value['sid'];
-            }else{
-                $sid = array_search($value['sid'], array_column($cartContent, 'sid'));
-                $cartContentData[$sid]['qty'] +=  $value['qty'];
-                unset($cartContentData[$key]);
+        if($cartStorage instanceof Tools_ShoppingCart) {
+            $cart = Models_Mapper_CartSessionMapper::getInstance()->find($cartStorage->getCartId());
+
+            if($cart instanceof Models_Model_CartSession) {
+                $cartStorage->setShippingAddressKey($cart->getShippingAddressId());
+                $cartStorage->setBillingAddressKey($cart->getBillingAddressId());
             }
+
+            foreach ($cartContent as $key => $value){
+                if(!in_array($value['sid'], $sids)){
+                    $sids[] = $value['sid'];
+                }else{
+                    $sid = array_search($value['sid'], array_column($cartContent, 'sid'));
+                    $cartContentData[$sid]['qty'] +=  $value['qty'];
+                    unset($cartContentData[$key]);
+                }
+            }
+            $cartStorage->setCartId($value['cart_id']);
+
+            sort($cartContentData, SORT_NUMERIC);
+            $cartStorage->setContent($cartContentData);
+
+            Quote_Tools_Tools::calculate($cartStorage, false, true);
+
+            $cartStorage->save();
         }
-        $cartStorage->setCartId($value['cart_id']);
-
-        sort($cartContentData, SORT_NUMERIC);
-        $cartStorage->setContent($cartContentData);
-
-        Quote_Tools_Tools::calculate($cartStorage, false, true);
-
-        $cartStorage->save();
 
         return $cartContentData;
     }
