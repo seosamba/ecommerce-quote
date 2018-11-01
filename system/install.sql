@@ -33,4 +33,5 @@ INSERT INTO `page_types` (`page_type_id`, `page_type_name`) VALUES ('4', 'quote'
 
 INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
 
-UPDATE `plugin` SET `version` = '2.2.7' WHERE `name` = 'quote';
+UPDATE `plugin` SET `tags`='userdeleteerror' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.2.8' WHERE `name` = 'quote';
