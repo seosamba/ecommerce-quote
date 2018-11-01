@@ -211,7 +211,7 @@ class Quote extends Tools_PaymentGateway
     public static function systemUserDeleteErrorMessage()
     {
         $translator = Zend_Registry::get('Zend_Translate');
-        $systemUserDeleteErrorMessage = $translator->translate('You can\'t delete this user. This user used in quote');
+        $systemUserDeleteErrorMessage = $translator->translate('This user can\'t be deleted. User is used in quote.');
         return $systemUserDeleteErrorMessage;
     }
 
