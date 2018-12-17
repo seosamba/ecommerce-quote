@@ -106,7 +106,7 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
             }).css({borderColor: "indianred"});
 
             if(notValidElements.length) {
-                showMessage('<?php echo $this->translate('Required fields are missing! Please fill all fields marked with *'); ?>', true);
+                showMessage("<?php echo $this->translate('Required fields are missing! Please fill all fields marked with *'); ?>", true);
                 return false;
             }
 
