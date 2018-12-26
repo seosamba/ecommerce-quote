@@ -2,14 +2,27 @@
 	<?php $currOpts = array();?>
         <?php foreach($this->options as $title => $optData):?>
            <?php if (is_array($optData) && !empty($optData)): ?>
-                <?php $currOpts[$optData['option_id']] = $optData['id']; ?>
+                <?php
+                    if(empty($optData['option_id'])) {
+                        $currOpts[$optData['id']] = $optData['selection']['title'];
+                    } else {
+                        $currOpts[$optData['option_id']] = $optData['id'];
+                    }
+                ?>
+
                 <div class="options">
-                    <?php if(!isset($optData['type']) || $optData['type'] !== 'text'): ?>
-                        <span class="option-title"><?php echo $title; ?>:</span>
+                    <?php if(!isset($optData['type']) || $optData['type'] !== 'text' || $optData['type'] !== 'textarea' || $optData['type'] !== 'date'): ?>
+                        <?php if(is_numeric($title)) :?>
+                            <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                        <?php else:?>
+                            <span class="option-title"><?php echo $title; ?>:</span>
+                            <span><?php echo $optData['title']; ?></span>
+                        <?php endif;?>
+                    <?php else:?>
+                        <span><?php echo $optData['title']; ?></span>
                     <?php endif;?>
-                    <span><?php echo $optData['title']; ?></span>
                     <?php if(isset($optData['selection'])): ?>
-                        <?php if($optData['type'] === 'text'): ?>
+                        <?php if($optData['type'] === 'text' || $optData['type'] === 'textarea' || $optData['type'] === 'date'): ?>
                             <span><?php echo $optData['selection']['title']; ?></span>
                         <?php else :?>
                             <span><?php echo $optData['selection']; ?></span>

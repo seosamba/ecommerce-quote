@@ -38,14 +38,21 @@
         <!-- option type text -->
         <% if(value.type == 'text') { %>
             <label class="grid_3 mt0-5em"><%= value.title %></label>
-            <input class="grid_9" type="text" name="product-<%= id %>-option-<%= value.id %>" />
+            <input class="grid_9" type="text" name="product-<%= id %>-option-<%= value.id %>" value="<%= window.currOptions[value.id]%>" />
         <% } %>
         <!-- /option type text -->
+
+        <!-- option type textarea -->
+        <% if(value.type == 'textarea') { %>
+        <label class="grid_3 mt0-5em"><%= value.title %></label>
+        <textarea class="grid_9" name="product-<%= id %>-option-<%= value.id %>"><%= window.currOptions[value.id]%></textarea>
+        <% } %>
+        <!-- /option type textarea -->
 
         <!-- option type date -->
         <% if(value.type == 'date') { %>
             <label class="grid_3 mt0-5em" for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
-            <input class="grid_9" type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" />
+            <input class="grid_9" type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" value="<%= window.currOptions[value.id]%>" />
         <% } %>
         <!-- /option type date -->
         </li>

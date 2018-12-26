@@ -27,7 +27,7 @@ define([
             $('#manage-product-options-main').empty();
             var view = new ProductView({model: this.product});
 			$(view.render().el).appendTo('#manage-product-options-main');
-            $('#manage-product-options-main').data({currentSelection: this.currentSelection})
+            $('#manage-product-options-main').data({currentSelection: this.currentSelection});
 			return this;
         },
 		saveAction: function(e) {
