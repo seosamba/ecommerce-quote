@@ -7,5 +7,6 @@
     'Mrs' => 'Mme',
     'Ms' => 'Mme',
     'Miss' => 'Mlle',
-    'Dr' => 'Dr'
+    'Dr' => 'Dr',
+    'Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details' => 'Nous vous remercions! Votre devis a été généré. Notre équipe vous contactera bientôt pour préciser les détails'
 );?>
