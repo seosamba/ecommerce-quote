@@ -44,6 +44,12 @@
 'Save quote' => 'Salvar presupuesto',
 'Save and Send quote' => ' Guardar y enviar presupuesto',
 'Preview quote' => 'Previsualizar presupuesto',
-'Manage options' => 'Gestioanr opciones'
+'Manage options' => 'Gestioanr opciones',
+'Select' => 'Seleccionar',
+'Mr' => 'Sr',
+'Mrs' => 'Sra',
+'Ms' => 'Sra',
+'Miss' => 'Srta',
+'Dr' => 'Dr'
 
 );

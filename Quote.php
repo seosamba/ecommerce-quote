@@ -205,4 +205,15 @@ class Quote extends Tools_PaymentGateway
         return true;
     }
 
+    /**
+     * @return array
+     * @throws Zend_Exception
+     */
+    public static function systemUserDeleteErrorMessage()
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $systemUserDeleteErrorMessage = $translator->translate('This user can\'t be deleted. User is used in quote.');
+        return $systemUserDeleteErrorMessage;
+    }
+
 }

@@ -35,7 +35,7 @@ Ex: guest, customer, member
 {customersonly}
 <div class="quote-info" id="quote-billing-info">
     <p class="title">billing address</p>
-    <p>{$quote:address:billing:firstname} {$quote:address:billing:lastname}</p>
+    <p>{$quote:address:billing:prefix} {$quote:address:billing:firstname} {$quote:address:billing:lastname}</p>
     <p>{$quote:address:billing:company}</p>
     <p>{$quote:address:billing:address1} {$quote:address:billing:address2}</p>
     <p>{$quote:address:billing:city} {$quote:address:billing:state} {$quote:address:billing:zip}</p>
@@ -45,7 +45,7 @@ Ex: guest, customer, member
 </div>
 <div class="quote-info" id="quote-shipping-info">
     <p class="title">shipping address</p>
-    <p>{$quote:address:shipping:firstname} {$quote:address:shipping:lastname}</p>
+    <p>{$quote:address:shipping:prefix} {$quote:address:shipping:firstname} {$quote:address:shipping:lastname}</p>
     <p>{$quote:address:shipping:company}</p>
     <p>{$quote:address:shipping:address1} {$quote:address:shipping:address2}</p>
     <p>{$quote:address:shipping:city} {$quote:address:shipping:state} {$quote:address:shipping:zip}</p>
