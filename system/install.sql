@@ -24,7 +24,7 @@ CREATE TABLE `shopping_quote` (
   CONSTRAINT `shopping_quote_ibfk_2` FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE SET NULL,
   CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-UPDATE `plugin` SET `tags`='ecommerce' WHERE `name` = 'quote';
+
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_created', 'Quote_Tools_QuoteMailWatchdog');
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_updated', 'Quote_Tools_QuoteMailWatchdog');
 INSERT INTO `template_type` (`id`, `title`) VALUES ('typequote', 'Quote');
@@ -33,5 +33,5 @@ INSERT INTO `page_types` (`page_type_id`, `page_type_name`) VALUES ('4', 'quote'
 
 INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
 
-UPDATE `plugin` SET `tags`='userdeleteerror' WHERE `name` = 'quote';
+UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror' WHERE `name` = 'quote';
 UPDATE `plugin` SET `version` = '2.2.8' WHERE `name` = 'quote';
