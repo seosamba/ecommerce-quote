@@ -270,7 +270,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
 
         if($quote instanceof Quote_Models_Model_Quote) {
-            return $quote->toArray();
+            $quoteData = $quote->toArray();
+            $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
+            if (!empty($ownerInfo)) {
+                $quoteData['ownerName'] =  $ownerInfo['ownerName'];
+            }
+            return $quoteData;
         }
         $this->_error();
     }
