@@ -91,11 +91,28 @@ $(function() {
         var scope = field.data('scope');
         var type  = field.data('type');
         var sid = $(field).data('sid');
+        var value = field.val();
+
+        if(type == 'qty') {
+            value = Math.abs(value);
+            if(value == 0) {
+                showMessage('You can\'t set zero qty for product!', true, 3000);
+                return false;
+            }
+            field.val(value);
+        } else if(type == 'price') {
+            value = Math.abs(value);
+            if(value == 0) {
+                showMessage('You can\'t set zero price for product!', true, 3000);
+                return false;
+            }
+            field.val(value);
+        }
 
         var data = {
             qid   : quoteId,
             type  : type,
-            value : field.val(),
+            value : value,
             sid : sid
         };
 

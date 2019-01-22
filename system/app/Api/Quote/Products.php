@@ -144,7 +144,7 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         if($data['type'] == self::UPDATE_TYPE_PRICE || $data['type'] == self::UPDATE_TYPE_QTY) {
             $content = $storage->getContent();
-            $content[$data['sid']]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
+            $content[$data['sid']]['options'] = $itemData['options'];
             //$content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
             $storage->setContent($content);
         }

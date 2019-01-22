@@ -647,7 +647,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(!$defaultOptions || empty($defaultOptions)) {
                     return false;
                 }
-                $value                   = Quote_Tools_Tools::getProductOptions($product, $item['options']);
+                $value                   = $options;
                 $this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
             break;
             case 'qty':
