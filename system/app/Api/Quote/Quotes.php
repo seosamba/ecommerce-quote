@@ -380,12 +380,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['billing']['mobile_country_code_value'] = null;
                 }
 
+                if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please enter a valid email address'));
+                }
+
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
-                    if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
-                        $response->fail($translator->translate('Please enter a valid email address'));
-                    }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
 		            $quote->setUserId($customer->getId());
 	            }
@@ -415,10 +416,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 } else {
                     $quoteData['shipping']['mobile_country_code_value'] = null;
                 }
+
+                if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please enter a valid email address'));
+                }
+
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
-                    if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
-                        $response->fail($translator->translate('Please enter a valid email address'));
-                    }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
                     $quote->setUserId($customer->getId());
 	            }
