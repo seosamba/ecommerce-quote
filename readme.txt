@@ -9,8 +9,8 @@ Widgets on product page and checkout:
 
 Widgets that working with quote page (dashboard):
 {$quote:search} - Displays the search form on the quote page.
-{$quote:info:billing} - Displays the form to input user's address which used as user's payment info. (for admin)
-{$quote:info:shipping} - Displays a form to enter the user's shipping address. (for admin)
+{$quote:address:billing[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays the form to input user's address which used as user's payment info. (for admin)
+{$quote:address:shipping[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays a form to enter the user's shipping address. (for admin)
 {$quote:title} - Displays the quote name.
 {$quote:date:created} - Displays the date of quote creation.
 {$quote:date:expires} - Displays the quote expiration date.
