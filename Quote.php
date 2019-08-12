@@ -160,6 +160,7 @@ class Quote extends Tools_PaymentGateway
         $currentOptions = array();
         parse_str($this->_request->getParam('co'), $currentOptions);
         $this->_view->currOptions = $currentOptions;
+        $this->_view->sid = $this->_request->getParam('sid');
 
         $this->_show();
     }

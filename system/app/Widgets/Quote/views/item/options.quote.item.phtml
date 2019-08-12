@@ -1,27 +1,42 @@
 <?php if(!empty($this->options)): ?>
 	<?php $currOpts = array();?>
-        <?php foreach($this->options as $title => $optData):?>
-           <?php if (is_array($optData) && !empty($optData)): ?>
-                <?php $currOpts[$optData['option_id']] = $optData['id']; ?>
-                <div class="options">
-                    <?php if(!isset($optData['type']) || $optData['type'] !== 'text'): ?>
+    <?php foreach($this->options as $title => $optData):?>
+        <?php if (is_array($optData) && !empty($optData)): ?>
+            <?php
+            if(empty($optData['option_id']) && !empty($optData['id'])) {
+                $currOpts[$optData['id']] = $optData['selection']['title'];
+            } elseif (empty($optData['id']) && !empty($optData['option_id'])) {
+                $currOpts[$optData['option_id']] = $optData['title'];
+            } else {
+                $currOpts[$optData['option_id']] = $optData['id'];
+            }
+            ?>
+
+            <div class="options">
+                <?php if(!isset($optData['type']) || ($optData['type'] !== 'text' || $optData['type'] !== 'date')): ?>
+                    <?php if(is_numeric($title)) :?>
+                        <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                    <?php else:?>
                         <span class="option-title"><?php echo $title; ?>:</span>
+                        <span><?php echo $optData['title']; ?></span>
                     <?php endif;?>
+                <?php else:?>
                     <span><?php echo $optData['title']; ?></span>
-                    <?php if(isset($optData['selection'])): ?>
-                        <?php if($optData['type'] === 'text'): ?>
-                            <span><?php echo $optData['selection']['title']; ?></span>
-                        <?php else :?>
-                            <span><?php echo $optData['selection']; ?></span>
-                        <?php endif;?>
-                    <?php endif; ?>
-                </div>
-	        <?php endif; ?>
-        <?php endforeach; ?>
+                <?php endif;?>
+                <?php if(isset($optData['selection'])): ?>
+                    <?php if($optData['type'] === 'text' || $optData['type'] === 'date'): ?>
+                        <span><?php echo $optData['selection']['title']; ?></span>
+                    <?php else :?>
+                        <span><?php echo $optData['selection']; ?></span>
+                    <?php endif;?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
 <?php endif; ?>
 <?php if(Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)): ?>
     <?php if (isset($currOpts)): ?>
-        <a href="javascript:;" data-pheight="560" class="tpopup" data-url="<?php echo $this->websiteUrl; ?>plugin/quote/run/options/co/<?php echo http_build_query($currOpts); ?>/qid/<?php echo $this->quoteId; ?>/pid/<?php echo $this->productId;?>">
+        <a href="javascript:;" data-pheight="560" class="tpopup" data-url="<?php echo $this->websiteUrl; ?>plugin/quote/run/options/co/<?php echo http_build_query($currOpts); ?>/qid/<?php echo $this->quoteId; ?>/sid/<?php echo $this->sid;?>/pid/<?php echo $this->productId;?>">
             <strong><?php echo $this->translate('Manage options'); ?></strong>
         </a>
     <?php endif; ?>

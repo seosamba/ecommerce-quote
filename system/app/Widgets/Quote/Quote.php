@@ -229,7 +229,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_cart = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
     }
 
-    protected function _initAddressForm($addressType, $address = array()) {
+    /**
+     * @param $addressType
+     * @param array $address
+     * @param array $requiredFields
+     * @return Forms_Address_Abstract|Quote_Forms_Quote|Quote_Forms_Shipping|Zend_Form|null
+     * @throws Exceptions_SeotoasterWidgetException
+     * @throws Zend_Form_Exception
+     */
+    protected function _initAddressForm($addressType, $address = array(), $requiredFields = array()) {
         if(!$addressType) {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: Invalid address passed to the form init.');
         }
@@ -244,6 +252,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             break;
             case self::ADDRESS_TYPE_SHIPPING:
                 $addressForm = new Quote_Forms_Shipping();
+
+                $addressForm->getElement('lastname')->setRequired(false)->setAttrib('class','');
+                $addressForm->getElement('address1')->setRequired(false)->setAttrib('class','');
+                $addressForm->getElement('country')->setRequired(false)->setAttrib('class','');
+                $addressForm->getElement('city')->setRequired(false)->setAttrib('class','');
+                $addressForm->getElement('zip')->setRequired(false)->setAttrib('class','');
+
                 $addressForm->getElement('phonecountrycode')->setLabel('Phone');
                 $addressForm->getElement('phone')->setLabel(null);
                 //remove elements that are not neccessary here (submit button, mobile phone field, instructions text area)
@@ -261,6 +276,22 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $state = Tools_Geo::getStateByCode($address['state']);
             if(!is_null($state) && !empty($state)) {
                 $address['state'] = $state['id'];
+            }
+        }
+
+        if(!empty($addressForm) && !empty($requiredFields)) {
+            if(!empty($requiredFields)) {
+                foreach ($addressForm->getElements() as $element) {
+                    if (in_array($element->getName(), $requiredFields)) {
+                        if($element->getName() == 'mobile') {
+                            $addressForm->getElement('mobilecountrycode')->setRequired(true)->setAttrib('class','required');
+                        } elseif ($element->getName() == 'phone') {
+                            $addressForm->getElement('phonecountrycode')->setRequired(true)->setAttrib('class','required');
+                        }
+
+                        $element->setRequired(true)->setAttrib('class', 'required');
+                    }
+                }
             }
         }
 
@@ -472,8 +503,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
         $this->_view->addressType = $addressType;
         $this->_view->address     = $address;
-        if ($this->_editAllowed && (!isset($this->_options[1]) || (isset($this->_options[1]) && $this->_options[1] == 'default'))) {
-            $this->_view->addressForm = $this->_initAddressForm($addressType, $address);
+
+        if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
+            $requiredFields = array();
+            foreach (preg_grep('/^required-.*$/', $this->_options) as $reqOpt) {
+                $fields = explode(',', str_replace('required-', '', $reqOpt));
+                $requiredFields = array_merge($requiredFields, $fields);
+                unset($reqOpt);
+            }
+
+            $this->_view->addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
@@ -620,11 +659,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         // representation of product item that we store in the cart session
         $item    = array_merge($cartContent[$itemId], $product->toArray());
 
+        $options = ($item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+        $item['sid'] = Quote_Tools_Tools::generateStorageKey($product, $options);
+
         $widgetOption = $this->_options[0];
         switch($widgetOption) {
             case 'photo':
+                $img = $product->getPhoto();
+                $imgArr = explode('/', $img);
+
                 $value               = $item['photo'];
-                $this->_view->folder = (isset($this->_options[1]) && $this->_options[1] && is_dir($this->_websiteHelper->getMedia() . $this->_options[1])) ?  ('/' . $this->_options[1] . '/') : '/product/';
+                $this->_view->imgArr = $imgArr;
                 $this->_view->name   = $item['name'];
             break;
             case 'price':
@@ -641,14 +686,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(!$defaultOptions || empty($defaultOptions)) {
                     return false;
                 }
-                $value                   = Quote_Tools_Tools::getProductOptions($product, $item['options']);
+                $value                   = $options;
                 $this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
             break;
             case 'qty':
                 $value = $item['qty'];
             break;
             case 'remove':
-                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
+                return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" data-sid="'. $item['sid'] .'" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
             break;
             default:
                 return (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
@@ -657,6 +702,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->$widgetOption = $value;
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
+        $this->_view->sid           = $item['sid'];
+
         return $this->_view->render('item/' . $widgetOption . '.quote.item.phtml');
     }
 

@@ -1,6 +1,6 @@
 <div id="products-container" class="seotoaster container refreshOnClose">
     <?php
-    $quoteSearch = '<div class="grid_5"><input type="text" name="search" id="search" placeholder="'.$this->translate('search products').'"/></div>';
+    $quoteSearch = '<div class="grid_5"><input type="text" name="search" id="search" placeholder="'.$this->translate('Search by name, sku, mpn or tags').'"/></div>';
 
     echo $this->partial(
         'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
@@ -8,11 +8,13 @@
             'innerHeaderHtml' => $quoteSearch
         )
     ); ?>
-    <div id="products" class="content-footer scroll pl2 pr2 column_8 full-width"></div>
-    <footer class="grid_12">
-        <button id="save-btn" class="btn add-products ticon-save"><?php echo $this->translate('Add products and close'); ?></button>
-        <p class="message info grid_4 pt0px pb0px alpha"><i class="ticon-info-sign"></i> <?php echo $this->translate('Select 1 or more products&nbsp'); ?></p>
-    </footer>
+    <div id="products" class="content-footer scroll pl2 pr2 column_8 full-width" data-emptymsg="<?php echo $this->translate('Nothing Found'); ?>"></div>
+    <div class="grid_12">
+        <div class="products-paginator grid_9 mt15px alpha omega"></div>
+        <button id="save-btn" class="btn add-products ticon-save grid_3 mt10px omega"><?php echo $this->translate('Add products and close'); ?></button>
+        <!--p class="message info grid_3 pt0px pb0px omega mt15px"><i class="ticon-info-sign"></i> <?php //echo $this->translate('Select 1 or more products&nbsp'); ?></p-->
+    </div>
+    <input type="hidden" id="checkedProducts" value=""/>
 </div>
 <?php
         $this->headScript()->setAllowArbitraryAttributes(true)
