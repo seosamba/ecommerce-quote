@@ -422,7 +422,7 @@ class Quote_Tools_Tools {
      * @param array $options product options
      * @return string
      */
-    public static function generateStorageKey(array $item, $options = array())
+    public static function generateStorageKeyOld(array $item, $options = array())
     {
         return substr(md5($item['name'] . $item['sku'] . http_build_query($options)), 0, 10);
     }
