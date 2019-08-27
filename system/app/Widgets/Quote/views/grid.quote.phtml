@@ -3,11 +3,11 @@
     <td><input type="checkbox" class="quote-grid-row-checkbox" id="<%= id %>" <% if (this.model.get('checked')) {%>checked="checked"<% }%> /></td>
     <td><%= id %></td>
     <td>
-    <% if (userLink != '') { %>
+    <% if (typeof userLink !== 'undefined' && userLink != '') { %>
         <a target="_blank" href="<%= userLink %>">
     <% } %>
         <%= (creatorId == 0) ? ownerName : (customerName === '') ? "<?php echo $this->translate('Not set'); ?>" : customerName %>
-    <% if (userLink != '') { %>
+    <% if (typeof userLink !== 'undefined' && userLink != '') { %>
         </a>
     <% } %>
 

@@ -15,7 +15,37 @@ define([
         },
         toggleAction: function(e) {
             $(this.el).toggleClass('quote-checked');
-            this.model.set({checked: $(this.el).hasClass('quote-checked')});
+            var isCheckedProduct = $(this.el).hasClass('quote-checked');
+            var checkedProducts = $('#checkedProducts').val();
+            var currentProductId = $(this.el).find('input').data('pid');
+            var checkedProductsResult = [];
+
+            if(checkedProducts !== '') {
+                checkedProducts = checkedProducts.split(',');
+
+                if(isCheckedProduct) {
+                    $.each(checkedProducts, function(key, prodId) {
+                        checkedProductsResult = _.union(checkedProducts, parseInt(currentProductId, 10));
+                        window.appView.checkedProducts = _.union(window.appView.checkedProducts, parseInt(currentProductId, 10));
+                    });
+                    $('#checkedProducts').val(checkedProductsResult.join(','));
+                } else {
+                    $.each(checkedProducts, function(key, prodId) {
+                        if(_.contains(checkedProducts,prodId) && currentProductId == prodId) {
+                            var arrayIndex = checkedProducts.indexOf(prodId);
+                            checkedProducts.splice(arrayIndex, 1);
+                            window.appView.checkedProducts.splice(arrayIndex, 1);
+                        }
+                        checkedProductsResult = checkedProducts;
+                    });
+                    $('#checkedProducts').val(checkedProductsResult.join(','));
+                }
+            } else if(isCheckedProduct) {
+                $('#checkedProducts').val(currentProductId);
+                window.appView.checkedProducts.push(currentProductId);
+            }
+
+            this.model.set({checked: isCheckedProduct});
             checkboxRadioStyle();
         },
         addAction: function(e) {

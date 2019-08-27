@@ -160,6 +160,7 @@ class Quote extends Tools_PaymentGateway
         $currentOptions = array();
         parse_str($this->_request->getParam('co'), $currentOptions);
         $this->_view->currOptions = $currentOptions;
+        $this->_view->sid = $this->_request->getParam('sid');
 
         $this->_show();
     }
@@ -202,6 +203,17 @@ class Quote extends Tools_PaymentGateway
         $this->_layout->content = $this->_view->render($viewScript);
         echo $this->_layout->render();
         return true;
+    }
+
+    /**
+     * @return array
+     * @throws Zend_Exception
+     */
+    public static function systemUserDeleteErrorMessage()
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $systemUserDeleteErrorMessage = $translator->translate('This user can\'t be deleted. User is used in quote.');
+        return $systemUserDeleteErrorMessage;
     }
 
 }

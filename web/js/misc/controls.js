@@ -31,11 +31,12 @@ $(function() {
     // handling remove link click
     $(document).on('click', '.remove-product', function() {
         var selfEl = $(this);
+        var sid = $(selfEl).data('sid');
         showConfirm('You are about to remove an item. Are you sure?', function() {
             $.ajax({
                 url        : $('#website_url').val() + 'api/quote/products/id/' + selfEl.data('pid'),
                 type       : 'delete',
-                data       : JSON.stringify({qid: quoteId}),
+                data       : JSON.stringify({qid: quoteId, sid: sid}),
                 dataType   : 'json',
                 beforeSend : showSpinner()
             }).done(function(response) {
@@ -47,7 +48,8 @@ $(function() {
     });
 
     $(document).on('click', '#add-product-to-quote', function(e) {
-        updateQuote(quoteId, false);
+        var eventType = $(this).data('type');
+        updateQuote(quoteId, false, '', eventType);
     });
 
     // quote control click handling
@@ -58,8 +60,12 @@ $(function() {
                 updateQuote(quoteId, true, message);
             }, 'customer');
         } else {
+            var eventType = '';
+            if(typeof $(this).data('type') !== 'undefined') {
+                eventType = $(this).data('type')
+            }
             showLoader();
-            updateQuote(quoteId, false);
+            updateQuote(quoteId, false, '', eventType);
         }
     });
 
@@ -84,11 +90,30 @@ $(function() {
         var field = $(e.currentTarget);
         var scope = field.data('scope');
         var type  = field.data('type');
+        var sid = $(field).data('sid');
+        var value = field.val();
+
+        if(type == 'qty') {
+            value = Math.abs(value);
+            if(value == 0) {
+                showMessage('You can\'t set zero qty for product!', true, 3000);
+                return false;
+            }
+            field.val(value);
+        } else if(type == 'price') {
+            value = Math.abs(value);
+            if(value == 0) {
+                showMessage('You can\'t set zero price for product!', true, 3000);
+                return false;
+            }
+            field.val(value);
+        }
 
         var data = {
             qid   : quoteId,
             type  : type,
-            value : field.val()
+            value : value,
+            sid : sid
         };
 
         switch (scope) {
@@ -103,7 +128,7 @@ $(function() {
                         productId        : productId,
                         summary          : response
                     });
-                    recalculate(data);
+                    recalculate(data, sid);
                 });
                 break;
             case 'quote-partial':
@@ -111,7 +136,7 @@ $(function() {
                 request.done(function(response) {
                     hideSpinner();
                     $.extend(data, {summary:response});
-                    recalculate(data);
+                    recalculate(data, sid);
                 });
                 break;
         }
@@ -140,7 +165,37 @@ $(function() {
 });
 
 
-var updateQuote = function(quoteId, sendMail, mailMessage) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType) {
+
+    var quoteForm = $('#plugin-quote-quoteform'),
+        quoteShippingUserAddressForm = $('#shipping-user-address'),
+        notValidElements = [],
+        errorMessage = false;
+    
+    if(typeof quoteForm !== 'undefined') {
+        $(':input[name], select[name]', quoteForm).each(function(key, field) {
+            if($(field).hasClass('required')){
+                if($(field).attr('id') != 'quote-form-email' && $(this).val() === '') {
+                    notValidElements.push(field);
+                }
+            }
+        });
+    }
+
+    if(typeof quoteShippingUserAddressForm !== 'undefined') {
+        $(':input[name], select[name]', quoteShippingUserAddressForm).each(function(key, field) {
+            if($(field).hasClass('required')){
+                if($(field).attr('id') != 'email' && $(this).val() === '') {
+                    notValidElements.push(field);
+                }
+            }
+        });
+    }
+
+    if(notValidElements.length) {
+        errorMessage = true;
+    }
+
     var data = {
         qid         : quoteId,
         sendMail    : sendMail,
@@ -150,7 +205,9 @@ var updateQuote = function(quoteId, sendMail, mailMessage) {
         expiresAt   : $('#datepicker-expires').val(),
         shipping    : $('#shipping-user-address').serialize(),
         billing     : $('#plugin-quote-quoteform').serialize(),
-        mailMessage : (sendMail) ? mailMessage : ''
+        mailMessage : (sendMail) ? mailMessage : '',
+        errorMessage: errorMessage,
+        eventType   : (eventType) ? eventType : ''
     };
 
     var request = _update('api/quote/quotes/', data);
@@ -174,15 +231,24 @@ var _update = function(apiUrl, data) {
     });
 };
 
-var recalculate = function(options) {
+var recalculate = function(options, sid) {
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
-        var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
+        if(sid.length){
+            var unitPriceContainer = $('input.price-unit[data-sid="' + sid + '"]');
+            var qty        = parseInt($('input.qty-unit[data-sid="' + sid + '"]').val());
+        } else {
+            var unitPriceContainer = $('input.price-unit[data-pid="' + options.productId + '"]');
+            var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val());
+        }
 
         var unitPrice  = parseFloat(accounting.unformat(unitPriceContainer.val()));
-        var qty        = parseInt($('input.qty-unit[data-pid="' + options.productId + '"]').val());
         var totalPrice = unitPrice * qty;
 
-        $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
+        if(sid.length){
+            $('.price-total[data-sid="' + sid + '"]').text(accounting.formatMoney(totalPrice));
+        } else {
+            $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
+        }
         unitPriceContainer.val(accounting.formatNumber(unitPrice, 2));
     }
     var summary = options.summary;

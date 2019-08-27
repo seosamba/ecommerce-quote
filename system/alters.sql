@@ -17,6 +17,10 @@ ADD `editor_id` int NULL AFTER `edited_by`;
 -- version: 2.2.6
 INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
 
+-- 31/10/2018
+-- version: 2.2.7
+UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror' WHERE `name` = 'quote';
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.2.7' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.2.8' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

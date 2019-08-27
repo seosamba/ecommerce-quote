@@ -95,17 +95,23 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $storage     = $this->_invokeQuoteStorage($data['qid']);
         $cartContent = $storage->getContent();
         $itemData    = null;
+        $cartContentData = array();
+
 
         foreach($cartContent as $key => $item) {
-            if (empty($item['originalPrice'])) {
-                $cartContent[$key]['originalPrice'] = $item['price'];
-            }
-            if($item['product_id'] != $productId) {
+            $product = Models_Mapper_ProductMapper::getInstance()->find($item['product_id']);
+            $options = ($item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+            $sid = Quote_Tools_Tools::generateStorageKey($item, $options);
+
+            if($item['product_id'] != $productId || $sid != $data['sid']) {
+                $cartContentData[$sid] = $cartContent[$key];
                 continue;
             }
             $itemData = $item;
             unset($cartContent[$key]);
         }
+
+        $cartContent = $cartContentData;
 
         $product   = Models_Mapper_ProductMapper::getInstance()->find($itemData['product_id']);
         $options   = !empty($itemData['options']) ? $itemData['options'] : [];
@@ -142,7 +148,8 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         if($data['type'] == self::UPDATE_TYPE_PRICE || $data['type'] == self::UPDATE_TYPE_QTY) {
             $content = $storage->getContent();
-            $content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
+            $content[$data['sid']]['options'] = $itemData['options'];
+            //$content[$storage->findSidById($product->getId())]['options'] = Quote_Tools_Tools::getProductOptions($product, $itemData['options']);
             $storage->setContent($content);
         }
 
@@ -165,16 +172,16 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $cartContent = $storage->getContent();
 
         foreach($ids as $id) {
-//            if(sizeof($cartContent) > 1) {
-                foreach($cartContent as $key => $cartItem) {
-                    if(isset($cartItem['product_id']) && $cartItem['product_id'] == $id) {
-                        unset($cartContent[$key]);
-                    }
+            foreach($cartContent as $key => $cartItem) {
+                $product = Models_Mapper_ProductMapper::getInstance()->find($id);
+                $options = ($cartItem['options']) ? $cartItem['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+                $sid = Quote_Tools_Tools::generateStorageKey($product, $options);
+
+                if(isset($cartItem['product_id']) && $cartItem['product_id'] == $id && $data['sid'] ==  $sid) {
+                    unset($cartContent[$key]);
                 }
-                $storage->setContent($cartContent);
-//            } else {
-//                $storage->setContent(null);
-//            }
+            }
+            $storage->setContent($cartContent);
         }
         return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }
