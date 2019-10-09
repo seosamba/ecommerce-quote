@@ -102,11 +102,6 @@ define([
             } else if(this.products.length === 0) {
                 $('#products').html('<p class="nothing">'+$('#products').data('emptymsg')+'</p>');
             }
-
-            this.$('img.lazy').lazyload({
-                container: this.$('#products'),
-                effect: 'fadeIn'
-            });
             var paginatorData = {
                 collection : 'products'
             };
