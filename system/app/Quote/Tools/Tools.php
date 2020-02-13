@@ -202,8 +202,15 @@ class Quote_Tools_Tools {
     public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null, $skipGroupPriceRecalculation = false) {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
         $shippingPrice    = $cart->getShippingPrice();
+        $shippingService  = $cart->getShippingService();
+        $shippingType     = $cart->getShippingType();
         $storage->setDiscount($cart->getDiscount());
-        $storage->setShippingData(array('price'=>$shippingPrice));
+
+        $storage->setShippingData(array(
+            'price'   => $shippingPrice,
+            'service' => $shippingService,
+            'type'    => $shippingType
+        ));
         $storage->setDiscountTaxRate($cart->getDiscountTaxRate());
         $data             = $storage->calculate(true, $skipGroupPriceRecalculation);
 
