@@ -29,7 +29,7 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
             'id'           => 'prefix',
             'label'        => $translator->translate('Prefix'),
             'value'        => $this->_prefix,
-            'multiOptions' => array('' => $translator->translate('Select')) + array_combine(Quote_Tools_Tools::$userPrefixes, Quote_Tools_Tools::$userPrefixes)
+            'multiOptions' => array('' => $translator->translate('Select')) + Tools_System_Tools::getAllowedPrefixesList()
         )));
 
         $this->addDisplayGroups(array(
