@@ -666,11 +666,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         switch($widgetOption) {
             case 'photo':
                 $img = $product->getPhoto();
-                $imgArr = explode('/', $img);
 
                 $value               = $item['photo'];
-                $this->_view->imgArr = $imgArr;
                 $this->_view->name   = $item['name'];
+
+                $photoUrl = Tools_Misc::prepareProductImage($value, 'product');
+
+                $this->_view->imageUrl = $photoUrl;
+
             break;
             case 'price':
                 $price                  = ($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
