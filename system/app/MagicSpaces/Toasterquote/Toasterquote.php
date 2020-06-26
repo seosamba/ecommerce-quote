@@ -113,9 +113,19 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
     private function _processSid($cartContent){
         $sids = array();
         $cartContentData = $cartContent;
+        if (empty($cartContentData[0])) {
+            return $cartContent;
+        }
+
+        if (empty($cartContentData[0]['cart_id'])) {
+            return $cartContent;
+        }
+
+        $cartId = $cartContentData[0]['cart_id'];
+
         $cartStorage = Tools_ShoppingCart::getInstance();
         if($cartStorage instanceof Tools_ShoppingCart) {
-            $cart = Models_Mapper_CartSessionMapper::getInstance()->find($cartStorage->getCartId());
+            $cart = Models_Mapper_CartSessionMapper::getInstance()->find($cartId);
 
             if($cart instanceof Models_Model_CartSession) {
                 $cartStorage->setShippingAddressKey($cart->getShippingAddressId());
@@ -130,7 +140,7 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
                         unset($cartContentData[$key]);
                     }
                 }
-                $cartStorage->setCartId($value['cart_id']);
+                $cartStorage->setCartId($cartId);
 
                 sort($cartContentData, SORT_NUMERIC);
                 $cartStorage->setContent($cartContentData);
