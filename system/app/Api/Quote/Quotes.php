@@ -195,6 +195,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         ->setUserId($customer->getId())
                 );
 
+                //disable tax if user from another zone
+                $cartSession = Tools_ShoppingCart::getInstance();
+                $cartSession->setBillingAddressKey($cart->getBillingAddressId());
+                $cartSession->setShippingAddressKey($cart->getShippingAddressId());
+                $cartSession->calculate(true);
+                $cartSession->saveCartSession();
+
                 $shippingServices = Models_Mapper_ShippingConfigMapper::getInstance()->fetchByStatus(
                     Models_Mapper_ShippingConfigMapper::STATUS_ENABLED
                 );
