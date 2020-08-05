@@ -281,6 +281,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     }
 
     public function putAction() {
+        $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
@@ -305,9 +306,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         if (!empty($ccEmailsArr)) {
             foreach ($ccEmailsArr as $ccEmail) {
-                if ($emailValidator->isValid($ccEmail)) {
-                    $ccValidEmails[] = $ccEmail;
+                if (!$emailValidator->isValid($ccEmail)) {
+                    $response->fail($translator->translate('Email') . ' ' . $ccEmail . ' ' . $translator->translate('not valid'));
                 }
+                $ccValidEmails[] = $ccEmail;
             }
         }
 
@@ -372,8 +374,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 )));
                 $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
             }
-
-            $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
 
             if(isset($quoteData['billing'])) {
                 if(!empty($quoteData['errorMessage']) && empty($eventType)) {
