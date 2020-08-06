@@ -307,7 +307,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         if (!empty($ccEmailsArr)) {
             foreach ($ccEmailsArr as $ccEmail) {
                 if (!$emailValidator->isValid($ccEmail)) {
-                    $response->fail($translator->translate('Email') . ' ' . $ccEmail . ' ' . $translator->translate('not valid'));
+                    $response->fail($translator->translate('Not valid email address') . ' - ' . $ccEmail);
                 }
                 $ccValidEmails[] = $ccEmail;
             }
