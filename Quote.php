@@ -216,4 +216,42 @@ class Quote extends Tools_PaymentGateway
         return $systemUserDeleteErrorMessage;
     }
 
+    public function getPaymenttypeinfoAction()
+    {
+        $accessList = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+
+        if (in_array($this->_sessionHelper->getCurrentUser()->getRoleId(), $accessList)) {
+            $paymentType = filter_var($this->_request->getParam('paymentType'), FILTER_SANITIZE_STRING);
+            $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+            $isSignatureRequired = filter_var($this->_request->getParam('isSignatureRequired'), FILTER_SANITIZE_NUMBER_INT);
+            $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+            $quoteModel = $quoteMapper->find($quoteId);
+            if ($quoteModel instanceof Quote_Models_Model_Quote) {
+                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($quoteModel->getCartId());
+                $currency = Zend_Registry::get('Zend_Currency');
+                $quoteTotal = $currency->toCurrency($cart->getTotal());
+                $message = '';
+                if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL) {
+                    if (!empty($isSignatureRequired)) {
+                        $message = $this->_translator->translate('Please sign a quote and make full payment') . ': ' . $quoteTotal;
+                    } else {
+                        $message = $this->_translator->translate('Please make full payment') . ': ' . $quoteTotal;
+                    }
+                }
+
+                if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                    $message = '';
+                }
+
+                $this->_responseHelper->success($message);
+            }
+
+            $this->_responseHelper->fail('');
+        }
+    }
+
 }

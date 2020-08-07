@@ -36,7 +36,13 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 			'created_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),
 			'updated_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getUpdatedAt())),
             'discount_tax_rate' => $quote->getDiscountTaxRate(),
-            'delivery_type'     => $quote->getDeliveryType()
+            'delivery_type'     => $quote->getDeliveryType(),
+            'payment_type'     => $quote->getPaymentType(),
+            'is_signature_required'     => $quote->getIsSignatureRequired(),
+            'pdf_template'     => $quote->getPdfTemplate(),
+            'signature'     => $quote->getSignature(),
+            'is_quote_signed'     => $quote->getIsQuoteSigned(),
+            'quote_signed_at'     => $quote->getQuoteSignedAt(),
 		);
 
 		$exists = $this->find($quote->getId());

@@ -63,6 +63,9 @@ class Quote_Tools_Tools {
                 ->setEditedBy($options['editedBy'])
                 ->setDisclaimer($options['disclaimer'])
                 ->setCreatorId($options['creatorId'])
+                ->setIsSignatureRequired('0')
+                ->setIsQuoteSigned('0')
+                ->setPaymentType(Quote_Models_Model_Quote::PAYMENT_TYPE_FULL)
         );
         Tools_ShoppingCart::getInstance()->clean();
         return $quote;

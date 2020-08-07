@@ -1,0 +1,111 @@
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+
+<div id="quote-signature-block" class="grid_12">
+    <?php if (empty($this->isQuoteSigned)) :?>
+        <?php if ($this->accessAllowed === true):?>
+                <?php echo $this->translate('Signature');?>:
+                <img src="<?php echo $this->websiteUrl.'plugins/quote/web/images/signature-placeholder.png';?>">
+                <?php echo $this->translate('Client signature will be here');?>:
+        <?php else:?>
+            <form id="quote-signature-form">
+                <div id="signature-block">
+                    <canvas id="quote-signature-pad" width="300" height="180"></canvas>
+                </div>
+                <div id="quote-signature-form-refresh" name="quote-signature-form-refresh">
+                    <img id="quote-signature-form-clear" src="<?php echo $this->websiteUrl.'plugins/quote/web/images/refresh.png';?>" alt="<?php echo $this->translate('Clear Signature')?>">
+                </div>
+                <input class="hidden" type="text" name="quote-signature-form-img" id="quote-signature-form-img">
+                <input class="hidden" type="text" name="signature-quote-id" id="signature-quote-id" value="<?php echo $this->quoteId;?>">
+                <input name="submit-quote-signature-form" type="submit" value="<?php echo $this->translate('Sign a Quote');?>">
+            </form>
+        <?php endif;?>
+    <?php else :?>
+        <img id="quote-signature-signed-img" src="<?php echo $this->signature;?>">
+    <?php endif;?>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if ($('#quote-signature-pad').length > 0) {
+            var signaturePad = new SignaturePad(document.getElementById('quote-signature-pad'), {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+
+            var cancelButton = document.getElementById('quote-signature-form-clear');
+
+            $(document).on('submit', '#quote-signature-form', function (e) {
+                var data = signaturePad.toDataURL('image/png');
+                $('#quote-signature-form-img').val(data);
+            });
+
+            cancelButton.addEventListener('click', function (event) {
+                signaturePad.clear();
+            });
+        }
+
+        $(document).on('submit','#quote-signature-form', function(e){
+            e.preventDefault();
+
+            var form = $(e.currentTarget),
+                quoteId = form.find('#signature-quote-id').val(),
+                signature = form.find('#quote-signature-form-img').val();
+
+            showConfirm('<?php echo $this->translate('Are you sure you want to sign a quote?');?>', function() {
+                $.ajax({
+                    url        : $('#website_url').val() + 'api/quote/signature/',
+                    type       : 'POST',
+                    data       : {
+                        'quoteId': quoteId,
+                        'signature': signature
+                    },
+                    dataType   : 'json',
+                    beforeSend : showSpinner()
+                }).done(function(response) {
+                    hideSpinner();
+                    if (response.error == '0') {
+                        showMessage(response.responseText, false, 5000);
+                        $('#quote-signature-form').replaceWith('<img id="quote-signature-signed-img" src="'+signature+'">');
+                    }
+                }).fail(function (response) {
+                    showMessage(JSON.parse(response.responseText), true, 5000);
+                });
+            });
+        });
+    });
+</script>
+
+
+<style>
+    #signature-block {
+        height: 180px;
+        width: 300px;
+        z-index: 99;
+    }
+
+    #signature-pad {
+        border-width: 2px;
+        border-style: dashed;
+        border-color: rgb(221, 221, 221);
+        background-color: rgb(235, 235, 235);
+        cursor: url(<?php echo $this->websiteUrl.'plugins/quote/web/images/pen.cur';?>), pointer;
+        width: 300px;
+        height: 180px;
+    }
+
+    #quote-signature-form-refresh {
+        margin:5px;
+        position:relative;
+        height:20px;
+        width:300px;
+        background-color:transparent;
+    }
+
+    #quote-signature-form-clear {
+        cursor:pointer;
+        float:right;
+        height:24px;
+        width:24px;
+        border:0px solid transparent;
+    }
+</style>

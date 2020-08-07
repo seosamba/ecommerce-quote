@@ -196,6 +196,11 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType) {
         errorMessage = true;
     }
 
+    var isQuoteSignatureRequired = 0;
+    if ($('#quote-signature-required').is(':checked')) {
+        isQuoteSignatureRequired = 1;
+    }
+
     var data = {
         qid         : quoteId,
         sendMail    : sendMail,
@@ -207,7 +212,10 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType) {
         billing     : $('#plugin-quote-quoteform').serialize(),
         mailMessage : (sendMail) ? mailMessage : '',
         errorMessage: errorMessage,
-        eventType   : (eventType) ? eventType : ''
+        eventType   : (eventType) ? eventType : '',
+        paymentType : $('#quote-payment-type-selector').val(),
+        pdfTemplate : $('#quote-pdf-template-selector').val(),
+        isSignatureRequired : isQuoteSignatureRequired
     };
 
     var request = _update('api/quote/quotes/', data);

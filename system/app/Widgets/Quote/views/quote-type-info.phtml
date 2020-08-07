@@ -1,0 +1,20 @@
+<div id="quote-type-info" class="grid_12">
+    <?php if ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL): ?>
+        <span id="quote-type-info-message">
+        <?php if (empty($this->isSignatureRequired)): ?>
+            <?php echo $this->translate('Please make full payment'); ?>
+                : <?php echo $this->currency($this->quoteTotal); ?>
+        <?php else :?>
+            <?php echo $this->translate('Please sign a quote and make full payment'); ?>
+            : <?php echo $this->currency($this->quoteTotal); ?>
+        <?php endif;?>
+        </span>
+    <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT): ?>
+        <span id="quote-type-info-message"><?php echo $this->translate('You don\'t have to pay full price now. Only');?>
+            %<?php echo $this->translate('required!');?>
+            <?php echo $this->translate('Please make partial payment');?>:
+        </span>
+    <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE): ?>
+        <span id="quote-type-info-message"></span>
+    <?php endif; ?>
+</div>

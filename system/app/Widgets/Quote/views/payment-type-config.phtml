@@ -1,0 +1,97 @@
+<div id="quote-payment-type-config-block" class="grid_12">
+    <?php if ($this->accessAllowed === true): ?>
+        <p><label><?php echo $this->translate('Payment type'); ?></label>
+            <select
+                <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : '') ?> id="quote-payment-type-selector"
+                name="quote-payment-type-selector">
+                <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_FULL === $this->paymentType) ? 'selected' : ''); ?>
+                        value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_FULL; ?>"><?php echo $this->translate('Full Payment required'); ?></option>
+                <!--                <option --><?php //echo((Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT === $this->paymentType) ? 'selected' : ''); ?>
+                <!--                        value="-->
+                <?php //echo Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT; ?><!--">-->
+                <?php //echo $this->translate('Partial Payment required'); ?><!--</option>-->
+                <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType) ? 'selected' : ''); ?>
+                        value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE; ?>"><?php echo $this->translate('Only Signature required'); ?></option>
+            </select>
+        </p>
+        <p>
+            <label><?php echo $this->translate('Pdf template'); ?></label>
+            <select <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : '') ?> id="quote-pdf-template-selector" name="quote-pdf-template-selector">
+                <option value="0"><?php echo $this->translate('No template'); ?></option>
+                <?php if (!empty($this->pdfTemplates)): ?>
+                    <?php foreach ($this->pdfTemplates as $template): ?>
+                        <option <?php echo(($template->getName() === $this->pdfTemplate) ? 'selected' : ''); ?>
+                                value="<?php echo $template->getName(); ?>"><?php echo $template->getName(); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </p>
+        <p>
+            <label><?php echo $this->translate('Signature required'); ?></label>
+            <input <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : ''); ?>  <?php echo(($this->isSignatureRequired == '1') ? 'checked' : ''); ?>
+                    id="quote-signature-required"
+                    name="quote-signature-required"
+                    type="checkbox"/>
+        </p>
+    <?php endif; ?>
+    <input type="hidden" id="quote-id-payment-type" name="quote-id-payment-type" value="<?php echo $this->quoteId; ?>">
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(document).on('change', '#quote-payment-type-selector', function (e) {
+            var paymentType = $(e.currentTarget).val(),
+                isSignatureRequired = 0;
+
+            if ($('#quote-signature-required').is(':checked')) {
+                isSignatureRequired = 1;
+            }
+
+            if (paymentType === 'only_signature') {
+                $('#quote-signature-required').prop('disabled', true).prop('checked', true);
+            } else {
+                $('#quote-signature-required').prop('disabled', false);
+            }
+
+            changePaymentTypeMessage(paymentType, isSignatureRequired);
+        });
+
+        $(document).on('change', '#quote-signature-required', function (e) {
+            var paymentType = $('#quote-payment-type-selector').val(),
+                isSignatureRequired = 0;
+
+            if ($('#quote-signature-required').is(':checked')) {
+                isSignatureRequired = 1;
+            }
+
+            changePaymentTypeMessage(paymentType, isSignatureRequired);
+        });
+
+        function changePaymentTypeMessage(paymentType, isSignatureRequired) {
+            if (paymentType === 'only_signature') {
+                $('#quote-type-info-message').addClass('hidden');
+            } else {
+                $.ajax({
+                    url: $('#website_url').val() + 'plugin/quote/run/getPaymenttypeinfo',
+                    type: 'POST',
+                    data: {
+                        'quoteId': $('#quote-id-payment-type').val(),
+                        'paymentType': paymentType,
+                        'isSignatureRequired': isSignatureRequired
+                    },
+                    dataType: 'json',
+                    beforeSend: showSpinner()
+                }).done(function (response) {
+                    hideSpinner();
+                    if (response.error == '0') {
+                        $('#quote-type-info-message').html(response.responseText);
+                        $('#quote-type-info-message').removeClass('hidden');
+                    }
+                }).fail(function (response) {
+                    showMessage(JSON.parse(response.responseText), true, 5000);
+                });
+            }
+        }
+    });
+</script>
+

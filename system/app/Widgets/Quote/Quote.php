@@ -148,6 +148,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         'sendQuote'      => false
     );
 
+    public static $_accessList  = array(
+        Tools_Security_Acl::ROLE_SUPERADMIN,
+        Tools_Security_Acl::ROLE_ADMIN,
+        Shopping::ROLE_SALESPERSON
+    );
+
     /**
      * Initialize all helpers, cofigs, etc...
      *
@@ -897,5 +903,71 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         return '';
+    }
+
+    protected function _renderSignature()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $this->_view->accessAllowed = $this->_editAllowed;
+
+            $quoteId = $this->_quote->getId();
+            $isQuoteSigned = $this->_quote->getIsQuoteSigned();
+            $signature = $this->_quote->getSignature();
+
+            $this->_view->isQuoteSigned = $isQuoteSigned;
+            $this->_view->signature = $signature;
+            $this->_view->quoteId = $quoteId;
+
+            return $this->_view->render('signature.phtml');
+        }
+    }
+
+    protected function _renderQuotetypeinfo()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            if (empty($paymentType)) {
+                $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+            }
+
+
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+            $this->_view->paymentType = $paymentType;
+            $this->_view->quoteTotal = $this->_cart->getTotal();
+            $this->_view->isSignatureRequired = $isSignatureRequired;
+
+            return $this->_view->render('quote-type-info.phtml');
+        }
+
+    }
+
+
+    protected function _renderPaymenttypeconfig()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $this->_view->accessAllowed = $this->_editAllowed;
+            $templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
+            $pdfTemplates = $templateMapper->findByType('typepdfquote');
+            $paymentType = $this->_quote->getPaymentType();
+            if (empty($paymentType)) {
+                $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+            }
+
+            $pdfTemplate = $this->_quote->getPdfTemplate();
+            if (empty($pdfTemplate)) {
+                $pdfTemplate = '';
+            }
+
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+            $quoteStatus = $this->_quote->getStatus();
+
+            $this->_view->quoteId = $this->_quote->getId();
+            $this->_view->quoteStatus = $quoteStatus;
+            $this->_view->paymentType = $paymentType;
+            $this->_view->isSignatureRequired = $isSignatureRequired;
+            $this->_view->pdfTemplate = $pdfTemplate;
+            $this->_view->pdfTemplates = $pdfTemplates;
+            return $this->_view->render('payment-type-config.phtml');
+        }
     }
 }
