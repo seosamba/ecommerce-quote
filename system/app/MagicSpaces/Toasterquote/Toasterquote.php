@@ -142,6 +142,14 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
                 }
                 $cartStorage->setCartId($cartId);
 
+                $productMapper = Models_Mapper_ProductMapper::getInstance();
+                foreach ($cartContentData as $key => $content) {
+                    $productObject = $productMapper->find($content['product_id']);
+                    if ($productObject instanceof Models_Model_Product) {
+                        $cartContentData[$key]['taxClass'] = $productObject->getTaxClass();
+                    }
+                }
+
                 sort($cartContentData, SORT_NUMERIC);
                 $cartStorage->setContent($cartContentData);
 
