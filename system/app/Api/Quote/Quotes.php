@@ -288,6 +288,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     }
 
     public function putAction() {
+        $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
@@ -298,6 +299,25 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         if(!$quoteId) {
             $this->_error('Not enough parameters', self::REST_STATUS_BAD_REQUEST);
+        }
+
+        $emailValidator = new Tools_System_CustomEmailValidator();
+
+        $ccValidEmails = array();
+        $ccEmailsArr = array();
+        $ccEmails = filter_var($quoteData['ccEmails'], FILTER_SANITIZE_STRING);
+
+        if(!empty($ccEmails)) {
+            $ccEmailsArr = array_filter(array_unique(array_map('trim', explode(',', $ccEmails))));
+        }
+
+        if (!empty($ccEmailsArr)) {
+            foreach ($ccEmailsArr as $ccEmail) {
+                if (!$emailValidator->isValid($ccEmail)) {
+                    $response->fail($translator->translate('Not valid email address') . ' - ' . $ccEmail);
+                }
+                $ccValidEmails[] = $ccEmail;
+            }
         }
 
         $quote = $this->_quoteMapper->find($quoteId);
@@ -356,13 +376,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if($quoteData['sendMail']) {
                 $quote->registerObserver(new Tools_Mail_Watchdog(array(
                     'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
-                    'mailMessage' => $quoteData['mailMessage']
+                    'mailMessage' => $quoteData['mailMessage'],
+                    'ccEmails'    => $ccValidEmails
                 )));
                 $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
             }
-
-            $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
-            $emailValidator = new Tools_System_CustomEmailValidator();
 
             if(isset($quoteData['billing'])) {
                 if(!empty($quoteData['errorMessage']) && empty($eventType)) {
