@@ -62,6 +62,11 @@ class Api_Quote_Signature extends Api_Service_Abstract
                 $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
                 $themeData = Zend_Registry::get('theme');
 
+                $session = Zend_Controller_Action_HelperBroker::getExistingHelper('session');
+                $session->storeCartSessionConversionKey = $quote->getCartId();
+                $registry = Zend_Registry::getInstance();
+                $registry->set('processingAutoQuoteId', $quote->getId());
+
                 $parserOptions = array(
                     'websiteUrl' => $websiteHelper->getUrl(),
                     'websitePath' => $websiteHelper->getPath(),
@@ -76,9 +81,6 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
                 $pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile->WriteHTML($content);
-
-                $session = Zend_Controller_Action_HelperBroker::getExistingHelper('session');
-                $session->storeCartSessionConversionKey = $quote->getCartId();
 
                 $pdfFileName = 'Quote_' . md5($quote->getId() . microtime()) . '.pdf';
 
