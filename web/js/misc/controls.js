@@ -56,8 +56,8 @@ $(function() {
     $(document).on('click', '.quote-control', function(e) {
         var control  = $(e.currentTarget);
         if(parseInt(control.data('sendmail')) == 1) {
-            showMailMessageEdit(control.data('trigger'), function(message) {
-                updateQuote(quoteId, true, message);
+            showMailMessageEdit(control.data('trigger'), function(message, ccEmails) {
+                updateQuote(quoteId, true, message, '', ccEmails);
             }, 'customer');
         } else {
             var eventType = '';
@@ -185,8 +185,7 @@ var processDraggable = function(quoteId) {
     return true;
 }
 
-var updateQuote = function(quoteId, sendMail, mailMessage, eventType) {
-
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
         notValidElements = [],
@@ -227,7 +226,8 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType) {
         billing     : $('#plugin-quote-quoteform').serialize(),
         mailMessage : (sendMail) ? mailMessage : '',
         errorMessage: errorMessage,
-        eventType   : (eventType) ? eventType : ''
+        eventType   : (eventType) ? eventType : '',
+        ccEmails    : ccEmails
     };
 
     var request = _update('api/quote/quotes/', data);
