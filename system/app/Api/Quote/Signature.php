@@ -46,6 +46,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
         $quote->setIsQuoteSigned('1');
         $quote->setSignature($signature);
         $quote->setQuoteSignedAt(Tools_System_Tools::convertDateFromTimezone('now'));
+        $quoteMapper->save($quote);
 
         $pdfTemplate = $quote->getPdfTemplate();
         if (!empty($pdfTemplate)) {
