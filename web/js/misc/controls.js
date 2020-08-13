@@ -71,10 +71,12 @@ $(function() {
 
     //clone quote
     $(document).on('click', '.clone-quote', function(e) {
+        var pageId = $('#page_id').val();
+
         $.ajax({
             url        : $('#website_url').val() + 'api/quote/quotes/',
             type       : 'post',
-            data       : {type: 'clone', quoteId: quoteId},
+            data       : {type: 'clone', quoteId: quoteId, pageId: pageId},
             dataType   : 'json',
             beforeSend : showSpinner()
         }).done(function(response) {
