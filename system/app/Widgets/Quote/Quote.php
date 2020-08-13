@@ -138,6 +138,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     protected $_debugMode = false;
 
     /**
+     * @var bool
+     */
+    protected $_userMode = false;
+
+    /**
      * Fields names that should be always present on the quote form
      *
      * @var array
@@ -216,6 +221,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if (Zend_Registry::isRegistered('processingAutoQuoteId')) {
             $this->_quote = $mapper->find($registry->get('processingAutoQuoteId')
             );
+            $this->_userMode = true;
         } else {
 
             $this->_quote = $mapper->find(
@@ -925,6 +931,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->isQuoteSigned = $isQuoteSigned;
             $this->_view->signature = $signature;
             $this->_view->quoteId = $quoteId;
+
+            if ($this->_userMode === true) {
+                if (in_array('src', $this->_options)) {
+                    return $signature;
+                }
+                return $this->_view->render('signature-signed.phtml');
+            }
 
             return $this->_view->render('signature.phtml');
         }
