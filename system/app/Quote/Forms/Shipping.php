@@ -22,6 +22,13 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
             'style'    => 'width: 58.333%;'
         )));
 
+
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'customerNotes',
+            'label' => 'Notes'
+        )));
+
+
         $this->getElement('firstname')->setRequired(true)->setAttribs(array('class' => 'quote-required required'));
 
         $this->addElement(new Zend_Form_Element_Select(array(
@@ -80,6 +87,7 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
         $this->getElement('mobile')->removeDecorator('HtmlTag');
         $this->getElement('mobilecountrycode')->removeDecorator('HtmlTag');
 
+
         $this->addDisplayGroup(array(
             'mobilecountrycode',
             'mobile'
@@ -100,6 +108,18 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
         $phonesBlock->setDecorators(array(
             'FormElements',
             array('HtmlTag',array('tag'=>'p', 'class' => 'mobile-desktop-phone-block'))
+        ));
+
+        $this->getElement('customerNotes')->removeDecorator('HtmlTag');
+
+        $this->addDisplayGroup(array(
+            'customerNotes'
+        ),'customernotesBlock',array('HtmlTag', array('tag' => 'div')));
+
+        $customerNotesBlock = $this->getDisplayGroup('customernotesBlock');
+        $customerNotesBlock->setDecorators(array(
+            'FormElements',
+            array('HtmlTag',array('tag'=>'p', 'class' => 'customer-notes-block-shipping'))
         ));
 
 	}

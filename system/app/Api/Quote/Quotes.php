@@ -163,6 +163,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
+                if (!empty($formData['customerNotes'])) {
+                    $formData['customer_notes'] = $formData['customerNotes'];
+                }
+
                 if (empty($formData['country'])) {
                     $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
                     if (!empty($shoppingConfig['country'])) {
@@ -405,6 +409,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['billing']['mobile_country_code_value'] = null;
                 }
 
+
+                if (!empty($quoteData['billing']['customerNotes'])) {
+                    $quoteData['billing']['customer_notes'] = $quoteData['billing']['customerNotes'];
+                }
+
                 if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
                     $response->fail($translator->translate('Please enter a valid email address'));
                 }
@@ -412,6 +421,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
+                    if (!$emailValidator->isValid($quoteData['billing']['email'])) {
+                        $response->fail($translator->translate('Wrong format for email address'));
+                    }
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
 		            $quote->setUserId($customer->getId());
 	            }
@@ -442,6 +454,16 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['shipping']['mobile_country_code_value'] = null;
                 }
 
+
+                if (!empty($quoteData['shipping']['customerNotes'])) {
+                    $quoteData['shipping']['customer_notes'] = $quoteData['shipping']['customerNotes'];
+                }
+
+	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
+                    if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
+                        $response->fail($translator->translate('Wrong format for email address'));
+                    }
+                }
                 if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
                     $response->fail($translator->translate('Please enter a valid email address'));
                 }

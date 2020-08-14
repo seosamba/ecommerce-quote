@@ -3,8 +3,10 @@ define([
     'backbone',
     '../collections/products',
     '../views/product',
+    'i18n!../../../nls/'+$('input[name=system-language]').val()+'_ln',
     'text!../templates/paginator.html'
-], function (_, Backbone, ProductsCollection, ProductView, PaginatorTmpl) {
+
+], function (_, Backbone, ProductsCollection, ProductView, i18n, PaginatorTmpl) {
 
     var quoteListView = Backbone.View.extend({
         el: $('#products-container'),
@@ -73,7 +75,7 @@ define([
             var quoteId = splitedUrl[splitedUrl.length - 1];
             this.products.batch('post', {qid: quoteId}, {success: function (response) {
                 hideSpinner();
-                showMessage('Products added to the quote. Refreshing the quote page...');
+                showMessage(_.isUndefined(i18n['Products added to the quote. Refreshing the quote page...']) ? 'Products added to the quote. Refreshing the quote page...' : i18n['Products added to the quote. Refreshing the quote page...']);
                 window.parent.location.reload();
             }});
         },

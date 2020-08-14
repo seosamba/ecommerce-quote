@@ -17,7 +17,7 @@ define([
             this.model.on('change', this.render, this);
         }                                              ,
         deleteAction: function(e) {
-            showConfirm(_.isUndefined(i18n['You are about to remove a quote! Are you sure?']) ? 'You are about to remove a quote! Are you sure?':i18n['You are about to remove a quote! Are you sure?'], function() {
+            showConfirmCustom(_.isUndefined(i18n['You are about to remove a quote! Are you sure?']) ? 'You are about to remove a quote! Are you sure?':i18n['You are about to remove a quote! Are you sure?'], _.isUndefined(i18n['Yes'])?'Yes':i18n['Yes'], _.isUndefined(i18n['No'])?'No':i18n['No'], function() {
                 var quote = appView.quotes.get($(e.currentTarget).data('sid'));
                 showSpinner();
                 quote.destroy({
