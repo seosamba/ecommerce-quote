@@ -164,6 +164,26 @@ $(function() {
 
 });
 
+var processDraggable = function(quoteId) {
+    var quoteDraggableProducts = $('#quote-draggable-products').val();
+    if(quoteDraggableProducts) {
+        var sortProductsSids = [];
+
+        $('.quote-sortable-product-row').each(function (index) {
+            sortProductsSids.push($(this).data('sort-product-sid'));
+        });
+
+        if(sortProductsSids.length) {
+            $.ajax({
+                url: $('#website_url').val() + 'plugin/quote/run/saveDragListOrder',
+                data: {'quoteId': quoteId, 'data': sortProductsSids},
+                type: 'post',
+                dataType: 'json'
+            }).done(function(response) {});
+        }
+    }
+    return true;
+}
 
 var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) {
     var quoteForm = $('#plugin-quote-quoteform'),
@@ -217,6 +237,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
             showMessage(response.responseText, true, 5000);
             return false;
         }
+        processDraggable(quoteId);
         recalculate({summary:response});
     });
 };
