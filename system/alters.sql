@@ -21,8 +21,19 @@ INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_C
 -- version: 2.2.7
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror' WHERE `name` = 'quote';
 
--- 05/08/2020
+-- 06/08/2020
 -- version: 2.2.8
+INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES('quoteDraggableProducts', 0);
+
+CREATE TABLE IF NOT EXISTS `shopping_quote_draggable` (
+  `quoteId` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `data` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`quoteId`),
+  FOREIGN KEY  (`quoteId`) REFERENCES `shopping_quote` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- 05/08/2020
+-- version: 2.2.9
 ALTER TABLE `shopping_quote` ADD COLUMN `payment_type` ENUM('full_payment','partial_payment','only_signature') DEFAULT 'full_payment';
 ALTER TABLE `shopping_quote` ADD COLUMN `is_signature_required` ENUM('0','1') DEFAULT '0';
 ALTER TABLE `shopping_quote` ADD COLUMN `pdf_template` VARCHAR(45) COLLATE utf8_unicode_ci DEFAULT '';
@@ -32,5 +43,5 @@ ALTER TABLE `shopping_quote` ADD COLUMN `quote_signed_at` TIMESTAMP NULL;
 INSERT INTO `template_type` (`id`, `title`) VALUES ('typepdfquote', 'Quote pdf');
 
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.2.9' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.0' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

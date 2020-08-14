@@ -40,5 +40,14 @@ INSERT INTO `template_type` (`id`, `title`) VALUES ('typepdfquote', 'Quote pdf')
 
 INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
 
+INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES('quoteDraggableProducts', 0);
+
+CREATE TABLE IF NOT EXISTS `shopping_quote_draggable` (
+  `quoteId` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `data` TEXT COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`quoteId`),
+  FOREIGN KEY  (`quoteId`) REFERENCES `shopping_quote` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.2.8' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.0' WHERE `name` = 'quote';

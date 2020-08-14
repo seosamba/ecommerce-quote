@@ -216,6 +216,7 @@ class Quote extends Tools_PaymentGateway
         return $systemUserDeleteErrorMessage;
     }
 
+
     public function getPaymenttypeinfoAction()
     {
         $accessList = array(
@@ -227,7 +228,8 @@ class Quote extends Tools_PaymentGateway
         if (in_array($this->_sessionHelper->getCurrentUser()->getRoleId(), $accessList)) {
             $paymentType = filter_var($this->_request->getParam('paymentType'), FILTER_SANITIZE_STRING);
             $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
-            $isSignatureRequired = filter_var($this->_request->getParam('isSignatureRequired'), FILTER_SANITIZE_NUMBER_INT);
+            $isSignatureRequired = filter_var($this->_request->getParam('isSignatureRequired'),
+                FILTER_SANITIZE_NUMBER_INT);
             $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
             $quoteModel = $quoteMapper->find($quoteId);
             if ($quoteModel instanceof Quote_Models_Model_Quote) {
@@ -252,6 +254,39 @@ class Quote extends Tools_PaymentGateway
 
             $this->_responseHelper->fail('');
         }
+    }
+    /**
+     * Save draggable quote products in selected order
+     */
+    public function saveDragListOrderAction()
+    {
+        $currentRole = $this->_sessionHelper->getCurrentUser()->getRoleId();
+        if (($currentRole === Tools_Security_Acl::ROLE_SUPERADMIN || $currentRole === Tools_Security_Acl::ROLE_ADMIN || $currentRole === Shopping::ROLE_SALESPERSON) && $this->_request->isPost()) {
+            $draggData = filter_var_array($this->_request->getParams(), FILTER_SANITIZE_STRING);
+
+            if(!empty($draggData['quoteId'])) {
+                $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+
+                $quoteId = $draggData['quoteId'];
+                $data = $draggData['data'];
+
+                $quoteDraggableModel = $quoteDraggableMapper->findByQuoteId($quoteId);
+
+                if($quoteDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                    $quoteDraggableModel->setData(implode(',', $data));
+                } else {
+                    $quoteDraggableModel = new Quote_Models_Model_QuoteDraggableModel();
+                    $quoteDraggableModel->setQuoteId($quoteId);
+                    $quoteDraggableModel->setData(implode(',', $data));
+                }
+
+                $quoteDraggableMapper->save($quoteDraggableModel);
+
+                $this->_responseHelper->success($this->_translator->translate('Order has been updated'));
+            }
+        }
+
+        $this->_responseHelper->fail($this->_translator->translate('Cannot save quote draggable configuration.'));
     }
 
 }
