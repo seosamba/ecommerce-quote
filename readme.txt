@@ -9,12 +9,12 @@ Widgets on product page and checkout:
 
 Widgets that working with quote page (dashboard):
 {$quote:search} - Displays the search form on the quote page.
-{$quote:info:billing} - Displays the form to input user's address which used as user's payment info. (for admin)
-{$quote:info:shipping} - Displays a form to enter the user's shipping address. (for admin)
+{$quote:address:billing[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays the form to input user's address which used as user's payment info. (for admin)
+{$quote:address:shipping[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays a form to enter the user's shipping address. (for admin)
 {$quote:title} - Displays the quote name.
 {$quote:date:created} - Displays the date of quote creation.
 {$quote:date:expires} - Displays the quote expiration date.
-{$quote:total[:grand]} - Displays the total price in the cart. If the option :grand is set then discount and shipping will be added to the price.
+{$quote:total[:tax|sub|grand|totalwotax|taxdiscount]} - Displays the total price in the cart. If the option :grand is set then discount and shipping will be added to the price.
 {$quote:shipping} - Displays the shipping price.
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".
@@ -27,6 +27,7 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 {$quote:item:price[:unit]} - Displays the product price.
  :unit - price for single unit
 {$quote:item:remove} - Displays remove button.
+{$quote:item:sid} - Unique product hash (product name + product sku + product options).
 
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource
@@ -34,7 +35,7 @@ Ex: guest, customer, member
 {customersonly}
 <div class="quote-info" id="quote-billing-info">
     <p class="title">billing address</p>
-    <p>{$quote:address:billing:firstname} {$quote:address:billing:lastname}</p>
+    <p>{$quote:address:billing:prefix} {$quote:address:billing:firstname} {$quote:address:billing:lastname}</p>
     <p>{$quote:address:billing:company}</p>
     <p>{$quote:address:billing:address1} {$quote:address:billing:address2}</p>
     <p>{$quote:address:billing:city} {$quote:address:billing:state} {$quote:address:billing:zip}</p>
@@ -44,7 +45,7 @@ Ex: guest, customer, member
 </div>
 <div class="quote-info" id="quote-shipping-info">
     <p class="title">shipping address</p>
-    <p>{$quote:address:shipping:firstname} {$quote:address:shipping:lastname}</p>
+    <p>{$quote:address:shipping:prefix} {$quote:address:shipping:firstname} {$quote:address:shipping:lastname}</p>
     <p>{$quote:address:shipping:company}</p>
     <p>{$quote:address:shipping:address1} {$quote:address:shipping:address2}</p>
     <p>{$quote:address:shipping:city} {$quote:address:shipping:state} {$quote:address:shipping:zip}</p>
@@ -61,20 +62,26 @@ MAGICSPACE: quoteexpired
 MAGICSPACE: toasterquote
 Renders magic space using quote template
 Here you can put quote item widgets
-{toasterquote}
-<tr>
-    <td class="product-img"> {$quote:item:photo} </td>
-    <td class="product-info"><p class="item-name">{$quote:item:name}</p>
-        <p>{$quote:item:shortDescription}</p>
-        <p class="itemID"><span>Item ID: </span>{$quote:item:sku}</p>
-        <div class="product-options">{$quote:item:options}</div>
-    </td>
-    <td class="product-qty">{$quote:item:qty}</td>
-    <td class="product-unit-price">{$quote:item:price:unit}</td>
-    <td class="product-total">{$quote:item:price}</td>
-    <td class="product-remove">{$quote:item:remove}</td>
-</tr>
-{/toasterquote}
+  <tbody id="quote-sortable">
+      {toasterquote}
+      <tr class="quote-sortable-product-row" data-sort-product-sid="{$quote:item:sid}">
+          <td class="product-img"> {$quote:item:photo} </td>
+          <td class="product-info"><p class="item-name">{$quote:item:name}</p>
+              <p>{$quote:item:shortDescription}</p>
+              <p class="itemID"><span>Item ID: </span>{$quote:item:sku}</p>
+              <div class="product-options">{$quote:item:options}</div>
+              {$content:lalalala-{$quote:item:sid}-note}
+          </td>
+          <td class="product-qty">{$quote:item:qty}</td>
+          <td class="product-unit-price">{$quote:item:price:unit}</td>
+          <td class="product-total">{$quote:item:price}</td>
+          <td class="product-remove">{$quote:item:remove}</td>
+      </tr>
+      {/toasterquote}
+  </tbody>
+
+ id="quote-sortable" - special ID to allow use draggable products.
+ data-sort-product-sid="{$quote:item:sid}" - unique product hash with options.
 
 Quote action emails lexems:
 {quoteowner:email} - This lexem return quote owner email address

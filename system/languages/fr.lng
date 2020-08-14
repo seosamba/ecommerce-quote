@@ -1,5 +1,12 @@
 <?php return array(
    'Use same data for shipping?' => 'Utiliser la même info pour l\'adresse de livraison?',
     'Assign quote to customer using the email address provided in shipping info' => 'Affecter ce devis au client à l\'aide de l\'adresse e-mail fournie dans les informations de livraison',
-    'Assign quote to customer using the email address provided in billing info' => 'Affecter ce devis au client à l\'aide de l\'adresse e-mail fournie dans les informations de facturation'
+    'Assign quote to customer using the email address provided in billing info' => 'Affecter ce devis au client à l\'aide de l\'adresse e-mail fournie dans les informations de facturation',
+    'Select'=>'Sélectionner',
+    'Mr' => 'M',
+    'Mrs' => 'Mme',
+    'Ms' => 'Mme',
+    'Miss' => 'Mlle',
+    'Dr' => 'Dr',
+    'Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details' => 'Nous vous remercions! Votre devis a été généré. Notre équipe vous contactera bientôt pour préciser les détails'
 );?>

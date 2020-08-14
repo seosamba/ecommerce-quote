@@ -10,6 +10,7 @@
         <a id="save-options" class="fl-right" data-qid="<?php echo $this->quoteId; ?>" href="javascript:;"><?php echo $this->translate('Save options'); ?></a>
     </footer>
     <input type="hidden" id="weight-sign" value="<?php echo $this->weightSign; ?>" />
+    <input type="hidden" id="sid" value="<?php echo $this->sid; ?>" />
 </div>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
 <script type="text/javascript">

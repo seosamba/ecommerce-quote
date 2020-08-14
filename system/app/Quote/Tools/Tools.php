@@ -10,6 +10,18 @@ class Quote_Tools_Tools {
     const TITLE_PREFIX = 'New quote: ';
 
     /**
+     * Defined user prefixes
+     * @var array
+     */
+    public static $userPrefixes = array(
+        'Mr',
+        'Mrs',
+        'Ms',
+        'Miss',
+        'Dr'
+    );
+
+    /**
      * Create quote
      *
      * @static
@@ -190,8 +202,15 @@ class Quote_Tools_Tools {
     public static function calculate($storage, $currency = true, $forceSave = false, $quoteId = null, $skipGroupPriceRecalculation = false) {
         $cart             = Models_Mapper_CartSessionMapper::getInstance()->find($storage->getCartId());
         $shippingPrice    = $cart->getShippingPrice();
+        $shippingService  = $cart->getShippingService();
+        $shippingType     = $cart->getShippingType();
         $storage->setDiscount($cart->getDiscount());
-        $storage->setShippingData(array('price'=>$shippingPrice));
+
+        $storage->setShippingData(array(
+            'price'   => $shippingPrice,
+            'service' => $shippingService,
+            'type'    => $shippingType
+        ));
         $storage->setDiscountTaxRate($cart->getDiscountTaxRate());
         $data             = $storage->calculate(true, $skipGroupPriceRecalculation);
 
@@ -412,6 +431,21 @@ class Quote_Tools_Tools {
     public static function cleanNumber($number)
     {
         return preg_replace('~[^\d]~ui', '', $number);
+    }
+
+    /**
+     * @param $item
+     * @param array $options
+     * @return bool|string
+     */
+    public static function generateStorageKey($item, $options = array()) {
+        if($item instanceof Models_Model_Product){
+            return substr(md5($item->getName() . $item->getSku() . http_build_query($options)), 0, 10);
+        }else{
+            return substr(md5($item['name'] . $item['sku'] . http_build_query($options)), 0, 10);
+        }
+
+
     }
 
 }

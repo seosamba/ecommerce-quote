@@ -53,6 +53,11 @@
 'no' => 'no',
 'search products' => 'buscar productos',
 'Add products and close' => 'Añadir producto y cerrar',
-'Select 1 or more products&nbsp' => 'Seleccione 1 o más productos'
-
+'Select 1 or more products&nbsp' => 'Seleccione 1 o más productos',
+'Select' => 'Seleccionar',
+'Mr' => 'Sr',
+'Mrs' => 'Sra',
+'Ms' => 'Sra',
+'Miss' => 'Srta',
+'Dr' => 'Dr'
 );

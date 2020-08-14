@@ -103,9 +103,23 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
             return array(
                 'total'  => sizeof($result),
-                'data'   => array_slice(array_map(function($item){
+                'data'   => array_slice(array_map(function($item) {
                     $quote = new Quote_Models_Model_Quote($item);
                     $quoteData = $quote->toArray();
+                    if (empty($quoteData['creatorId']) && !empty($quoteData['userId'])) {
+                        $userLink = Tools_System_Tools::firePluginMethodByPluginName('leads', 'getLeadLink',
+                            array($quoteData['userId']), true);
+                    } elseif (!empty($quoteData['creatorId'])) {
+                        $userLink = Tools_System_Tools::firePluginMethodByPluginName('leads', 'getLeadLink',
+                            array($quoteData['userId']), true);
+                    } else{
+                        $userLink = '';
+                    }
+
+                    if (!empty($userLink) && is_array($userLink)) {
+                        $userLink = $userLink[$quoteData['userId']];
+                    }
+                    $quoteData['userLink'] = $userLink;
                     $quoteData['customerName'] = trim($item['firstname'].' '.$item['lastname']);
                     return $quoteData;
                 }, $result), $offset, $limit),
@@ -126,4 +140,19 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 		}
 		return $entries;
 	}
+
+	public function getOwnerInfo($quoteId)
+    {
+        $table = $this->getDbTable();
+        $where = $table->getAdapter()->quoteInto('s_q.id = ?', $quoteId);
+        $select = $table->select()
+            ->setIntegrityCheck(false)
+            ->from(array('s_q'=>'shopping_quote'))
+            ->joinLeft(array('u1'=>'user'), 's_q.user_id=u1.id', '')
+            ->joinLeft(array('u2'=>'user'), 's_q.creator_id=u2.id', '')
+            ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')))
+        ->where($where);
+
+        return $table->getAdapter()->fetchRow($select);
+    }
 }

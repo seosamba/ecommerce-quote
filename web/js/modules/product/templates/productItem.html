@@ -1,5 +1,12 @@
+<%
+if (!photo) {
+photo = $('#website_url').val()+'/system/images/noimage.png';
+} else if (! /^https?:\/\//.test(photo) ) {
+photo = $('#website_url').val() + 'media/' + photo.replace('/', '/product/');
+}
+%>
 <span class="brand"><%= brand %></span>
-<span class="image"><img class="lazy" src="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/product/') %> <% } else { %>'system/images/noimage.png' <% } %>" data-original="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/product/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" /></span>
+<span class="image"><img class="lazy" src="<%= photo %>" data-original="<%= photo %>" alt="<%= name %>" /></span>
 <span class="name"><%= name %></span>
 <span class="sku"><%= sku %></span>
 <label class="checkbox-del"><input type="checkbox" data-pid="<%= id %>" <% if((typeof (checked) != 'undefined') && checked) { %> checked="checked" <% } %> class="in-quote"/></label>

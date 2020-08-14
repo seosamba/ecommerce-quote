@@ -199,6 +199,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         ->setUserId($customer->getId())
                 );
 
+                //disable tax if user from another zone
+                $cartSession = Tools_ShoppingCart::getInstance();
+                $cartSession->setBillingAddressKey($cart->getBillingAddressId());
+                $cartSession->setShippingAddressKey($cart->getShippingAddressId());
+                $cartSession->calculate(true);
+                $cartSession->saveCartSession();
+
                 $shippingServices = Models_Mapper_ShippingConfigMapper::getInstance()->fetchByStatus(
                     Models_Mapper_ShippingConfigMapper::STATUS_ENABLED
                 );
@@ -235,6 +242,34 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $this->_error();
                 }
             break;
+            case Quote::QUOTE_TYPE_CLONE:
+                if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                    $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+
+                    $errMsg = 'Can\'t duplicate Quote';
+                    if(!empty($quoteId)){
+                        $quote = $this->_quoteMapper->find($quoteId);
+                        if($quote instanceof Quote_Models_Model_Quote){
+
+                            $errMsg = 'Empty cart ID';
+                            $cartId = $quote->getCartId();
+                            if(!empty($cartId)){
+                                $currentCart = $cartMapper->find($quote->getCartId());
+                                if($currentCart instanceof Models_Model_CartSession){
+                                    $errMsg = '';
+                                    $currentCart->setId(null);
+                                    $cart =  $cartMapper->save($currentCart);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    $this->_error();
+                }
+                if(!empty($errMsg)){
+                    $this->_error($errMsg);
+                }
+            break;
             default:
                 $this->_error();
             break;
@@ -246,15 +281,21 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
 
         if($quote instanceof Quote_Models_Model_Quote) {
-            return $quote->toArray();
+            $quoteData = $quote->toArray();
+            $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
+            if (!empty($ownerInfo)) {
+                $quoteData['ownerName'] =  $ownerInfo['ownerName'];
+            }
+            return $quoteData;
         }
         $this->_error();
     }
 
     public function putAction() {
-
-        $translator = Zend_Controller_Action_HelperBroker::getStaticHelper('language');
+        $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
+        $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
+        $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
@@ -262,6 +303,25 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         if(!$quoteId) {
             $this->_error('Not enough parameters', self::REST_STATUS_BAD_REQUEST);
+        }
+
+        $emailValidator = new Tools_System_CustomEmailValidator();
+
+        $ccValidEmails = array();
+        $ccEmailsArr = array();
+        $ccEmails = filter_var($quoteData['ccEmails'], FILTER_SANITIZE_STRING);
+
+        if(!empty($ccEmails)) {
+            $ccEmailsArr = array_filter(array_unique(array_map('trim', explode(',', $ccEmails))));
+        }
+
+        if (!empty($ccEmailsArr)) {
+            foreach ($ccEmailsArr as $ccEmail) {
+                if (!$emailValidator->isValid($ccEmail)) {
+                    $response->fail($translator->translate('Not valid email address') . ' - ' . $ccEmail);
+                }
+                $ccValidEmails[] = $ccEmail;
+            }
         }
 
         $quote = $this->_quoteMapper->find($quoteId);
@@ -320,15 +380,17 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if($quoteData['sendMail']) {
                 $quote->registerObserver(new Tools_Mail_Watchdog(array(
                     'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
-                    'mailMessage' => $quoteData['mailMessage']
+                    'mailMessage' => $quoteData['mailMessage'],
+                    'ccEmails'    => $ccValidEmails
                 )));
                 $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
             }
 
-            $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
-            $emailValidator = new Tools_System_CustomEmailValidator();
-
             if(isset($quoteData['billing'])) {
+                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please fill in the required fields'));
+                }
+
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
                 $quoteData['billing']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['phone']);
@@ -347,8 +409,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['billing']['mobile_country_code_value'] = null;
                 }
 
+
                 if (!empty($quoteData['billing']['customerNotes'])) {
                     $quoteData['billing']['customer_notes'] = $quoteData['billing']['customerNotes'];
+                }
+
+                if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please enter a valid email address'));
                 }
 
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
@@ -368,6 +435,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['shipping'])) {
+                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please fill in the required fields'));
+                }
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
                 $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);
                 $quoteData['shipping']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['mobile']);
@@ -384,6 +454,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $quoteData['shipping']['mobile_country_code_value'] = null;
                 }
 
+
                 if (!empty($quoteData['shipping']['customerNotes'])) {
                     $quoteData['shipping']['customer_notes'] = $quoteData['shipping']['customerNotes'];
                 }
@@ -392,6 +463,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     if (!$emailValidator->isValid($quoteData['shipping']['email'])) {
                         $response->fail($translator->translate('Wrong format for email address'));
                     }
+                }
+                if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
+                    $response->fail($translator->translate('Please enter a valid email address'));
+                }
+
+	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
                     $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
                     $quote->setUserId($customer->getId());
 	            }

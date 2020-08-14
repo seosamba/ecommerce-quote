@@ -33,6 +33,7 @@ define([
 		saveAction: function(e) {
 			var options   = $('.product-options-listing *').serialize();
     		var productId = $(e.target).parent().data('pid');
+    		var sid = $('#sid').val();
             $.ajax({
                 url: $('#website_url').val() + 'api/quote/products/id/' + this.product.get('id') + '/type/options/',
                 type: 'put',
@@ -40,7 +41,8 @@ define([
                 data: JSON.stringify({
                     qid  : $(e.currentTarget).data('qid'),
                     type : 'options',
-                    value: options
+                    value: options,
+                    sid: sid
                 }),
                 beforeSend: showSpinner()
             }).done(function(response) {
