@@ -75,6 +75,16 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 
         if(!empty($this->_options['oldPageId']) && !empty($this->_options['oldQuoteId'])) {
             $this->_cloneQuoteContainers($this->_options['oldPageId'], $page->getId(), $this->_options['oldQuoteId']);
+
+            $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+
+            $mainDraggableModel = $quoteDraggableMapper->findByQuoteId($this->_options['oldQuoteId']);
+            if ($mainDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                $quoteDraggableModel = new Quote_Models_Model_QuoteDraggableModel();
+                $quoteDraggableModel->setData($mainDraggableModel->getData());
+                $quoteDraggableModel->setQuoteId($this->_quote->getId());
+                $quoteDraggableMapper->save($quoteDraggableModel);
+            }
         }
 
         $disclaimer          = $this->_quote->getDisclaimer();
