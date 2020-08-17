@@ -80,6 +80,10 @@ $(function() {
             dataType   : 'json',
             beforeSend : showSpinner()
         }).done(function(response) {
+            if(response.quoteDraggable) {
+                processDraggable(response.id);
+            }
+
             var quoteUrl = '<a href="'+ $('#website_url').val() + response.id +'.html" target="_blank" title="'+ response.id +'">'+ $('#website_url').val() +response.id + '.html</a>';
             hideSpinner();
             showMessage('The quote has been duplicated. ' + '<br/>' + quoteUrl, false, 15000);

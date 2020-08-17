@@ -301,6 +301,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if (!empty($ownerInfo)) {
                 $quoteData['ownerName'] =  $ownerInfo['ownerName'];
             }
+
+            $quoteDraggableProducts = $this->_shoppingConfig['quoteDraggableProducts'];
+
+            $quoteData['quoteDraggable'] = 0;
+            if(isset($quoteDraggableProducts) && !empty($quoteDraggableProducts)) {
+                $quoteData['quoteDraggable'] = 1;
+            }
+
             return $quoteData;
         }
         $this->_error();
