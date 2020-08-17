@@ -467,6 +467,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $this->_view->symbol  = $this->_currency->getSymbol();
 
+        $useDraggable = false;
+        $quoteDraggableProducts = $this->_shoppingConfig['quoteDraggableProducts'];
+
+        if(!empty($quoteDraggableProducts)) {
+            $useDraggable = true;
+        }
+
+        $this->_view->quoteDraggableProducts  = $useDraggable;
+
         return $this->_view->render('controls.quote.phtml');
     }
 
@@ -646,6 +655,47 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         // getting the cart content to be able to get an item we need
         $cartContent = $this->_cart->getCartContent();
+
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        $quoteDraggableProducts = $shoppingConfig['quoteDraggableProducts'];
+
+        if(!empty($quoteDraggableProducts)) {
+            $quoteId = $this->_quote->getId();
+
+            $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+            $quoteDraggableModel = $quoteDraggableMapper->findByQuoteId($quoteId);
+
+            if($quoteDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                $dragOrder = $quoteDraggableModel->getData();
+
+                if(!empty($dragOrder)) {
+                    $dragOrder = explode(',', $dragOrder);
+
+                    $prepareContentSids = array();
+                    foreach ($cartContent as $key => $content) {
+                        $product = Models_Mapper_ProductMapper::getInstance()->find($content['product_id']);
+                        $options = ($content['options']) ? $content['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+                        $prodSid = Quote_Tools_Tools::generateStorageKey($product, $options);
+                        $prepareContentSids[$prodSid] = $content;
+                    }
+
+                    $sortedCartContent = array();
+                    foreach ($dragOrder as $productSid) {
+                        if(!empty($prepareContentSids[$productSid])) {
+                            $sortedCartContent[$productSid] = $prepareContentSids[$productSid];
+                        }
+                    }
+                    $preparedCartContent = array_merge($sortedCartContent, $prepareContentSids);
+
+                    $cartContent = array();
+
+                    foreach ($preparedCartContent as $cContent) {
+                        $cartContent[] = $cContent;
+                    }
+                }
+            }
+        }
+
         $itemId      = (end($this->_options));
 
         // if no such item in the cart - exception
