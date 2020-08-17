@@ -156,27 +156,4 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
         return $table->getAdapter()->fetchRow($select);
     }
 
-    /**
-     * Get Page ID by quote id
-     *
-     * @param $quoteId
-     * @return mixed
-     * @throws Exception
-     */
-    public function findPageByQuoteId($quoteId)
-    {
-        $where =  '(';
-        $where .=  $this->getDbTable()->getAdapter()->quoteInto('nav_name = ?', $quoteId);
-        $where .= ' OR ' . $this->getDbTable()->getAdapter()->quoteInto('header_title = ?', $quoteId);
-        $where .= ' OR ' . $this->getDbTable()->getAdapter()->quoteInto('h1 = ?', $quoteId);
-        $where .= ' OR ' . $this->getDbTable()->getAdapter()->quoteInto('targeted_key_phrase = ?', $quoteId);
-        $where .= ')';
-        $where .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('page_type = ?', Quote::QUOTE_PAGE_TYPE);
-
-        $select = $this->getDbTable()->getAdapter()->select()->from('page', array(
-            'id'
-        ))->where($where);
-
-        return $this->getDbTable()->getAdapter()->fetchRow($select);
-    }
 }

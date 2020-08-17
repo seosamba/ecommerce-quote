@@ -100,6 +100,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $editedBy   = Shopping::ROLE_CUSTOMER;
             $creatorId  = 0;
         }
+        $quoteId = 0;
+        $oldPageId = 0;
+
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
@@ -260,10 +263,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                             }
 
                             if(empty($oldPageId)) {
-                                $oldPageId = $this->_quoteMapper->findPageByQuoteId($quoteId);
+                                $quotePage = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($quoteId . '.html');
 
-                                if(!empty($oldPageId)) {
-                                    $oldPageId = $oldPageId['id'];
+                                if($quotePage instanceof Application_Model_Models_Page) {
+                                    $oldPageId = $quotePage->getId();
                                 }
                             }
                         }
