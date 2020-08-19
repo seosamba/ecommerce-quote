@@ -161,4 +161,5 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
         return $table->getAdapter()->fetchRow($select);
     }
+
 }
