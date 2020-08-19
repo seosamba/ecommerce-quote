@@ -9,12 +9,13 @@
                     <p><?php echo $this->translate('Client signature will be here');?>:</p>
                 </div>
         <?php else:?>
+            <span><?php echo $this->translate('Signature');?>:</span>
             <form id="quote-signature-form">
-                <div id="signature-block">
-                    <canvas id="quote-signature-pad" width="300" height="180"></canvas>
-                </div>
                 <div id="quote-signature-form-refresh" name="quote-signature-form-refresh">
                     <img id="quote-signature-form-clear" src="<?php echo $this->websiteUrl.'plugins/quote/web/images/refresh.png';?>" alt="<?php echo $this->translate('Clear Signature')?>">
+                </div>
+                <div id="signature-block">
+                    <canvas id="quote-signature-pad" width="300" height="180"></canvas>
                 </div>
                 <input class="hidden" type="text" name="quote-signature-form-img" id="quote-signature-form-img">
                 <input class="hidden" type="text" name="signature-quote-id" id="signature-quote-id" value="<?php echo $this->quoteId;?>">
