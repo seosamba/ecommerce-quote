@@ -87,6 +87,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     }
 
     public function postAction() {
+        $translator = Zend_Registry::get('Zend_Translate');
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
@@ -99,6 +100,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $editedBy   = Shopping::ROLE_CUSTOMER;
             $creatorId  = 0;
         }
+        $quoteId = 0;
+        $oldPageId = 0;
+
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
                 $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
@@ -112,11 +116,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
-                        $this->_error('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.');
+                        $this->_error($translator->translate('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.'));
                     }
                 } else {
                     if (!$form->isValid($this->_request->getParams())) {
-                        $this->_error('Sorry, but you didn\'t feel all the required fields. Please try again.');
+                        $this->_error($translator->translate('Sorry, but you didn\'t feel all the required fields. Please try again.'));
                     }
                 }
 
@@ -186,7 +190,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 $customer = Shopping::processCustomer($formData);
                 if(!$cart) {
-                    $this->_error('Server encountered a problem. Unable to create quote');
+                    $this->_error($translator->translate('Server encountered a problem. Unable to create quote'));
                 }
 
                 $cart = $cartMapper->save(
@@ -241,13 +245,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             case Quote::QUOTE_TYPE_CLONE:
                 if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+                    $oldPageId = filter_var($this->_request->getParam('pageId'), FILTER_SANITIZE_NUMBER_INT);
 
-                    $errMsg = 'Can\'t duplicate Quote';
+                    $errMsg = $translator->translate('Can\'t duplicate Quote');
                     if(!empty($quoteId)){
                         $quote = $this->_quoteMapper->find($quoteId);
                         if($quote instanceof Quote_Models_Model_Quote){
-
-                            $errMsg = 'Empty cart ID';
+                            $errMsg = $translator->translate('Empty cart ID');
                             $cartId = $quote->getCartId();
                             if(!empty($cartId)){
                                 $currentCart = $cartMapper->find($quote->getCartId());
@@ -255,6 +259,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                     $errMsg = '';
                                     $currentCart->setId(null);
                                     $cart =  $cartMapper->save($currentCart);
+                                }
+                            }
+
+                            if(empty($oldPageId)) {
+                                $quotePage = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($quoteId . '.html');
+
+                                if($quotePage instanceof Application_Model_Models_Page) {
+                                    $oldPageId = $quotePage->getId();
                                 }
                             }
                         }
@@ -271,7 +283,14 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $quote = Quote_Tools_Tools::createQuote($cart, array('editedBy' => $editedBy, 'creatorId'=>$creatorId,'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: ''));
+            $quote = Quote_Tools_Tools::createQuote($cart, array(
+                'editedBy' => $editedBy,
+                'creatorId' => $creatorId,
+                'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '',
+                'actionType' => $type,
+                'oldQuoteId' => $quoteId,
+                'oldPageId' => $oldPageId
+            ));
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }
@@ -282,6 +301,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if (!empty($ownerInfo)) {
                 $quoteData['ownerName'] =  $ownerInfo['ownerName'];
             }
+
             return $quoteData;
         }
         $this->_error();

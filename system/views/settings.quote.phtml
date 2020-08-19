@@ -11,10 +11,15 @@ $(document).ready(function(){
 
     $(document).on("click", "#applySettings", function(e){
           e.preventDefault();
-          var autoQuote = 0;
+          var autoQuote = 0,
+              draggableProducts = 0;
 
           if($('#auto-quote').prop("checked")){
-              var autoQuote = 1;
+              autoQuote = 1;
+          }
+
+          if($('#draggable-products').prop("checked")){
+              draggableProducts = 1;
           }
 
           $.ajax({
@@ -23,6 +28,7 @@ $(document).ready(function(){
             dataType: "json",
             data: {
                 autoQuote: autoQuote,
+                quoteDraggableProducts: draggableProducts,
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
                 secureToken: $('.quote-secure-token').val()
