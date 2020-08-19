@@ -3,9 +3,11 @@
 <div id="quote-signature-block">
     <?php if (empty($this->isQuoteSigned)) :?>
         <?php if ($this->accessAllowed === true):?>
-                <?php echo $this->translate('Signature');?>:
-                <img src="<?php echo $this->websiteUrl.'plugins/quote/web/images/signature-placeholder.png';?>">
-                <?php echo $this->translate('Client signature will be here');?>:
+                <span><?php echo $this->translate('Signature');?>:</span>
+                <div>
+                    <img src="<?php echo $this->websiteUrl.'plugins/quote/web/images/signature-placeholder.png';?>">
+                    <p><?php echo $this->translate('Client signature will be here');?>:</p>
+                </div>
         <?php else:?>
             <form id="quote-signature-form">
                 <div id="signature-block">

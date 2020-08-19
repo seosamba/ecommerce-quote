@@ -26,7 +26,7 @@
                 <?php endif; ?>
             </select>
         </p>
-        <p>
+        <p class="signature-required-block">
             <label><?php echo $this->translate('Signature required'); ?></label>
             <input <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : ''); ?>  <?php echo(($this->isSignatureRequired == '1') ? 'checked' : ''); ?>
                     id="quote-signature-required"
