@@ -54,7 +54,7 @@
                 quoteId = form.find('#signature-quote-id').val(),
                 signature = form.find('#quote-signature-form-img').val();
 
-            showConfirm('<?php echo $this->translate('Are you sure you want to sign a quote?');?>', function() {
+            showConfirm('<?php echo $this->translate('Are you happy with your signature?');?>', function() {
                 $.ajax({
                     url        : $('#website_url').val() + 'api/quote/signature/',
                     type       : 'POST',
