@@ -94,17 +94,24 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 
 	protected function _findQuoteTemplateContent($templateName = '') {
 		$templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
+        $requestedUri = isset($this->_toasterData['url']) ? $this->_toasterData['url'] : Tools_System_Tools::getRequestUri();
 		if (!empty($templateName)) {
             $quoteTemplate = $templateMapper->find($templateName);
         } else {
-            $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-            if (!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
-                //if quote template not secified in configs, get first template by type 'quote'
-                $quoteTemplates = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
-                $quoteTemplate = reset($quoteTemplates);
-                unset($quoteTemplates);
+            $page = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($requestedUri);
+            if ($page instanceof Application_Model_Models_Page) {
+                $quoteTemplateName = $page->getTemplateId();
+                $quoteTemplate = $templateMapper->find($quoteTemplateName);
             } else {
-                $quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
+                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                if (!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
+                    //if quote template not secified in configs, get first template by type 'quote'
+                    $quoteTemplates = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
+                    $quoteTemplate = reset($quoteTemplates);
+                    unset($quoteTemplates);
+                } else {
+                    $quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
+                }
             }
         }
         if(!$quoteTemplate) {
