@@ -468,6 +468,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $this->_view->symbol  = $this->_currency->getSymbol();
 
+        $useDraggable = false;
+        $quoteDraggableProducts = $this->_shoppingConfig['quoteDraggableProducts'];
+
+        if(!empty($quoteDraggableProducts)) {
+            $useDraggable = true;
+        }
+
+        $this->_view->quoteDraggableProducts  = $useDraggable;
+
         return $this->_view->render('controls.quote.phtml');
     }
 
@@ -647,6 +656,47 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         // getting the cart content to be able to get an item we need
         $cartContent = $this->_cart->getCartContent();
+
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        $quoteDraggableProducts = $shoppingConfig['quoteDraggableProducts'];
+
+        if(!empty($quoteDraggableProducts)) {
+            $quoteId = $this->_quote->getId();
+
+            $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+            $quoteDraggableModel = $quoteDraggableMapper->findByQuoteId($quoteId);
+
+            if($quoteDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                $dragOrder = $quoteDraggableModel->getData();
+
+                if(!empty($dragOrder)) {
+                    $dragOrder = explode(',', $dragOrder);
+
+                    $prepareContentSids = array();
+                    foreach ($cartContent as $key => $content) {
+                        $product = Models_Mapper_ProductMapper::getInstance()->find($content['product_id']);
+                        $options = ($content['options']) ? $content['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+                        $prodSid = Quote_Tools_Tools::generateStorageKey($product, $options);
+                        $prepareContentSids[$prodSid] = $content;
+                    }
+
+                    $sortedCartContent = array();
+                    foreach ($dragOrder as $productSid) {
+                        if(!empty($prepareContentSids[$productSid])) {
+                            $sortedCartContent[$productSid] = $prepareContentSids[$productSid];
+                        }
+                    }
+                    $preparedCartContent = array_merge($sortedCartContent, $prepareContentSids);
+
+                    $cartContent = array();
+
+                    foreach ($preparedCartContent as $cContent) {
+                        $cartContent[] = $cContent;
+                    }
+                }
+            }
+        }
+
         $itemId      = (end($this->_options));
 
         // if no such item in the cart - exception
@@ -756,10 +806,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         // adjust dynamic quote from fields
         $quoteForm = Quote_Tools_Tools::adjustFormFields($quoteForm, $this->_options, $this->_formMandatoryFields);
         if ($product instanceof Models_Model_Product) {
-            $quoteForm->addElement('text', md5($product->getId()), array('style' => 'display:none;'));
+            $quoteForm->addElement('text', md5($product->getId()), array('style' => 'display:none;', 'aria-label' => 'product id'));
             $quoteForm->getElement(md5($product->getId()))->removeDecorator('HtmlTag');
         } elseif ($cartStorage !== null) {
-            $quoteForm->addElement('text', md5($cartStorage->getCartId()), array('style' => 'display:none;'));
+            $quoteForm->addElement('text', md5($cartStorage->getCartId()), array('style' => 'display:none;', 'aria-label' => 'cart id'));
             $quoteForm->getElement(md5($cartStorage->getCartId()))->removeDecorator('HtmlTag');
         }
 
@@ -806,7 +856,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $position = array_search('mobilecountrycode', array_keys($quoteForm->getElements()));
             $mobilesBlockGroup = $originalQuoteForm->getDisplayGroups()['mobilesBlock'];
             $mobilesBlockGroup->setOrder($position);
-            $mobilesBlockGroup->getElement('mobile')->setAttribs(array('class' => ($required) ? 'quote-required required' : ''))->setValue($mobileEl->getValue());
+            $mobilesBlockGroup->getElement('mobile')->setAttribs(array('class' => ($required) ? 'quote-required required' : '', 'aria-label' => 'Mobile'))->setValue($mobileEl->getValue());
             $mobilesBlockGroup->getElement('mobilecountrycode')->setRequired($required)->setValue($mobileCountryCodeEl->getValue());
             $displayGroups[]  = $mobilesBlockGroup;
         }
@@ -821,7 +871,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $position = array_search('phonecountrycode', array_keys($quoteForm->getElements()));
             $phonesBlockGroup = $originalQuoteForm->getDisplayGroups()['phonesBlock'];
             $phonesBlockGroup->setOrder($position);
-            $phonesBlockGroup->getElement('phone')->setAttribs(array('class' => ($required) ? 'quote-required required' : ''))->setValue($desktopPhoneEl->getValue());
+            $phonesBlockGroup->getElement('phone')->setAttribs(array('class' => ($required) ? 'quote-required required' : '', 'aria-label' => 'Phone'))->setValue($desktopPhoneEl->getValue());
             $phonesBlockGroup->getElement('phonecountrycode')->setRequired($required)->setValue($desktopCountryCodeEl->getValue());
             $displayGroups[]  = $phonesBlockGroup;
         }

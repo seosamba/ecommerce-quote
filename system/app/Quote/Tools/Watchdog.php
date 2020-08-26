@@ -73,6 +73,20 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 
         // save special container for the quote page with a disclaimer
 
+        if(!empty($this->_options['oldPageId']) && !empty($this->_options['oldQuoteId'])) {
+            $this->_cloneQuoteContainers($this->_options['oldPageId'], $page->getId(), $this->_options['oldQuoteId']);
+
+            $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+
+            $mainDraggableModel = $quoteDraggableMapper->findByQuoteId($this->_options['oldQuoteId']);
+            if ($mainDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                $quoteDraggableModel = new Quote_Models_Model_QuoteDraggableModel();
+                $quoteDraggableModel->setData($mainDraggableModel->getData());
+                $quoteDraggableModel->setQuoteId($this->_quote->getId());
+                $quoteDraggableMapper->save($quoteDraggableModel);
+            }
+        }
+
         $disclaimer          = $this->_quote->getDisclaimer();
 
         $containerMapper     = Application_Model_Mappers_ContainerMapper::getInstance();
@@ -138,4 +152,30 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 		}
         return $this;
 	}
+
+	protected function _cloneQuoteContainers($oldPageId, $newPageId, $oldQuoteId)
+    {
+       $containerMapper = Application_Model_Mappers_ContainerMapper::getInstance();
+
+       $containers = $containerMapper->findByPageId($oldPageId);
+       $newContainers = $containerMapper->findByPageId($newPageId);
+
+       if(!empty($containers) && empty($newContainers)) {
+           $disclaimer = $oldQuoteId . '-disclaimer';
+           foreach ($containers as $container) {
+                if($container instanceof Application_Model_Models_Container) {
+                    if($container->getName() == $disclaimer) {
+                        $newDisclaimer = str_replace($oldQuoteId, $this->_quote->getId(), $container->getName());
+                        $container->setName($newDisclaimer);
+                    }
+
+                    $container->setId(null);
+                    $container->setPageId($newPageId);
+                    $container->setPublishingDate('');
+
+                    $containerMapper->save($container);
+                }
+           }
+       }
+    }
 }

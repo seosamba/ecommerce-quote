@@ -77,7 +77,43 @@ class Api_Quote_Products extends Api_Service_Abstract {
 
         $cartStorage->setShippingData(array('price'=>$cart->getShippingPrice()));
         $cartStorage->saveCartSession($customer);
-        return $quoteMapper->save($quote)->toArray();
+
+        $quoteMapper->save($quote)->toArray();
+
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        $quoteDraggableProducts = $shoppingConfig['quoteDraggableProducts'];
+
+        if(!empty($quoteDraggableProducts)) {
+            $cart        = Models_Mapper_CartSessionMapper::getInstance()->find($quote->getCartId());
+            $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+
+            $quoteDraggableModel = $quoteDraggableMapper->findByQuoteId($data['qid']);
+
+            $cartContent = $cart->getCartContent();
+
+            $prepareContentSids = array();
+            foreach ($cartContent as $key => $content) {
+                $product = Models_Mapper_ProductMapper::getInstance()->find($content['product_id']);
+                $options = ($content['options']) ? $content['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
+                $prodSid = Quote_Tools_Tools::generateStorageKey($product, $options);
+                $prepareContentSids[] = $prodSid;
+            }
+
+
+            if($quoteDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                $savedGragSids = explode(',', $quoteDraggableModel->getData());
+                $data = array_unique(array_merge($savedGragSids, $prepareContentSids));
+                $quoteDraggableModel->setData(implode(',', $data));
+            } else {
+                $quoteDraggableModel = new Quote_Models_Model_QuoteDraggableModel();
+                $quoteDraggableModel->setQuoteId($data['qid']);
+                $quoteDraggableModel->setData(implode(',', $prepareContentSids));
+            }
+
+            $quoteDraggableMapper->save($quoteDraggableModel);
+        }
+
+        return;
     }
 
     public function putAction() {
@@ -172,16 +208,48 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $cartContent = $storage->getContent();
 
         foreach($ids as $id) {
+            $productSids = array();
             foreach($cartContent as $key => $cartItem) {
-                $product = Models_Mapper_ProductMapper::getInstance()->find($id);
+                $product = Models_Mapper_ProductMapper::getInstance()->find($cartItem['product_id']);
                 $options = ($cartItem['options']) ? $cartItem['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
                 $sid = Quote_Tools_Tools::generateStorageKey($product, $options);
 
                 if(isset($cartItem['product_id']) && $cartItem['product_id'] == $id && $data['sid'] ==  $sid) {
                     unset($cartContent[$key]);
                 }
+
+                $productSids[$cartItem['product_id']] = $sid;
             }
             $storage->setContent($cartContent);
+
+            $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+            $quoteDraggableProducts = $shoppingConfig['quoteDraggableProducts'];
+
+            if(!empty($quoteDraggableProducts)) {
+                $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+
+                $quoteDraggableProducts = $quoteDraggableMapper->findByQuoteId($data['qid']);
+
+                if($quoteDraggableProducts instanceof Quote_Models_Model_QuoteDraggableModel) {
+                    $savedDragData = explode(',', $quoteDraggableProducts->getData());
+
+                    if(!empty($savedDragData)) {
+                        $prodSid = $productSids[$id];
+
+                        if(in_array($prodSid, $savedDragData)) {
+                            $searchedParam = array_search($prodSid, $savedDragData);
+                            unset($savedDragData[$searchedParam]);
+                        }
+
+                        if(!empty($savedDragData)) {
+                            $quoteDraggableProducts->setData(implode(',', $savedDragData));
+                            $quoteDraggableMapper->save($quoteDraggableProducts);
+                        } else{
+                            $quoteDraggableMapper->delete($data['qid']);
+                        }
+                    }
+                }
+            }
         }
         return Quote_Tools_Tools::calculate($storage, false, true, $data['qid']);
     }

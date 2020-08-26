@@ -62,20 +62,26 @@ MAGICSPACE: quoteexpired
 MAGICSPACE: toasterquote
 Renders magic space using quote template
 Here you can put quote item widgets
-{toasterquote}
-<tr>
-    <td class="product-img"> {$quote:item:photo} </td>
-    <td class="product-info"><p class="item-name">{$quote:item:name}</p>
-        <p>{$quote:item:shortDescription}</p>
-        <p class="itemID"><span>Item ID: </span>{$quote:item:sku}</p>
-        <div class="product-options">{$quote:item:options}</div>
-    </td>
-    <td class="product-qty">{$quote:item:qty}</td>
-    <td class="product-unit-price">{$quote:item:price:unit}</td>
-    <td class="product-total">{$quote:item:price}</td>
-    <td class="product-remove">{$quote:item:remove}</td>
-</tr>
-{/toasterquote}
+  <tbody id="quote-sortable">
+      {toasterquote}
+      <tr class="quote-sortable-product-row" data-sort-product-sid="{$quote:item:sid}">
+          <td class="product-img"> {$quote:item:photo} </td>
+          <td class="product-info"><p class="item-name">{$quote:item:name}</p>
+              <p>{$quote:item:shortDescription}</p>
+              <p class="itemID"><span>Item ID: </span>{$quote:item:sku}</p>
+              <div class="product-options">{$quote:item:options}</div>
+              {$content:lalalala-{$quote:item:sid}-note}
+          </td>
+          <td class="product-qty">{$quote:item:qty}</td>
+          <td class="product-unit-price">{$quote:item:price:unit}</td>
+          <td class="product-total">{$quote:item:price}</td>
+          <td class="product-remove">{$quote:item:remove}</td>
+      </tr>
+      {/toasterquote}
+  </tbody>
+
+ id="quote-sortable" - special ID to allow use draggable products.
+ data-sort-product-sid="{$quote:item:sid}" - unique product hash with options.
 
 Quote action emails lexems:
 {quoteowner:email} - This lexem return quote owner email address

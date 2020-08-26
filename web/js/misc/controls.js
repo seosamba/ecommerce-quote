@@ -71,10 +71,12 @@ $(function() {
 
     //clone quote
     $(document).on('click', '.clone-quote', function(e) {
+        var pageId = $('#page_id').val();
+
         $.ajax({
             url        : $('#website_url').val() + 'api/quote/quotes/',
             type       : 'post',
-            data       : {type: 'clone', quoteId: quoteId},
+            data       : {type: 'clone', quoteId: quoteId, pageId: pageId},
             dataType   : 'json',
             beforeSend : showSpinner()
         }).done(function(response) {
@@ -165,6 +167,27 @@ $(function() {
 });
 
 
+var processDraggable = function(quoteId) {
+    var quoteDraggableProducts = $('#quote-draggable-products').val();
+    if(quoteDraggableProducts) {
+        var sortProductsSids = [];
+
+        $('.quote-sortable-product-row').each(function (index) {
+            sortProductsSids.push($(this).data('sort-product-sid'));
+        });
+
+        if(sortProductsSids.length) {
+            $.ajax({
+                url: $('#website_url').val() + 'plugin/quote/run/saveDragListOrder',
+                data: {'quoteId': quoteId, 'data': sortProductsSids},
+                type: 'post',
+                dataType: 'json'
+            }).done(function(response) {});
+        }
+    }
+    return true;
+}
+
 var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
@@ -217,6 +240,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
             showMessage(response.responseText, true, 5000);
             return false;
         }
+        processDraggable(quoteId);
         recalculate({summary:response});
     });
 };
