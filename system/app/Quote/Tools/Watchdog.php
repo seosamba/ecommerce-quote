@@ -50,6 +50,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
             throw new Exceptions_SeotoasterPluginException('Sorry, we can\'t generate a quote for you right now, please try again later.');
         }
 
+        $quoteTemplateName = $quoteTemplate->getName();
         $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
         $pageHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
         $page       = $pageMapper->findByUrl($pageHelper->filterUrl($this->_quote->getId()));
@@ -60,7 +61,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         if(!empty($this->_options['oldPageId']) && !empty($this->_options['oldQuoteId'])) {
             $oldPage = $pageMapper->find($this->_options['oldPageId']);
             if ($oldPage instanceof Application_Model_Models_Page) {
-                $page->setTemplateId($oldPage->getTemplateId());
+                $quoteTemplateName = $oldPage->getTemplateId();
             }
         }
 
@@ -69,7 +70,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
                 ->setNavName($this->_quote->getTitle())
                 ->setHeaderTitle($this->_quote->getTitle())
                 ->setTargetedKeyPhrase($this->_quote->getTitle())
-                ->setTemplateId($quoteTemplate->getName())
+                ->setTemplateId($quoteTemplateName)
                 ->setUrl($pageHelper->filterUrl($this->_quote->getId()))
                 ->setParentId(Quote::QUOTE_CATEGORY_ID)
                 ->setSystem(true)
