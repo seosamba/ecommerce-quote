@@ -50,13 +50,21 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
             throw new Exceptions_SeotoasterPluginException('Sorry, we can\'t generate a quote for you right now, please try again later.');
         }
 
+        $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
         $pageHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('page');
-        $page       = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($pageHelper->filterUrl($this->_quote->getId()));
+        $page       = $pageMapper->findByUrl($pageHelper->filterUrl($this->_quote->getId()));
         if(!$page instanceof Application_Model_Models_Page) {
             $page = new Application_Model_Models_Page();
         }
 
-        $page = Application_Model_Mappers_PageMapper::getInstance()->save(
+        if(!empty($this->_options['oldPageId']) && !empty($this->_options['oldQuoteId'])) {
+            $oldPage = $pageMapper->find($this->_options['oldPageId']);
+            if ($oldPage instanceof Application_Model_Models_Page) {
+                $page->setTemplateId($oldPage->getTemplateId());
+            }
+        }
+
+        $page = $pageMapper->save(
             $page->setH1($this->_quote->getTitle())
                 ->setNavName($this->_quote->getTitle())
                 ->setHeaderTitle($this->_quote->getTitle())
