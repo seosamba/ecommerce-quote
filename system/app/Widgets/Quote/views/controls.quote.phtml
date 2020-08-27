@@ -6,7 +6,7 @@
     <input type="hidden" name="currencySymbol" id="quote-currency" value="<?php echo $this->symbol; ?>" />
 
     <!-- add product to quote controll -->
-    <a href="javascript:;" id="add-product-to-quote" class="tpopup btn-toaster" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
+    <a href="javascript:;" id="add-product-to-quote" data-type="skipCheckRequired" class="tpopup btn-toaster" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
         <?php echo $this->translate('Add product'); ?>
     </a>
 
@@ -21,17 +21,27 @@
     </a>
 
     <!-- preview quote controll -->
-	<a href="<?php echo $this->websiteUrl;?><?php echo $this->quoteId; ?>.html?mode=preview" class="quote-control btn-toaster" target="_blank">
+	<a href="<?php echo $this->websiteUrl;?><?php echo $this->quoteId; ?>.html?mode=preview" data-type="skipCheckRequired" class="quote-control btn-toaster" target="_blank">
         <?php echo $this->translate('Preview quote'); ?>
     </a>
 
     <!-- clone quote -->
-    <a href="javascript:;" class="clone-quote btn-toaster">
+    <a href="javascript:;" class="clone-quote btn-toaster" data-type="skipCheckRequired">
         <?php echo $this->translate('Duplicate quote'); ?>
     </a>
+
+    <!-- Quote draggable -->
+    <input type="hidden" name="quote-draggable-products" id="quote-draggable-products" value="<?php echo $this->quoteDraggableProducts; ?>" />
 </div>
 <?php $this->jQuery()->addJavascriptFile($this->websiteUrl . 'plugins/quote/web/js/libs/accounting/accounting.min.js'); ?>
 <script type="text/javascript">
+    <?php if(!empty($this->quoteDraggableProducts)) :?>
+        var emptyQuoteContent = $('.empty-quote-content');
+
+        if(!emptyQuoteContent.length) {
+            $("#quote-sortable").sortable().disableSelection();
+        }
+    <?php endif;?>
     $(function() {
         accounting.settings.currency = <?php echo Zend_Json::encode(Tools_Misc::getCurrencyFormat()); ?>;
     });

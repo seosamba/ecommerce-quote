@@ -10,8 +10,9 @@
     <% var currOptions = $('#currOptions').val() %>
 
     <% _.each(defaultOptions, function(value, index) { %>
+    <% title = value.title.replace(/[^A-Za-z0-9\-_]/g,'') %>
 
-        <li class="option option-<%= value.title %> clearfix" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
+    <li class="option option-<%= title.toLowerCase() %> clearfix" id="product-<%= id %>_option-<%= value.id %>" data-type="<%= value.type %>">
         <!-- option type dropdown -->
         <% if(value.type == 'dropdown' || value.type == 'radio') { %>
             <label class="grid_3 mt0-5em" for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
@@ -38,7 +39,8 @@
         <!-- option type text -->
         <% if(value.type == 'text') { %>
             <label class="grid_3 mt0-5em"><%= value.title %></label>
-            <input class="grid_9" type="text" name="product-<%= id %>-option-<%= value.id %>" value="<%= window.currOptions[value.id]%>" />
+            <% textValue = (typeof window.currOptions[value.id] !== 'undefined') ? window.currOptions[value.id] : '' %>
+            <input class="grid_9" type="text" name="product-<%= id %>-option-<%= value.id %>" value="<%= textValue%>" />
         <% } %>
         <!-- /option type text -->
 
@@ -52,7 +54,8 @@
         <!-- option type date -->
         <% if(value.type == 'date') { %>
             <label class="grid_3 mt0-5em" for="product-<%= id %>-option-<%= value.id %>"><%= value.title %></label>
-            <input class="grid_9" type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" value="<%= window.currOptions[value.id]%>" />
+            <% dateValue = (typeof window.currOptions[value.id] !== 'undefined') ? window.currOptions[value.id] : '' %>
+            <input class="grid_9" type="date" name="product-<%= id %>-option-<%= value.id %>" id="product-<%= id %>-option-<%= value.id %>" value="<%= dateValue%>" />
         <% } %>
         <!-- /option type date -->
         </li>

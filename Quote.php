@@ -160,6 +160,7 @@ class Quote extends Tools_PaymentGateway
         $currentOptions = array();
         parse_str($this->_request->getParam('co'), $currentOptions);
         $this->_view->currOptions = $currentOptions;
+        $this->_view->sid = $this->_request->getParam('sid');
 
         $this->_show();
     }
@@ -213,6 +214,40 @@ class Quote extends Tools_PaymentGateway
         $translator = Zend_Registry::get('Zend_Translate');
         $systemUserDeleteErrorMessage = $translator->translate('This user can\'t be deleted. User is used in quote.');
         return $systemUserDeleteErrorMessage;
+    }
+
+    /**
+     * Save draggable quote products in selected order
+     */
+    public function saveDragListOrderAction()
+    {
+        $currentRole = $this->_sessionHelper->getCurrentUser()->getRoleId();
+        if (($currentRole === Tools_Security_Acl::ROLE_SUPERADMIN || $currentRole === Tools_Security_Acl::ROLE_ADMIN || $currentRole === Shopping::ROLE_SALESPERSON) && $this->_request->isPost()) {
+            $draggData = filter_var_array($this->_request->getParams(), FILTER_SANITIZE_STRING);
+
+            if(!empty($draggData['quoteId'])) {
+                $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
+
+                $quoteId = $draggData['quoteId'];
+                $data = $draggData['data'];
+
+                $quoteDraggableModel = $quoteDraggableMapper->findByQuoteId($quoteId);
+
+                if($quoteDraggableModel instanceof Quote_Models_Model_QuoteDraggableModel) {
+                    $quoteDraggableModel->setData(implode(',', $data));
+                } else {
+                    $quoteDraggableModel = new Quote_Models_Model_QuoteDraggableModel();
+                    $quoteDraggableModel->setQuoteId($quoteId);
+                    $quoteDraggableModel->setData(implode(',', $data));
+                }
+
+                $quoteDraggableMapper->save($quoteDraggableModel);
+
+                $this->_responseHelper->success($this->_translator->translate('Order has been updated'));
+            }
+        }
+
+        $this->_responseHelper->fail($this->_translator->translate('Cannot save quote draggable configuration.'));
     }
 
 }

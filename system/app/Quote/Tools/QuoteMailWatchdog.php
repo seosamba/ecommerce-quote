@@ -274,16 +274,29 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     return false;
                 }
 
+                $defaultsMail = array('mailTo' => $recipient->getFullName());
+
                 // get the name => email for the customer
                 $recipientEmails = $this->_getCustomerEmails(array(
                     Tools_ShoppingCart::getAddressById($cart->getShippingAddressId()),
                     Tools_ShoppingCart::getAddressById($cart->getBillingAddressId())
-                ), array('mailTo' => $recipient->getFullName()));
+                ), $defaultsMail);
 
                 if(empty($recipientEmails)) {
                     if($this->_debugEnabled) {
                         error_log('Quote Mail Watchdog report: Can\'t find any address for the recipient with id: ' . $recipient->getId());
                     }
+                }
+
+                $ccEmails = $this->_options['ccEmails'];
+
+                if(!empty($ccEmails)) {
+                    $additionalEmails = array();
+                    foreach ($ccEmails as $email) {
+                        $additionalEmails[][$defaultsMail['mailTo']] = $email;
+                    }
+
+                    $recipientEmails = array_merge($recipientEmails, $additionalEmails);
                 }
 
                 $this->_mailer->setMailTo($recipientEmails);
