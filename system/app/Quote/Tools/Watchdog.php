@@ -56,6 +56,8 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
         $page       = $pageMapper->findByUrl($pageHelper->filterUrl($this->_quote->getId()));
         if(!$page instanceof Application_Model_Models_Page) {
             $page = new Application_Model_Models_Page();
+        } else {
+            $quoteTemplateName = $page->getTemplateId();
         }
 
         if(!empty($this->_options['oldPageId']) && !empty($this->_options['oldQuoteId'])) {
