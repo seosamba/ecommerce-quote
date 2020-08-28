@@ -732,7 +732,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $options = ($item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
         $item['sid'] = Quote_Tools_Tools::generateStorageKey($product, $options);
 
+        $notRender = false;
         $widgetOption = $this->_options[0];
+        if (empty((int)$product->getPrice()) && empty($product->getEnabled())) {
+            $notRender = true;
+        }
         switch($widgetOption) {
             case 'photo':
                 $img = $product->getPhoto();
@@ -769,9 +773,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" data-sid="'. $item['sid'] .'" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
             break;
             default:
+                if ($notRender === true) {
+                    return '';
+                }
                 return (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
             break;
         }
+
+        if ($notRender === true) {
+            return '';
+        }
+
         $this->_view->$widgetOption = $value;
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
