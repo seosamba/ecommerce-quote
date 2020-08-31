@@ -734,7 +734,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $notRender = false;
         $widgetOption = $this->_options[0];
-        if (empty((int)$product->getPrice()) && empty($product->getEnabled())) {
+        if (empty((int)$product->getPrice()) && empty($product->getEnabled()) && $widgetOption !== 'sid') {
             $notRender = true;
         }
         switch($widgetOption) {
