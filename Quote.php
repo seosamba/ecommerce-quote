@@ -98,6 +98,130 @@ class Quote extends Tools_PaymentGateway
                 false)));
     }
 
+    public static function extendPermission()
+    {
+        $sessionHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('session');
+        $currentUser = $sessionHelper->getCurrentUser();
+
+        if ($currentUser->getRoleId() === Shopping::ROLE_SALESPERSON) {
+
+            $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
+            $requestedUri = Tools_System_Tools::getRequestUri();
+
+            $front = Zend_Controller_Front::getInstance();
+            $data = $front->getRequest()->getParams();
+            if (!empty($data['page'])) {
+                $pageModel = $pageMapper->findByUrl($data['page']);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    self::extendRole($pageModel);
+                }
+            } elseif ((isset($data['name']) && isset($data['pageId']) && $data['name'] === 'webbuilder') ||
+                (isset($data['plugin']) && isset($data['pageId']) && $data['plugin'] === 'webbuilder') ||
+                (isset($data['caller']) && isset($data['pageId']) && $data['caller'] === 'media') ||
+                (isset($data['name']) && $data['name'] === 'webbuilder' && isset($data['pid']))
+            ) {
+                $pageId = 0;
+                if (!empty($data['pageId'])) {
+                    $pageId = $data['pageId'];
+                }
+
+                if (empty($pageId) && !empty($data['pid'])) {
+                    $pageId = $data['pid'];
+                }
+
+                if (!empty($data['run']) && $data['run'] === 'imageonly' && empty($data['pid'])) {
+                    self::allowAdditionalAccess();
+                }
+
+                $pageModel = $pageMapper->find($pageId);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    self::extendRole($pageModel);
+                }
+            } elseif (preg_match('~\.html~', $requestedUri)) {
+                $pageModel = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($requestedUri);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    self::extendRole($pageModel);
+                }
+            } elseif (isset($data['controller']) && isset($data['action']) && $data['controller'] === 'backend_content' && ($data['action'] === 'edit' || $data['action'] === 'add')) {
+                if (!empty($data['id'])) {
+                    $containerModel = Application_Model_Mappers_ContainerMapper::getInstance()->find($data['id']);
+                    if ($containerModel instanceof Application_Model_Models_Container) {
+                        $pageId = $containerModel->getPageId();
+                        $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($pageId);
+                        if ($pageModel instanceof Application_Model_Models_Page) {
+                            self::extendRole($pageModel);
+                        }
+
+                        if ($containerModel->getContainerType() == Application_Model_Models_Container::TYPE_STATICCONTENT || $containerModel->getContainerType() == Application_Model_Models_Container::TYPE_STATICHEADER) {
+                            self::allowAdditionalAccess();
+                        }
+                    }
+                }
+
+            } elseif(isset($data['controller']) && isset($data['action']) && ($data['action'] === 'loadwidgets' || $data['action'] === 'loadwidgetmaker')) {
+                self::allowAdditionalAccess();
+            } elseif(!empty($data['service']) && $data['service'] == 'io') {
+                self::allowAdditionalAccess();
+            }
+        }
+    }
+
+    public static function extendRole($pageModel)
+    {
+        $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->find(str_replace('.html', '',
+            $pageModel->getUrl()));
+        if ($quoteModel instanceof Quote_Models_Model_Quote) {
+            self::allowAdditionalAccess();
+        }
+    }
+
+    public static function allowAdditionalAccess()
+    {
+        $acl = Zend_Registry::get('acl');
+        if (!$acl->hasRole(Shopping::ROLE_SALESPERSON)) {
+            $acl->addRole(new Zend_Acl_Role(Shopping::ROLE_SALESPERSON), Tools_Security_Acl::ROLE_MEMBER);
+        }
+        $acl->allow(Shopping::ROLE_SALESPERSON, Tools_Security_Acl::RESOURCE_PLUGINS);
+        $acl->allow(Shopping::ROLE_SALESPERSON, Tools_Security_Acl::RESOURCE_ADMINPANEL);
+        $acl->allow(Shopping::ROLE_SALESPERSON, Tools_Security_Acl::RESOURCE_CONTENT);
+        $acl->allow(Shopping::ROLE_SALESPERSON, Tools_Security_Acl::RESOURCE_MEDIA);
+        $acl->allow(Shopping::ROLE_SALESPERSON, Tools_Security_Acl::RESOURCE_PAGES);
+        $acl->allow(Shopping::ROLE_SALESPERSON, Tools_Security_Acl::RESOURCE_THEMES);
+        $accessList = array(
+            Widgets_Videolink_Videolink::VIDEOLINK_RESOURCE,
+            Widgets_Directupload_Directupload::DIRECTUPLOAD_RESOURCE,
+            'Webbuilder-textonly',
+            'Webbuilder-imageonly',
+            'Webbuilder-galleryonly',
+            'Webbuilder-featuredonly',
+            'api_webbuilder_du_post',
+            'api_webbuilder_du_delete',
+            'api_webbuilder_uf_get',
+            'api_webbuilder_uf_post',
+            'api_webbuilder_uf_delete',
+            'api_webbuilder_io_get',
+            'api_webbuilder_io_post',
+            'api_webbuilder_io_delete',
+            'api_webbuilder_to_get',
+            'api_webbuilder_to_post',
+            'api_webbuilder_to_delete',
+            'api_webbuilder_vi_get',
+            'api_webbuilder_vi_post',
+            'api_webbuilder_vi_delete',
+            'api_webbuilder_go_get',
+            'api_webbuilder_go_post',
+            'api_webbuilder_go_delete'
+        );
+        foreach ($accessList as $accessElement) {
+            if (!$acl->has($accessElement)) {
+                $acl->addResource($accessElement);
+            }
+            $acl->allow(Shopping::ROLE_SALESPERSON, $accessElement);
+        }
+
+        Zend_Registry::set('acl', $acl);
+    }
+
     /**
      * Generate tab for the general store config
      *

@@ -49,5 +49,5 @@ CREATE TABLE IF NOT EXISTS `shopping_quote_draggable` (
   FOREIGN KEY  (`quoteId`) REFERENCES `shopping_quote` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror' WHERE `name` = 'quote';
+UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
 UPDATE `plugin` SET `version` = '2.3.0' WHERE `name` = 'quote';

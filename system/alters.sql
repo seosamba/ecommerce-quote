@@ -41,6 +41,7 @@ ALTER TABLE `shopping_quote` ADD COLUMN `signature` LONGTEXT COLLATE utf8_unicod
 ALTER TABLE `shopping_quote` ADD COLUMN `is_quote_signed` ENUM('0','1') DEFAULT '0';
 ALTER TABLE `shopping_quote` ADD COLUMN `quote_signed_at` TIMESTAMP NULL;
 INSERT INTO `template_type` (`id`, `title`) VALUES ('typepdfquote', 'Quote pdf');
+UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
 
 -- These alters are always the latest and updated version of the database
 UPDATE `plugin` SET `version`='2.3.0' WHERE `name`='quote';
