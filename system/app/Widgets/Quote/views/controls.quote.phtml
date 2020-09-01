@@ -5,6 +5,9 @@
     <!-- Current currency symbol -->
     <input type="hidden" name="currencySymbol" id="quote-currency" value="<?php echo $this->symbol; ?>" />
 
+    <!-- US_Numeric_Format -->
+    <input type="hidden" name="usNumericFormat" id="quote-us-numeric-format" value="<?php echo $this->usNumericFormat; ?>" />
+
     <!-- add product to quote controll -->
     <a href="javascript:;" id="add-product-to-quote" data-type="skipCheckRequired" class="tpopup btn-toaster" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
         <?php echo $this->translate('Add product'); ?>

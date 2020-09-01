@@ -89,11 +89,11 @@ $(function() {
 
     // editable (quantity, price) fields handling
     $(document).on('blur', '.quote-recalculate', function(e) {
-        var field = $(e.currentTarget);
-        var scope = field.data('scope');
-        var type  = field.data('type');
-        var sid = $(field).data('sid');
-        var value = field.val();
+        var field = $(e.currentTarget),
+            scope = field.data('scope'),
+            type  = field.data('type'),
+            sid = $(field).data('sid'),
+            value = field.val();
 
         if(type == 'qty') {
             value = Math.abs(value);
@@ -115,7 +115,7 @@ $(function() {
             qid   : quoteId,
             type  : type,
             value : value,
-            sid : sid
+            sid   : sid
         };
 
         switch (scope) {
@@ -256,6 +256,17 @@ var _update = function(apiUrl, data) {
 };
 
 var recalculate = function(options, sid) {
+    var formatMoneyOptions = {},
+        usNumericFormat = $('#quote-us-numeric-format').val();
+
+    if(usNumericFormat == 1) {
+        formatMoneyOptions = {
+            symbol   : $('#quote-currency').val(),
+            thousand : ',',
+            decimal  : '.',
+        }
+    }
+
     if(options.hasOwnProperty('calculateProduct') && options.calculateProduct === true) {
         if(sid.length){
             var unitPriceContainer = $('input.price-unit[data-sid="' + sid + '"]');
@@ -269,21 +280,21 @@ var recalculate = function(options, sid) {
         var totalPrice = unitPrice * qty;
 
         if(sid.length){
-            $('.price-total[data-sid="' + sid + '"]').text(accounting.formatMoney(totalPrice));
+            $('.price-total[data-sid="' + sid + '"]').text(accounting.formatMoney(totalPrice, formatMoneyOptions));
         } else {
-            $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice));
+            $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice, formatMoneyOptions));
         }
         unitPriceContainer.val(accounting.formatNumber(unitPrice, 2));
     }
     var summary = options.summary;
 
-    $('.sub-total').text(accounting.formatMoney(summary.subTotal));
-    $('.tax-total').text(accounting.formatMoney(summary.totalTax));
+    $('.sub-total').text(accounting.formatMoney(summary.subTotal, formatMoneyOptions));
+    $('.tax-total').text(accounting.formatMoney(summary.totalTax, formatMoneyOptions));
     $('#quote-shipping-price').val(accounting.formatNumber(summary.shipping, 2));
     $('#quote-discount').val(accounting.formatNumber(summary.discount, 2));
-    $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax));
-    $('#quote-discount-with-tax').text(accounting.formatMoney(summary.discountWithTax));
-    $('.grand-total').text(accounting.formatMoney(summary.total));
-    $('.totalwotax-total').text(accounting.formatMoney(summary.total- summary.totalTax));
-    $('#quote-shipping-with-tax').text(accounting.formatMoney(summary.shippingWithTax));
+    $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax, formatMoneyOptions));
+    $('#quote-discount-with-tax').text(accounting.formatMoney(summary.discountWithTax, formatMoneyOptions));
+    $('.grand-total').text(accounting.formatMoney(summary.total, formatMoneyOptions));
+    $('.totalwotax-total').text(accounting.formatMoney(summary.total- summary.totalTax, formatMoneyOptions));
+    $('#quote-shipping-with-tax').text(accounting.formatMoney(summary.shippingWithTax, formatMoneyOptions));
 };
