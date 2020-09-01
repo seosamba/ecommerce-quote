@@ -33,6 +33,7 @@ CREATE TABLE `shopping_quote` (
 
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_created', 'Quote_Tools_QuoteMailWatchdog');
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_updated', 'Quote_Tools_QuoteMailWatchdog');
+INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_signed', 'Quote_Tools_QuoteMailWatchdog');
 INSERT INTO `template_type` (`id`, `title`) VALUES ('typequote', 'Quote');
 INSERT INTO `page_option` (`id`, `title`, `context`, `active`) VALUES ('option_quotepage', 'Quote page', 'Quote system', 1);
 INSERT INTO `page_types` (`page_type_id`, `page_type_name`) VALUES ('4', 'quote');

@@ -42,6 +42,7 @@ ALTER TABLE `shopping_quote` ADD COLUMN `is_quote_signed` ENUM('0','1') DEFAULT 
 ALTER TABLE `shopping_quote` ADD COLUMN `quote_signed_at` TIMESTAMP NULL;
 INSERT INTO `template_type` (`id`, `title`) VALUES ('typepdfquote', 'Quote pdf');
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
+INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_signed', 'Quote_Tools_QuoteMailWatchdog');
 
 -- These alters are always the latest and updated version of the database
 UPDATE `plugin` SET `version`='2.3.0' WHERE `name`='quote';

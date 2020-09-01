@@ -48,6 +48,8 @@ class Api_Quote_Signature extends Api_Service_Abstract
         $quote->setQuoteSignedAt(Tools_System_Tools::convertDateFromTimezone('now'));
         $quoteMapper->save($quote);
 
+        $attachment = '';
+
         $pdfTemplate = $quote->getPdfTemplate();
         if (!empty($pdfTemplate)) {
             $pdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($pdfTemplate);
@@ -111,10 +113,24 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
                     $leadsDocumentsMapper->save($leadsDocumentsModel);
                     $pdfFile->Output($savePath, 'F');
+
+                    $attachment = new Zend_Mime_Part(file_get_contents($savePath));
+                    $attachment->type = 'application/pdf';
+                    $attachment->disposition = Zend_Mime::DISPOSITION_ATTACHMENT;
+                    $attachment->encoding = Zend_Mime::ENCODING_BASE64;
+                    $attachment->filename = $storedData['fileName'];
                 }
 
             }
         }
+
+
+
+        $quote->registerObserver(new Tools_Mail_Watchdog(array(
+            'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_SIGNED,
+            'attachment'  =>  $attachment
+        )));
+
 
         if ($quote->getPaymentType() === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
             $quote->setStatus(Quote_Models_Model_Quote::STATUS_SOLD);
