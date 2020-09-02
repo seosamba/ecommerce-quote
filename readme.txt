@@ -12,6 +12,8 @@ Widgets that working with quote page (dashboard):
 {$quote:address:billing[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays the form to input user's address which used as user's payment info. (for admin)
 {$quote:address:shipping[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays a form to enter the user's shipping address. (for admin)
 {$quote:title} - Displays the quote name.
+{$quote:creator} - Displays creator name
+{$quote:editor} - Displays editor name
 {$quote:date:created} - Displays the date of quote creation.
 {$quote:date:expires} - Displays the quote expiration date.
 {$quote:total[:tax|sub|grand|totalwotax|taxdiscount]} - Displays the total price in the cart. If the option :grand is set then discount and shipping will be added to the price.

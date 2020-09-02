@@ -465,6 +465,48 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     }
 
     /**
+     * Render creator name
+     *
+     * {$quote:creator}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderCreator() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+
+        $creatorId = $this->_quote->getCreatorId();
+        $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($creatorId);
+        if ($userModel instanceof Application_Model_Models_User) {
+            return $userModel->getFullName();
+        }
+
+        return '';
+    }
+
+    /**
+     * Render editor name
+     *
+     * {$quote:editor}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderEditor() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+
+        $editorId = $this->_quote->getEditorId();
+        $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($editorId);
+        if ($userModel instanceof Application_Model_Models_User) {
+            return $userModel->getFullName();
+        }
+
+        return '';
+    }
+
+    /**
      * Renderer for the {$quote:controls}
      *
      * @return string
