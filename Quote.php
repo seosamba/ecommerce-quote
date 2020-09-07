@@ -156,6 +156,11 @@ class Quote extends Tools_PaymentGateway
                             self::allowAdditionalAccess();
                         }
                     }
+                } elseif(!empty($data['pageId'])) {
+                    $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($data['pageId']);
+                    if ($pageModel instanceof Application_Model_Models_Page) {
+                        self::extendRole($pageModel);
+                    }
                 }
 
             } elseif(isset($data['controller']) && isset($data['action']) && ($data['action'] === 'loadwidgets' || $data['action'] === 'loadwidgetmaker')) {
