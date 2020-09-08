@@ -476,6 +476,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             }
 
+
+            if (!empty($quoteData['paymentType']) && $quoteData['paymentType'] === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                $cart->setPartialPercentage($quoteData['partialPaymentPercentage']);
+                $cart->setIsPartial('1');
+            } else {
+                $cart->setIsPartial('0');
+                $cart->setPartialPercentage('');
+            }
+
             if($customer) {
                 $cart->setUserId($customer->getId());
                 Models_Mapper_CartSessionMapper::getInstance()->save($cart);

@@ -89,6 +89,8 @@ class Quote extends Tools_PaymentGateway
         if (($scriptPaths = Zend_Layout::getMvcInstance()->getView()->getScriptPaths()) !== false) {
             $this->_view->setScriptPath($scriptPaths);
         }
+
+        $this->_view->addScriptPath(__DIR__ . '/system/app/Widgets/Quote/views/');
         $this->_view->addScriptPath(__DIR__ . '/system/views/');
 
         $this->_shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
@@ -375,7 +377,11 @@ class Quote extends Tools_PaymentGateway
                 }
 
                 if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
-                    $message = '';
+                    $currency = Zend_Registry::get('Zend_Currency');
+                    $partialPercentage = $cart->getPartialPercentage();
+                    $this->_view->partialPercentage = $partialPercentage;
+                    $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $cart->getTotal()/100));
+                    $message = $this->_view->render('partial-payment-select-info.phtml');
                 }
 
                 $this->_responseHelper->success($message);

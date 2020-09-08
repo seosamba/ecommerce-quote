@@ -1060,6 +1060,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
             }
 
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                $partialPercentage = $this->_cart->getPartialPercentage();
+                $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
+                $this->_view->partialPercentage = $partialPercentage;
+            }
+
 
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
@@ -1091,12 +1097,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $quoteStatus = $this->_quote->getStatus();
 
+            $partialPaymentAllowed = false;
+            if (!empty($this->_shoppingConfig['enabledPartialPayment'])) {
+                $partialPaymentAllowed = true;
+            }
+
             $this->_view->quoteId = $this->_quote->getId();
             $this->_view->quoteStatus = $quoteStatus;
             $this->_view->paymentType = $paymentType;
             $this->_view->isSignatureRequired = $isSignatureRequired;
             $this->_view->pdfTemplate = $pdfTemplate;
             $this->_view->pdfTemplates = $pdfTemplates;
+            $this->_view->partialPaymentAllowed = $partialPaymentAllowed;
             return $this->_view->render('payment-type-config.phtml');
         }
     }

@@ -6,10 +6,9 @@
                 name="quote-payment-type-selector">
                 <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_FULL === $this->paymentType) ? 'selected' : ''); ?>
                         value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_FULL; ?>"><?php echo $this->translate('Full Payment required'); ?></option>
-                <!--                <option --><?php //echo((Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT === $this->paymentType) ? 'selected' : ''); ?>
-                <!--                        value="-->
-                <?php //echo Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT; ?><!--">-->
-                <?php //echo $this->translate('Partial Payment required'); ?><!--</option>-->
+                <?php if($this->partialPaymentAllowed === true): ?>
+                                <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT === $this->paymentType) ? 'selected' : ''); ?> value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT; ?>"><?php echo $this->translate('Partial Payment required'); ?></option>
+                <?php endif;?>
                 <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType) ? 'selected' : ''); ?>
                         value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE; ?>"><?php echo $this->translate('Only Signature required'); ?></option>
             </select>
@@ -37,61 +36,5 @@
     <input type="hidden" id="quote-id-payment-type" name="quote-id-payment-type" value="<?php echo $this->quoteId; ?>">
 </div>
 
-<script>
-    $(document).ready(function () {
-        $(document).on('change', '#quote-payment-type-selector', function (e) {
-            var paymentType = $(e.currentTarget).val(),
-                isSignatureRequired = 0;
 
-            if ($('#quote-signature-required').is(':checked')) {
-                isSignatureRequired = 1;
-            }
-
-            if (paymentType === 'only_signature') {
-                $('#quote-signature-required').prop('disabled', true).prop('checked', true);
-            } else {
-                $('#quote-signature-required').prop('disabled', false);
-            }
-
-            changePaymentTypeMessage(paymentType, isSignatureRequired);
-        });
-
-        $(document).on('change', '#quote-signature-required', function (e) {
-            var paymentType = $('#quote-payment-type-selector').val(),
-                isSignatureRequired = 0;
-
-            if ($('#quote-signature-required').is(':checked')) {
-                isSignatureRequired = 1;
-            }
-
-            changePaymentTypeMessage(paymentType, isSignatureRequired);
-        });
-
-        function changePaymentTypeMessage(paymentType, isSignatureRequired) {
-            if (paymentType === 'only_signature') {
-                $('#quote-type-info-message').addClass('hidden');
-            } else {
-                $.ajax({
-                    url: $('#website_url').val() + 'plugin/quote/run/getPaymenttypeinfo',
-                    type: 'POST',
-                    data: {
-                        'quoteId': $('#quote-id-payment-type').val(),
-                        'paymentType': paymentType,
-                        'isSignatureRequired': isSignatureRequired
-                    },
-                    dataType: 'json',
-                    beforeSend: showSpinner()
-                }).done(function (response) {
-                    hideSpinner();
-                    if (response.error == '0') {
-                        $('#quote-type-info-message').html(response.responseText);
-                        $('#quote-type-info-message').removeClass('hidden');
-                    }
-                }).fail(function (response) {
-                    showMessage(JSON.parse(response.responseText), true, 5000);
-                });
-            }
-        }
-    });
-</script>
 
