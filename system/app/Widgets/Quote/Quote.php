@@ -1055,22 +1055,43 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 return '';
             }
 
+            $cartStatuses = array(
+                Models_Model_CartSession::CART_STATUS_COMPLETED,
+                Models_Model_CartSession::CART_STATUS_REFUNDED,
+                Models_Model_CartSession::CART_STATUS_DELIVERED,
+                Models_Model_CartSession::CART_STATUS_SHIPPED,
+                Models_Model_CartSession::CART_STATUS_CANCELED
+            );
+
             $paymentType = $this->_quote->getPaymentType();
             if (empty($paymentType)) {
                 $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
             }
 
+            $leftAmountToPaid = 0;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
                 $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
                 $this->_view->partialPercentage = $partialPercentage;
+                $isPartialPaid = false;
+                if (!empty($this->_cart->getPartialPaidAmount() && !in_array($this->_cart->getStatus(), $cartStatuses)) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
+                    $isPartialPaid = true;
+                    $leftAmountToPaid = round(($this->_cart->getTotal()*$this->_cart->getPartialPercentage())/100, 2);
+                }
             }
 
+            $isAdmin = false;
+            if (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)) {
+                $isAdmin = true;
+            }
 
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
             $this->_view->quoteTotal = $this->_cart->getTotal();
             $this->_view->isSignatureRequired = $isSignatureRequired;
+            $this->_view->isAdmin = $isAdmin;
+            $this->_view->isPartialPaid = $isPartialPaid;
+            $this->_view->leftAmountToPaid = $leftAmountToPaid;
 
             return $this->_view->render('quote-type-info.phtml');
         }

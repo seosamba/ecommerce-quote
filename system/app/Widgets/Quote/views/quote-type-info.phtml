@@ -10,8 +10,20 @@
         <?php endif;?>
         </span>
     <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT): ?>
-        <span id="quote-type-info-message"><?php echo $this->translate('You don\'t have to pay full price now. Only');?> <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo (int)$this->partialPercentage;?>" /> % <?php echo $this->translate('required!');?> <?php echo $this->translate('Please make partial payment');?>:<span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span>:
-        </span>
+        <?php if ($this->isPartialPaid === false):?>
+            <span id="quote-type-info-message"><?php echo $this->translate('You don\'t have to pay full price now. Only');?>
+                <?php if($this->isAdmin === true):?>
+                    <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo (int)$this->partialPercentage;?>" />
+                <?php else:?>
+                    <?php echo (int)$this->partialPercentage;?>
+                <?php endif;?>
+                % <?php echo $this->translate('required!');?> <?php echo $this->translate('Please make partial payment');?>:<span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span>:
+            </span>
+        <?php else:?>
+            <span id="quote-type-info-message">
+                <?php echo $this->translate('You have to pay');?> <?php echo $this->currency($this->leftAmountToPaid);?>
+            </span>
+        <?php endif;?>
     <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE): ?>
         <span id="quote-type-info-message"></span>
     <?php endif; ?>
