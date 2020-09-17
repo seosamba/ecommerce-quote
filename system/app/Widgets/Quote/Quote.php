@@ -1074,7 +1074,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
                 $this->_view->partialPercentage = $partialPercentage;
                 $isPartialPaid = false;
-                if (!empty($this->_cart->getPartialPaidAmount()) && !in_array($this->_cart->getStatus(), $cartStatuses) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
+                if ((int) $this->_cart->getPartialPaidAmount() > 0 && !in_array($this->_cart->getStatus(), $cartStatuses) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
                     $isPartialPaid = true;
                     $leftAmountToPaid = round(($this->_cart->getTotal() -($this->_cart->getTotal()*$this->_cart->getPartialPercentage())/100), 2);
                 }

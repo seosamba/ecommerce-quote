@@ -367,6 +367,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     }
                 }
 
+                $recipientEmails = array_unique($recipientEmails);
+
                 $ccEmails = $this->_options['ccEmails'];
 
                 if(!empty($ccEmails)) {
