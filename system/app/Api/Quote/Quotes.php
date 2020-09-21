@@ -258,6 +258,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                 if($currentCart instanceof Models_Model_CartSession){
                                     $errMsg = '';
                                     $currentCart->setId(null);
+                                    $currentCart->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+                                    $currentCart->setPartialPaidAmount('0');
+                                    $currentCart->setPurchasedOn('');
+                                    $currentCart->setPartialPurchasedOn('');
                                     $cart =  $cartMapper->save($currentCart);
                                 }
                             }
