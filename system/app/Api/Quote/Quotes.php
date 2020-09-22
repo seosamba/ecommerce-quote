@@ -350,6 +350,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_error('Quote not found', self:: REST_STATUS_NOT_FOUND);
         }
 
+        $quotePdfTemplate = Quote_Tools_Tools::findPdfTemplateByQuoteUrl($quote->getId().'.html');
+        $quoteData['pdfTemplate'] = $quotePdfTemplate;
+
         $currentUser = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
         $quote->setEditedBy($currentUser->getFullName());
         $quote->setEditorId($currentUser->getId());

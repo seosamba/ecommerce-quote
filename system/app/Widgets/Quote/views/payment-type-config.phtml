@@ -13,18 +13,18 @@
                         value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE; ?>"><?php echo $this->translate('Only Signature required'); ?></option>
             </select>
         </p>
-        <p>
-            <label><?php echo $this->translate('Pdf template'); ?></label>
-            <select <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : '') ?> id="quote-pdf-template-selector" name="quote-pdf-template-selector">
-                <option value="0"><?php echo $this->translate('No template'); ?></option>
-                <?php if (!empty($this->pdfTemplates)): ?>
-                    <?php foreach ($this->pdfTemplates as $template): ?>
-                        <option <?php echo(($template->getName() === $this->pdfTemplate) ? 'selected' : ''); ?>
-                                value="<?php echo $template->getName(); ?>"><?php echo $template->getName(); ?></option>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
-        </p>
+<!--        <p>-->
+<!--            <label>--><?php //echo $this->translate('Pdf template'); ?><!--</label>-->
+<!--            <select --><?php //echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : '') ?><!-- id="quote-pdf-template-selector" name="quote-pdf-template-selector">-->
+<!--                <option value="0">--><?php //echo $this->translate('No template'); ?><!--</option>-->
+<!--                --><?php //if (!empty($this->pdfTemplates)): ?>
+<!--                    --><?php //foreach ($this->pdfTemplates as $template): ?>
+<!--                        <option --><?php //echo(($template->getName() === $this->pdfTemplate) ? 'selected' : ''); ?>
+<!--                                value="--><?php //echo $template->getName(); ?><!--">--><?php //echo $template->getName(); ?><!--</option>-->
+<!--                    --><?php //endforeach; ?>
+<!--                --><?php //endif; ?>
+<!--            </select>-->
+<!--        </p>-->
         <p class="signature-required-block">
             <label><?php echo $this->translate('Signature required'); ?></label>
             <input <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : ''); ?>  <?php echo(($this->isSignatureRequired == '1') ? 'checked' : ''); ?>

@@ -1,11 +1,17 @@
 <?php
-/**
- * Builder
- * @author: iamne <eugene@seotoaster.com> Seotoaster core team
- * Date: 9/5/12
- * Time: 1:24 PM
- */
+
+
 class Quote_Tools_Tools {
+
+    /**
+     * Quote pdf template prefix
+     */
+    const QUOTE_PDF_TEMPLATE_PREFIX = 'pdf-';
+
+    /**
+     * Quote pdf template type
+     */
+    const QUOTE_PDF_TEMPLATE_TYPE = 'typepdfquote';
 
     const TITLE_PREFIX = 'New quote: ';
 
@@ -459,6 +465,42 @@ class Quote_Tools_Tools {
         }
 
 
+    }
+
+    /**
+     * Get quote pdf template by quote page url
+     *
+     * @param string $quotePageUrl quote page url
+     * @return string
+     */
+    public static function findPdfTemplateByQuoteUrl($quotePageUrl)
+    {
+        $pageModel = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($quotePageUrl);
+        if ($pageModel instanceof Application_Model_Models_Page) {
+            $quotePdfTemplate = Quote_Tools_Tools::findQuotePdfTemplate($pageModel->getTemplateId());
+            return $quotePdfTemplate;
+        }
+
+        return '';
+    }
+
+    /**
+     * find quote pdf template
+     *
+     * @param string $templateName quote template
+     * @return string
+     */
+    public static function findQuotePdfTemplate($templateName)
+    {
+        $quotePdfTemplateName = self::QUOTE_PDF_TEMPLATE_PREFIX.$templateName;
+        $quotePdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($quotePdfTemplateName);
+        if ($quotePdfTemplate instanceof Application_Model_Models_Template) {
+            if ($quotePdfTemplate->getType() === self::QUOTE_PDF_TEMPLATE_TYPE) {
+                return $quotePdfTemplate->getName();
+            }
+        }
+
+        return '';
     }
 
 }

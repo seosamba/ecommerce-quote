@@ -50,7 +50,9 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
         $attachment = '';
 
-        $pdfTemplate = $quote->getPdfTemplate();
+        $pdfTemplate = Quote_Tools_Tools::findPdfTemplateByQuoteUrl($quote->getId().'.html');
+        $quote->setPdfTemplate($pdfTemplate);
+
         if (!empty($pdfTemplate)) {
             $pdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($pdfTemplate);
             if ($pdfTemplate instanceof Application_Model_Models_Template) {

@@ -288,7 +288,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
         errorMessage: errorMessage,
         eventType   : (eventType) ? eventType : '',
         paymentType : $('#quote-payment-type-selector').val(),
-        pdfTemplate : $('#quote-pdf-template-selector').val(),
+        // pdfTemplate : $('#quote-pdf-template-selector').val(),
         isSignatureRequired : isQuoteSignatureRequired,
         partialPaymentPercentage : $('#partial-payment-percentage').val(),
         ccEmails    : ccEmails
