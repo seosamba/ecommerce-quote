@@ -1133,4 +1133,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('payment-type-config.phtml');
         }
     }
+
+    protected function _renderQuotesigneddate()
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            if (!empty($this->_quote->getIsQuoteSigned())) {
+                return date('d-M-Y', strtotime($this->_quote->getQuoteSignedAt()));
+            }
+
+            if ($this->_editAllowed === true) {
+                return $translator->translate('Not yet accepted');
+            }
+
+        }
+    }
 }
