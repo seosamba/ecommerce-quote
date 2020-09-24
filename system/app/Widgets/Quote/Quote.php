@@ -1073,6 +1073,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $partialPercentage = $this->_cart->getPartialPercentage();
                 $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
                 $this->_view->partialPercentage = $partialPercentage;
+                $this->_view->partialAmountPaid  = $this->_cart->getPartialPaidAmount();
                 $isPartialPaid = false;
                 if ((int) $this->_cart->getPartialPaidAmount() > 0 && !in_array($this->_cart->getStatus(), $cartStatuses) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
                     $isPartialPaid = true;
@@ -1085,6 +1086,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $isAdmin = true;
             }
 
+            $this->_view->partialPaidDate = date('Y-m-d', strtotime($this->_cart->getPartialPurchasedOn()));
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
             $this->_view->quoteTotal = $this->_cart->getTotal();

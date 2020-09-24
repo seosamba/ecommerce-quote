@@ -1,2 +1,2 @@
-<?php echo $this->translate('You don\'t have to pay full price now. Only');?> <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage;?>" /> % <?php echo $this->translate('required!');?> <?php echo $this->translate('Please make partial payment');?>:<span id="partial-payment-percentage-payment-amount">
-  <?php echo $this->partialToPayAmount;?></span>
+<?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?> <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage;?>" /> % <?php echo $this->translate('or');?> <span id="partial-payment-percentage-payment-amount">
+  <?php echo $this->partialToPayAmount;?></span> <?php echo $this->translate('using the credit card form below');?>:
