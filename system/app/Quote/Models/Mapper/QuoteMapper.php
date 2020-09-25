@@ -100,7 +100,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 ->joinLeft(array('u2'=>'user'), 's_q.creator_id=u2.id', '')
                 ->joinLeft(array('cart'=>'shopping_cart_session'), 's_q.cart_id=cart.id', '')
                 ->joinLeft(array('cust_addr'=>'shopping_customer_address'), 'cust_addr.id=cart.billing_address_id', array('cust_addr.firstname', 'cust_addr.lastname'))
-                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')))
+                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u2.full_name, u1.full_name)')))
                 ->columns(array('clients' => new Zend_Db_Expr('COALESCE(u1.full_name)')));
             ($where) ? $select->where($where) : $select;
             ($order) ? $select->order($order) : $select;
