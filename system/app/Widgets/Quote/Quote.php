@@ -583,7 +583,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 unset($reqOpt);
             }
 
-            $this->_view->addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
+            $addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
+            if (!empty($addressForm->getElement('overwriteQuoteUserBilling'))) {
+                $addressForm->getElement('overwriteQuoteUserBilling')
+                    ->setAttrib('checked', 'checked')
+                    ->setAttrib('class', 'hidden')
+                    ->setLabel('');
+            }
+            $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {

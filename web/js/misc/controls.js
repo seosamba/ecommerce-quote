@@ -28,6 +28,14 @@ $(function() {
         updateQuote(quoteId, false);
     });
 
+    $(document).on('change', '#overwrite-quote-user-shipping', function(){
+        if ($(this).is(':checked')) {
+            $('#overwrite-quote-user-billing').prop('checked', false);
+        } else {
+            $('#overwrite-quote-user-billing').prop('checked', true);
+        }
+    });
+
     // handling remove link click
     $(document).on('click', '.remove-product', function() {
         var selfEl = $(this);
