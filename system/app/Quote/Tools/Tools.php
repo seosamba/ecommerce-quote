@@ -47,15 +47,23 @@ class Quote_Tools_Tools {
             $oldQuoteId = $options['oldQuoteId'];
         }
 
-        $quote->registerObserver(new Quote_Tools_Watchdog(array(
-            'gateway' => new Quote(array(), array()),
-            'oldPageId' => $oldPageId,
-            'oldQuoteId' => $oldQuoteId
+        if ($options['actionType'] == Quote::QUOTE_TYPE_CLONE) {
+            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+                'gateway' => new Quote(array(), array()),
+                'oldPageId' => $oldPageId,
+                'oldQuoteId' => $oldQuoteId
 
-        )))
-        ->registerObserver(new Tools_Mail_Watchdog(array(
-            'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
-        )));
+            )));
+        } else {
+            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+                'gateway' => new Quote(array(), array()),
+                'oldPageId' => $oldPageId,
+                'oldQuoteId' => $oldQuoteId
+
+            )))->registerObserver(new Tools_Mail_Watchdog(array(
+                    'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
+                )));
+        }
 
         $expirationDelay = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('expirationDelay');
         if(!$expirationDelay) {
