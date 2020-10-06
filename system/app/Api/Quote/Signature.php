@@ -145,7 +145,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
         $quoteMapper->save($quote);
 
-        $this->_responseHelper->success($translator->translate('Quote has been signed'));
+        $this->_responseHelper->success($translator->translate('Quote has been signed. A confirmation email with a copy has been sent to you. Please check your inbox and spam filter as needed.'));
 
     }
 

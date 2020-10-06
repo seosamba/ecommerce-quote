@@ -424,4 +424,76 @@ class Quote extends Tools_PaymentGateway
         $this->_responseHelper->fail($this->_translator->translate('Cannot save quote draggable configuration.'));
     }
 
+    public function downloadquotepdfAction()
+    {
+        $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+
+        $translator = Zend_Registry::get('Zend_Translate');
+        if (empty($quoteId)) {
+            $this->_error($translator->translate('Quote id is missing'));
+        }
+
+        $quote = $quoteMapper->find($quoteId);
+        if (!$quote instanceof Quote_Models_Model_Quote) {
+            $this->_error($translator->translate('Quote not found'));
+        }
+
+        $pdfTemplate = Quote_Tools_Tools::findPdfTemplateByQuoteUrl($quote->getId() . '.html');
+        if (!empty($pdfTemplate)) {
+            $pdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($pdfTemplate);
+            if ($pdfTemplate instanceof Application_Model_Models_Template) {
+                $websiteConfig = Zend_Registry::get('website');
+                $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
+                if (!defined('_MPDF_TEMP_PATH')) {
+                    define('_MPDF_TEMP_PATH', $pdfPath);
+                }
+
+                require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'system/library/mpdf/mpdf.php');
+                $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
+                $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+                $themeData = Zend_Registry::get('theme');
+
+                $session = Zend_Controller_Action_HelperBroker::getExistingHelper('session');
+                $session->storeCartSessionConversionKey = $quote->getCartId();
+                $registry = Zend_Registry::getInstance();
+                $registry->set('processingAutoQuoteId', $quote->getId());
+
+                $parserOptions = array(
+                    'websiteUrl' => $websiteHelper->getUrl(),
+                    'websitePath' => $websiteHelper->getPath(),
+                    'currentTheme' => $websiteHelper->getConfig('currentTheme'),
+                    'themePath' => $themeData['path'],
+                );
+                $page = $pageMapper->findByUrl($quote->getId() . '.html');
+                $page = $page->toArray();
+
+                $parser = new Tools_Content_Parser($pdfTemplate->getContent(), $page, $parserOptions);
+                $content = $parser->parse();
+
+                $pdfFile = new mPDF('utf-8', 'A4');
+                $pdfFile->WriteHTML($content);
+
+                $fileName = 'Quote_' . md5($quote->getId() . microtime());
+                $pdfFileName = $fileName . '.pdf';
+
+                $filePath = $websiteHelper->getPath() . 'plugins' . DIRECTORY_SEPARATOR . 'quote' . DIRECTORY_SEPARATOR . 'quotePdf'
+                    . DIRECTORY_SEPARATOR . $pdfFileName;
+                $pdfFile->Output($filePath, 'F');
+
+                if (file_exists($filePath)) {
+                    $response = Zend_Controller_Front::getInstance()->getResponse();
+                    $response->setHeader('Content-Disposition',
+                        'attachment; filename=' . $fileName . '.' . pathinfo($pdfFileName,
+                            PATHINFO_EXTENSION))
+                        ->setHeader('Content-type', 'application/force-download');
+                    readfile($filePath);
+                    $response->sendResponse();
+                    exit;
+                }
+
+            }
+        }
+    }
+
 }

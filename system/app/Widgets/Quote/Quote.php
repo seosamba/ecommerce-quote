@@ -1157,4 +1157,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         }
     }
+
+    protected function _renderDownloadpdf()
+    {
+
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && !$this->_editAllowed) {
+            if (empty($this->_quote->getIsQuoteSigned())) {
+                $this->_view->quoteId = $this->_quote->getId();
+
+                return $this->_view->render('download-preview-button.phtml');
+            }
+        }
+
+        return '';
+
+    }
 }
