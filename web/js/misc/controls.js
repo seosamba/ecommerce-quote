@@ -386,7 +386,7 @@ function changePaymentTypeMessage(paymentType, isSignatureRequired) {
                 $('#quote-type-info-message').removeClass('hidden');
                 if (paymentType === 'partial_payment') {
                     var data = {
-                        qid   : quoteId,
+                        qid   : $('#quote-id-payment-type').val(),
                         type  : 'taxrate',
                         value : $(e.currentTarget).val()
                     };
