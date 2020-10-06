@@ -388,7 +388,7 @@ function changePaymentTypeMessage(paymentType, isSignatureRequired) {
                     var data = {
                         qid   : $('#quote-id-payment-type').val(),
                         type  : 'taxrate',
-                        value : $(e.currentTarget).val()
+                        value : $('#partial-payment-percentage').val()
                     };
                     var request = _update('api/quote/quotes/', data);
                     request.done(function(response) {
