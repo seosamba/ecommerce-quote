@@ -850,6 +850,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         //init quote form and remove elements we don't need
         $quoteForm   = new Quote_Forms_Quote();
         $quoteForm->removeElement('sameForShipping');
+        $quoteForm->removeElement('position');
 
         //check if the automatic quote generation is set up - add extra class to the form
         if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {

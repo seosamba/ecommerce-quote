@@ -32,12 +32,19 @@ class Quote_Forms_Shipping extends Forms_Checkout_Shipping {
             'multiOptions' => array('' => $translator->translate('Select')) + Tools_System_Tools::getAllowedPrefixesList()
         )));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'position',
+            'label' => 'Position',
+            'rows'  => '3'
+        )));
+
         $this->addDisplayGroups(array(
             'lcol' => array(
                 'prefix',
                 'firstname',
                 'lastname',
                 'company',
+                'position',
                 'email',
                 'address1',
                 'address2'
