@@ -1044,9 +1044,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->quoteId = $quoteId;
 
             if ($this->_userMode === true) {
+                if (empty($signature)) {
+                    return '';
+                }
+
                 if (in_array('src', $this->_options)) {
                     return $signature;
                 }
+                
                 return $this->_view->render('signature-signed.phtml');
             }
 
