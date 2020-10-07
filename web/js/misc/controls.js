@@ -64,7 +64,7 @@ $(function() {
     $(document).on('click', '.quote-control', function(e) {
         var control  = $(e.currentTarget);
 
-        if ($('#quote-payment-type-selector').val() === 'partial_payment' && (parseInt($('#partial-payment-percentage').val()) < 1 || isNaN(parseInt($('#partial-payment-percentage').val())))) {
+        if ($('#quote-payment-type-selector').attr('disabled') !== 'disabled' &&  $('#quote-payment-type-selector').val() === 'partial_payment' && (parseInt($('#partial-payment-percentage').val()) < 1 || isNaN(parseInt($('#partial-payment-percentage').val())))) {
             showMessage('Please specify partial payment percentage', true, 5000);
             hideLoader();
             return false;
