@@ -1168,10 +1168,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     {
 
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && !$this->_editAllowed) {
-            if (empty($this->_quote->getIsQuoteSigned())) {
-                $this->_view->quoteId = $this->_quote->getId();
+            if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                if (empty($this->_quote->getIsQuoteSigned())) {
+                    $this->_view->quoteId = $this->_quote->getId();
 
-                return $this->_view->render('download-preview-button.phtml');
+                    return $this->_view->render('download-preview-button.phtml');
+                }
             }
         }
 
