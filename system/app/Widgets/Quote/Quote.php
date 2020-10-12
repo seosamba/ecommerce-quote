@@ -1191,4 +1191,45 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return '';
 
     }
+
+    protected function _renderQuoteowner()
+    {
+        if ($this->_quote instanceof Quote_Models_Model_Quote) {
+            $creatorId = $this->_quote->getCreatorId();
+            if (!empty($creatorId)) {
+                $registry = Zend_Registry::getInstance();
+                if (Zend_Registry::isRegistered('quoteCreatorModel')) {
+                    $quoteCreatorModel = $registry->get('quoteCreatorModel');
+                } else {
+                    $quoteCreatorModel = Application_Model_Mappers_UserMapper::getInstance()->find($creatorId);
+                    $registry->set('quoteCreatorModel', $quoteCreatorModel);
+                }
+
+                if ($quoteCreatorModel instanceof Application_Model_Models_User) {
+                    if ($this->_options[0] === 'fullname') {
+                        return $quoteCreatorModel->getFullName();
+                    }
+                    if ($this->_options[0] === 'mobile') {
+                        return $quoteCreatorModel->getMobileCountryCodeValue().$quoteCreatorModel->getMobilePhone();
+                    }
+                    if ($this->_options[0] === 'desktop') {
+                        return $quoteCreatorModel->getDesktopCountryCodeValue().$quoteCreatorModel->getDesktopPhone();
+                    }
+                    if ($this->_options[0] === 'email') {
+                        return $quoteCreatorModel->getEmail();
+                    }
+                    if ($this->_options[0] === 'signature') {
+                        return $quoteCreatorModel->getSignature();
+                    }
+                    if ($this->_options[0] === 'voip') {
+                        return $quoteCreatorModel->getVoipPhone();
+                    }
+
+                }
+
+            }
+        }
+        return '';
+    }
+
 }
