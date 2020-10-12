@@ -13,7 +13,6 @@
         </span>
     <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT): ?>
         <?php if ($this->isPartialPaid === false):?>
-            Please sign and validate your signature first, then to get things started, please make
             <?php if (empty($this->isSignatureRequired)): ?>
                 <span id="quote-type-info-message"><?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a non-refundable down payment of ');?>
                     <?php if($this->isAdmin === true):?>
