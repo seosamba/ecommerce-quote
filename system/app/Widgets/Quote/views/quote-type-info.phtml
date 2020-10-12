@@ -2,11 +2,13 @@
     <?php if ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL): ?>
         <span id="quote-type-info-message">
         <?php if (empty($this->isSignatureRequired)): ?>
-            <?php echo $this->translate('To get things started please make a full payment using the credit card form below'); ?>
+            <?php echo $this->translate('To get things started please make a full payment'); ?>
                 : <?php echo $this->currency($this->quoteTotal); ?>
+            <?php echo $this->translate('using the credit card form below');?>
         <?php else :?>
-            <?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a full payment using the credit card form below'); ?>
+            <?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a full payment'); ?>
             : <?php echo $this->currency($this->quoteTotal); ?>
+            <?php echo $this->translate('using the credit card form below');?>
         <?php endif;?>
         </span>
     <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT): ?>

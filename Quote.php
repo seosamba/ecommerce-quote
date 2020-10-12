@@ -370,9 +370,9 @@ class Quote extends Tools_PaymentGateway
                 $message = '';
                 if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL) {
                     if (!empty($isSignatureRequired)) {
-                        $message = $this->_translator->translate('Please sign a quote and make full payment') . ': ' . $quoteTotal;
+                        $message = $this->_translator->translate('Please sign and validate your signature first, then to get things started, please make a full payment') . ': ' . $quoteTotal .' '. $this->_translator->translate('using the credit card form below');
                     } else {
-                        $message = $this->_translator->translate('Please make full payment') . ': ' . $quoteTotal;
+                        $message = $this->_translator->translate('To get things started please make a full payment') . ': ' . $quoteTotal .' '. $this->_translator->translate('using the credit card form below');
                     }
                 }
 
