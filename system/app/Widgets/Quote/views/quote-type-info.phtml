@@ -2,16 +2,27 @@
     <?php if ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL): ?>
         <span id="quote-type-info-message">
         <?php if (empty($this->isSignatureRequired)): ?>
-            <?php echo $this->translate('Please make full payment'); ?>
+            <?php echo $this->translate('To get things started please make a full payment'); ?>
                 : <?php echo $this->currency($this->quoteTotal); ?>
         <?php else :?>
-            <?php echo $this->translate('Please sign a quote and make full payment'); ?>
+            <?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a full payment'); ?>
             : <?php echo $this->currency($this->quoteTotal); ?>
         <?php endif;?>
         </span>
     <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT): ?>
         <?php if ($this->isPartialPaid === false):?>
-            <span id="quote-type-info-message"><?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?>
+            Please sign and validate your signature first, then to get things started, please make
+            <?php if (empty($this->isSignatureRequired)): ?>
+                <span id="quote-type-info-message"><?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a non-refundable down payment of ');?>
+                    <?php if($this->isAdmin === true):?>
+                        <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo (int)$this->partialPercentage;?>" />
+                    <?php else:?>
+                        <?php echo (int)$this->partialPercentage;?>
+                    <?php endif;?>
+                    % <?php echo $this->translate('or');?> <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span> <?php echo $this->translate('using the credit card form below');?>:
+                </span>
+            <?php else:?>
+                <span id="quote-type-info-message"><?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?>
                 <?php if($this->isAdmin === true):?>
                     <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo (int)$this->partialPercentage;?>" />
                 <?php else:?>
@@ -19,6 +30,7 @@
                 <?php endif;?>
                 % <?php echo $this->translate('or');?> <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span> <?php echo $this->translate('using the credit card form below');?>:
             </span>
+            <?php endif;?>
         <?php else:?>
             <span id="quote-type-info-message">
                 <?php echo $this->translate('We received your');?> <?php echo (int) $this->partialPercentage;?>%     <?php echo $this->translate('deposit of');?> <?php echo $this->currency($this->partialAmountPaid);?> on <?php echo $this->partialPaidDate;?> on this quote, and we thank you for it. <?php echo $this->translate('Please pay the reminder amount of');?> <?php echo $this->currency($this->leftAmountToPaid);?> <?php echo $this->translate('When instructed to do so using the credit card form below');?> :

@@ -134,6 +134,9 @@ class Api_Quote_Signature extends Api_Service_Abstract
         )));
 
 
+        $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you. 
+Now to effectively place this order, please make a payment as instructed.';
+
         if ($quote->getPaymentType() === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
             $quote->setStatus(Quote_Models_Model_Quote::STATUS_SOLD);
             $quote->registerObserver(new Quote_Tools_Watchdog(array(
@@ -141,11 +144,12 @@ class Api_Quote_Signature extends Api_Service_Abstract
             )))->registerObserver(new Quote_Tools_GarbageCollector(array(
                 'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
             )));
+
+            $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you.';
         }
 
         $quoteMapper->save($quote);
-
-        $this->_responseHelper->success($translator->translate('Quote has been signed. A confirmation email with a copy has been sent to you. Please check your inbox and spam filter as needed.'));
+        $this->_responseHelper->success($translator->translate($message));
 
     }
 

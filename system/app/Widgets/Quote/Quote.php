@@ -1174,6 +1174,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                     return $this->_view->render('download-preview-button.phtml');
                 }
+
+                $translator = Zend_Registry::get('Zend_Translate');
+
+                $userId = $this->_quote->getUserId();
+                $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
+                $userEmail = '';
+                if ($userModel instanceof Application_Model_Models_User) {
+                    $userEmail = $userModel->getEmail();
+                }
+
+                return $translator->translate('Please find a copy of this proposal in your inbox at').' '.$userEmail;
             }
         }
 
