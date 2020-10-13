@@ -138,6 +138,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      */
     protected $_debugEnabled       = false;
 
+    protected $_observableModel = null;
+
     /**
      * Init all necessary helpers and assign correct mail message
      *
@@ -405,6 +407,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             $this->_mailer->addAttachment($attachment);
         }
 
+        $this->_observableModel = $this->_options['observableModel'];
+
         return $this->_send(array('subject' => $this->_translator->translate($this->_storeConfig['company'] . ' Hello! Your quote has been updated')));
     }
 
@@ -455,6 +459,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             'currentTheme' => $extConfig['currentTheme'],
             'themePath'    => $themeData['path'],
         );
+
+        if (!empty($this->_observableModel)){
+            $parserOptions['observableModel'] = $this->_observableModel;
+        }
 
         // init toaster parser, parse mail template for the standart toaster widgets and return the result
         $parser = new Tools_Content_Parser($mailTemplate, Application_Model_Mappers_PageMapper::getInstance()->findByUrl($this->_quote->getId() . '.html')->toArray(), $parserOptions);

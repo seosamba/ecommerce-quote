@@ -126,11 +126,15 @@ class Api_Quote_Signature extends Api_Service_Abstract
             }
         }
 
-
+        $observableModel = '';
+        if (!empty($leadModel) && $leadModel instanceof Leads_Model_LeadsModel) {
+            $observableModel = $leadModel;
+        }
 
         $quote->registerObserver(new Tools_Mail_Watchdog(array(
             'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_SIGNED,
-            'attachment'  =>  $attachment
+            'attachment'  =>  $attachment,
+            'observableModel' => $observableModel
         )));
 
 
