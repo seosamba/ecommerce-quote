@@ -1184,7 +1184,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     $userEmail = $userModel->getEmail();
                 }
 
-                return $translator->translate('Please find a copy of this proposal in your inbox at').' '.$userEmail;
+                return $translator->translate('Please find a copy of this signed proposal in your inbox at').' '.$userEmail;
             }
         }
 
