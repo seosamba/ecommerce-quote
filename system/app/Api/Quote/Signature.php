@@ -87,7 +87,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
                 $pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile->WriteHTML($content);
 
-                $pdfFileName = 'Quote_' . md5($quote->getId() . microtime()) . '.pdf';
+                $pdfFileName = 'Proposal-quote-' . $quote->getTitle() . '.pdf';
 
                 $storedData = Tools_LeadDocumentsTools::generateStoredName(array('name' => $pdfFileName));
 

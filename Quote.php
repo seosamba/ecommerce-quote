@@ -474,7 +474,7 @@ class Quote extends Tools_PaymentGateway
                 $pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile->WriteHTML($content);
 
-                $fileName = 'Quote_' . md5($quote->getId() . microtime());
+                $fileName = 'Proposal-quote-' . $quote->getTitle();
                 $pdfFileName = $fileName . '.pdf';
 
                 $filePath = $websiteHelper->getPath() . 'plugins' . DIRECTORY_SEPARATOR . 'quote' . DIRECTORY_SEPARATOR . 'quotePdf'
