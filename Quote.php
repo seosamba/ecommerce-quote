@@ -390,6 +390,24 @@ class Quote extends Tools_PaymentGateway
             $this->_responseHelper->fail('');
         }
     }
+
+    public function checkquoteExpiredAction()
+    {
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+            $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+            if (!empty($quoteId)) {
+                $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
+                if ($quoteModel instanceof Quote_Models_Model_Quote) {
+                    if ($quoteModel->getStatus() == Quote_Models_Model_Quote::STATUS_LOST || strtotime($quoteModel->getExpiresAt()) <= strtotime('now')) {
+                        $this->_responseHelper->fail($this->_translator->translate('You can\'t send expired quote.'));
+                    }
+                    $this->_responseHelper->success('');
+                }
+            }
+        }
+    }
+
+
     /**
      * Save draggable quote products in selected order
      */

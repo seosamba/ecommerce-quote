@@ -71,9 +71,22 @@ $(function() {
         }
 
         if(parseInt(control.data('sendmail')) == 1) {
-            showMailMessageEdit(control.data('trigger'), function(message, ccEmails) {
-                updateQuote(quoteId, true, message, '', ccEmails);
-            }, 'customer');
+            $.ajax({
+                url        : $('#website_url').val() + 'plugin/quote/run/checkquoteExpired/',
+                type       : 'post',
+                data       : {quoteId: quoteId},
+                dataType   : 'json',
+                beforeSend : showSpinner()
+            }).done(function(response) {
+                if (response.error == '1') {
+                    showMessage(response.responseText, true, 5000);
+                    return false;
+                } else {
+                    showMailMessageEdit(control.data('trigger'), function (message, ccEmails) {
+                        updateQuote(quoteId, true, message, '', ccEmails);
+                    }, 'customer');
+                }
+            });
         } else {
             var eventType = '';
             if(typeof $(this).data('type') !== 'undefined') {
