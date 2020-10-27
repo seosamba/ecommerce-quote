@@ -89,6 +89,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     public function postAction() {
         $translator = Zend_Registry::get('Zend_Translate');
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
+        $templateName  = filter_var($this->_request->getParam('templateName'), FILTER_SANITIZE_STRING);
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
@@ -287,14 +288,20 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $quote = Quote_Tools_Tools::createQuote($cart, array(
+            $options = array(
                 'editedBy' => $editedBy,
                 'creatorId' => $creatorId,
                 'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '',
                 'actionType' => $type,
                 'oldQuoteId' => $quoteId,
                 'oldPageId' => $oldPageId
-            ));
+            );
+
+            if (!empty($templateName)) {
+                $options['templateName'] = $templateName;
+            }
+
+            $quote = Quote_Tools_Tools::createQuote($cart, $options);
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }

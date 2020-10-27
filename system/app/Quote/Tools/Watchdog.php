@@ -67,6 +67,10 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
             }
         }
 
+        if (!empty($this->_options['templateName'])) {
+            $quoteTemplateName = $this->_options['templateName'];
+        }
+
         $page = $pageMapper->save(
             $page->setH1($this->_quote->getTitle())
                 ->setNavName($this->_quote->getTitle())

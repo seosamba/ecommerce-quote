@@ -71,8 +71,9 @@ define([
         },
         addAction: function(e) {
             showSpinner();
-            var self = this;
-            this.quotes.create({type: 'build'}, {
+            var self = this,
+                templateName = $('#quote-templates-list option:selected').val();
+            this.quotes.create({type: 'build', templateName: templateName}, {
                 wait: true,
                 success: function(model) {
                     hideSpinner();

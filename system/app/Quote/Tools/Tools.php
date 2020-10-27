@@ -42,6 +42,11 @@ class Quote_Tools_Tools {
 
         $oldPageId = 0;
         $oldQuoteId = '';
+        $templateName = '';
+        if (!empty($options['templateName'])) {
+            $templateName = $options['templateName'];
+        }
+
         if($options['actionType'] == Quote::QUOTE_TYPE_CLONE && !empty($options['oldPageId'] && !empty($options['oldQuoteId']))) {
             $oldPageId = $options['oldPageId'];
             $oldQuoteId = $options['oldQuoteId'];
@@ -58,7 +63,8 @@ class Quote_Tools_Tools {
             $quote->registerObserver(new Quote_Tools_Watchdog(array(
                 'gateway' => new Quote(array(), array()),
                 'oldPageId' => $oldPageId,
-                'oldQuoteId' => $oldQuoteId
+                'oldQuoteId' => $oldQuoteId,
+                'templateName' => $templateName
 
             )))->registerObserver(new Tools_Mail_Watchdog(array(
                     'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
