@@ -476,6 +476,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $this->_view->quoteDraggableProducts  = $useDraggable;
 
+        $this->_view->usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
         return $this->_view->render('controls.quote.phtml');
     }
 
@@ -555,6 +557,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if(!$this->_cart instanceof Models_Model_CartSession) {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: cart in not initialized, no total will be rendered');
         }
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
+
         $totalType = isset($this->_options[0]) ? $this->_options[0] : 'grand';
         $total     = 0;
         switch($totalType) {
@@ -594,6 +604,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->shoppingConfig = $this->_shoppingConfig;
         $this->_view->shippingTax   = $this->_cart->getShippingTax();
         $this->_view->quoteShipping = ($shippingPrice) ? $shippingPrice : 0;
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
+
         return $this->_view->render('shipping.quote.phtml');
     }
 
@@ -619,6 +637,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             '2' => 'Alternative',
             '3' => 'Alternative 2'
         );
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
 
         return $this->_view->render('discount.quote.phtml');
     }
@@ -656,8 +681,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         // getting the cart content to be able to get an item we need
         $cartContent = $this->_cart->getCartContent();
 
-        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-        $quoteDraggableProducts = $shoppingConfig['quoteDraggableProducts'];
+        $quoteDraggableProducts = $this->_shoppingConfig['quoteDraggableProducts'];
 
         if(!empty($quoteDraggableProducts)) {
             $quoteId = $this->_quote->getId();
@@ -711,6 +735,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $options = ($item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
         $item['sid'] = Quote_Tools_Tools::generateStorageKey($product, $options);
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
 
         $widgetOption = $this->_options[0];
         switch($widgetOption) {

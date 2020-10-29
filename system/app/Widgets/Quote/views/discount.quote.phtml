@@ -7,12 +7,24 @@
     </select>
 
     <input type="text" class="quote-recalculate" data-scope="quote-partial" data-type="discount" name="quoteDiscount" id="quote-discount"  value="<?php echo $this->discount; ?>" />
-    <span id="quote-discount-with-tax"><?php echo $this->currency($this->discount + $this->discountTax);?></span>
+    <?php if (!empty($this->usNumericFormat)) : ?>
+        <span id="quote-discount-with-tax"><?php echo number_format($this->discount + $this->discountTax, 2) . '&nbsp;' . $this->currencySymbol;?></span>
+    <?php else:?>
+        <span id="quote-discount-with-tax"><?php echo $this->currency($this->discount + $this->discountTax);?></span>
+    <?php endif;?>
 <?php else: ?>
     <?php if(($this->shoppingConfig['showPriceIncTax'])):?>
-        <span class="quote-discount"><?php echo $this->currency($this->discount+$this->discountTax); ?></span>
+        <?php if (!empty($this->usNumericFormat)) : ?>
+            <span class="quote-discount"><?php echo number_format($this->discount+$this->discountTax, 2) . '&nbsp;' . $this->currencySymbol; ?></span>
+        <?php else :?>
+            <span class="quote-discount"><?php echo $this->currency($this->discount+$this->discountTax); ?></span>
+        <?php endif;?>
     <?php else:?>
-        <span class="quote-discount"><?php echo $this->currency($this->discount); ?></span>
+        <?php if (!empty($this->usNumericFormat)) : ?>
+            <span class="quote-discount"><?php echo number_format($this->discount, 2) . '&nbsp;' . $this->currencySymbol; ?></span>
+        <?php else:?>
+            <span class="quote-discount"><?php echo $this->currency($this->discount); ?></span>
+        <?php endif;?>
     <?php endif;?>
 
 <?php endif; ?>
