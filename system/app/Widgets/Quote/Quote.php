@@ -1036,11 +1036,6 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
             $this->_view->accessAllowed = $this->_editAllowed;
 
-            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
-            if (empty($isSignatureRequired)) {
-                return '';
-            }
-
             $quoteId = $this->_quote->getId();
             $isQuoteSigned = $this->_quote->getIsQuoteSigned();
             $signature = $this->_quote->getSignature();
@@ -1049,7 +1044,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->signature = $signature;
             $this->_view->quoteId = $quoteId;
 
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+
             if ($this->_userMode === true) {
+                if (empty($isSignatureRequired)) {
+                    return '';
+                }
+
                 if (empty($signature)) {
                     return '';
                 }
@@ -1059,6 +1060,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
                 
                 return $this->_view->render('signature-signed.phtml');
+            }
+
+            $this->_view->signatureClass = '';
+            if (empty($isSignatureRequired)) {
+                $this->_view->signatureClass = 'hidden';
             }
 
             return $this->_view->render('signature.phtml');

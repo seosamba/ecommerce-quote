@@ -232,6 +232,9 @@ $(function() {
 
         if ($('#quote-signature-required').is(':checked')) {
             isSignatureRequired = 1;
+            $('#quote-signature-block').removeClass('hidden');
+        } else {
+            $('#quote-signature-block').addClass('hidden');
         }
 
         changePaymentTypeMessage(paymentType, isSignatureRequired);

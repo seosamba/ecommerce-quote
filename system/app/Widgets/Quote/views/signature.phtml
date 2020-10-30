@@ -1,6 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 
-<div id="quote-signature-block">
+<div id="quote-signature-block" class="<?php echo $this->signatureClass;?>">
     <?php if (empty($this->isQuoteSigned)) :?>
         <?php if ($this->accessAllowed === true):?>
                 <span><?php echo $this->translate('Signature');?>:</span>
