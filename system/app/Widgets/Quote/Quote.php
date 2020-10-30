@@ -1036,6 +1036,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
             $this->_view->accessAllowed = $this->_editAllowed;
 
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+            if (empty($isSignatureRequired)) {
+                return '';
+            }
+
             $quoteId = $this->_quote->getId();
             $isQuoteSigned = $this->_quote->getIsQuoteSigned();
             $signature = $this->_quote->getSignature();
