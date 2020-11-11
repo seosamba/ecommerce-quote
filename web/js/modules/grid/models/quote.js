@@ -8,8 +8,8 @@ define([
             var url = $('#website_url').val() + 'api/quote/quotes/';
             if(this.has('type')) {
                 url += 'type/' + this.get('type') + '/';
-                if (this.has('templateName')) {
-                    url += 'templateName/' + this.get('templateName') + '/';
+                if (this.has('duplicateQuoteId')) {
+                    url += 'duplicateQuoteId/' + this.get('duplicateQuoteId') + '/';
                 }
             } else {
                 url += 'id/'

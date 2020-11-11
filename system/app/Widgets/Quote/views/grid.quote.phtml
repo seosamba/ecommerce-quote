@@ -47,11 +47,8 @@
                 Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
             );?>
             <label class="grid_2 prefix_1 mt10px"><?php echo $this->translate('Create quote from template');?>:</label>
-            <select name="quoteTemplates" id="quote-templates-list" class="grid_2">
-                <?php foreach ($quoteTemplates as $key => $quoteTemplate):?>
-                    <option value="<?php echo $key;?>"><?php echo $quoteTemplate;?></option>
-                <?php endforeach;?>
-            </select>
+            <input class="grid_2" id="search-quote-duplicate" name="search-quote-duplicate" placeholder="<?php echo $this->translate('Search by quote title');?>" />
+            <input class="hidden" id="duplicate-quote-id" name="duplicate-quote-id">
 
             <a class="quote-grid-add btn green fl-right ticon-plus" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
         </div>

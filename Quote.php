@@ -514,4 +514,19 @@ class Quote extends Tools_PaymentGateway
         }
     }
 
+    public function getQuoteNamesAction()
+    {
+        if (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)) {
+            if ($this->_request->isGet()) {
+                $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+                $searchTerm = filter_var($this->_request->getParam('searchTerm'), FILTER_SANITIZE_STRING);
+                $where = $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
+                    $searchTerm . '%');
+                $data = $quoteMapper->searchQuotes($where, null, null, null, true);
+
+                echo json_encode($data);
+            }
+        }
+    }
+
 }
