@@ -303,6 +303,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $cartSessionModel = $cartMapper->find($duplicateQuoteModel->getCartId());
                 if ($cartSessionModel instanceof Models_Model_CartSession){
                     $cartSessionModel->setId(null);
+                    $cartSessionModel->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+                    $cartSessionModel->setPartialPaidAmount('0');
+                    $cartSessionModel->setPurchasedOn('');
+                    $cartSessionModel->setPartialPurchasedOn('');
+                    $cart =  $cartMapper->save($cartSessionModel);
                 } else {
                     $this->_error($translator->translate('cart not found'));
                 }
@@ -347,39 +352,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
             if (!empty($ownerInfo)) {
                 $quoteData['ownerName'] =  $ownerInfo['ownerName'];
-            }
-
-            if ($duplicateQuote === true) {
-                $quotePage = $pageMapper->findByUrl($quote->getId() . '.html');
-                $pageModelWithContainers = $pageMapper->findByUrl($duplicateQuoteModel->getId() . '.html');
-                if ($pageModelWithContainers instanceof Application_Model_Models_Page && $quotePage instanceof Application_Model_Models_Page) {
-                    $containers = $pageModelWithContainers->getContainers();
-                    if (!empty($containers)) {
-                        $containerMapper = Application_Model_Mappers_ContainerMapper::getInstance();
-                        foreach ($containers as $container) {
-                            if (!empty($container['page_id'])) {
-                                $containerModel = new Application_Model_Models_Container();
-                                $containerModel->setName($container['name']);
-                                $containerModel->setContainerType($container['container_type']);
-                                $containerModel->setContent($container['content']);
-                                $containerModel->setPublished($container['published']);
-                                $containerModel->setPublishingDate($container['published_date']);
-                                $containerModel->setPageId($quotePage->getId());
-                                $containerMapper->save($containerModel);
-                            }
-                        }
-                    }
-                }
-
-                $quoteDraggableMapper = Quote_Models_Mapper_QuoteDraggableMapper::getInstance();
-                $quoteDraggableModelToClone = $quoteDraggableMapper->findByQuoteId($duplicateQuoteModel->getId());
-                if ($quoteDraggableModelToClone instanceof Quote_Models_Model_QuoteDraggableModel) {
-                    $quoteDraggableModel = new Quote_Models_Model_QuoteDraggableModel();
-                    $quoteDraggableModel->setData($quoteDraggableModelToClone->getData());
-                    $quoteDraggableModel->setQuoteId($quote->getId());
-                    $quoteDraggableMapper->save($quoteDraggableModel);
-                }
-
             }
 
             return $quoteData;
