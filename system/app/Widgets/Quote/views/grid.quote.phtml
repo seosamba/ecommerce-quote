@@ -41,19 +41,29 @@
     ?>
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
-            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_6 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
+            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_4 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
             <?php $quoteTemplates = array_merge(
                 array(0 => 'Select quote template'),
                 Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
             );?>
-            <label class="grid_2 prefix_1 mt10px"><?php echo $this->translate('Create quote from template');?>:</label>
-            <select name="quoteTemplates" id="quote-templates-list" class="grid_2">
-                <?php foreach ($quoteTemplates as $key => $quoteTemplate):?>
-                    <option value="<?php echo $key;?>"><?php echo $quoteTemplate;?></option>
-                <?php endforeach;?>
-            </select>
 
-            <a class="quote-grid-add btn green fl-right ticon-plus" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
+            <div class="grid_8 flex-row-quote-buttons">
+                <div class="btn-group t-mb10px">
+                    <button class="quote-create-option-button btn checked-btn"
+                            name="quote-create-option-button-create" data-checked="true"
+                            data-type="create_new_quote"><?php echo $this->translate('Create a new quote'); ?></button>
+                    <button class="quote-create-option-button btn"
+                            name="quote-create-option-button-clone" data-checked="false"
+                            data-type="create_quote_duplicate"><?php echo $this->translate('Create quote from a template'); ?></button>
+                </div>
+
+                <input class="hidden" id="search-quote-duplicate" name="search-quote-duplicate" placeholder="<?php echo $this->translate('Search by quote title');?>" />
+                <input type="text" id="quote-title-original" class="search-quote-title-original" placeholder="<?php echo $this->translate('Quote title');?>" />
+                <input class="hidden" id="duplicate-quote-id" name="duplicate-quote-id">
+                <input id="quote-chosen-type" class="quote-chosen-type" type="hidden" name="quote-chosen-type" value="">
+
+                <a class="quote-grid-add btn green ticon-plus" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
+            </div>
         </div>
         <table id="quote-grid-quotes" class="widget table-hover">
             <thead>

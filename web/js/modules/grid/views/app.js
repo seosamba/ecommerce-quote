@@ -18,7 +18,8 @@ define([
             'keypress #quote-grid-search'   : 'searchAction',
             'change #quote-grid-select-all' : 'checkAllAction',
             'change #batch-action'          : 'batchAction',
-            'click .sortable'               : 'sortGridAction'
+            'click .sortable'               : 'sortGridAction',
+            'click .quote-create-option-button': 'changeCreationType'
         },
         templates: {
             pager: _.template($('#quote-grid-pager').text())
@@ -43,6 +44,32 @@ define([
                     self.quotes.orderType = 'desc'
                 }
             });
+        },
+        changeCreationType: function(e)
+        {
+
+            var el = $(e.currentTarget),
+                currentStatus = el.data('checked'),
+                switchType = el.data('type');
+
+            $(el).closest('#quote-grid-top').find('.quote-create-option-button').prop('checked', false);
+            $(el).closest('#quote-grid-top').find('.quote-create-option-button').removeClass('checked-btn');
+            $(el).addClass('checked-btn');
+            if (currentStatus !== true) {
+                el.prop('checked', true);
+                el.data('checked', true);
+            }
+
+            if (switchType === 'create_quote_duplicate') {
+                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').removeClass('hidden');
+            } else {
+                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').addClass('hidden');
+                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').val('');
+                $(el).closest('#quote-grid-top').find('#duplicate-quote-id').val('');
+            }
+
+            $(el).closest('#quote-grid-top').find('#quote-chosen-type').val(switchType);
+
         },
         batchAction: function(e) {
             var action = e.currentTarget.value;
@@ -72,13 +99,22 @@ define([
         addAction: function(e) {
             showSpinner();
             var self = this,
-                templateName = $('#quote-templates-list option:selected').val();
-            this.quotes.create({type: 'build', templateName: templateName}, {
+                duplicateQuoteId = $('#duplicate-quote-id').val(),
+                quoteTitle = $('#quote-title-original').val(),
+                quoteType = $('#quote-chosen-type').val();
+
+                if (quoteType === 'create_quote_duplicate' && duplicateQuoteId == '') {
+                    showMessage(_.isUndefined(i18n['Please search by quote title'])?'Please search by quote title':i18n['Please search by quote title'], true, 5000);
+                    return false;
+                }
+
+            this.quotes.create({type: 'build', duplicateQuoteId: duplicateQuoteId, quoteTitle: quoteTitle}, {
                 wait: true,
                 success: function(model) {
                     hideSpinner();
                     self.quotes.pager();
                     showMessage((_.isUndefined(i18n['New quote']) ? 'New quote':i18n['New quote']) +' '+ '[' + model.get('title') + ']' +' '+ (_.isUndefined(i18n['has been generated.']) ? 'has been generated.':i18n['has been generated.']));
+                    $('#duplicate-quote-id').val('');
                 },
                 error: function(mode, xhr) {
                     hideSpinner();
@@ -125,6 +161,37 @@ define([
         },
         render: function() {
             this.renderGrid();
+
+            $("#search-quote-duplicate").on("keydown", function(event) {
+                if ( event.keyCode === $.ui.keyCode.TAB &&
+                    $(this).autocomplete( "instance" ).menu.active) {
+                    event.preventDefault();
+                }
+            }).autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        'url': $('#website_url').val()+'plugin/leads/run/getQuoteNames/',
+                        'type':'GET',
+                        'dataType':'json',
+                        'data': {searchTerm: request.term}
+                    }).done(function(responseData){
+                        $('#duplicate-quote-id').val('');
+                        if (!_.isEmpty(responseData)) {
+                            response($.map(responseData, function (responseData) {
+                                return {
+                                    label: responseData.title,
+                                    value: responseData.title,
+                                    custom: responseData.id,
+                                };
+                            }));
+                        }
+                    });
+                },
+                select: function(event, ui ) {
+                    $('#duplicate-quote-id').val(ui.item.custom);
+                }
+            });
+
             return this;
         }
     })

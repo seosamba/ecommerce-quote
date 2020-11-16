@@ -89,7 +89,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
     public function postAction() {
         $translator = Zend_Registry::get('Zend_Translate');
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
-        $templateName  = filter_var($this->_request->getParam('templateName'), FILTER_SANITIZE_STRING);
+        $duplicateQuoteId  = filter_var($this->_request->getParam('duplicateQuoteId'), FILTER_SANITIZE_STRING);
+        $quoteTitle  = filter_var($this->_request->getParam('quoteTitle'), FILTER_SANITIZE_STRING);
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
@@ -103,6 +104,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
         $quoteId = 0;
         $oldPageId = 0;
+
+        if (empty($quoteTitle)) {
+            $quoteTitle = '';
+        }
 
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
@@ -288,20 +293,63 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             break;
         }
         try {
-            $options = array(
-                'editedBy' => $editedBy,
-                'creatorId' => $creatorId,
-                'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '',
-                'actionType' => $type,
-                'oldQuoteId' => $quoteId,
-                'oldPageId' => $oldPageId
-            );
 
-            if (!empty($templateName)) {
-                $options['templateName'] = $templateName;
+            $duplicateQuote = false;
+            $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
+            if (!empty($duplicateQuoteId)) {
+                $duplicateQuoteModel = $this->_quoteMapper->find($duplicateQuoteId);
+                if (!$duplicateQuoteModel instanceof Quote_Models_Model_Quote) {
+                    $this->_error($translator->translate('Quote for duplication not found'));
+                }
+                $duplicateQuote = true;
             }
 
-            $quote = Quote_Tools_Tools::createQuote($cart, $options);
+            if ($duplicateQuote === true && $duplicateQuoteModel instanceof Quote_Models_Model_Quote) {
+                $cartSessionModel = $cartMapper->find($duplicateQuoteModel->getCartId());
+                if ($cartSessionModel instanceof Models_Model_CartSession){
+                    $cartSessionModel->setId(null);
+                    $cartSessionModel->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+                    $cartSessionModel->setPartialPaidAmount('0');
+                    $cartSessionModel->setPurchasedOn('');
+                    $cartSessionModel->setPartialPurchasedOn('');
+                    $cart =  $cartMapper->save($cartSessionModel);
+                } else {
+                    $this->_error($translator->translate('cart not found'));
+                }
+
+                $duplicateQuotePage = $pageMapper->findByUrl($duplicateQuoteModel->getId() . '.html');
+                $oldPageId = 0;
+                if ($duplicateQuotePage instanceof Application_Model_Models_Page) {
+                    $oldPageId = $duplicateQuotePage->getId();
+                }
+
+                $quote = Quote_Tools_Tools::createQuote($cart,
+                    array(
+                        'editedBy' => $editedBy,
+                        'creatorId' => $creatorId,
+                        'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '',
+                        'oldPageId' => $oldPageId,
+                        'oldQuoteId' => $duplicateQuoteModel->getId(),
+                        'actionType' => Quote::QUOTE_TYPE_CLONE,
+                        'quoteTitle' => $quoteTitle
+                    ));
+            } else {
+                $options = array(
+                    'editedBy' => $editedBy,
+                    'creatorId' => $creatorId,
+                    'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer'] : '',
+                    'actionType' => $type,
+                    'oldQuoteId' => $quoteId,
+                    'oldPageId' => $oldPageId,
+                    'quoteTitle' => $quoteTitle
+                );
+
+                if (!empty($templateName)) {
+                    $options['templateName'] = $templateName;
+                }
+
+                $quote = Quote_Tools_Tools::createQuote($cart, $options);
+            }
         } catch (Exception $e) {
             $this->_error($e->getMessage());
         }

@@ -162,4 +162,61 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
         return $table->getAdapter()->fetchRow($select);
     }
 
+    /**
+     *
+     * @param string $where SQL where clause
+     * @param string $order OPTIONAL An SQL ORDER clause.
+     * @param int $limit OPTIONAL An SQL LIMIT count.
+     * @param int $offset OPTIONAL An SQL LIMIT offset.
+     * @param bool $withoutCount without count flag
+     * @param bool $singleRecord if true return single record
+     * @return array
+     */
+    public function searchQuotes($where = null, $order = null, $limit = null, $offset = null, $withoutCount = false, $singleRecord = false)
+    {
+        $select = $this->getDbTable()->getAdapter()->select()
+            ->from(array('sq' => 'shopping_quote'),
+                array(
+                    'sq.id',
+                    'sq.title'
+                )
+            );
+
+        if (!empty($order)) {
+            $select->order($order);
+        }
+
+        if (!empty($where)) {
+            $select->where($where);
+        }
+
+        $select->limit($limit, $offset);
+
+        if ($singleRecord === true) {
+            $data = $this->getDbTable()->getAdapter()->fetchRow($select);
+        } else {
+            $data = $this->getDbTable()->getAdapter()->fetchAll($select);
+        }
+
+        if ($withoutCount === false) {
+            $select->reset(Zend_Db_Select::COLUMNS);
+            $select->reset(Zend_Db_Select::FROM);
+            $select->reset(Zend_Db_Select::LIMIT_OFFSET);
+            $select->reset(Zend_Db_Select::GROUP);
+
+            $select->from(array('sq' => 'shopping_quote'), array('count' => 'COUNT(sq.id)'));
+            $count = $this->getDbTable()->getAdapter()->fetchRow($select);
+
+            return array(
+                'totalRecords' => $count['count'],
+                'data' => $data,
+                'offset' => $offset,
+                'limit' => $limit
+            );
+        }
+
+        return $data;
+    }
+
+
 }
