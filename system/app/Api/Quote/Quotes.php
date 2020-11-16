@@ -90,6 +90,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $translator = Zend_Registry::get('Zend_Translate');
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
         $duplicateQuoteId  = filter_var($this->_request->getParam('duplicateQuoteId'), FILTER_SANITIZE_STRING);
+        $quoteTitle  = filter_var($this->_request->getParam('quoteTitle'), FILTER_SANITIZE_STRING);
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
@@ -103,6 +104,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
         $quoteId = 0;
         $oldPageId = 0;
+
+        if (empty($quoteTitle)) {
+            $quoteTitle = '';
+        }
 
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
@@ -325,7 +330,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer']: '',
                         'oldPageId' => $oldPageId,
                         'oldQuoteId' => $duplicateQuoteModel->getId(),
-                        'actionType' => Quote::QUOTE_TYPE_CLONE
+                        'actionType' => Quote::QUOTE_TYPE_CLONE,
+                        'quoteTitle' => $quoteTitle
                     ));
             } else {
                 $options = array(
@@ -334,7 +340,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     'disclaimer' => isset($formData['disclaimer']) ? $formData['disclaimer'] : '',
                     'actionType' => $type,
                     'oldQuoteId' => $quoteId,
-                    'oldPageId' => $oldPageId
+                    'oldPageId' => $oldPageId,
+                    'quoteTitle' => $quoteTitle
                 );
 
                 if (!empty($templateName)) {
