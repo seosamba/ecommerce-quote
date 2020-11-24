@@ -164,6 +164,12 @@ $(function() {
         showMessage('Quote notes has been saved', false, 3000);
     });
 
+    $('#quote-sortable').sortable({
+        deactivate: function(event, ui) {
+            processDraggable(quoteId);
+        }
+    });
+
 });
 
 
