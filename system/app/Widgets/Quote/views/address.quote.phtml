@@ -1,6 +1,6 @@
 <?php if($this->editAllowed): ?>
 	<div class="quote-info" id="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
-		<p class="title 111"><?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
+		<p class="title"><?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?></p>
 		<?php echo $this->addressForm; ?>
 	</div>
 <?php else: ?>
