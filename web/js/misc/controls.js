@@ -164,6 +164,15 @@ $(function() {
         showMessage('Quote notes has been saved', false, 3000);
     });
 
+    var quoteDraggableProducts = $('#quote-draggable-products').val();
+    if(quoteDraggableProducts) {
+        $('#quote-sortable').sortable({
+            deactivate: function(event, ui) {
+                processDraggable(quoteId);
+            }
+        });
+    }
+
 });
 
 
