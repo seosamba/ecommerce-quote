@@ -496,6 +496,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         } else {
             $this->_entityParser->addToDictionary(array('quoteowner:email' => $this->_storeConfig['email']));
         }
+
+        $wicEmail = $this->_configHelper->getConfig('wicEmail');
+        $this->_entityParser->addToDictionary(array('widcard:BizEmail' => !empty($wicEmail) ? $wicEmail : $this->_configHelper->getConfig('adminEmail')));
+
         $this->_options['from'] = $this->_entityParser->parse($this->_options['from']);
 
         $this->_mailer->setMailFrom((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from'])

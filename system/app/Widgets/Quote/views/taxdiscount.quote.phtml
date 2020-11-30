@@ -1,1 +1,7 @@
-<span id="quote-tax-discount"><?php echo $this->currency($this->taxDiscount); ?></span>
+<?php if(!empty($this->usNumericFormat)) :?>
+    <?php $taxDiscount = number_format($this->taxDiscount, 2) . '&nbsp;' . $this->currencySymbol;;?>
+<?php else :?>
+    <?php $taxDiscount = $this->currency($this->taxDiscount);?>
+<?php endif;?>
+
+<span id="quote-tax-discount"><?php echo $taxDiscount; ?></span>

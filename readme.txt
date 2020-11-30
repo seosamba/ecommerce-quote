@@ -87,3 +87,4 @@ Here you can put quote item widgets
 
 Quote action emails lexems:
 {quoteowner:email} - This lexem return quote owner email address
+{widcard:BizEmail} - This lexem return widcard email address
