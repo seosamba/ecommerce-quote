@@ -405,7 +405,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $wicEmail = $this->_configHelper->getConfig('wicEmail');
         $this->_entityParser->addToDictionary(array('widcard:BizEmail' => !empty($wicEmail) ? $wicEmail : $this->_configHelper->getConfig('adminEmail')));
 
-        $this->_options['from'] = $this->_entityParser->parse($this->_options['from']);
+        $this->_options['from'] = $this->_parseMailFrom($this->_entityParser->parse($this->_options['from']));
 
         $this->_mailer->setMailFrom((!isset($this->_options['from']) || !$this->_options['from']) ? $this->_storeConfig['email'] : $this->_options['from'])
             ->setMailFromLabel($this->_storeConfig['company'])
@@ -452,5 +452,20 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             $emails[][(isset($fullName) ? $fullName : $defaults['mailTo'])] = $address['email'];
         }
         return $emails;
+    }
+
+    protected function _parseMailFrom($mailFrom)
+    {
+        $themeData = Zend_Registry::get('theme');
+        $extConfig = Zend_Registry::get('extConfig');
+        $parserOptions = array(
+            'websiteUrl' => $this->_websiteHelper->getUrl(),
+            'websitePath' => $this->_websiteHelper->getPath(),
+            'currentTheme' => $extConfig['currentTheme'],
+            'themePath' => $themeData['path'],
+        );
+        $parser = new Tools_Content_Parser($mailFrom, array(), $parserOptions);
+
+        return Tools_Content_Tools::stripEditLinks($parser->parseSimple());
     }
 }
