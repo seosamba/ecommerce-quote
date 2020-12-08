@@ -156,7 +156,7 @@ class Quote_Tools_Tools {
         foreach($optionSelectionPairs as $selectionId) {
             foreach($allOptions as $option) {
                 if ($option['id'] == $selectionId['option_id']) {
-                    if ($option['type'] == Models_Model_Option::TYPE_TEXT || $option['type'] == Models_Model_Option::TYPE_DATE) {
+                    if ($option['type'] == Models_Model_Option::TYPE_TEXT || $option['type'] == Models_Model_Option::TYPE_DATE || $option['type'] == Models_Model_Option::TYPE_TEXTAREA) {
                         $option['selection'] = $selectionId;
                         $options[] = $option;
                     } else {
