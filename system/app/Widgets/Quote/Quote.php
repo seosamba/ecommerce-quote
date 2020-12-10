@@ -637,6 +637,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $totalType = isset($this->_options[0]) ? $this->_options[0] : 'grand';
+        if (in_array('clean', $this->_options)) {
+            $this->_view->clean = '1';
+        }
         $total     = 0;
         switch($totalType) {
             case self::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
@@ -678,6 +681,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
 
+        if (in_array('clean', $this->_options)) {
+            $this->_view->clean = '1';
+        }
+
         if(!empty($usNumericFormat)) {
             $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
             $this->_view->usNumericFormat = $usNumericFormat;
@@ -710,6 +717,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         );
 
         $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if (in_array('clean', $this->_options)) {
+            $this->_view->clean = '1';
+        }
 
         if(!empty($usNumericFormat)) {
             $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
@@ -872,6 +883,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
         $this->_view->sid           = $item['sid'];
+
+        if (in_array('clean', $this->_options)) {
+            $this->_view->clean = '1';
+        }
 
         return $this->_view->render('item/' . $widgetOption . '.quote.item.phtml');
     }

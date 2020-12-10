@@ -3,20 +3,32 @@
     <?php if (!empty($this->usNumericFormat)) : ?>
         <span id="quote-shipping-with-tax"><?php echo number_format($this->quoteShipping + $this->shippingTax, 2) . '&nbsp;' . $this->currencySymbol;?></span>
     <?php else :?>
-        <span id="quote-shipping-with-tax"><?php echo $this->currency($this->quoteShipping + $this->shippingTax);?></span>
+        <?php if(!empty($this->clean)):?>
+            <span id="quote-shipping-with-tax"><?php echo number_format($this->quoteShipping + $this->shippingTax, 2);?></span>
+        <?php else:?>
+            <span id="quote-shipping-with-tax"><?php echo $this->currency($this->quoteShipping + $this->shippingTax);?></span>
+        <?php endif;?>
     <?php endif;?>
 <?php else: ?>
     <?php if(($this->shoppingConfig['showPriceIncTax'])):?>
         <?php if (!empty($this->usNumericFormat)) : ?>
             <span id="quote-shipping-price"><?php echo number_format($this->quoteShipping + $this->shippingTax, 2) . '&nbsp;' . $this->currencySymbol;?></span>
         <?php else :?>
-            <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping + $this->shippingTax);?></span>
+            <?php if(!empty($this->clean)):?>
+                <span id="quote-shipping-price"><?php echo number_format($this->quoteShipping + $this->shippingTax, 2);?></span>
+            <?php else:?>
+                <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping + $this->shippingTax);?></span>
+            <?php endif;?>
         <?php endif;?>
     <?php else:?>
         <?php if (!empty($this->usNumericFormat)) : ?>
             <span id="quote-shipping-price"><?php echo number_format($this->quoteShipping, 2) . '&nbsp;' . $this->currencySymbol; ?></span>
         <?php else:?>
-            <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping); ?></span>
+            <?php if(!empty($this->clean)):?>
+                <span id="quote-shipping-price"><?php echo number_format($this->quoteShipping,2); ?></span>
+            <?php else:?>
+                <span id="quote-shipping-price"><?php echo $this->currency($this->quoteShipping); ?></span>
+            <?php endif;?>
         <?php endif;?>
     <?php endif;?>
 <?php endif; ?>
