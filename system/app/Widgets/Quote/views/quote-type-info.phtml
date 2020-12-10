@@ -3,7 +3,7 @@
         <span id="quote-type-info-message">
         <?php if (empty($this->isSignatureRequired)): ?>
             <?php echo $this->translate('To get things started please make payment of'); ?>
-                 <?php echo $this->currency($this->quoteTotal); ?>
+            <span><?php echo $this->currency($this->quoteTotal); ?></span>
             <?php echo $this->translate('using the credit card form below');?>
         <?php else :?>
             <?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a full payment'); ?>

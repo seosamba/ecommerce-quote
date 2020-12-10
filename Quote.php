@@ -372,7 +372,7 @@ class Quote extends Tools_PaymentGateway
                     if (!empty($isSignatureRequired)) {
                         $message = $this->_translator->translate('Please sign and validate your signature first, then to get things started, please make a full payment') . ': ' . $quoteTotal .' '. $this->_translator->translate('using the credit card form below');
                     } else {
-                        $message = $this->_translator->translate('To get things started please make payment of') . ' ' . $quoteTotal .' '. $this->_translator->translate('using the credit card form below');
+                        $message = $this->_translator->translate('To get things started please make payment of') . ' <span>' . $quoteTotal .'</span> '. $this->_translator->translate('using the credit card form below');
                     }
                 }
 
