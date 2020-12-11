@@ -205,6 +205,16 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         ->setUserId($customer->getId())
                 );
 
+                $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');
+                if (!empty($enableQuoteDefaultType)) {
+                    $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
+                    $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && !empty($quotePartialPercentage)) {
+                        $cart->setIsPartial('1');
+                        $cart->setPartialPercentage($quotePartialPercentage);
+                    }
+                }
+
                 //disable tax if user from another zone
                 $cartSession = Tools_ShoppingCart::getInstance();
                 $cartSession->setBillingAddressKey($cart->getBillingAddressId());
@@ -359,6 +369,20 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
             if (!empty($ownerInfo)) {
                 $quoteData['ownerName'] =  $ownerInfo['ownerName'];
+            }
+
+            $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');
+            if (!empty($enableQuoteDefaultType)) {
+                $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
+                if (!empty($quotePaymentType)) {
+                    $quote->setPaymentType($quotePaymentType);
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
+                        $quote->setIsSignatureRequired('1');
+                    } else {
+                        $quote->setIsSignatureRequired('0');
+                    }
+                    $this->_quoteMapper->save($quote);
+                }
             }
 
             return $quoteData;
