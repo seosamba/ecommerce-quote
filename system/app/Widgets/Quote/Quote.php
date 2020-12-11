@@ -637,7 +637,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $totalType = isset($this->_options[0]) ? $this->_options[0] : 'grand';
-        if (in_array('clean', $this->_options)) {
+        if (in_array('clean', $this->_options, true)) {
             $this->_view->clean = '1';
         }
         $total     = 0;
@@ -681,7 +681,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
 
-        if (in_array('clean', $this->_options)) {
+        if (in_array('clean', $this->_options, true)) {
             $this->_view->clean = '1';
         }
 
@@ -718,7 +718,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
 
-        if (in_array('clean', $this->_options)) {
+        if (in_array('clean', $this->_options, true)) {
             $this->_view->clean = '1';
         }
 
@@ -884,7 +884,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->quoteId       = $this->_quote->getId();
         $this->_view->sid           = $item['sid'];
 
-        if (in_array('clean', $this->_options)) {
+        if (in_array('clean', $this->_options, true)) {
             $this->_view->clean = '1';
         }
 
