@@ -833,6 +833,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $notRender = true;
         }
         switch($widgetOption) {
+            case 'currency':
+                if ($notRender === true) {
+                   return '';
+                }
+                return $this->_options[1];
+            break;
             case 'photo':
                 $img = $product->getPhoto();
 
