@@ -240,9 +240,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                         $flatratePlugin = Tools_Factory_PluginFactory::createPlugin(Shopping::SHIPPING_FLATRATE);
                         $result = $flatratePlugin->calculateAction(true);
                         if (!empty($result) && isset($result['price'])) {
-                            $cart = $cartMapper->save($cart->setShippingPrice($result['price']));
+                            $cart->setShippingPrice($result['price']);
                         }
                     }
+
+                    $cart = $cartMapper->save($cart);
                 }
 
                 if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
