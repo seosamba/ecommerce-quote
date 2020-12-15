@@ -372,7 +372,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');
-            if (!empty($enableQuoteDefaultType)) {
+            if (!empty($enableQuoteDefaultType) && $type === Quote::QUOTE_TYPE_GENERATE) {
                 $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
                 if (!empty($quotePaymentType)) {
                     $quote->setPaymentType($quotePaymentType);
