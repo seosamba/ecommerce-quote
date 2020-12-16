@@ -2,17 +2,78 @@
     $this->placeholder('headerContent')->set($this->translate('Quote system settings'));
 ?>
 <div id="quote-settings" class="ui-widget clearfix">
-    <?php echo $this->form; ?>
+    <form id="quote-settings-info" enctype="application/x-www-form-urlencoded" method="post" class="quote-settings _fajax" action="<?php echo $this->form->getAction();?>">
+        <?php $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');?>
+        <?php $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');?>
+        <?php $displayPartialPaymentNotificationClass = 'hidden';?>
+        <?php $displayPartialPercentagePaymentNotificationClass = 'hidden';?>
+        <?php if (!empty($enableQuoteDefaultType)):?>
+            <?php $displayPartialPaymentNotificationClass = '';?>
+        <?php endif;?>
+        <?php if (!empty($enableQuoteDefaultType) && $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT):?>
+            <?php $displayPartialPercentagePaymentNotificationClass = '';?>
+        <?php endif;?>
+        <p>
+            <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
+            <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
+        </p>
+        <p>
+            <?php echo $this->form->getElement('quoteTemplate')->renderLabel(); ?>
+            <?php echo $this->form->getElement('quoteTemplate')->renderViewHelper(); ?>
+        </p>
+        <p>
+            <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
+            <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
+        </p>
+        <p>
+            <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
+            <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
+        </p>
+        <p>
+            <?php echo $this->form->getElement('enableQuoteDefaultType')->renderLabel(); ?>
+            <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
+        </p>
+        <p id="quote-payment-type-block" class="<?php echo $displayPartialPaymentNotificationClass;?>">
+            <?php echo $this->form->getElement('quotePaymentType')->renderLabel(); ?>
+            <?php echo $this->form->getElement('quotePaymentType')->renderViewHelper(); ?>
+        </p>
+        <p id="quote-payment-type-percentage-block" class="<?php echo $displayPartialPercentagePaymentNotificationClass;?>">
+            <?php echo $this->form->getElement('quotePartialPercentage')->renderLabel(); ?>
+            <?php echo $this->form->getElement('quotePartialPercentage')->renderViewHelper(); ?>
+        </p>
+        <p>
+            <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
+        </p>
+    </form>
     <input type="hidden" class="quote-secure-token" name="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" value="<?php echo $this->secureToken;?>" />
 </div>
 <script type="text/javascript">
 $(document).ready(function(){
     checkboxRadioStyle();
 
+    $(document).on('change', '#enable-quote-default-type', function () {
+        if ($(this).is(':checked')) {
+            $('#quote-payment-type-block').removeClass('hidden');
+            $('#quote-payment-type-percentage-block').removeClass('hidden');
+        } else {
+            $('#quote-payment-type-block').addClass('hidden');
+            $('#quote-payment-type-percentage-block').addClass('hidden');
+        }
+    });
+
+    $(document).on('change', '#quote-payment-types', function () {
+        if ($(this).val() === 'partial_payment') {
+            $('#quote-payment-type-percentage-block').removeClass('hidden');
+        } else {
+            $('#quote-payment-type-percentage-block').addClass('hidden');
+        }
+    });
+
     $(document).on("click", "#applySettings", function(e){
           e.preventDefault();
           var autoQuote = 0,
-              draggableProducts = 0;
+              draggableProducts = 0,
+              enableQuoteDefaultType = 0;
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -20,6 +81,10 @@ $(document).ready(function(){
 
           if($('#draggable-products').prop("checked")){
               draggableProducts = 1;
+          }
+
+          if($('#enable-quote-default-type').prop("checked")){
+              enableQuoteDefaultType = 1;
           }
 
           $.ajax({
@@ -31,6 +96,9 @@ $(document).ready(function(){
                 quoteDraggableProducts: draggableProducts,
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
+                enableQuoteDefaultType: enableQuoteDefaultType,
+                quotePaymentType: $('#quote-payment-types').val(),
+                quotePartialPercentage: $('#quote-partial-percentage').val(),
                 secureToken: $('.quote-secure-token').val()
             },
             success: function(responce){
