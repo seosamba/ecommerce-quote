@@ -28,6 +28,14 @@ $(function() {
         updateQuote(quoteId, false);
     });
 
+    $(document).on('change', '#overwrite-quote-user-shipping', function(){
+        if ($(this).is(':checked')) {
+            $('#overwrite-quote-user-billing').prop('checked', false);
+        } else {
+            $('#overwrite-quote-user-billing').prop('checked', true);
+        }
+    });
+
     // handling remove link click
     $(document).on('click', '.remove-product', function() {
         var selfEl = $(this);
@@ -55,10 +63,30 @@ $(function() {
     // quote control click handling
     $(document).on('click', '.quote-control', function(e) {
         var control  = $(e.currentTarget);
+
+        if ($('#quote-payment-type-selector').attr('disabled') !== 'disabled' &&  $('#quote-payment-type-selector').val() === 'partial_payment' && (parseInt($('#partial-payment-percentage').val()) < 1 || isNaN(parseInt($('#partial-payment-percentage').val())))) {
+            showMessage('Please specify partial payment percentage', true, 5000);
+            hideLoader();
+            return false;
+        }
+
         if(parseInt(control.data('sendmail')) == 1) {
-            showMailMessageEdit(control.data('trigger'), function(message, ccEmails) {
-                updateQuote(quoteId, true, message, '', ccEmails);
-            }, 'customer');
+            $.ajax({
+                url        : $('#website_url').val() + 'plugin/quote/run/checkquoteExpired/',
+                type       : 'post',
+                data       : {quoteId: quoteId},
+                dataType   : 'json',
+                beforeSend : showSpinner()
+            }).done(function(response) {
+                if (response.error == '1') {
+                    showMessage(response.responseText, true, 5000);
+                    return false;
+                } else {
+                    showMailMessageEdit(control.data('trigger'), function (message, ccEmails) {
+                        updateQuote(quoteId, true, message, '', ccEmails);
+                    }, 'customer');
+                }
+            });
         } else {
             var eventType = '';
             if(typeof $(this).data('type') !== 'undefined') {
@@ -164,6 +192,54 @@ $(function() {
         showMessage('Quote notes has been saved', false, 3000);
     });
 
+    $(document).on('keyup', '#partial-payment-percentage',function(e){
+        e.preventDefault();
+
+        var data = {
+            qid   : quoteId,
+            type  : 'taxrate',
+            value : $(e.currentTarget).val()
+        };
+        var request = _update('api/quote/quotes/', data);
+        request.done(function(response) {
+            hideSpinner();
+            $.extend(data, {summary:response});
+            recalculate(data);
+        });
+
+    });
+
+    $(document).on('change', '#quote-payment-type-selector', function (e) {
+        var paymentType = $(e.currentTarget).val(),
+            isSignatureRequired = 0;
+
+        if ($('#quote-signature-required').is(':checked')) {
+            isSignatureRequired = 1;
+        }
+
+        if (paymentType === 'only_signature') {
+            $('#quote-signature-required').prop('disabled', true).prop('checked', true);
+        } else {
+            $('#quote-signature-required').prop('disabled', false);
+        }
+
+        changePaymentTypeMessage(paymentType, isSignatureRequired);
+    });
+
+    $(document).on('change', '#quote-signature-required', function (e) {
+        var paymentType = $('#quote-payment-type-selector').val(),
+            isSignatureRequired = 0;
+
+        if ($('#quote-signature-required').is(':checked')) {
+            isSignatureRequired = 1;
+            $('#quote-signature-block').removeClass('hidden');
+        } else {
+            $('#quote-signature-block').addClass('hidden');
+        }
+
+        changePaymentTypeMessage(paymentType, isSignatureRequired);
+    });
+
     var quoteDraggableProducts = $('#quote-draggable-products').val();
     if(quoteDraggableProducts) {
         $('#quote-sortable').sortable({
@@ -172,6 +248,7 @@ $(function() {
             }
         });
     }
+
 
 });
 
@@ -227,6 +304,11 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
         errorMessage = true;
     }
 
+    var isQuoteSignatureRequired = 0;
+    if ($('#quote-signature-required').is(':checked')) {
+        isQuoteSignatureRequired = 1;
+    }
+
     var data = {
         qid         : quoteId,
         sendMail    : sendMail,
@@ -239,6 +321,10 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
         mailMessage : (sendMail) ? mailMessage : '',
         errorMessage: errorMessage,
         eventType   : (eventType) ? eventType : '',
+        paymentType : $('#quote-payment-type-selector').val(),
+        // pdfTemplate : $('#quote-pdf-template-selector').val(),
+        isSignatureRequired : isQuoteSignatureRequired,
+        partialPaymentPercentage : $('#partial-payment-percentage').val(),
         ccEmails    : ccEmails
     };
 
@@ -301,9 +387,58 @@ var recalculate = function(options, sid) {
     $('.tax-total').text(accounting.formatMoney(summary.totalTax, formatMoneyOptions));
     $('#quote-shipping-price').val(accounting.formatNumber(summary.shipping, 2));
     $('#quote-discount').val(accounting.formatNumber(summary.discount, 2));
+
     $('#quote-tax-discount').text(accounting.formatMoney(summary.discountTax, formatMoneyOptions));
     $('#quote-discount-with-tax').text(accounting.formatMoney(summary.discountWithTax, formatMoneyOptions));
     $('.grand-total').text(accounting.formatMoney(summary.total, formatMoneyOptions));
     $('.totalwotax-total').text(accounting.formatMoney(summary.total- summary.totalTax, formatMoneyOptions));
     $('#quote-shipping-with-tax').text(accounting.formatMoney(summary.shippingWithTax, formatMoneyOptions));
+
+    if ($('#partial-payment-percentage').length > 0) {
+        var currentPercentage = $('#partial-payment-percentage').val(),
+            partialTotal = accounting.formatMoney((currentPercentage*summary.total)/100);
+
+        $('#partial-payment-percentage-payment-amount').html(partialTotal);
+    }
+
 };
+
+function changePaymentTypeMessage(paymentType, isSignatureRequired) {
+    if (paymentType === 'only_signature') {
+        $('#quote-type-info-message').addClass('hidden');
+    } else {
+        $.ajax({
+            url: $('#website_url').val() + 'plugin/quote/run/getPaymenttypeinfo',
+            type: 'POST',
+            data: {
+                'quoteId': $('#quote-id-payment-type').val(),
+                'paymentType': paymentType,
+                'isSignatureRequired': isSignatureRequired
+            },
+            dataType: 'json',
+            beforeSend: showSpinner()
+        }).done(function (response) {
+            hideSpinner();
+            if (response.error == '0') {
+                $('#quote-type-info-message').html(response.responseText);
+                $('#quote-type-info-message').removeClass('hidden');
+                if (paymentType === 'partial_payment') {
+                    var data = {
+                        qid   : $('#quote-id-payment-type').val(),
+                        type  : 'taxrate',
+                        value : $('#partial-payment-percentage').val()
+                    };
+                    var request = _update('api/quote/quotes/', data);
+                    request.done(function(response) {
+                        hideSpinner();
+                        $.extend(data, {summary:response});
+                        recalculate(data);
+                    });
+
+                }
+            }
+        }).fail(function (response) {
+            showMessage(JSON.parse(response.responseText), true, 5000);
+        });
+    }
+}

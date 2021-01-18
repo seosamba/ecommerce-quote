@@ -1,11 +1,17 @@
 <?php
-/**
- * Builder
- * @author: iamne <eugene@seotoaster.com> Seotoaster core team
- * Date: 9/5/12
- * Time: 1:24 PM
- */
+
+
 class Quote_Tools_Tools {
+
+    /**
+     * Quote pdf template prefix
+     */
+    const QUOTE_PDF_TEMPLATE_PREFIX = 'pdf-';
+
+    /**
+     * Quote pdf template type
+     */
+    const QUOTE_PDF_TEMPLATE_TYPE = 'typepdfquote';
 
     const TITLE_PREFIX = 'New quote: ';
 
@@ -36,20 +42,34 @@ class Quote_Tools_Tools {
 
         $oldPageId = 0;
         $oldQuoteId = '';
+        $templateName = '';
+        if (!empty($options['templateName'])) {
+            $templateName = $options['templateName'];
+        }
+
         if($options['actionType'] == Quote::QUOTE_TYPE_CLONE && !empty($options['oldPageId'] && !empty($options['oldQuoteId']))) {
             $oldPageId = $options['oldPageId'];
             $oldQuoteId = $options['oldQuoteId'];
         }
 
-        $quote->registerObserver(new Quote_Tools_Watchdog(array(
-            'gateway' => new Quote(array(), array()),
-            'oldPageId' => $oldPageId,
-            'oldQuoteId' => $oldQuoteId
+        if ($options['actionType'] == Quote::QUOTE_TYPE_CLONE) {
+            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+                'gateway' => new Quote(array(), array()),
+                'oldPageId' => $oldPageId,
+                'oldQuoteId' => $oldQuoteId
 
-        )))
-        ->registerObserver(new Tools_Mail_Watchdog(array(
-            'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
-        )));
+            )));
+        } else {
+            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+                'gateway' => new Quote(array(), array()),
+                'oldPageId' => $oldPageId,
+                'oldQuoteId' => $oldQuoteId,
+                'templateName' => $templateName
+
+            )))->registerObserver(new Tools_Mail_Watchdog(array(
+                    'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
+                )));
+        }
 
         $expirationDelay = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('expirationDelay');
         if(!$expirationDelay) {
@@ -73,6 +93,9 @@ class Quote_Tools_Tools {
                 ->setEditedBy($options['editedBy'])
                 ->setDisclaimer($options['disclaimer'])
                 ->setCreatorId($options['creatorId'])
+                ->setIsSignatureRequired('0')
+                ->setIsQuoteSigned('0')
+                ->setPaymentType(Quote_Models_Model_Quote::PAYMENT_TYPE_FULL)
         );
         Tools_ShoppingCart::getInstance()->clean();
         return $quote;
@@ -456,6 +479,42 @@ class Quote_Tools_Tools {
         }
 
 
+    }
+
+    /**
+     * Get quote pdf template by quote page url
+     *
+     * @param string $quotePageUrl quote page url
+     * @return string
+     */
+    public static function findPdfTemplateByQuoteUrl($quotePageUrl)
+    {
+        $pageModel = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($quotePageUrl);
+        if ($pageModel instanceof Application_Model_Models_Page) {
+            $quotePdfTemplate = Quote_Tools_Tools::findQuotePdfTemplate($pageModel->getTemplateId());
+            return $quotePdfTemplate;
+        }
+
+        return '';
+    }
+
+    /**
+     * find quote pdf template
+     *
+     * @param string $templateName quote template
+     * @return string
+     */
+    public static function findQuotePdfTemplate($templateName)
+    {
+        $quotePdfTemplateName = self::QUOTE_PDF_TEMPLATE_PREFIX.$templateName;
+        $quotePdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($quotePdfTemplateName);
+        if ($quotePdfTemplate instanceof Application_Model_Models_Template) {
+            if ($quotePdfTemplate->getType() === self::QUOTE_PDF_TEMPLATE_TYPE) {
+                return $quotePdfTemplate->getName();
+            }
+        }
+
+        return '';
     }
 
 }

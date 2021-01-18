@@ -22,12 +22,16 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 
 	protected $_parser = null;
 
+    private $_customTemplate = '';
+
 	protected function _run() {
 		$content         = '';
+        $this->_parseParams();
 
 		$tmpPageContent  = $this->_content;
         try {
-		    $this->_content  = $this->_findQuoteTemplateContent();
+            $templateName = $this->_customTemplate;
+		    $this->_content  = $this->_findQuoteTemplateContent($templateName);
         } catch (Exceptions_SeotoasterMagicSpaceException $smse) {
             return $smse->getMessage();
         }
@@ -88,17 +92,28 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 
 	}
 
-	protected function _findQuoteTemplateContent() {
+	protected function _findQuoteTemplateContent($templateName = '') {
 		$templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
-		$shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-		if(!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
-			//if quote template not secified in configs, get first template by type 'quote'
-			$quoteTemplates = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
-			$quoteTemplate  = reset($quoteTemplates);
-			unset($quoteTemplates);
-		} else {
-			$quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
-		}
+        $requestedUri = isset($this->_toasterData['url']) ? $this->_toasterData['url'] : Tools_System_Tools::getRequestUri();
+		if (!empty($templateName)) {
+            $quoteTemplate = $templateMapper->find($templateName);
+        } else {
+            $page = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($requestedUri);
+            if ($page instanceof Application_Model_Models_Page) {
+                $quoteTemplateName = $page->getTemplateId();
+                $quoteTemplate = $templateMapper->find($quoteTemplateName);
+            } else {
+                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                if (!isset($shoppingConfig['quoteTemplate']) || !$shoppingConfig['quoteTemplate']) {
+                    //if quote template not secified in configs, get first template by type 'quote'
+                    $quoteTemplates = $templateMapper->findByType(Quote::QUOTE_TEPMPLATE_TYPE);
+                    $quoteTemplate = reset($quoteTemplates);
+                    unset($quoteTemplates);
+                } else {
+                    $quoteTemplate = $templateMapper->find($shoppingConfig['quoteTemplate']);
+                }
+            }
+        }
         if(!$quoteTemplate) {
             error_log('Quote template not found! Cannot parse MagicSpace');
             throw new Exceptions_SeotoasterMagicSpaceException('Sorry, but we can not render the quote page at this moment. Please, try again later.');
@@ -160,6 +175,19 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
         }
 
         return $cartContentData;
+    }
+
+    /**
+     * Parse magic space parameters $_params
+     *
+     */
+    private function _parseParams() {
+        if (is_array($this->_params)) {
+           if (!empty($this->_params[0])) {
+               $this->_customTemplate = $this->_params[0];
+           }
+        }
+
     }
 
 }

@@ -4,4 +4,8 @@
     <?php $taxDiscount = $this->currency($this->taxDiscount);?>
 <?php endif;?>
 
+<?php if(!empty($this->clean)):?>
+    <?php $taxDiscount = number_format($this->taxDiscount, 2);?>
+<?php endif;?>
+
 <span id="quote-tax-discount"><?php echo $taxDiscount; ?></span>

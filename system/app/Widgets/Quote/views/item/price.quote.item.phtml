@@ -12,7 +12,11 @@
         <?php if(!empty($this->usNumericFormat)) :?>
             <?php $price = number_format($this->price, 2) . '&nbsp;' . $this->currencySymbol;?>
         <?php else :?>
-            <?php $price = $this->currency($this->price);?>
+            <?php if(!empty($this->clean)):?>
+                <?php $price = number_format($this->price, 2);?>
+            <?php else :?>
+                <?php $price = $this->currency($this->price);?>
+            <?php endif;?>
         <?php endif;?>
         <span data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" class="price-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $price; ?></span>
     <?php endif;?>

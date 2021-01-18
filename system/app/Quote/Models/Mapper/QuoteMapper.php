@@ -36,7 +36,13 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 			'created_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),
 			'updated_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getUpdatedAt())),
             'discount_tax_rate' => $quote->getDiscountTaxRate(),
-            'delivery_type'     => $quote->getDeliveryType()
+            'delivery_type'     => $quote->getDeliveryType(),
+            'payment_type'     => $quote->getPaymentType(),
+            'is_signature_required'     => $quote->getIsSignatureRequired(),
+            'pdf_template'     => $quote->getPdfTemplate(),
+            'signature'     => $quote->getSignature(),
+            'is_quote_signed'     => $quote->getIsQuoteSigned(),
+            'quote_signed_at'     => $quote->getQuoteSignedAt(),
 		);
 
 		$exists = $this->find($quote->getId());
@@ -94,7 +100,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 ->joinLeft(array('u2'=>'user'), 's_q.creator_id=u2.id', '')
                 ->joinLeft(array('cart'=>'shopping_cart_session'), 's_q.cart_id=cart.id', '')
                 ->joinLeft(array('cust_addr'=>'shopping_customer_address'), 'cust_addr.id=cart.billing_address_id', array('cust_addr.firstname', 'cust_addr.lastname'))
-                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u1.full_name, u2.full_name)')))
+                ->columns(array('ownerName' => new Zend_Db_Expr('COALESCE(u2.full_name, u1.full_name)')))
                 ->columns(array('clients' => new Zend_Db_Expr('COALESCE(u1.full_name)')));
             ($where) ? $select->where($where) : $select;
             ($order) ? $select->order($order) : $select;
@@ -155,5 +161,62 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
         return $table->getAdapter()->fetchRow($select);
     }
+
+    /**
+     *
+     * @param string $where SQL where clause
+     * @param string $order OPTIONAL An SQL ORDER clause.
+     * @param int $limit OPTIONAL An SQL LIMIT count.
+     * @param int $offset OPTIONAL An SQL LIMIT offset.
+     * @param bool $withoutCount without count flag
+     * @param bool $singleRecord if true return single record
+     * @return array
+     */
+    public function searchQuotes($where = null, $order = null, $limit = null, $offset = null, $withoutCount = false, $singleRecord = false)
+    {
+        $select = $this->getDbTable()->getAdapter()->select()
+            ->from(array('sq' => 'shopping_quote'),
+                array(
+                    'sq.id',
+                    'sq.title'
+                )
+            );
+
+        if (!empty($order)) {
+            $select->order($order);
+        }
+
+        if (!empty($where)) {
+            $select->where($where);
+        }
+
+        $select->limit($limit, $offset);
+
+        if ($singleRecord === true) {
+            $data = $this->getDbTable()->getAdapter()->fetchRow($select);
+        } else {
+            $data = $this->getDbTable()->getAdapter()->fetchAll($select);
+        }
+
+        if ($withoutCount === false) {
+            $select->reset(Zend_Db_Select::COLUMNS);
+            $select->reset(Zend_Db_Select::FROM);
+            $select->reset(Zend_Db_Select::LIMIT_OFFSET);
+            $select->reset(Zend_Db_Select::GROUP);
+
+            $select->from(array('sq' => 'shopping_quote'), array('count' => 'COUNT(sq.id)'));
+            $count = $this->getDbTable()->getAdapter()->fetchRow($select);
+
+            return array(
+                'totalRecords' => $count['count'],
+                'data' => $data,
+                'offset' => $offset,
+                'limit' => $limit
+            );
+        }
+
+        return $data;
+    }
+
 
 }

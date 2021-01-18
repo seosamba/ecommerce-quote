@@ -19,6 +19,14 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     const QUOTE_TYPE_AUTO       = 'auto';
 
+    const PAYMENT_TYPE_FULL = 'full_payment';
+
+    const PAYMENT_TYPE_PARTIAL_PAYMENT = 'partial_payment';
+
+    const PAYMENT_TYPE_ONLY_SIGNATURE = 'only_signature';
+
+    public static $_paymentTypesList = array(self::PAYMENT_TYPE_FULL, self::PAYMENT_TYPE_ONLY_SIGNATURE, self::PAYMENT_TYPE_PARTIAL_PAYMENT);
+
 	protected $_id              = '';
 
 	protected $_title           = '';
@@ -54,6 +62,18 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
     protected $_ownerName       = '';
 
     protected $_customerName    = '';
+
+    protected $_paymentType = '';
+
+    protected $_isSignatureRequired = '';
+
+    protected $_pdfTemplate = '';
+
+    protected $_signature = '';
+
+    protected $_isQuoteSigned = '';
+
+    protected $_quoteSignedAt = '';
 
     public function setCustomerName($customerName) {
         $this->_customerName = $customerName;
@@ -214,4 +234,121 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
     public function getCreatorId() {
         return $this->_creatorId;
     }
+
+    /**
+     * @return string
+     */
+    public function getPaymentType()
+    {
+        return $this->_paymentType;
+    }
+
+    /**
+     * @param string $paymentType
+     * @return string
+     */
+    public function setPaymentType($paymentType)
+    {
+        $this->_paymentType = $paymentType;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsSignatureRequired()
+    {
+        return $this->_isSignatureRequired;
+    }
+
+    /**
+     * @param string $isSignatureRequired
+     * @return string
+     */
+    public function setIsSignatureRequired($isSignatureRequired)
+    {
+        $this->_isSignatureRequired = $isSignatureRequired;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPdfTemplate()
+    {
+        return $this->_pdfTemplate;
+    }
+
+    /**
+     * @param string $pdfTemplate
+     * @return string
+     */
+    public function setPdfTemplate($pdfTemplate)
+    {
+        $this->_pdfTemplate = $pdfTemplate;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSignature()
+    {
+        return $this->_signature;
+    }
+
+    /**
+     * @param string $signature
+     * @return string
+     */
+    public function setSignature($signature)
+    {
+        $this->_signature = $signature;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsQuoteSigned()
+    {
+        return $this->_isQuoteSigned;
+    }
+
+    /**
+     * @param string $isQuoteSigned
+     * @return string
+     */
+    public function setIsQuoteSigned($isQuoteSigned)
+    {
+        $this->_isQuoteSigned = $isQuoteSigned;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuoteSignedAt()
+    {
+        return $this->_quoteSignedAt;
+    }
+
+    /**
+     * @param string $quoteSignedAt
+     * @return string
+     */
+    public function setQuoteSignedAt($quoteSignedAt)
+    {
+        $this->_quoteSignedAt = $quoteSignedAt;
+
+        return $this;
+    }
+
+
+
 }

@@ -20,6 +20,13 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      */
     const TRIGGER_QUOTE_UPDATED     = 'quote_updated';
 
+
+    /**
+     * Quote update trigger
+     *
+     */
+    const TRIGGER_QUOTE_SIGNED     = 'quote_signed';
+
     /**
      * Quote mail recipient 'sales person'
      *
@@ -130,6 +137,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      * @var bool
      */
     protected $_debugEnabled       = false;
+
+    protected $_observableModel = null;
 
     /**
      * Init all necessary helpers and assign correct mail message
@@ -322,6 +331,88 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         return $this->_send(array('subject' => $this->_translator->translate($this->_storeConfig['company'] . ' Hello! Your quote has been updated')));
     }
 
+
+    /**
+     * Sending quote signed email
+     *
+     * @return boolean
+     */
+    protected function _sendQuotesignedMail() {
+
+        $attachment = $this->_options['attachment'];
+
+        switch($this->_options['recipient']) {
+            case self::RECIPIENT_CUSTOMER:
+                $recipient = $this->_getCustomerRecipient();
+                $this->_mailer->setMailToLabel($recipient->getFullName());
+
+                // restore the cart
+                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
+                if(!$cart instanceof Models_Model_CartSession) {
+                    if($this->_debugEnabled) {
+                        error_log('Quote Mail Watchdog report: Cannot find cart with id: ' . $this->_quote->getCartId() . ' for the quote with id: ' . $this->_quote->getId());
+                    }
+                    return false;
+                }
+
+                $defaultsMail = array('mailTo' => $recipient->getFullName());
+
+                // get the name => email for the customer
+                $recipientEmails = $this->_getCustomerEmails(array(
+                    Tools_ShoppingCart::getAddressById($cart->getShippingAddressId()),
+                    Tools_ShoppingCart::getAddressById($cart->getBillingAddressId())
+                ), $defaultsMail);
+
+                if(empty($recipientEmails)) {
+                    if($this->_debugEnabled) {
+                        error_log('Quote Mail Watchdog report: Can\'t find any address for the recipient with id: ' . $recipient->getId());
+                    }
+                }
+
+                $recipientEmails = array_unique($recipientEmails);
+
+                $ccEmails = $this->_options['ccEmails'];
+
+                if(!empty($ccEmails)) {
+                    $additionalEmails = array();
+                    foreach ($ccEmails as $email) {
+                        $additionalEmails[][$defaultsMail['mailTo']] = $email;
+                    }
+
+                    $recipientEmails = array_merge($recipientEmails, $additionalEmails);
+                }
+
+                $this->_mailer->setMailTo($recipientEmails);
+                break;
+            case self::RECIPIENT_SALESPERSON:
+                // store owner
+                $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                // all other recipients
+                $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                    self::RECIPIENT_SALESPERSON
+                )));
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                break;
+            case self::RECIPIENT_STOREOWNER:
+            case self::RECIPIENT_ADMIN:
+                // all admins
+                $emails = Quote_Tools_Tools::getEmailData(array(
+                    self::RECIPIENT_ADMIN
+                ));
+                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                break;
+        }
+
+        if (!empty($attachment)) {
+            $this->_mailer->addAttachment($attachment);
+        }
+
+        $this->_observableModel = $this->_options['observableModel'];
+
+        return $this->_send(array('subject' => $this->_translator->translate($this->_storeConfig['company'] . ' Hello! Your quote has been updated')));
+    }
+
+
     /**
      * Prepare mail body using mail template form the trigger
      *
@@ -368,6 +459,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             'currentTheme' => $extConfig['currentTheme'],
             'themePath'    => $themeData['path'],
         );
+
+        if (!empty($this->_observableModel)){
+            $parserOptions['observableModel'] = $this->_observableModel;
+        }
 
         // init toaster parser, parse mail template for the standart toaster widgets and return the result
         $parser = new Tools_Content_Parser($mailTemplate, Application_Model_Mappers_PageMapper::getInstance()->findByUrl($this->_quote->getId() . '.html')->toArray(), $parserOptions);
