@@ -15,7 +15,7 @@ define([
         events: {
             'click a.quote-grid-add'        : 'addAction',
             'click a.page'                  : 'navigateAction',
-            'keypress #quote-grid-search'   : 'searchAction',
+            'click #search-quote-button'   : 'searchAction',
             'change #quote-grid-select-all' : 'checkAllAction',
             'change #batch-action'          : 'batchAction',
             'click .sortable'               : 'sortGridAction',

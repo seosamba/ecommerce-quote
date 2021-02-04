@@ -41,7 +41,8 @@
     ?>
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
-            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_4 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
+            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_3 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
+            <a href="javascript:;" id="search-quote-button" class="btn grid_1 alpha omega"><?php echo $this->translate('Search Quote');?></a>
             <?php $quoteTemplates = array_merge(
                 array(0 => 'Select quote template'),
                 Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
