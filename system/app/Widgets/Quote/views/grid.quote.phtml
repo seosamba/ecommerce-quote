@@ -41,15 +41,16 @@
     ?>
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
-            <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'grid_3 alpha', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
-            <a href="javascript:;" id="search-quote-button" class="btn grid_1 alpha omega"><?php echo $this->translate('Search Quote');?></a>
-            <?php $quoteTemplates = array_merge(
-                array(0 => 'Select quote template'),
-                Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
-            );?>
-
-            <div class="grid_8 flex-row-quote-buttons">
-                <div class="btn-group t-mb10px">
+            <div class="quote-grid-block-search grid_4 suffix_1 alpha border-box">
+                <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => '', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
+                <a href="javascript:;" id="search-quote-button" class="btn green"><?php echo $this->translate('Search Quote');?></a>
+                <?php $quoteTemplates = array_merge(
+                    array(0 => 'Select quote template'),
+                    Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
+                );?>
+            </div>
+            <div class="flex-row-quote-buttons grid_7 omega border-box">
+                <div class="btn-group">
                     <button class="quote-create-option-button btn checked-btn"
                             name="quote-create-option-button-create" data-checked="true"
                             data-type="create_new_quote"><?php echo $this->translate('Create a new quote'); ?></button>
@@ -63,7 +64,7 @@
                 <input class="hidden" id="duplicate-quote-id" name="duplicate-quote-id">
                 <input id="quote-chosen-type" class="quote-chosen-type" type="hidden" name="quote-chosen-type" value="">
 
-                <a class="quote-grid-add btn green ticon-plus" href="javascript:;" title="<?php echo $this->translate('Add new quote');?>"><?php echo $this->translate('Add new quote');?></a>
+                <a class="quote-grid-add btn green" href="javascript:;" title="<?php echo $this->translate('Create Quote');?>"><?php echo $this->translate('Create Quote');?></a>
             </div>
         </div>
         <table id="quote-grid-quotes" class="widget table-hover">
