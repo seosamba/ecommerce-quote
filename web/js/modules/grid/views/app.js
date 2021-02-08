@@ -16,6 +16,7 @@ define([
             'click a.quote-grid-add'        : 'addAction',
             'click a.page'                  : 'navigateAction',
             'click #search-quote-button'   : 'searchAction',
+            'keyup #quote-grid-search'   : 'searchEnterAction',
             'change #quote-grid-select-all' : 'checkAllAction',
             'change #batch-action'          : 'batchAction',
             'click .sortable'               : 'sortGridAction',
@@ -124,6 +125,13 @@ define([
         },
         searchAction: function() {
             this.quotes.pager();
+        },
+        searchEnterAction: function(event)
+        {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                this.quotes.pager();
+            }
         },
         navigateAction: function(e) {
             e.preventDefault();
