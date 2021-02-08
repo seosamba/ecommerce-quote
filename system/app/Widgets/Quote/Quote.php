@@ -654,7 +654,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $total = (($this->_cart->getTotal() - $this->_cart->getTotalTax()));
                 break;
             case self::TOTAL_TYPE_TAX_DISCOUNT:
-                $this->_view->taxDiscount = ($this->_shoppingConfig['showPriceIncTax']) ? $this->_cart->getDiscountTax():0;
+                if (!empty($this->_cart->getDiscountTax())) {
+                    $this->_view->taxDiscount = $this->_cart->getDiscountTax();
+                } else {
+                    $this->_view->taxDiscount = 0;
+                }
                 return $this->_view->render('taxdiscount.quote.phtml');
                 break;
             default : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
