@@ -119,12 +119,11 @@
     'Quote system settings' => 'Paramètres du système de devis',
     'Saved' => 'Sauvegardé',
     'This user can\'t be deleted. User is used in quote.' => 'Impossible de supprimer cet utilisateur. L\'utilisateur figure dans le devis.',
-    'Company' => 'Company',
+    'Company' => 'Société',
     'Mobile' => 'Mobile',
     'Notes' => 'Notes',
-    'Use same data for shipping?' => 'Use same data for shipping?',
+    'Use same data for shipping?' => 'Faut-il utiliser les mêmes données pour l\'expédition?',
     'Position' => 'Position',
-    'Send me a quote' => 'Send me a quote',
-    'Mobile' => 'Mobile'
+    'Send me a quote' => 'Envoyez-moi un devis'
 
 );?>
