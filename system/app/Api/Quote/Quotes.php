@@ -122,11 +122,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
-                        $this->_error($translator->translate('Sorry, but you didn\'t feel all the required fields or you entered a wrong captcha. Please try again.'));
+                        $this->_error($translator->translate('Sorry, but you didn\'t fill all the required fields or you entered a wrong captcha. Please try again.'));
                     }
                 } else {
                     if (!$form->isValid($this->_request->getParams())) {
-                        $this->_error($translator->translate('Sorry, but you didn\'t feel all the required fields. Please try again.'));
+                        $this->_error($translator->translate('Sorry, but you didn\'t fill all the required fields. Please try again.'));
                     }
                 }
 
