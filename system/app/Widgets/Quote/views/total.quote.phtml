@@ -1,1 +1,10 @@
-<span class="<?php echo $this->totalType; ?>-total"><?php echo $this->currency($this->total); ?></span>
+<?php if(!empty($this->usNumericFormat)) :?>
+    <?php $total = number_format($this->total, 2) . '&nbsp;' . $this->currencySymbol;?>
+<?php else :?>
+    <?php $total = $this->currency($this->total);?>
+<?php endif;?>
+<?php if(!empty($this->clean)):?>
+    <?php $total = number_format($this->total, 2);?>
+<?php endif;?>
+
+<span class="<?php echo $this->totalType; ?>-total"><?php echo $total; ?></span>

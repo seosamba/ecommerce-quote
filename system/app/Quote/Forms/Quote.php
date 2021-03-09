@@ -56,9 +56,16 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 			'label' => 'Use same data for shipping?',
 		)));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'position',
+            'label' => 'Position',
+            'rows'  => '3'
+        )));
+
+
         //adding display groups
         $this->addDisplayGroups(array(
-			'leftColumn'  => array('prefix', 'firstname', 'lastname', 'company', 'email', 'address1', 'address2'),
+			'leftColumn'  => array('prefix', 'firstname', 'lastname', 'company', 'position','email', 'address1', 'address2'),
 			'rightColumn' => array('country', 'city', 'state', 'zip', 'disclaimer')
 		));
 

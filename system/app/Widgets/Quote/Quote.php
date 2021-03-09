@@ -138,6 +138,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     protected $_debugMode = false;
 
     /**
+     * @var bool
+     */
+    protected $_userMode = false;
+
+    /**
      * Fields names that should be always present on the quote form
      *
      * @var array
@@ -146,6 +151,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         'productId'      => false,
         'productOptions' => false,
         'sendQuote'      => false
+    );
+
+    public static $_accessList  = array(
+        Tools_Security_Acl::ROLE_SUPERADMIN,
+        Tools_Security_Acl::ROLE_ADMIN,
+        Shopping::ROLE_SALESPERSON
     );
 
     /**
@@ -205,13 +216,24 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     {
         $requestedUri = isset($this->_toasterOptions['url']) ? $this->_toasterOptions['url'] : Tools_System_Tools::getRequestUri();
         $mapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-        $this->_quote = $mapper->find(
-            Zend_Controller_Action_HelperBroker::getStaticHelper('page')->clean($requestedUri)
-        );
+
+        $registry = Zend_Registry::getInstance();
+        if (Zend_Registry::isRegistered('processingAutoQuoteId')) {
+            $this->_quote = $mapper->find($registry->get('processingAutoQuoteId')
+            );
+            $this->_userMode = true;
+        } else {
+
+            $this->_quote = $mapper->find(
+                Zend_Controller_Action_HelperBroker::getStaticHelper('page')->clean($requestedUri)
+            );
+        }
 
         if (($this->_quote instanceof Quote_Models_Model_Quote) && Quote_Tools_Tools::checkExpired($this->_quote)) {
-            $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
-            $this->_quote = $mapper->save($this->_quote);
+            if ($this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD) {
+                $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
+                $this->_quote = $mapper->save($this->_quote);
+            }
         }
     }
 
@@ -446,6 +468,48 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     }
 
     /**
+     * Render creator name
+     *
+     * {$quote:creator}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderCreator() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+
+        $creatorId = $this->_quote->getCreatorId();
+        $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($creatorId);
+        if ($userModel instanceof Application_Model_Models_User) {
+            return $userModel->getFullName();
+        }
+
+        return '';
+    }
+
+    /**
+     * Render editor name
+     *
+     * {$quote:editor}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderEditor() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+
+        $editorId = $this->_quote->getEditorId();
+        $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($editorId);
+        if ($userModel instanceof Application_Model_Models_User) {
+            return $userModel->getFullName();
+        }
+
+        return '';
+    }
+
+    /**
      * Renderer for the {$quote:controls}
      *
      * @return string
@@ -476,6 +540,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $this->_view->quoteDraggableProducts  = $useDraggable;
+
+        $this->_view->usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
 
         return $this->_view->render('controls.quote.phtml');
     }
@@ -522,7 +588,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 unset($reqOpt);
             }
 
-            $this->_view->addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
+            $addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
+            if (!empty($addressForm->getElement('overwriteQuoteUserBilling'))) {
+                $addressForm->getElement('overwriteQuoteUserBilling')
+                    ->setAttrib('checked', 'checked')
+                    ->setAttrib('class', 'hidden')
+                    ->setLabel('');
+            }
+            $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
@@ -556,7 +629,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if(!$this->_cart instanceof Models_Model_CartSession) {
             throw new Exceptions_SeotoasterWidgetException('Quote widget error: cart in not initialized, no total will be rendered');
         }
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
+
         $totalType = isset($this->_options[0]) ? $this->_options[0] : 'grand';
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = '1';
+        }
         $total     = 0;
         switch($totalType) {
             case self::TOTAL_TYPE_TAX   : $total = $this->_cart->getTotalTax(); break;
@@ -571,7 +655,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $total = (($this->_cart->getTotal() - $this->_cart->getTotalTax()));
                 break;
             case self::TOTAL_TYPE_TAX_DISCOUNT:
-                $this->_view->taxDiscount = ($this->_shoppingConfig['showPriceIncTax']) ? $this->_cart->getDiscount() + $this->_cart->getDiscountTax():$this->_cart->getDiscount();
+                if (!empty($this->_cart->getDiscountTax())) {
+                    $this->_view->taxDiscount = $this->_cart->getDiscountTax();
+                } else {
+                    $this->_view->taxDiscount = 0;
+                }
                 return $this->_view->render('taxdiscount.quote.phtml');
                 break;
             default : throw new Exceptions_SeotoasterWidgetException('Quote widget error: Total type is invalid');
@@ -595,6 +683,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->shoppingConfig = $this->_shoppingConfig;
         $this->_view->shippingTax   = $this->_cart->getShippingTax();
         $this->_view->quoteShipping = ($shippingPrice) ? $shippingPrice : 0;
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = '1';
+        }
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
+
         return $this->_view->render('shipping.quote.phtml');
     }
 
@@ -620,6 +720,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             '2' => 'Alternative',
             '3' => 'Alternative 2'
         );
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = '1';
+        }
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
 
         return $this->_view->render('discount.quote.phtml');
     }
@@ -657,8 +768,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         // getting the cart content to be able to get an item we need
         $cartContent = $this->_cart->getCartContent();
 
-        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-        $quoteDraggableProducts = $shoppingConfig['quoteDraggableProducts'];
+        $quoteDraggableProducts = $this->_shoppingConfig['quoteDraggableProducts'];
 
         if(!empty($quoteDraggableProducts)) {
             $quoteId = $this->_quote->getId();
@@ -713,8 +823,27 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $options = ($item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product);
         $item['sid'] = Quote_Tools_Tools::generateStorageKey($product, $options);
 
+
+        $notRender = false;
+
+        $usNumericFormat = $this->_shoppingConfig['usNumericFormat'];
+
+        if(!empty($usNumericFormat)) {
+            $this->_view->currencySymbol = preg_replace('~[\w]~', '', $this->_currency->getSymbol());
+            $this->_view->usNumericFormat = $usNumericFormat;
+        }
+
         $widgetOption = $this->_options[0];
+        if (empty((int)$product->getPrice()) && empty($product->getEnabled()) && $widgetOption !== 'sid') {
+            $notRender = true;
+        }
         switch($widgetOption) {
+            case 'currency':
+                if ($notRender === true) {
+                   return '';
+                }
+                return $this->_options[1];
+            break;
             case 'photo':
                 $img = $product->getPhoto();
 
@@ -750,13 +879,25 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 return (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_USERS) || Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) ? '<a data-pid="' . $item['product_id'] . '" data-sid="'. $item['sid'] .'" class="remove-product" href="javascript:;"><img src="' . $this->_websiteHelper->getUrl() . 'system/images/delete.png" alt="delete"/></a>' : '';
             break;
             default:
+                if ($notRender === true) {
+                    return '';
+                }
                 return (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
             break;
         }
+
+        if ($notRender === true) {
+            return '';
+        }
+
         $this->_view->$widgetOption = $value;
         $this->_view->productId     = $item['product_id'];
         $this->_view->quoteId       = $this->_quote->getId();
         $this->_view->sid           = $item['sid'];
+
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = '1';
+        }
 
         return $this->_view->render('item/' . $widgetOption . '.quote.item.phtml');
     }
@@ -770,6 +911,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         //init quote form and remove elements we don't need
         $quoteForm   = new Quote_Forms_Quote();
         $quoteForm->removeElement('sameForShipping');
+        $quoteForm->removeElement('position');
 
         //check if the automatic quote generation is set up - add extra class to the form
         if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
@@ -949,4 +1091,217 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         return '';
     }
+
+    protected function _renderSignature()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $this->_view->accessAllowed = $this->_editAllowed;
+
+            $quoteId = $this->_quote->getId();
+            $isQuoteSigned = $this->_quote->getIsQuoteSigned();
+            $signature = $this->_quote->getSignature();
+
+            $this->_view->isQuoteSigned = $isQuoteSigned;
+            $this->_view->signature = $signature;
+            $this->_view->quoteId = $quoteId;
+
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+
+            if ($this->_userMode === true) {
+                if (empty($isSignatureRequired)) {
+                    return '';
+                }
+
+                if (empty($signature)) {
+                    return '';
+                }
+
+                if (in_array('src', $this->_options)) {
+                    return $signature;
+                }
+                
+                return $this->_view->render('signature-signed.phtml');
+            }
+
+            $this->_view->signatureClass = '';
+            if (empty($isSignatureRequired)) {
+                $this->_view->signatureClass = 'hidden';
+            }
+
+            return $this->_view->render('signature.phtml');
+        }
+    }
+
+    protected function _renderQuotetypeinfo()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $currentCartStatus = $this->_cart->getStatus();
+            if ($currentCartStatus === Models_Model_CartSession::CART_STATUS_COMPLETED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_SHIPPED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_DELIVERED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_REFUNDED) {
+                return '';
+            }
+
+            $cartStatuses = array(
+                Models_Model_CartSession::CART_STATUS_COMPLETED,
+                Models_Model_CartSession::CART_STATUS_REFUNDED,
+                Models_Model_CartSession::CART_STATUS_DELIVERED,
+                Models_Model_CartSession::CART_STATUS_SHIPPED,
+                Models_Model_CartSession::CART_STATUS_CANCELED
+            );
+
+            $paymentType = $this->_quote->getPaymentType();
+            if (empty($paymentType)) {
+                $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+            }
+
+            $leftAmountToPaid = 0;
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                $partialPercentage = $this->_cart->getPartialPercentage();
+                $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
+                $this->_view->partialPercentage = $partialPercentage;
+                $this->_view->partialAmountPaid  = $this->_cart->getPartialPaidAmount();
+                $isPartialPaid = false;
+                if ((int) $this->_cart->getPartialPaidAmount() > 0 && !in_array($this->_cart->getStatus(), $cartStatuses) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
+                    $isPartialPaid = true;
+                    $leftAmountToPaid = round(($this->_cart->getTotal() -($this->_cart->getTotal()*$this->_cart->getPartialPercentage())/100), 2);
+                }
+            }
+
+            $isAdmin = false;
+            if (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)) {
+                $isAdmin = true;
+            }
+
+            $this->_view->partialPaidDate = date('Y-m-d', strtotime($this->_cart->getPartialPurchasedOn()));
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+            $this->_view->paymentType = $paymentType;
+            $this->_view->quoteTotal = $this->_cart->getTotal();
+            $this->_view->isSignatureRequired = $isSignatureRequired;
+            $this->_view->isAdmin = $isAdmin;
+            $this->_view->isPartialPaid = $isPartialPaid;
+            $this->_view->leftAmountToPaid = $leftAmountToPaid;
+
+            return $this->_view->render('quote-type-info.phtml');
+        }
+
+    }
+
+
+    protected function _renderPaymenttypeconfig()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $this->_view->accessAllowed = $this->_editAllowed;
+            $templateMapper = Application_Model_Mappers_TemplateMapper::getInstance();
+            $pdfTemplates = $templateMapper->findByType('typepdfquote');
+            $paymentType = $this->_quote->getPaymentType();
+            if (empty($paymentType)) {
+                $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+            }
+
+            $pdfTemplate = $this->_quote->getPdfTemplate();
+            if (empty($pdfTemplate)) {
+                $pdfTemplate = '';
+            }
+
+            $isSignatureRequired = $this->_quote->getIsSignatureRequired();
+            $quoteStatus = $this->_quote->getStatus();
+
+            $partialPaymentAllowed = false;
+            if (!empty($this->_shoppingConfig['enabledPartialPayment'])) {
+                $partialPaymentAllowed = true;
+            }
+
+            $this->_view->quoteId = $this->_quote->getId();
+            $this->_view->quoteStatus = $quoteStatus;
+            $this->_view->paymentType = $paymentType;
+            $this->_view->isSignatureRequired = $isSignatureRequired;
+            $this->_view->pdfTemplate = $pdfTemplate;
+            $this->_view->pdfTemplates = $pdfTemplates;
+            $this->_view->partialPaymentAllowed = $partialPaymentAllowed;
+            return $this->_view->render('payment-type-config.phtml');
+        }
+    }
+
+    protected function _renderQuotesigneddate()
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            if (!empty($this->_quote->getIsQuoteSigned())) {
+                return date('d-M-Y', strtotime($this->_quote->getQuoteSignedAt()));
+            }
+
+            if ($this->_editAllowed === true) {
+                return $translator->translate('Not yet accepted');
+            }
+
+        }
+    }
+
+    protected function _renderDownloadpdf()
+    {
+
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && !$this->_editAllowed) {
+            if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                if (empty($this->_quote->getIsQuoteSigned())) {
+                    $this->_view->quoteId = $this->_quote->getId();
+
+                    return $this->_view->render('download-preview-button.phtml');
+                }
+
+                $translator = Zend_Registry::get('Zend_Translate');
+
+                $userId = $this->_quote->getUserId();
+                $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
+                $userEmail = '';
+                if ($userModel instanceof Application_Model_Models_User) {
+                    $userEmail = $userModel->getEmail();
+                }
+
+                return '<p>'.$translator->translate('Please find a copy of this signed proposal in your inbox at').' '.$userEmail.'</p>';
+            }
+        }
+
+        return '';
+
+    }
+
+    protected function _renderQuoteowner()
+    {
+        if ($this->_quote instanceof Quote_Models_Model_Quote) {
+            $creatorId = $this->_quote->getCreatorId();
+            if (!empty($creatorId)) {
+                $registry = Zend_Registry::getInstance();
+                if (Zend_Registry::isRegistered('quoteCreatorModel')) {
+                    $quoteCreatorModel = $registry->get('quoteCreatorModel');
+                } else {
+                    $quoteCreatorModel = Application_Model_Mappers_UserMapper::getInstance()->find($creatorId);
+                    $registry->set('quoteCreatorModel', $quoteCreatorModel);
+                }
+
+                if ($quoteCreatorModel instanceof Application_Model_Models_User) {
+                    if ($this->_options[0] === 'fullname') {
+                        return $quoteCreatorModel->getFullName();
+                    }
+                    if ($this->_options[0] === 'mobile') {
+                        return $quoteCreatorModel->getMobileCountryCodeValue().$quoteCreatorModel->getMobilePhone();
+                    }
+                    if ($this->_options[0] === 'desktop') {
+                        return $quoteCreatorModel->getDesktopCountryCodeValue().$quoteCreatorModel->getDesktopPhone();
+                    }
+                    if ($this->_options[0] === 'email') {
+                        return $quoteCreatorModel->getEmail();
+                    }
+                    if ($this->_options[0] === 'signature') {
+                        return $quoteCreatorModel->getSignature();
+                    }
+                    if ($this->_options[0] === 'voip') {
+                        return $quoteCreatorModel->getVoipPhone();
+                    }
+
+                }
+
+            }
+        }
+        return '';
+    }
+
 }

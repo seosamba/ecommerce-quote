@@ -38,9 +38,9 @@
 <?php endif; ?>
 <?php if(isset($this->addressForm)): ?>
     <script type="text/javascript">
-        $(function() {
+        $(document).ready(function() {
             <?php if((!$this->address || !isset($this->address['state']) || !$this->address['state']) && empty($this->preventRemovingOptions)) : ?>
-                $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state').empty().parent('div').hide();
+                $('#<?php echo $this->addressForm->getAttrib('id'); ?> select[name="state"]').empty().parent('div').hide();
             <?php endif; ?>
 
             var mobileMasks = JSON.parse('<?php echo json_encode($this->mobileMasks);?>'),
@@ -122,10 +122,11 @@
                 }
             });
 
-            $(document).on('change', '#<?php echo $this->addressForm->getAttrib('id'); ?> select.country', function(e) {
+            $(document).on('change', '#<?php echo $this->addressForm->getAttrib('id'); ?> select[name="country"]', function(e) {
+                e.preventDefault();
                 var self = this;
                 $.getJSON($('#website_url').val() + 'api/store/geo/type/state?country=' + $(self).val(), function(response) {
-                    var statesHolder = $('#<?php echo $this->addressForm->getAttrib('id'); ?> select.state');
+                    var statesHolder = $('#<?php echo $this->addressForm->getAttrib('id'); ?> select[name="state"]');
                     if(!response.length) {
                         statesHolder.empty().parent('div').fadeOut();
                     } else {
@@ -137,6 +138,6 @@
                 });
             });
 
-        });
-    </script>
-<?php endif; ?>
+       });
+       </script>
+       <?php endif; ?>
