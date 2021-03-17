@@ -1,22 +1,14 @@
 <?php if($this->editAllowed && $this->unitPrice == 'unit'): ?>
-    <?php if(!empty($this->usNumericFormat)) :?>
-        <?php $price = number_format(round($this->price,2), 2);?>
-    <?php else :?>
-        <?php $price = round($this->price,2);?>
-    <?php endif;?>
+    <?php $price = round($this->price,2);?>
     <input data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" data-scope="quote-item" data-type="price" class="quote-recalculate price-unit" type="text" value="<?php echo $price; ?>" />
 <?php else: ?>
     <?php if(isset($this->freebies)):?>
         <span data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" class="price-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $this->translate('free'); ?></span>
     <?php else:?>
-        <?php if(!empty($this->usNumericFormat)) :?>
-            <?php $price = number_format($this->price, 2) . '&nbsp;' . $this->currencySymbol;?>
+        <?php if(!empty($this->clean)):?>
+            <?php $price = number_format($this->price, 2);?>
         <?php else :?>
-            <?php if(!empty($this->clean)):?>
-                <?php $price = number_format($this->price, 2);?>
-            <?php else :?>
-                <?php $price = $this->currency($this->price);?>
-            <?php endif;?>
+            <?php $price = $this->currency($this->price);?>
         <?php endif;?>
         <span data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" class="price-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $price; ?></span>
     <?php endif;?>
