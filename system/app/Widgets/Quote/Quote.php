@@ -159,6 +159,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         Shopping::ROLE_SALESPERSON
     );
 
+    protected $_statusesNotLostQuotes = array(
+        Models_Model_CartSession::CART_STATUS_PARTIAL,
+        Models_Model_CartSession::CART_STATUS_COMPLETED,
+        Models_Model_CartSession::CART_STATUS_SHIPPED,
+        Models_Model_CartSession::CART_STATUS_DELIVERED
+    );
+
     /**
      * Initialize all helpers, cofigs, etc...
      *
@@ -230,9 +237,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         if (($this->_quote instanceof Quote_Models_Model_Quote) && Quote_Tools_Tools::checkExpired($this->_quote)) {
-            if ($this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD) {
-                $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
-                $this->_quote = $mapper->save($this->_quote);
+            $cartId = $this->_quote->getCartId();
+            $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+            $cartSessionModel = $cartSessionMapper->find($cartId);
+
+            if ($this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
+                if ($cartSessionModel instanceof Models_Model_CartSession) {
+                    if (!in_array($cartSessionModel->getStatus(), $this->_statusesNotLostQuotes)) {
+                        $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
+                        $this->_quote = $mapper->save($this->_quote);
+                    }
+                }
             }
         }
     }
