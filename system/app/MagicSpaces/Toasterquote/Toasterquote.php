@@ -126,6 +126,8 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
      * @return mixed
      */
     private function _processSid($cartContent){
+
+
         $sids = array();
         $cartContentData = $cartContent;
         if (empty($cartContentData[0])) {
@@ -137,6 +139,18 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
         }
 
         $cartId = $cartContentData[0]['cart_id'];
+        $skipRecalculation = false;
+        $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->findByCartId($cartId);
+        if ($quoteModel instanceof Quote_Models_Model_Quote) {
+            $editedBy = $quoteModel->getEditedBy();
+            if ($editedBy === Quote_Models_Model_Quote::QUOTE_TYPE_AUTO) {
+                $skipRecalculation = true;
+            }
+        }
+
+        if ($skipRecalculation === true) {
+            return $cartContent;
+        }
 
         $cartStorage = Tools_ShoppingCart::getInstance();
         if($cartStorage instanceof Tools_ShoppingCart) {

@@ -1,8 +1,4 @@
-<?php if(!empty($this->usNumericFormat)) :?>
-    <?php $taxDiscount = number_format($this->taxDiscount, 2) . '&nbsp;' . $this->currencySymbol;;?>
-<?php else :?>
-    <?php $taxDiscount = $this->currency($this->taxDiscount);?>
-<?php endif;?>
+<?php $taxDiscount = $this->currency($this->taxDiscount);?>
 
 <?php if(!empty($this->clean)):?>
     <?php $taxDiscount = number_format($this->taxDiscount, 2);?>

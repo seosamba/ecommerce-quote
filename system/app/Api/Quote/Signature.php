@@ -142,8 +142,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
         )));
 
 
-        $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you. 
-Now to effectively place this order, please make a payment as instructed.';
+        $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you. Now to effectively place this order, please make a payment as instructed.';
 
         if ($quote->getPaymentType() === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
             $quote->setStatus(Quote_Models_Model_Quote::STATUS_SOLD);

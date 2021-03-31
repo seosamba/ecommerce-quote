@@ -46,19 +46,19 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
 		$this->addElement(new Zend_Form_Element_Textarea(array(
             'name'  => 'disclaimer',
-            'label' => 'Notes',
+            'label' => $translator->translate('Notes'),
             'rows'  => '3'
         )));
 
         $this->addElement(new Zend_Form_Element_Checkbox(array(
 			'name'  => 'sameForShipping',
 			'id'    => 'same-for-shipping',
-			'label' => 'Use same data for shipping?',
+			'label' => $translator->translate('Use same data for shipping?'),
 		)));
 
         $this->addElement(new Zend_Form_Element_Text(array(
             'name'  => 'position',
-            'label' => 'Position',
+            'label' => $translator->translate('Position'),
             'rows'  => '3'
         )));
 
@@ -86,7 +86,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 		$this->addElement(new Zend_Form_Element_Submit(array(
 			'name'   => 'sendQuote',
 			'id'     => 'send-quote',
-			'label'  => 'Send me a quote',
+			'label'  => $translator->translate('Send me a quote'),
             'decorators' => array(
                 'ViewHelper',
                 array('HtmlTag', array('tag' => 'p'))
@@ -96,7 +96,7 @@ class Quote_Forms_Quote extends Forms_Address_Abstract {
 
         $this->addElement(new Zend_Form_Element_Select(array(
             'name'         => 'mobilecountrycode',
-            'label'        => 'Mobile',
+            'label'        => $translator->translate('Mobile'),
             'multiOptions' => Tools_System_Tools::getFullCountryPhoneCodesList(true, array(), true),
             'value'        => Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('country'),
             'style'        => 'width: 41.667%;',
