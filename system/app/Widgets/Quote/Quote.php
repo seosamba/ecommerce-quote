@@ -838,6 +838,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 $this->_view->imageUrl = $photoUrl;
 
+                $linkFlag = false;
+                if(in_array('link', $this->_options, true)) {
+                    $productUrl =  $this->_websiteHelper->getUrl() . $product->getPage()->getUrl();
+                    $linkFlag = true;
+
+                    $this->_view->productUrl = $productUrl;
+                }
+
+                $this->_view->linkFlag = $linkFlag;
+
             break;
             case 'price':
                 $price                  = ($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
