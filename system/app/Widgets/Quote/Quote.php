@@ -842,10 +842,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(in_array('link', $this->_options, true)) {
                     $productUrl =  $this->_websiteHelper->getUrl() . $product->getPage()->getUrl();
                     $linkFlag = true;
+
+                    $this->_view->productUrl = $productUrl;
                 }
 
                 $this->_view->linkFlag = $linkFlag;
-                $this->_view->productUrl = $productUrl;
 
             break;
             case 'price':
