@@ -91,7 +91,13 @@ class Api_Quote_Signature extends Api_Service_Abstract
                 $pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile->WriteHTML($content);
 
-                $pdfFileName = 'Proposal-quote-' . $quote->getTitle() . '.pdf';
+                $quoteProposalQuote = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quoteDownloadLabel');
+
+                if (!empty($quoteProposalQuote)) {
+                    $pdfFileName = $quoteProposalQuote.'-' . $quote->getTitle() . '.pdf';
+                } else {
+                    $pdfFileName = 'Proposal-quote-' . $quote->getTitle() . '.pdf';
+                }
 
                 $storedData = Tools_LeadDocumentsTools::generateStoredName(array('name' => $pdfFileName));
 

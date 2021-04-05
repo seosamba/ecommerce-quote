@@ -72,6 +72,14 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => 'Partial payment percentage'
         )));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'quoteDownloadLabel',
+            'id'    => 'quote-download-label',
+            'class' => 'grid_6 alpha',
+            'label' => 'Quote download label',
+            'placeholder' => 'Proposal-quote'
+        )));
+
         $this->setDecorators(array('FormElements', 'Form'))
 			->setElementDecorators(array(
 				'ViewHelper',

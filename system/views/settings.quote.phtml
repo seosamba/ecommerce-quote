@@ -41,6 +41,10 @@
             <?php echo $this->form->getElement('quotePartialPercentage')->renderLabel(); ?>
             <?php echo $this->form->getElement('quotePartialPercentage')->renderViewHelper(); ?>
         </p>
+        <p id="quote-download-label-block">
+            <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
+            <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
+        </p>
         <p>
             <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
         </p>
@@ -99,6 +103,7 @@ $(document).ready(function(){
                 enableQuoteDefaultType: enableQuoteDefaultType,
                 quotePaymentType: $('#quote-payment-types').val(),
                 quotePartialPercentage: $('#quote-partial-percentage').val(),
+                quoteDownloadLabel: $('#quote-download-label').val(),
                 secureToken: $('.quote-secure-token').val()
             },
             success: function(responce){
