@@ -492,7 +492,14 @@ class Quote extends Tools_PaymentGateway
                 $pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile->WriteHTML($content);
 
-                $fileName = 'Proposal-quote-' . $quote->getTitle();
+                $quoteProposalQuote = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quoteDownloadLabel');
+
+                if (!empty($quoteProposalQuote)) {
+                    $fileName = $quoteProposalQuote.'-' . $quote->getTitle();
+                } else {
+                    $fileName = 'Proposal-quote-' . $quote->getTitle();
+                }
+
                 $pdfFileName = $fileName . '.pdf';
 
                 $filePath = $websiteHelper->getPath() . 'plugins' . DIRECTORY_SEPARATOR . 'quote' . DIRECTORY_SEPARATOR . 'quotePdf'
