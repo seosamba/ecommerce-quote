@@ -1215,6 +1215,30 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
     }
 
+    protected function _renderPartiallypaid()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $partiallyPaid = $this->_cart->getPartialPaidAmount();
+            if (!empty($partiallyPaid)) {
+                return  $this->_currency->toCurrency($partiallyPaid);
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderPartiallypaiddate()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $partialPurchasedOn = $this->_cart->getPartialPurchasedOn();
+            if (!empty($partialPurchasedOn)) {
+                return  date('Y-m-d', strtotime($partialPurchasedOn));
+            }
+
+            return '';
+        }
+    }
+
     protected function _renderQuotesigneddate()
     {
         $translator = Zend_Registry::get('Zend_Translate');
