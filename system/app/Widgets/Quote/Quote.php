@@ -818,6 +818,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $notRender = false;
 
         $widgetOption = $this->_options[0];
+        if ($widgetOption === 'options' && !empty($this->_options[1])) {
+            if (!empty($options[$this->_options[1]])) {
+                $singleOpt =  $options[$this->_options[1]];
+                $options = array();
+                $options[$this->_options[1]] = $singleOpt;
+            }
+        }
+
+
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = true;
+        }
+
         if (empty((int)$product->getPrice()) && empty($product->getEnabled()) && $widgetOption !== 'sid') {
             $notRender = true;
         }
