@@ -818,11 +818,42 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $notRender = false;
 
         $widgetOption = $this->_options[0];
-        if ($widgetOption === 'options' && !empty($this->_options[1])) {
+        if ($widgetOption === 'option' && !empty($this->_options[1])) {
             if (!empty($options[$this->_options[1]])) {
-                $singleOpt =  $options[$this->_options[1]];
+                $singleOpt = $options[$this->_options[1]];
                 $options = array();
                 $options[$this->_options[1]] = $singleOpt;
+                $optionStr = '';
+                $item['taxRate'] = Tools_Tax_Tax::calculateProductTax($product, null, true);
+                foreach ($options as $optionTitle => $optData) {
+                    if (is_array($optData)) {
+                        if (isset($optData['priceValue']) && intval($optData['priceValue'])) {
+                            if ((bool)$item['taxRate'] && (bool)$this->_shoppingConfig['showPriceIncTax'] === true) {
+                                $optPriceMod = $optData['priceValue'] * (100 + $item['taxRate']) / 100;
+                            } else {
+                                $optPriceMod = $optData['priceValue'];
+                            }
+                            if ($optData['priceType'] === 'percent') {
+                                $optionStr .= $optData['priceSign'] . '%' . number_format($optPriceMod, 2);
+                            } else {
+                                $optPriceMod = $this->_currency->toCurrency($optPriceMod);
+
+                                $optionStr .= $optData['priceSign'] . $optPriceMod;
+                            }
+
+                        }
+                        if (isset($optData['weightValue']) && intval($optData['weightValue'])) {
+                            $optionStr .= $optData['weightSign'] . ' ' . $optData['weightValue'] . ' ' . $this->_shoppingConfig['weightUnit'];
+                        }
+                    } else {
+                        $optData = trim($optData);
+                        if (!empty($optData)) {
+                            return $optData;
+                        }
+                    }
+                }
+
+                return $optionStr;
             }
         }
 
