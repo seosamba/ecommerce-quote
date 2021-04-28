@@ -15,9 +15,15 @@
             <div class="options">
                 <?php if(!isset($optData['type']) || ($optData['type'] !== 'text' || $optData['type'] !== 'textarea' || $optData['type'] !== 'date')): ?>
                     <?php if(is_numeric($title)) :?>
-                        <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                        <?php if (empty($this->clean)):?>
+                            <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                         <?php else:?>
+                            <?php echo $optData['title']; ?>
+                        <?php endif;?>
                     <?php else:?>
-                        <span class="option-title"><?php echo $title; ?>:</span>
+                        <?php if (empty($this->clean)):?>
+                            <span class="option-title"><?php echo $title; ?>:</span>
+                        <?php endif;?>
                         <span><?php echo $optData['title']; ?></span>
                     <?php endif;?>
                 <?php else:?>
