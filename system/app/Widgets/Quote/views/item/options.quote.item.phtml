@@ -18,10 +18,19 @@
                         <span class="option-title"><?php echo $optData['title']; ?>:</span>
                     <?php else:?>
                         <span class="option-title"><?php echo $title; ?>:</span>
-                        <span><?php echo $optData['title']; ?></span>
+
+                        <?php if(!empty($optData['optionType']) && $optData['optionType'] == Models_Model_Option::TYPE_ADDITIONALPRICEFIELD && is_numeric($optData['title'])) :?>
+                            <span><?php echo $this->currency($optData['title']); ?></span>
+                        <?php else :?>
+                            <span><?php echo $optData['title']; ?></span>
+                        <?php endif;?>
                     <?php endif;?>
                 <?php else:?>
-                    <span><?php echo $optData['title']; ?></span>
+                    <?php if(!empty($optData['optionType']) && $optData['optionType'] == Models_Model_Option::TYPE_ADDITIONALPRICEFIELD && is_numeric($optData['title'])) :?>
+                        <span><?php echo $this->currency($optData['title']); ?></span>
+                    <?php else :?>
+                        <span><?php echo $optData['title']; ?></span>
+                    <?php endif;?>
                 <?php endif;?>
                 <?php if(isset($optData['selection'])): ?>
                     <?php if($optData['type'] === 'text' || $optData['type'] === 'textarea' || $optData['type'] === 'date'): ?>
