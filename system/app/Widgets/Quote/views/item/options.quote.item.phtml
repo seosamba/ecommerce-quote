@@ -15,22 +15,19 @@
             <div class="options">
                 <?php if(!isset($optData['type']) || ($optData['type'] !== 'text' || $optData['type'] !== 'textarea' || $optData['type'] !== 'date')): ?>
                     <?php if(is_numeric($title)) :?>
-                        <span class="option-title"><?php echo $optData['title']; ?>:</span>
-                    <?php else:?>
-                        <span class="option-title"><?php echo $title; ?>:</span>
-
-                        <?php if(!empty($optData['optionType']) && $optData['optionType'] == Models_Model_Option::TYPE_ADDITIONALPRICEFIELD && is_numeric($optData['title'])) :?>
-                            <span><?php echo $this->currency($optData['title']); ?></span>
-                        <?php else :?>
-                            <span><?php echo $optData['title']; ?></span>
+                        <?php if (empty($this->clean)):?>
+                            <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                         <?php else:?>
+                            <?php echo $optData['title']; ?>
                         <?php endif;?>
-                    <?php endif;?>
-                <?php else:?>
-                    <?php if(!empty($optData['optionType']) && $optData['optionType'] == Models_Model_Option::TYPE_ADDITIONALPRICEFIELD && is_numeric($optData['title'])) :?>
-                        <span><?php echo $this->currency($optData['title']); ?></span>
-                    <?php else :?>
+                    <?php else:?>
+                        <?php if (empty($this->clean)):?>
+                            <span class="option-title"><?php echo $title; ?>:</span>
+                        <?php endif;?>
                         <span><?php echo $optData['title']; ?></span>
                     <?php endif;?>
+                <?php else:?>
+                    <span><?php echo $optData['title']; ?></span>
                 <?php endif;?>
                 <?php if(isset($optData['selection'])): ?>
                     <?php if($optData['type'] === 'text' || $optData['type'] === 'textarea' || $optData['type'] === 'date'): ?>
