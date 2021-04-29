@@ -818,6 +818,80 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $notRender = false;
 
         $widgetOption = $this->_options[0];
+        if ($widgetOption === 'option' && !empty($this->_options[1])) {
+            if (!empty($options[$this->_options[1]])) {
+                $singleOpt = $options[$this->_options[1]];
+                $options = array();
+                $options[$this->_options[1]] = $singleOpt;
+                $optionStr = '';
+                $withTitle = false;
+                if (!empty($this->_options[2]) && $this->_options[2] === 'title') {
+                    $withTitle = true;
+                }
+                $item['taxRate'] = Tools_Tax_Tax::calculateProductTax($product, null, true);
+                foreach ($options as $optionTitle => $optData) {
+                    if (is_array($optData)) {
+                        if (!empty($optData['title']) && $withTitle === true) {
+                            $optionStr = '<span>'.$optionTitle. ':</span> <span>'.$optData['title'].'</span> ';
+                        } else {
+                            $optionStr = '';
+                        }
+
+                        if (isset($optData['priceValue']) && intval($optData['priceValue'])) {
+                            if ((bool)$item['taxRate'] && (bool)$this->_shoppingConfig['showPriceIncTax'] === true) {
+                                $optPriceMod = $optData['priceValue'] * (100 + $item['taxRate']) / 100;
+                            } else {
+                                $optPriceMod = $optData['priceValue'];
+                            }
+
+                            if ($withTitle === true) {
+                                if ($optData['priceType'] === 'percent') {
+                                    $optionStr .= '<span>(' . $optData['priceSign'] . '%'. number_format($optPriceMod, 2) .')</span>';
+                                } else {
+                                    $optPriceMod = $this->_currency->toCurrency($optPriceMod);
+
+                                    $optionStr .= '<span>(' . $optData['priceSign'] . $optPriceMod .')</span>';
+                                }
+                            } else {
+                                if ($optData['priceType'] === 'percent') {
+                                    $optionStr .= $optData['priceSign'] . '%' . number_format($optPriceMod, 2);
+                                } else {
+                                    $optPriceMod = $this->_currency->toCurrency($optPriceMod);
+
+                                    $optionStr .= $optData['priceSign'] . $optPriceMod;
+                                }
+                            }
+
+                        }
+                        if (isset($optData['weightValue']) && intval($optData['weightValue'])) {
+                            if ($withTitle === true) {
+                                $optionStr .= '<span>(' . $optData['weightSign'] . ' ' . $optData['weightValue'] . ' ' . $this->_shoppingConfig['weightUnit'] . ')</span>';
+                            } else {
+                                $optionStr .= $optData['weightSign'] . ' ' . $optData['weightValue'] . ' ' . $this->_shoppingConfig['weightUnit'];
+                            }
+                        }
+
+                        if (!isset($optData['priceValue']) && !isset($optData['weightValue'])) {
+                            return $optData['title'];
+                        }
+
+                    } else {
+                        $optData = trim($optData);
+                        if (!empty($optData)) {
+                            return $optData;
+                        }
+                    }
+                }
+
+                return $optionStr;
+            }
+        }
+
+
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = true;
+        }
+
         if (empty((int)$product->getPrice()) && empty($product->getEnabled()) && $widgetOption !== 'sid') {
             $notRender = true;
         }
@@ -1225,6 +1299,43 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->pdfTemplates = $pdfTemplates;
             $this->_view->partialPaymentAllowed = $partialPaymentAllowed;
             return $this->_view->render('payment-type-config.phtml');
+        }
+    }
+
+    protected function _renderFirstpaymentamount()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                return $this->_currency->toCurrency(round(($this->_cart->getTotal()*$partialPercent)/100, 2));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderPartiallypaid()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $partiallyPaid = $this->_cart->getPartialPaidAmount();
+            if (!empty($partiallyPaid)) {
+                return  $this->_currency->toCurrency($partiallyPaid);
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderPartiallypaiddate()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $partialPurchasedOn = $this->_cart->getPartialPurchasedOn();
+            if (!empty($partialPurchasedOn)) {
+                return  date('Y-m-d', strtotime($partialPurchasedOn));
+            }
+
+            return '';
         }
     }
 

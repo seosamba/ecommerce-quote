@@ -124,6 +124,7 @@
     'Notes' => 'Notes',
     'Use same data for shipping?' => 'Faut-il utiliser les mêmes données pour l\'expédition?',
     'Position' => 'Position',
-    'Send me a quote' => 'Envoyez-moi un devis'
+    'Send me a quote' => 'Envoyez-moi un devis',
+    'which is' => 'lequel est'
 
 );?>
