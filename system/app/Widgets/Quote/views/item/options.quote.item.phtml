@@ -14,17 +14,23 @@
 
             <div class="options">
                 <?php if(!isset($optData['type']) || ($optData['type'] !== 'text' || $optData['type'] !== 'textarea' || $optData['type'] !== 'date')): ?>
+                    <?php if(!empty($optData['optionType']) && $optData['optionType'] == Models_Model_Option::TYPE_ADDITIONALPRICEFIELD && is_numeric($optData['title'])) :?>
+                        <?php $optDataTitle = $this->currency($optData['title']); ?>
+                    <?php else :?>
+                        <?php $optDataTitle = $optData['title']; ?>
+                    <?php endif;?>
+
                     <?php if(is_numeric($title)) :?>
                         <?php if (empty($this->clean)):?>
-                            <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                            <span class="option-title"><?php echo $optDataTitle; ?>:</span>
                          <?php else:?>
-                            <?php echo $optData['title']; ?>
+                            <?php echo $optDataTitle; ?>
                         <?php endif;?>
                     <?php else:?>
                         <?php if (empty($this->clean)):?>
                             <span class="option-title"><?php echo $title; ?>:</span>
                         <?php endif;?>
-                        <span><?php echo $optData['title']; ?></span>
+                        <span><?php echo $optDataTitle; ?></span>
                     <?php endif;?>
                 <?php else:?>
                     <span><?php echo $optData['title']; ?></span>
