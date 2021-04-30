@@ -612,10 +612,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
                 if ($this->_options[1] === 'phone') {
-                    return $address['phone_country_code_value'].Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
+                    return $address['phone_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
                 }
                 if ($this->_options[1] === 'mobile') {
-                    return $address['mobile_country_code_value'].Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $address['mobilecountrycode']);
+                    return $address['mobile_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $address['mobilecountrycode']);
                 }
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
                     $stateData = Tools_Geo::getStateById($address['state']);
