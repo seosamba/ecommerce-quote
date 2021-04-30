@@ -28,6 +28,12 @@ $(function() {
         updateQuote(quoteId, false);
     });
 
+    $(document).on('change', '.quote-info', function(e){
+        if($(this).closest('.quote-info').hasClass('allow-auto-save-address')) {
+            updateQuote(quoteId, false);
+        }
+    });
+
     $(document).on('change', '#overwrite-quote-user-shipping', function(){
         if ($(this).is(':checked')) {
             $('#overwrite-quote-user-billing').prop('checked', false);

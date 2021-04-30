@@ -577,6 +577,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return string
      */
     protected function _renderAddress() {
+
+
         $addressType = isset($this->_options[0]) ? $this->_options[0] : self::ADDRESS_TYPE_BILLING;
         $address = null;
         if ($this->_cart instanceof Models_Model_CartSession) {
@@ -591,6 +593,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
         $this->_view->addressType = $addressType;
         $this->_view->address     = $address;
+
+        $allowAutoSaveAddress = false;
+        if($this->_quote instanceof Quote_Models_Model_Quote) {
+            $quoteStatus = $this->_quote->getStatus();
+            if($quoteStatus != Quote_Models_Model_Quote::STATUS_NEW) {
+                $allowAutoSaveAddress = true;
+            }
+        }
+
+        $this->_view->allowAutoSaveAddress = $allowAutoSaveAddress;
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
@@ -607,6 +619,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     ->setAttrib('class', 'hidden')
                     ->setLabel('');
             }
+
             $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
@@ -626,6 +639,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 return $address[$this->_options[1]];
             } elseif ($this->_options[1] == 'default') {
+
                 return $this->_view->render('address.quote.phtml');
             }
         }
