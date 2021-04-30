@@ -1326,6 +1326,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
     }
 
+    protected function _renderQuotenotsigneddate()
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            if (!empty($this->_quote->getIsQuoteSigned())) {
+                return date('d-M-Y', strtotime($this->_quote->getQuoteSignedAt()));
+            } else {
+                return date('d-M-Y', strtotime('now'));
+            }
+        }
+    }
+
+
     protected function _renderQuotesigneddate()
     {
         $translator = Zend_Registry::get('Zend_Translate');
