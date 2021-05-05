@@ -25,7 +25,9 @@ class  Quote_Forms_Settings extends Zend_Form {
 
         $quotePaymentTypes = array(
             Quote_Models_Model_Quote::PAYMENT_TYPE_FULL => 'Full payment',
+            Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE => 'Full payment + signature option',
             Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT => 'Partial payment',
+            Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE => 'Partial payment + signature option',
             Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE => 'Only signature required'
         );
 

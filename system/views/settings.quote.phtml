@@ -10,7 +10,7 @@
         <?php if (!empty($enableQuoteDefaultType)):?>
             <?php $displayPartialPaymentNotificationClass = '';?>
         <?php endif;?>
-        <?php if (!empty($enableQuoteDefaultType) && $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT):?>
+        <?php if (!empty($enableQuoteDefaultType) && ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE)):?>
             <?php $displayPartialPercentagePaymentNotificationClass = '';?>
         <?php endif;?>
         <p>
@@ -66,7 +66,7 @@ $(document).ready(function(){
     });
 
     $(document).on('change', '#quote-payment-types', function () {
-        if ($(this).val() === 'partial_payment') {
+        if ($(this).val() === 'partial_payment' || $(this).val() === 'partial_payment_signature') {
             $('#quote-payment-type-percentage-block').removeClass('hidden');
         } else {
             $('#quote-payment-type-percentage-block').addClass('hidden');
