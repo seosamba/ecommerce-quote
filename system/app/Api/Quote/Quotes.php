@@ -209,7 +209,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!empty($enableQuoteDefaultType)) {
                     $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
                     $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
-                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && !empty($quotePartialPercentage)) {
+                    if (($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) && !empty($quotePartialPercentage)) {
                         $cart->setIsPartial('1');
                         $cart->setPartialPercentage($quotePartialPercentage);
                     }
