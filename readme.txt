@@ -93,3 +93,6 @@ Quote action emails lexems:
 {$quote:item:option:optionName} -> option without title
 {$quote:item:option:optionName:title} -> option with title
 :optionName - option name
+
+{orderstatus[:partial,completed,...]}
+{paymenttype[:full_payment|full_payment_signature|partial_payment|partial_payment_signature|only_signature]]}
