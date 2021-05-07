@@ -29,8 +29,34 @@ $(function() {
     });
 
     $(document).on('change', '.quote-info', function(e){
-        if($(this).closest('.quote-info').hasClass('allow-auto-save-address')) {
+        if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
             updateQuote(quoteId, false);
+        }
+    });
+
+    $(document).on('click', '.use-lead-address', function(e){
+        e.preventDefault();
+        if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
+            var addressType = $(this).data('type');
+
+            showConfirm('Would you like to refresh the quote '+ addressType + ' address with lead address?', function() {
+                $.ajax({
+                    url: $('#website_url').val() + 'plugin/quote/run/useLeadAddress',
+                    data: {'quoteId': quoteId, 'addressType': addressType},
+                    type: 'post',
+                    dataType: 'json'
+                }).done(function(response) {
+                    if (response.error == '1') {
+                        showMessage(response.responseText, true, 5000);
+                        return false;
+                    } else {
+                        showMessage(response.responseText, false, 3000);
+                        window.setTimeout(function(){
+                            window.location.reload();
+                        }, 2000);
+                    }
+                });
+            });
         }
     });
 
@@ -340,6 +366,9 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
         if (response.error == 1) {
             showMessage(response.responseText, true, 5000);
             return false;
+        }
+        if(!$('.quote-info').hasClass('allow-auto-save')) {
+            $('.quote-info').addClass('allow-auto-save');
         }
         processDraggable(quoteId);
         recalculate({summary:response});

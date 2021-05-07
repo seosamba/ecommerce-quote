@@ -594,15 +594,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->addressType = $addressType;
         $this->_view->address     = $address;
 
-        $allowAutoSaveAddress = false;
+        $allowAutoSave = false;
         if($this->_quote instanceof Quote_Models_Model_Quote) {
             $quoteStatus = $this->_quote->getStatus();
-            if($quoteStatus != Quote_Models_Model_Quote::STATUS_NEW) {
-                $allowAutoSaveAddress = true;
+            $quoteUserId = $this->_quote->getUserId();
+
+            if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId)) {
+                $allowAutoSave = true;
             }
         }
 
-        $this->_view->allowAutoSaveAddress = $allowAutoSaveAddress;
+        $this->_view->allowAutoSave = $allowAutoSave;
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
