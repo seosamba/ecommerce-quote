@@ -93,3 +93,5 @@ Quote action emails lexems:
 {$quote:item:option:optionName} -> option without title
 {$quote:item:option:optionName:title} -> option with title
 :optionName - option name
+{quoteleadorganizationlogo} - This lexem return quote lead organization logo
+{quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src
