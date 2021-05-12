@@ -937,6 +937,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(!$defaultOptions || empty($defaultOptions)) {
                     return false;
                 }
+
+                $allowEditOptions = false;
+
+                if(is_array($defaultOptions)) {
+                    foreach ($defaultOptions as $key => $opt) {
+                        if($opt['type'] != Models_Model_Option::TYPE_ADDITIONALPRICEFIELD) {
+                            $allowEditOptions = true;
+                        }
+                    }
+                }
+
+                $this->_view->allowEditOptions = $allowEditOptions;
+
                 $value                   = $options;
                 $this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
             break;
