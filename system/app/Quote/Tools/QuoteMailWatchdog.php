@@ -494,31 +494,19 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
 
             if ($userModel instanceof Application_Model_Models_User) {
-                $userEmail = $userModel->getEmail();
-                if(!empty($userEmail)) {
-                    $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+                $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
 
-                    if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
-                        $leadsPluginStatus = $leadsPlugin->getStatus();
+                if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+                    $leadsPluginStatus = $leadsPlugin->getStatus();
 
-                        if ($leadsPluginStatus === 'enabled') {
-                            $leadMapper = Leads_Mapper_LeadsMapper::getInstance();
-                            $leadModel = $leadMapper->findByEmail($userEmail);
+                    if ($leadsPluginStatus === 'enabled') {
+                        $organizationDocumentData = Tools_LeadTools::getOrganizationLogo($userId);
 
-                            if($leadModel instanceof Leads_Model_LeadsModel) {
-                                $organizationId = $leadModel->getOrganizationId();
-
-                                if(!empty($organizationId)) {
-                                    $organizationDocumentData = $leadMapper->findOrganizationDocument($userEmail);
-
-                                    if(!empty($organizationDocumentData)){
-                                        $this->_entityParser->addToDictionary(array(
-                                            'quoteleadorganizationlogo' => '<img src="'. $this->_websiteHelper->getUrl() . Leads::ORGANIZATION_LOGOS_IMAGES_PATH . DIRECTORY_SEPARATOR . $organizationDocumentData['file_stored_name'] .'" alt="'. $organizationDocumentData['display_file_name'] .'">',
-                                            'quoteleadorganizationlogo:src' => $this->_websiteHelper->getUrl() . Leads::ORGANIZATION_LOGOS_IMAGES_PATH . DIRECTORY_SEPARATOR . $organizationDocumentData['file_stored_name']
-                                        ));
-                                    }
-                                }
-                            }
+                        if(!empty($organizationDocumentData)){
+                            $this->_entityParser->addToDictionary(array(
+                                'quoteleadorganizationlogo' => '<img src="'. $this->_websiteHelper->getUrl() . Leads::ORGANIZATION_LOGOS_IMAGES_PATH . DIRECTORY_SEPARATOR . $organizationDocumentData['file_stored_name'] .'" alt="'. $organizationDocumentData['display_file_name'] .'">',
+                                'quoteleadorganizationlogo:src' => $this->_websiteHelper->getUrl() . Leads::ORGANIZATION_LOGOS_IMAGES_PATH . DIRECTORY_SEPARATOR . $organizationDocumentData['file_stored_name']
+                            ));
                         }
                     }
                 }

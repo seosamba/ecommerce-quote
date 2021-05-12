@@ -20,6 +20,7 @@ Widgets that working with quote page (dashboard):
 {$quote:shipping} - Displays the shipping price.
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".
+{$quote:userid} - Reture quote user ID
 
 Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working with quote page (dashboard):
 {$quote:item:name} - Displays the product name added to the quote.
