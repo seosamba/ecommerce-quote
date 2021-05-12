@@ -294,7 +294,7 @@ var getLeadLink = function (quoteId) {
     }).done(function(response) {
         $('.lead-link').remove();
         if(response.responseText.link) {
-            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_8 alpha icon-profile" href="'+ response.responseText.link +'"></a>';
+            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_8 alpha icon-profile" title="Go to CRM Lead" href="'+ response.responseText.link +'"></a>';
             $('#quote-form-email').closest('p').find('label').append(leadProfile);
             //$('#email').closest('p').find('label').append(leadProfile);
         }

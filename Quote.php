@@ -700,6 +700,8 @@ class Quote extends Tools_PaymentGateway
 
                                 $this->_responseHelper->fail($this->_translator->translate('Cart not found'));
                             }
+
+                            $this->_responseHelper->fail($this->_translator->translate('Lead isn\'t found'));
                         }
                     }
 
