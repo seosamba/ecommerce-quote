@@ -537,6 +537,61 @@ class Quote extends Tools_PaymentGateway
     }
 
     /**
+     * Return Lead profile link if exist
+     *
+     * @throws Zend_Controller_Action_Exception
+     */
+    public function getLeadLinkAction()
+    {
+        $currentRole = $this->_sessionHelper->getCurrentUser()->getRoleId();
+
+        if (($currentRole === Tools_Security_Acl::ROLE_SUPERADMIN || $currentRole === Tools_Security_Acl::ROLE_ADMIN || $currentRole === Shopping::ROLE_SALESPERSON) && $this->_request->isPost()) {
+            $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+
+            if (empty($quoteId)) {
+                $this->_responseHelper->fail($this->_translator->translate('Quote id is missing'));
+            }
+
+            $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+
+            $quote = $quoteMapper->find($quoteId);
+
+            if (!$quote instanceof Quote_Models_Model_Quote) {
+                $this->_responseHelper->fail($this->_translator->translate('Quote not found'));
+            }
+
+            $userId = $quote->getUserId();
+
+            $leadLink = '';
+            if(!empty($userId)) {
+                $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
+                if ($userModel instanceof Application_Model_Models_User) {
+                    $userEmail = $userModel->getEmail();
+
+                    $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+                    if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+                        $leadsPluginStatus = $leadsPlugin->getStatus();
+
+                        if ($leadsPluginStatus === 'enabled') {
+                            $leadMapper = Leads_Mapper_LeadsMapper::getInstance();
+                            $leadModel = $leadMapper->findByEmail($userEmail);
+
+                            if($leadModel instanceof Leads_Model_LeadsModel) {
+                                $websiteHelper = Zend_Controller_Action_HelperBroker::getExistingHelper('website');
+                                $websiteUrl = $websiteHelper->getUrl();
+
+                                $leadLink = $websiteUrl.'dashboard/leads/#lead/'.$leadModel->getId();
+                            }
+                        }
+                    }
+                }
+            }
+
+            $this->_responseHelper->success(array('link' => $leadLink));
+        }
+    }
+
+    /**
      * Refresh the quote shipping|billing address with lead address data
      */
     public function useLeadAddressAction()

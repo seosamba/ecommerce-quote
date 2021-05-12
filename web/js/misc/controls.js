@@ -30,7 +30,7 @@ $(function() {
 
     $(document).on('change', '.quote-info', function(e){
         if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
-            updateQuote(quoteId, false);
+            updateQuote(quoteId, false, '', '', '', true);
         }
     });
 
@@ -182,7 +182,7 @@ $(function() {
             case 'quote-item':
                 var productId = field.data('pid');
                 data.value    = accounting.unformat(data.value);
-                var request   = _update('api/quote/products/id/' + productId, data);
+                var request   = _update('api/quote/products/id/' + productId, data, false);
                 request.done(function(response) {
                     hideSpinner();
                     $.extend(data, {
@@ -194,7 +194,7 @@ $(function() {
                 });
                 break;
             case 'quote-partial':
-                var request = _update('api/quote/quotes/', data);
+                var request = _update('api/quote/quotes/', data, false);
                 request.done(function(response) {
                     hideSpinner();
                     $.extend(data, {summary:response});
@@ -210,7 +210,7 @@ $(function() {
             type  : 'taxrate',
             value : $(e.currentTarget).val()
         };
-        var request = _update('api/quote/quotes/', data);
+        var request = _update('api/quote/quotes/', data, false);
         request.done(function(response) {
             hideSpinner();
             $.extend(data, {summary:response});
@@ -232,7 +232,7 @@ $(function() {
             type  : 'taxrate',
             value : $(e.currentTarget).val()
         };
-        var request = _update('api/quote/quotes/', data);
+        var request = _update('api/quote/quotes/', data, false);
         request.done(function(response) {
             hideSpinner();
             $.extend(data, {summary:response});
@@ -281,9 +281,25 @@ $(function() {
         });
     }
 
+    getLeadLink(quoteId);
 
 });
 
+var getLeadLink = function (quoteId) {
+    $.ajax({
+        url: $('#website_url').val() + 'plugin/quote/run/getLeadLink',
+        data: {'quoteId': quoteId},
+        type: 'post',
+        dataType: 'json'
+    }).done(function(response) {
+        $('.lead-link').remove();
+        if(response.responseText.link) {
+            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_8 alpha icon-profile" href="'+ response.responseText.link +'"></a>';
+            $('#quote-form-email').closest('p').find('label').append(leadProfile);
+            //$('#email').closest('p').find('label').append(leadProfile);
+        }
+    });
+}
 
 var processDraggable = function(quoteId) {
     var quoteDraggableProducts = $('#quote-draggable-products').val();
@@ -306,12 +322,16 @@ var processDraggable = function(quoteId) {
     return true;
 }
 
-var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
         notValidElements = [],
         errorMessage = false;
-    
+
+    if(typeof noSpinner === 'undefined') {
+        noSpinner = false;
+    }
+
     if(typeof quoteForm !== 'undefined') {
         $(':input[name], select[name]', quoteForm).each(function(key, field) {
             if($(field).hasClass('required')){
@@ -360,7 +380,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
         ccEmails    : ccEmails
     };
 
-    var request = _update('api/quote/quotes/', data);
+    var request = _update('api/quote/quotes/', data, noSpinner);
     request.done(function(response, status, xhr) {
         hideLoader();
         if (response.error == 1) {
@@ -370,18 +390,20 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails) 
         if(!$('.quote-info').hasClass('allow-auto-save')) {
             $('.quote-info').addClass('allow-auto-save');
         }
+
+        getLeadLink(quoteId);
         processDraggable(quoteId);
         recalculate({summary:response});
     });
 };
 
-var _update = function(apiUrl, data) {
+var _update = function(apiUrl, data, noSpinner) {
     return $.ajax({
         type       : 'put',
         url        : $('#website_url').val() + apiUrl,
         dataType   : 'json',
         data       : JSON.stringify(data),
-        beforeSend : showSpinner()
+        beforeSend : (!noSpinner) ? showSpinner() : ''
     });
 };
 
@@ -452,7 +474,7 @@ function changePaymentTypeMessage(paymentType, isSignatureRequired) {
                         type  : 'taxrate',
                         value : $('#partial-payment-percentage').val()
                     };
-                    var request = _update('api/quote/quotes/', data);
+                    var request = _update('api/quote/quotes/', data, false);
                     request.done(function(response) {
                         hideSpinner();
                         $.extend(data, {summary:response});
