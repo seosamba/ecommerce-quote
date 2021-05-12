@@ -132,7 +132,7 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 		$gateway = $this->_options['gateway'];
 		switch($this->_quote->getStatus()) {
 			case Quote_Models_Model_Quote::STATUS_NEW:
-				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_PENDING);
+				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_NEW);
 			break;
 			case Quote_Models_Model_Quote::STATUS_SOLD:
 				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_COMPLETED);
@@ -140,6 +140,9 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 			case Quote_Models_Model_Quote::STATUS_SENT:
 				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_PROCESSING);
 			break;
+            case Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED:
+                $gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_PENDING);
+                break;
 			case Quote_Models_Model_Quote::STATUS_LOST:
 				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_CANCELED);
 			break;

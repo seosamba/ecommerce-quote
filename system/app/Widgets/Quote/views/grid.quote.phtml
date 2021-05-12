@@ -19,6 +19,7 @@
         <select name="quoteStatus" class="quote-status" id="<%= id %>">
             <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>><?php echo $this->translate('Quote New');?></option>
             <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Sent');?></option>
+            <option value="signature_only_signed" <% if (status == 'signature_only_signed') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
             <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
             <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
         </select>
