@@ -1302,6 +1302,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
     }
 
+    protected function _renderFirstpaymentpercentage()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                return round($partialPercent,1);
+            }
+
+            return '';
+        }
+    }
+
     protected function _renderPartiallypaid()
     {
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
