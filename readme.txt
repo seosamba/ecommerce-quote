@@ -97,3 +97,5 @@ Quote action emails lexems:
 {orderstatus[:partial,completed,...]}
 {paymenttype[:full_payment|full_payment_signature|partial_payment|partial_payment_signature|only_signature]]}
 {quoteadminonly}{/quoteadminonly} - return content for everyone who have access to the storemanagement resource
+
+ {$quote:secondpaymentamount} - second payment amount

@@ -1291,6 +1291,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $partialPaymentAllowed = true;
             }
 
+            $this->_view->cartStatus = $this->_cart->getStatus();
+            $this->_view->gatewayName = $this->_cart->getGateway();
+
             $this->_view->quoteId = $this->_quote->getId();
             $this->_view->quoteStatus = $quoteStatus;
             $this->_view->paymentType = $paymentType;
@@ -1309,6 +1312,20 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $partialPercent = $this->_cart->getPartialPercentage();
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 return $this->_currency->toCurrency(round(($this->_cart->getTotal()*$partialPercent)/100, 2));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderSecondpaymentamount()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && $this->_cart->getStatus() === Models_Model_CartSession::CART_STATUS_PARTIAL) {
+                return $this->_currency->toCurrency(round(($this->_cart->getTotal() - $this->_cart->getPartialPaidAmount()),
+                    2));
             }
 
             return '';

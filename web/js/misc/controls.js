@@ -200,6 +200,8 @@ $(function() {
             type  : 'taxrate',
             value : $(e.currentTarget).val()
         };
+
+        updateQuote(quoteId, false, '');
         var request = _update('api/quote/quotes/', data);
         request.done(function(response) {
             hideSpinner();
@@ -222,6 +224,13 @@ $(function() {
         } else {
             $('#quote-signature-required').prop('disabled', false);
         }
+
+        if (paymentType === 'partial_payment') {
+            $('#mark-first-payment-paid-block').removeClass('hidden');
+        } else {
+            $('#mark-first-payment-paid-block').addClass('hidden');
+        }
+
 
         changePaymentTypeMessage(paymentType, isSignatureRequired);
     });
@@ -249,6 +258,49 @@ $(function() {
         });
     }
 
+    $(document).on('change', '#is-partial-payment-payed', function (e) {
+        var self = $(this),
+            message = $('#confirm-message-for-first-payment-checked').text(),
+            isChecked = false;
+
+            if (self.is(':checked')) {
+                message = $('#confirm-message-for-first-payment-not-checked').text()+' '+$('#partial-payment-percentage-payment-amount').text()+' '+$('#confirm-message-for-first-payment-not-checked-second-part').text();
+                isChecked = true;
+            }
+
+        showConfirm(message, function() {
+            $.ajax({
+                url        : $('#website_url').val() + 'api/quote/partialpayment/',
+                type       : 'POST',
+                data       : {
+                    quoteId: quoteId,
+                    partialPercentage: $('#partial-payment-percentage').val()
+                },
+                dataType   : 'json',
+                beforeSend : showSpinner()
+            }).done(function(response) {
+                hideSpinner();
+                showMessage(response.responseText.generalSuccess, true, 3000);
+                window.setTimeout(function () {
+                    window.location.reload();
+                }, 2000);
+                return false;
+            }).fail(function (response) {
+                showMessage(JSON.parse(response.responseText), true, 5000);
+                if (isChecked === true) {
+                    self.prop('checked', false);
+                } else {
+                    self.prop('checked', true);
+                }
+            });
+        }, function(){
+            if (isChecked === true) {
+                self.prop('checked', false);
+            } else {
+                self.prop('checked', true);
+            }
+        });
+    });
 
 });
 
