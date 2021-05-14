@@ -485,7 +485,33 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         }
         // adding quote model to the entity parser dictionary to be able to parse {quote:quote_property_here} instances
         $this->_entityParser->objectToDictionary($this->_quote);
-        $this->_mailer->setBody($this->_entityParser->parse($body));
+
+        //{quoteleadorganizationlogo} - This lexem return quote lead organization logo
+        //{quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src
+        $userId = $this->_quote->getUserId();
+
+        if(!empty($userId)) {
+            $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
+
+            if ($userModel instanceof Application_Model_Models_User) {
+                $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+
+                if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+                    $leadsPluginStatus = $leadsPlugin->getStatus();
+
+                    if ($leadsPluginStatus === 'enabled') {
+                        $organizationDocumentData = Tools_LeadTools::getOrganizationLogo($userId);
+
+                        if(!empty($organizationDocumentData)){
+                            $this->_entityParser->addToDictionary(array(
+                                'quoteleadorganizationlogo' => '<img src="'. $this->_websiteHelper->getUrl() . Leads::ORGANIZATION_LOGOS_IMAGES_PATH . DIRECTORY_SEPARATOR . $organizationDocumentData['file_stored_name'] .'" alt="'. $organizationDocumentData['display_file_name'] .'">',
+                                'quoteleadorganizationlogo:src' => $this->_websiteHelper->getUrl() . Leads::ORGANIZATION_LOGOS_IMAGES_PATH . DIRECTORY_SEPARATOR . $organizationDocumentData['file_stored_name']
+                            ));
+                        }
+                    }
+                }
+            }
+        }
 
         $createdId = $this->_quote->getCreatorId();
         if (!empty($createdId)) {
@@ -499,6 +525,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
         $wicEmail = $this->_configHelper->getConfig('wicEmail');
         $this->_entityParser->addToDictionary(array('widcard:BizEmail' => !empty($wicEmail) ? $wicEmail : $this->_configHelper->getConfig('adminEmail')));
+
+        $this->_mailer->setBody($this->_entityParser->parse($body));
 
         $this->_options['from'] = $this->_parseMailFrom($this->_entityParser->parse($this->_options['from']));
 
