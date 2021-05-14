@@ -125,6 +125,11 @@
     'Use same data for shipping?' => 'Faut-il utiliser les mêmes données pour l\'expédition?',
     'Position' => 'Position',
     'Send me a quote' => 'Envoyez-moi un devis',
-    'which is' => 'lequel est'
+    'which is' => 'lequel est',
+    'Address has been refreshed' => 'L\'adresse a été actualisée',
+    'Can\'t update address' => 'Impossible de mettre à jour l\'adresse',
+    'Cart not found' => 'Panier n\'est pas trouvé',
+    'Plugin Leads isn\'t installed.' => 'Plugin des Prospects n\'est pas installé',
+    'Can\'t find user.' => 'Impossible de trouver l\'utilisateur.'
 
 );?>

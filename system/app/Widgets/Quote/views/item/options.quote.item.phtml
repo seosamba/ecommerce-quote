@@ -14,17 +14,23 @@
 
             <div class="options">
                 <?php if(!isset($optData['type']) || ($optData['type'] !== 'text' || $optData['type'] !== 'textarea' || $optData['type'] !== 'date')): ?>
+                    <?php if(!empty($optData['optionType']) && $optData['optionType'] == Models_Model_Option::TYPE_ADDITIONALPRICEFIELD && is_numeric($optData['title'])) :?>
+                        <?php $optDataTitle = $this->currency($optData['title']); ?>
+                    <?php else :?>
+                        <?php $optDataTitle = $optData['title']; ?>
+                    <?php endif;?>
+
                     <?php if(is_numeric($title)) :?>
                         <?php if (empty($this->clean)):?>
-                            <span class="option-title"><?php echo $optData['title']; ?>:</span>
+                            <span class="option-title"><?php echo $optDataTitle; ?>:</span>
                          <?php else:?>
-                            <?php echo $optData['title']; ?>
+                            <?php echo $optDataTitle; ?>
                         <?php endif;?>
                     <?php else:?>
                         <?php if (empty($this->clean)):?>
                             <span class="option-title"><?php echo $title; ?>:</span>
                         <?php endif;?>
-                        <span><?php echo $optData['title']; ?></span>
+                        <span><?php echo $optDataTitle; ?></span>
                     <?php endif;?>
                 <?php else:?>
                     <span><?php echo $optData['title']; ?></span>
@@ -41,7 +47,7 @@
     <?php endforeach; ?>
 <?php endif; ?>
 <?php if(Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)): ?>
-    <?php if (isset($currOpts)): ?>
+    <?php if (isset($currOpts) || !empty($this->allowEditOptions)): ?>
         <a href="javascript:;" data-pheight="560" class="tpopup" data-url="<?php echo $this->websiteUrl; ?>plugin/quote/run/options/co/<?php echo http_build_query($currOpts); ?>/qid/<?php echo $this->quoteId; ?>/sid/<?php echo $this->sid;?>/pid/<?php echo $this->productId;?>">
             <strong><?php echo $this->translate('Manage options'); ?></strong>
         </a>
