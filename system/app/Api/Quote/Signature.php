@@ -161,7 +161,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
             $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
             $cart = $cartSessionMapper->find($quote->getCartId());
             if ($cart instanceof Models_Model_CartSession) {
-                $cart->setStatus(Models_Model_CartSession::CART_STATUS_PENDING);
+                $cart->setStatus(Models_Model_CartSession::CART_STATUS_NOT_VERIFIED);
                 $cartSessionMapper->save($cart);
             }
 
