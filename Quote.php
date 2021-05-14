@@ -536,4 +536,181 @@ class Quote extends Tools_PaymentGateway
         }
     }
 
+    /**
+     * Return Lead profile link if exist
+     *
+     * @throws Zend_Controller_Action_Exception
+     */
+    public function getLeadLinkAction()
+    {
+        $currentRole = $this->_sessionHelper->getCurrentUser()->getRoleId();
+
+        if (($currentRole === Tools_Security_Acl::ROLE_SUPERADMIN || $currentRole === Tools_Security_Acl::ROLE_ADMIN || $currentRole === Shopping::ROLE_SALESPERSON) && $this->_request->isPost()) {
+            $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+
+            if (empty($quoteId)) {
+                $this->_responseHelper->fail($this->_translator->translate('Quote id is missing'));
+            }
+
+            $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+
+            $quote = $quoteMapper->find($quoteId);
+
+            if (!$quote instanceof Quote_Models_Model_Quote) {
+                $this->_responseHelper->fail($this->_translator->translate('Quote not found'));
+            }
+
+            $userId = $quote->getUserId();
+
+            $leadLink = '';
+            if(!empty($userId)) {
+                $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
+                if ($userModel instanceof Application_Model_Models_User) {
+                    $userEmail = $userModel->getEmail();
+
+                    $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+                    if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+                        $leadsPluginStatus = $leadsPlugin->getStatus();
+
+                        if ($leadsPluginStatus === 'enabled') {
+                            $leadMapper = Leads_Mapper_LeadsMapper::getInstance();
+                            $leadModel = $leadMapper->findByEmail($userEmail);
+
+                            if($leadModel instanceof Leads_Model_LeadsModel) {
+                                $websiteHelper = Zend_Controller_Action_HelperBroker::getExistingHelper('website');
+                                $websiteUrl = $websiteHelper->getUrl();
+
+                                $leadLink = $websiteUrl.'dashboard/leads/#lead/'.$leadModel->getId();
+                            }
+                        }
+                    }
+                }
+            }
+
+            $this->_responseHelper->success(array('link' => $leadLink));
+        }
+    }
+
+    /**
+     * Refresh the quote shipping|billing address with lead address data
+     */
+    public function useLeadAddressAction()
+    {
+        $currentRole = $this->_sessionHelper->getCurrentUser()->getRoleId();
+        if (($currentRole === Tools_Security_Acl::ROLE_SUPERADMIN || $currentRole === Tools_Security_Acl::ROLE_ADMIN || $currentRole === Shopping::ROLE_SALESPERSON) && $this->_request->isPost()) {
+            $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+            $addressType = filter_var($this->_request->getParam('addressType'), FILTER_SANITIZE_STRING);
+
+            $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+
+            if (empty($quoteId)) {
+                $this->_responseHelper->fail($this->_translator->translate('Quote id is missing'));
+            }
+
+            $quote = $quoteMapper->find($quoteId);
+            if (!$quote instanceof Quote_Models_Model_Quote) {
+                $this->_responseHelper->fail($this->_translator->translate('Quote not found'));
+            }
+
+            $userId = $quote->getUserId();
+            $cartId = $quote->getCartId();
+
+            if(!empty($userId)) {
+                $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
+                if ($userModel instanceof Application_Model_Models_User) {
+                    $userEmail = $userModel->getEmail();
+
+                    $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+                    if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+                        $leadsPluginStatus = $leadsPlugin->getStatus();
+                        if ($leadsPluginStatus === 'enabled') {
+                            $leadMapper = Leads_Mapper_LeadsMapper::getInstance();
+                            $leadModel = $leadMapper->findByEmail($userEmail);
+
+                            if($leadModel instanceof Leads_Model_LeadsModel) {
+                                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($cartId);
+
+                                $company = '';
+                                $leadOrganizationName = $leadMapper->findByLeadEmail($userEmail);
+                                if(!empty($leadOrganizationName)) {
+                                    $company = $leadOrganizationName['organization_name'];
+                                }
+
+                                if($cart instanceof Models_Model_CartSession) {
+                                    if($addressType == Models_Model_Customer::ADDRESS_TYPE_BILLING) {
+                                        $addressId = $cart->getBillingAddressId();
+                                    } else {
+                                        $addressId = $cart->getShippingAddressId();
+                                    }
+
+                                    $customerAddress = Tools_ShoppingCart::getAddressById($addressId);
+
+                                    $quoteData = array();
+                                    if(!empty($customerAddress)) {
+                                        $customerAddress['prefix'] = $leadModel->getPrefix();
+                                        $customerAddress['firstname'] = $leadModel->getLeadFirstName();
+                                        $customerAddress['lastname'] = $leadModel->getLeadLastName();
+                                        $customerAddress['company'] = $company;
+                                        $customerAddress['address1'] = $leadModel->getLeadAddress();
+                                        $customerAddress['address2'] = $leadModel->getLeadAddress1();
+
+                                        $country = $leadModel->getLeadCountryCode();
+
+                                        $customerAddress['country'] = $country;
+                                        $customerAddress['city'] = $leadModel->getLeadCity();
+
+                                        $leadStateCode = $leadModel->getLeadStateCode();
+                                        if(!empty($leadStateCode) && !empty($country)) {
+                                            $stateCodes = Tools_LeadTools::getStates($country, true, true, 'id');
+                                            if (array_key_exists($leadStateCode, $stateCodes)) {
+                                                $customerAddress['state'] = $stateCodes[$leadStateCode];
+                                            }
+                                        }
+
+                                        $customerAddress['zip'] = $leadModel->getLeadZip();
+                                        $customerAddress['mobile'] = $leadModel->getLeadMobile();
+                                        $customerAddress['mobilecountrycode'] = $leadModel->getLeadMobileCountryCode();
+                                        $customerAddress['mobile_country_code_value'] = $leadModel->getLeadMobileCountryCodeValue();
+                                        $customerAddress['phone'] = $leadModel->getLeadPhone();
+                                        $customerAddress['phonecountrycode'] = $leadModel->getLeadPhoneCountryCode();
+                                        $customerAddress['phone_country_code_value'] = $leadModel->getLeadPhoneCountryCodeValue();
+                                        $customerAddress['customer_notes'] = $leadModel->getLeadNotes();
+                                        $customerAddress['position'] = $leadModel->getLeadPosition();
+
+                                        $quoteData[$addressType] = $customerAddress;
+
+                                        $customer = Models_Mapper_CustomerMapper::getInstance()->find($userId);
+
+                                        if($addressType == Models_Model_Customer::ADDRESS_TYPE_BILLING) {
+                                            $cart->setBillingAddressId(Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData[$addressType], Models_Model_Customer::ADDRESS_TYPE_BILLING));
+                                        } else {
+                                            $cart->setShippingAddressId(Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData[$addressType], Models_Model_Customer::ADDRESS_TYPE_SHIPPING));
+                                        }
+
+                                        if($customer) {
+                                            $cart->setUserId($customer->getId());
+                                            Models_Mapper_CartSessionMapper::getInstance()->save($cart);
+                                        }
+
+                                        $this->_responseHelper->success($this->_translator->translate('Address has been refreshed'));
+                                    }
+
+                                    $this->_responseHelper->fail($this->_translator->translate('Can\'t update address'));
+                                }
+
+                                $this->_responseHelper->fail($this->_translator->translate('Cart not found'));
+                            }
+
+                            $this->_responseHelper->fail($this->_translator->translate('Lead isn\'t found'));
+                        }
+                    }
+
+                    $this->_responseHelper->fail($this->_translator->translate('Plugin Leads isn\'t installed.'));
+                }
+            }
+
+            $this->_responseHelper->fail($this->_translator->translate('Can\'t find user.'));
+        }
+    }
+
 }

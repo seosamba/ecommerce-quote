@@ -20,6 +20,7 @@ Widgets that working with quote page (dashboard):
 {$quote:shipping} - Displays the shipping price.
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".
+{$quote:userid} - Reture quote user ID
 
 Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working with quote page (dashboard):
 {$quote:item:name} - Displays the product name added to the quote.
@@ -93,3 +94,10 @@ Quote action emails lexems:
 {$quote:item:option:optionName} -> option without title
 {$quote:item:option:optionName:title} -> option with title
 :optionName - option name
+
+{orderstatus[:partial,completed,...]}
+{paymenttype[:full_payment|full_payment_signature|partial_payment|partial_payment_signature|only_signature]]}
+{quoteadminonly}{/quoteadminonly} - return content for everyone who have access to the storemanagement resource
+{$quote:secondpaymentamount} - second payment amount
+{quoteleadorganizationlogo} - This lexem return quote lead organization logo
+{quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src

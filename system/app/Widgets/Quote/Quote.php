@@ -577,6 +577,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return string
      */
     protected function _renderAddress() {
+
+
         $addressType = isset($this->_options[0]) ? $this->_options[0] : self::ADDRESS_TYPE_BILLING;
         $address = null;
         if ($this->_cart instanceof Models_Model_CartSession) {
@@ -591,6 +593,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
         $this->_view->addressType = $addressType;
         $this->_view->address     = $address;
+
+        $allowAutoSave = false;
+        if($this->_quote instanceof Quote_Models_Model_Quote) {
+            $quoteStatus = $this->_quote->getStatus();
+            $quoteUserId = $this->_quote->getUserId();
+
+            if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId)) {
+                $allowAutoSave = true;
+            }
+        }
+
+        $this->_view->allowAutoSave = $allowAutoSave;
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
@@ -607,6 +621,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     ->setAttrib('class', 'hidden')
                     ->setLabel('');
             }
+
             $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
@@ -626,6 +641,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 return $address[$this->_options[1]];
             } elseif ($this->_options[1] == 'default') {
+
                 return $this->_view->render('address.quote.phtml');
             }
         }
@@ -937,6 +953,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(!$defaultOptions || empty($defaultOptions)) {
                     return false;
                 }
+
+                $allowEditOptions = false;
+
+                if(is_array($defaultOptions)) {
+                    foreach ($defaultOptions as $key => $opt) {
+                        if($opt['type'] != Models_Model_Option::TYPE_ADDITIONALPRICEFIELD) {
+                            $allowEditOptions = true;
+                        }
+                    }
+                }
+
+                $this->_view->allowEditOptions = $allowEditOptions;
+
                 $value                   = $options;
                 $this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
             break;
@@ -1278,6 +1307,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $partialPaymentAllowed = true;
             }
 
+            $this->_view->cartStatus = $this->_cart->getStatus();
+            $this->_view->gatewayName = $this->_cart->getGateway();
+
             $this->_view->quoteId = $this->_quote->getId();
             $this->_view->quoteStatus = $quoteStatus;
             $this->_view->paymentType = $paymentType;
@@ -1296,6 +1328,33 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $partialPercent = $this->_cart->getPartialPercentage();
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 return $this->_currency->toCurrency(round(($this->_cart->getTotal()*$partialPercent)/100, 2));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderSecondpaymentamount()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && $this->_cart->getStatus() === Models_Model_CartSession::CART_STATUS_PARTIAL) {
+                return $this->_currency->toCurrency(round(($this->_cart->getTotal() - $this->_cart->getPartialPaidAmount()),
+                    2));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderFirstpaymentpercentage()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                return round($partialPercent,1);
             }
 
             return '';

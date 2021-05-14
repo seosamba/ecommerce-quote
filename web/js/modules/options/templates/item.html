@@ -47,7 +47,8 @@
         <!-- option type textarea -->
         <% if(value.type == 'textarea') { %>
         <label class="grid_3 mt0-5em"><%= value.title %></label>
-        <textarea class="grid_9" name="product-<%= id %>-option-<%= value.id %>"><%= window.currOptions[value.id]%></textarea>
+        <% textareaValue = (typeof window.currOptions[value.id] !== 'undefined') ? window.currOptions[value.id] : '' %>
+        <textarea class="grid_9" name="product-<%= id %>-option-<%= value.id %>"><%= textareaValue%></textarea>
         <% } %>
         <!-- /option type textarea -->
 
