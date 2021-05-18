@@ -13,6 +13,13 @@
         <?php if (!empty($enableQuoteDefaultType) && ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE)):?>
             <?php $displayPartialPercentagePaymentNotificationClass = '';?>
         <?php endif;?>
+
+        <?php $displayPartialPaymentClass = 'hidden';?>
+        <?php $enabledPartialPayment = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enabledPartialPayment');?>
+        <?php if (!empty($enabledPartialPayment)):?>
+            <?php $displayPartialPaymentClass = '';?>
+        <?php endif;?>
+
         <p>
             <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
             <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
@@ -46,6 +53,20 @@
             <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
         </p>
         <p>
+            <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
+            <i class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></i>
+            <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
+        </p>
+        <p id="partial-notify-after-quantity-block" class="<?php echo $displayPartialPaymentClass;?>">
+            <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderLabel(); ?>
+            <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderViewHelper(); ?>
+        </p>
+        <p id="partial-notify-after-type-block" class="<?php echo $displayPartialPaymentClass;?>">
+            <?php echo $this->form->getElement('partialNotifyAfterType')->renderLabel(); ?>
+            <?php echo $this->form->getElement('partialNotifyAfterType')->renderViewHelper(); ?>
+        </p>
+
+        <p>
             <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
         </p>
     </form>
@@ -65,6 +86,16 @@ $(document).ready(function(){
         }
     });
 
+    $(document).on('change', '#enabled-partial-payment', function () {
+        if ($(this).is(':checked')) {
+            $('#partial-notify-after-quantity-block').removeClass('hidden');
+            $('#partial-notify-after-type-block').removeClass('hidden');
+        } else {
+            $('#partial-notify-after-quantity-block').addClass('hidden');
+            $('#partial-notify-after-type-block').addClass('hidden');
+        }
+    });
+
     $(document).on('change', '#quote-payment-types', function () {
         if ($(this).val() === 'partial_payment' || $(this).val() === 'partial_payment_signature') {
             $('#quote-payment-type-percentage-block').removeClass('hidden');
@@ -77,7 +108,10 @@ $(document).ready(function(){
           e.preventDefault();
           var autoQuote = 0,
               draggableProducts = 0,
-              enableQuoteDefaultType = 0;
+              enableQuoteDefaultType = 0,
+              partialNotifyAfterType = $('#partial-notify-after-type').val(),
+              partialNotifyAfterQuantity = $('#partial-notify-after-quantity').val(),
+              enabledPartialPayment = 0;
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -89,6 +123,10 @@ $(document).ready(function(){
 
           if($('#enable-quote-default-type').prop("checked")){
               enableQuoteDefaultType = 1;
+          }
+
+          if($('#enabled-partial-payment').prop("checked")){
+              enabledPartialPayment = 1;
           }
 
           $.ajax({
@@ -104,6 +142,9 @@ $(document).ready(function(){
                 quotePaymentType: $('#quote-payment-types').val(),
                 quotePartialPercentage: $('#quote-partial-percentage').val(),
                 quoteDownloadLabel: $('#quote-download-label').val(),
+                enabledPartialPayment: enabledPartialPayment,
+                partialNotifyAfterType: partialNotifyAfterType,
+                partialNotifyAfterQuantity: partialNotifyAfterQuantity,
                 secureToken: $('.quote-secure-token').val()
             },
             success: function(responce){

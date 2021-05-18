@@ -130,6 +130,21 @@
     'Can\'t update address' => 'Impossible de mettre à jour l\'adresse',
     'Cart not found' => 'Panier n\'est pas trouvé',
     'Plugin Leads isn\'t installed.' => 'Plugin des Prospects n\'est pas installé',
-    'Can\'t find user.' => 'Impossible de trouver l\'utilisateur.'
+    'Can\'t find user.' => 'Impossible de trouver l\'utilisateur.',
+    'Accept partial payments for quote: Yes/No' => 'Accepter les paiements partiels pour devis: Oui/Non',
+    'Lag time' => 'Indiquer le temps',
+    'Days' => 'Jours',
+    'Months' => 'Mois',
+    'Generate quote automatically' => 'Générer un devis automatiquement',
+    'Quote template' => 'Modèle de devis',
+    'Default quote expiration delay' => 'Délai d\'expiration du devis par défaut',
+    'Enable products draggable' => 'Activer l\'aperçu des produits',
+    'Enable quote payment type' => 'Activer le type de paiement de devis',
+    'Quote payment types' => 'Type de paiement de devis',
+    'Partial payment percentage' => 'Pourcentage de paiement partiel',
+    'Quote download label' => 'Libellé de téléchargement de devis',
+    'Update quote configuration' => 'Mettre à jour les configurations du devis',
+    'Select quote template' => 'Sélectionner un modèle de devis',
+    'Create templates from the action e-mails & SMS screens' => 'Сréer des mises en page à partir de la section d\'e-mails d\'action & SMS'
 
 );?>
