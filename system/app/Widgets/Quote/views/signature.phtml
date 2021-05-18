@@ -67,7 +67,7 @@
                 }).done(function(response) {
                     hideSpinner();
                     if (response.error == '0') {
-                        if (typeof response.responseText.reload) {
+                        if (typeof response.responseText.reload !== 'undefined') {
                             showMessage(response.responseText.message, true, 3000);
                             window.setTimeout(function () {
                                 window.location.reload();
