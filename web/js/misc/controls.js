@@ -30,7 +30,7 @@ $(function() {
 
     $(document).on('change', '.quote-info', function(e){
         if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
-            updateQuote(quoteId, false, '', '', '', true);
+            updateQuote(quoteId, false, '', '1', '', true);
         }
     });
 
