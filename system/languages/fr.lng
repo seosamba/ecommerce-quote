@@ -145,6 +145,7 @@
     'Quote download label' => 'Libellé de téléchargement de devis',
     'Update quote configuration' => 'Mettre à jour les configurations du devis',
     'Select quote template' => 'Sélectionner un modèle de devis',
-    'Create templates from the action e-mails & SMS screens' => 'Сréer des mises en page à partir de la section d\'e-mails d\'action & SMS'
+    'Create templates from the action e-mails & SMS screens' => 'Сréer des mises en page à partir de la section d\'e-mails d\'action & SMS',
+    'partial payment lag time' => 'temps de paiement partiel'
 
 );?>

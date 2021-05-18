@@ -90,31 +90,37 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Accept partial payments for quote: Yes/No'),
         )));
 
-        $this->addElement(new Zend_Form_Element_Text(array(
-            'name'  => 'partialNotifyAfterQuantity',
-            'id'    => 'partial-notify-after-quantity',
-            'label' => $translator->translate('Lag time'),
-            'placeholder' => 'partial payment lag time',
-            'class' => 'grid_6 alpha'
-        )));
-
-        $this->addElement(new Zend_Form_Element_Select(array(
-            'name'         => 'partialNotifyAfterType',
-            'id'           => 'partial-notify-after-type',
-            'label' => $translator->translate('Length unit'),
-            'class' => 'grid_6 alpha',
-            'multiOptions' => array(
-                'day' => $translator->translate('Days'),
-                'month' => $translator->translate('Months')
-            )
-        )));
-
         $this->setDecorators(array('FormElements', 'Form'))
             ->setElementDecorators(array(
                 'ViewHelper',
                 array('Label', array('class' => 'grid_6')),
                 array('HtmlTag', array('tag' => 'p'))
             ));
+
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'partialNotifyAfterQuantity',
+            'id'    => 'partial-notify-after-quantity',
+            'label' => $translator->translate('Lag time'),
+            'placeholder' => $translator->translate('partial payment lag time'),
+            'decorators' => array(
+                'ViewHelper',
+                array('HtmlTag', array('tag' => 'p'))
+            )
+        )));
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'         => 'partialNotifyAfterType',
+            'id'           => 'partial-notify-after-type',
+            'label' => $translator->translate('Length unit'),
+            'decorators' => array(
+                'ViewHelper',
+                array('HtmlTag', array('tag' => 'p'))
+            ),
+            'multiOptions' => array(
+                'day' => $translator->translate('Days'),
+                'month' => $translator->translate('Months')
+            )
+        )));
 
         $this->addElement(new Zend_Form_Element_Button(array(
             'name'       => 'applySettings',
