@@ -42,7 +42,7 @@
                 <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
             </p>
             <div id="partial-notify-block" class="<?php echo $displayPartialPaymentClass;?>">
-                <span><?php echo $this->translate('Send payment complement request automatically after');?>:<a href="javascript:;" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></a></span>
+                <span class="grid_12"><?php echo $this->translate('Send payment complement request automatically after');?>:<a href="javascript:;" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></a></span>
                 <p class="grid_6 mb10px">
                     <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderViewHelper(); ?>
                 </p>
