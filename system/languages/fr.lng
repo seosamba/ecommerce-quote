@@ -146,6 +146,7 @@
     'Update quote configuration' => 'Mettre à jour les configurations du devis',
     'Select quote template' => 'Sélectionner un modèle de devis',
     'Create templates from the action e-mails & SMS screens' => 'Сréer des mises en page à partir de la section d\'e-mails d\'action & SMS',
-    'partial payment lag time' => 'temps de paiement partiel'
+    'partial payment lag time' => 'temps de paiement partiel',
+    'Send payment complement request automatically after' => 'Envoyer automatiquement la demande de complément de paiement après'
 
 );?>

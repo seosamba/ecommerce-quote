@@ -36,32 +36,39 @@
             <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
             <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
         </p>
-        <p>
-            <?php echo $this->form->getElement('enableQuoteDefaultType')->renderLabel(); ?>
-            <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
-        </p>
-        <p id="quote-payment-type-block" class="<?php echo $displayPartialPaymentNotificationClass;?>">
-            <?php echo $this->form->getElement('quotePaymentType')->renderLabel(); ?>
-            <?php echo $this->form->getElement('quotePaymentType')->renderViewHelper(); ?>
-        </p>
-        <p id="quote-payment-type-percentage-block" class="<?php echo $displayPartialPercentagePaymentNotificationClass;?>">
-            <?php echo $this->form->getElement('quotePartialPercentage')->renderLabel(); ?>
-            <?php echo $this->form->getElement('quotePartialPercentage')->renderViewHelper(); ?>
-        </p>
+        <fieldset class="background">
+            <p>
+                <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
+                <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
+            </p>
+            <div id="partial-notify-block" class="<?php echo $displayPartialPaymentClass;?>">
+                <span><?php echo $this->translate('Send payment complement request automatically after');?>:<a href="javascript:;" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></a></span>
+                <p class="grid_6 mb10px">
+                    <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderViewHelper(); ?>
+                </p>
+                <p class="grid_6 mb10px">
+                    <?php echo $this->form->getElement('partialNotifyAfterType')->renderViewHelper(); ?>
+                </p>
+            </div>
+        </fieldset>
+
+        <fieldset id="quote-default-type-block" class="background mt5px">
+                <p>
+                    <?php echo $this->form->getElement('enableQuoteDefaultType')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
+                </p>
+                <p id="quote-payment-type-block" class="<?php echo $displayPartialPaymentNotificationClass;?>">
+                    <?php echo $this->form->getElement('quotePaymentType')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('quotePaymentType')->renderViewHelper(); ?>
+                </p>
+                <p id="quote-payment-type-percentage-block" class="<?php echo $displayPartialPercentagePaymentNotificationClass;?>">
+                    <?php echo $this->form->getElement('quotePartialPercentage')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('quotePartialPercentage')->renderViewHelper(); ?>
+                </p>
+        </fieldset>
         <p id="quote-download-label-block">
             <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
             <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
-        </p>
-        <p>
-            <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
-            <i class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></i>
-            <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
-        </p>
-        <p id="partial-notify-after-quantity-block" class="grid_6 mb5px <?php echo $displayPartialPaymentClass;?>">
-            <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderViewHelper(); ?>
-        </p>
-        <p id="partial-notify-after-type-block" class="grid_6 mb5px <?php echo $displayPartialPaymentClass;?>">
-            <?php echo $this->form->getElement('partialNotifyAfterType')->renderViewHelper(); ?>
         </p>
 
         <p>
@@ -74,10 +81,32 @@
 $(document).ready(function(){
     checkboxRadioStyle();
 
+    function disableOptions() {
+        $('#quote-payment-types option').each(function(key, option) {
+            if(option.value == 'partial_payment' || option.value == 'partial_payment_signature') {
+                $("#quote-payment-types option[value='" + option.value + "']").prop('disabled', true);
+            }
+        });
+
+        $('#quote-payment-types').val('full_payment').trigger('change');
+    }
+
+    var enabledPartialPaymentCheckbox = $('#enabled-partial-payment').is(':checked');
+
+    if(!enabledPartialPaymentCheckbox) {
+        disableOptions();
+    }
+
     $(document).on('change', '#enable-quote-default-type', function () {
         if ($(this).is(':checked')) {
             $('#quote-payment-type-block').removeClass('hidden');
             $('#quote-payment-type-percentage-block').removeClass('hidden');
+
+            var paymentType = $('#quote-payment-types').val();
+
+            if(paymentType != 'partial_payment' && paymentType != 'partial_payment_signature') {
+                $('#quote-payment-type-percentage-block').addClass('hidden');
+            }
         } else {
             $('#quote-payment-type-block').addClass('hidden');
             $('#quote-payment-type-percentage-block').addClass('hidden');
@@ -85,12 +114,17 @@ $(document).ready(function(){
     });
 
     $(document).on('change', '#enabled-partial-payment', function () {
+        var paymentType = $('#quote-payment-types').val();
+
         if ($(this).is(':checked')) {
-            $('#partial-notify-after-quantity-block').removeClass('hidden');
-            $('#partial-notify-after-type-block').removeClass('hidden');
+            $('#partial-notify-block').removeClass('hidden');
+            $("#quote-payment-types option").prop("disabled", false);
         } else {
-            $('#partial-notify-after-quantity-block').addClass('hidden');
-            $('#partial-notify-after-type-block').addClass('hidden');
+            $('#partial-notify-block').addClass('hidden');
+
+            if(paymentType == 'partial_payment' || paymentType == 'partial_payment_signature') {
+                disableOptions();
+            }
         }
     });
 
