@@ -58,7 +58,8 @@
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
                 </p>
                 <p id="quote-payment-type-block" class="<?php echo $displayPartialPaymentNotificationClass;?>">
-                    <?php echo $this->form->getElement('quotePaymentType')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('quotePaymentType')->addDecorator('Label', array('class' => 'grid_5'))->renderLabel(); ?>
+                    <a href="javascript:;" target="_blank" class="ticon-info tooltip icon18 grid_1" title="<?php echo $this->translate("To activate partial options please turn on 'Accept partial payments for quote'");?>"></a>
                     <?php echo $this->form->getElement('quotePaymentType')->renderViewHelper(); ?>
                 </p>
                 <p id="quote-payment-type-percentage-block" class="<?php echo $displayPartialPercentagePaymentNotificationClass;?>">
@@ -81,21 +82,7 @@
 $(document).ready(function(){
     checkboxRadioStyle();
 
-    function disableOptions() {
-        $('#quote-payment-types option').each(function(key, option) {
-            if(option.value == 'partial_payment' || option.value == 'partial_payment_signature') {
-                $("#quote-payment-types option[value='" + option.value + "']").prop('disabled', true);
-            }
-        });
-
-        $('#quote-payment-types').val('full_payment').trigger('change');
-    }
-
-    var enabledPartialPaymentCheckbox = $('#enabled-partial-payment').is(':checked');
-
-    if(!enabledPartialPaymentCheckbox) {
-        disableOptions();
-    }
+    $('#quote-payment-types').data('prev-option', $('#quote-payment-types').val());
 
     $(document).on('change', '#enable-quote-default-type', function () {
         if ($(this).is(':checked')) {
@@ -118,22 +105,33 @@ $(document).ready(function(){
 
         if ($(this).is(':checked')) {
             $('#partial-notify-block').removeClass('hidden');
-            $("#quote-payment-types option").prop("disabled", false);
         } else {
             $('#partial-notify-block').addClass('hidden');
 
             if(paymentType == 'partial_payment' || paymentType == 'partial_payment_signature') {
-                disableOptions();
+                $('#quote-payment-types').val('full_payment').trigger('change');
             }
         }
     });
 
     $(document).on('change', '#quote-payment-types', function () {
-        if ($(this).val() === 'partial_payment' || $(this).val() === 'partial_payment_signature') {
+        var selectedOption = $(this).val(),
+            prevSelectedOpt = $(this).data('prev-option');
+
+        if (selectedOption === 'partial_payment' || selectedOption === 'partial_payment_signature') {
+            var enabledPartialPaymentCheckbox = $('#enabled-partial-payment').is(':checked');
+
+            if(!enabledPartialPaymentCheckbox) {
+                $('#quote-payment-types').val(prevSelectedOpt);
+                showMessage("<?php echo $this->translate('To activate this option please turn on \'Accept partial payments for quote\'');?>", true, 3000);
+                return false;
+            }
+
             $('#quote-payment-type-percentage-block').removeClass('hidden');
         } else {
             $('#quote-payment-type-percentage-block').addClass('hidden');
         }
+        $('#quote-payment-types').data('prev-option', selectedOption);
     });
 
     $(document).on("click", "#applySettings", function(e){

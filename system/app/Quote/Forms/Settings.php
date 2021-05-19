@@ -65,7 +65,7 @@ class  Quote_Forms_Settings extends Zend_Form {
             'name'         => 'quotePaymentType',
             'id'           => 'quote-payment-types',
             'label'        => $translator->translate('Quote payment types'),
-            'class'        => 'grid_6 alpha',
+            'class'        => 'grid_6 alpha omega',
             'multiOptions' => $quotePaymentTypes
         )));
 
