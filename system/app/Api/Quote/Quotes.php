@@ -243,9 +243,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                             $cart->setShippingPrice($result['price']);
                         }
                     }
-
-                    $cart = $cartMapper->save($cart);
                 }
+
+                $cart = $cartMapper->save($cart);
 
                 if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
                     $editedBy = Quote_Models_Model_Quote::QUOTE_TYPE_AUTO;
