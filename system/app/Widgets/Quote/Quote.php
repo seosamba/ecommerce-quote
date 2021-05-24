@@ -1418,13 +1418,21 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && !$this->_editAllowed) {
             if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                $translator = Zend_Registry::get('Zend_Translate');
+
                 if (empty($this->_quote->getIsQuoteSigned())) {
                     $this->_view->quoteId = $this->_quote->getId();
+
+                    $buttonLabel = $translator->translate('Download Proposal PDF');
+                    if (!empty($this->_options[0])) {
+                        $buttonLabel = $this->_options[0];
+                    }
+
+                    $this->_view->buttonLabel = $buttonLabel;
 
                     return $this->_view->render('download-preview-button.phtml');
                 }
 
-                $translator = Zend_Registry::get('Zend_Translate');
 
                 $userId = $this->_quote->getUserId();
                 $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
