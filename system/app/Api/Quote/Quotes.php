@@ -528,13 +528,17 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
-                    $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
-		            $quote->setUserId($customer->getId());
+	                if(!empty($quoteData['billing']['email'])) {
+                        $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
+                        $quote->setUserId($customer->getId());
+                    }
 	            }
 
-	            $cart->setBillingAddressId(
-		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING)
-	            );
+	            if($customer instanceof Models_Model_Customer) {
+                    $cart->setBillingAddressId(
+                        Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING)
+                    );
+                }
 
             }
 
@@ -563,15 +567,17 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
-                    $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
-                    $quote->setUserId($customer->getId());
+	                if(!empty($quoteData['shipping']['email'])) {
+                        $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
+                        $quote->setUserId($customer->getId());
+                    }
 	            }
-	            $cart->setShippingAddressId(
-		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
-	            );
-
+                if($customer instanceof Models_Model_Customer) {
+                    $cart->setShippingAddressId(
+                        Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
+                    );
+                }
             }
-
 
             if (!empty($quoteData['paymentType']) && $quoteData['paymentType'] === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $cart->setPartialPercentage($quoteData['partialPaymentPercentage']);
@@ -581,7 +587,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $cart->setPartialPercentage('');
             }
 
-            if($customer) {
+            if($customer instanceof Models_Model_Customer) {
                 $cart->setUserId($customer->getId());
                 Models_Mapper_CartSessionMapper::getInstance()->save($cart);
             }
