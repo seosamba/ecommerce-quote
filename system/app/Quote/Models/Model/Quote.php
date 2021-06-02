@@ -11,6 +11,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	const STATUS_SENT           = 'sent';
 
+    const STATUS_SIGNATURE_ONLY_SIGNED    = 'signature_only_signed';
+
 	const STATUS_SOLD           = 'sold';
 
 	const STATUS_LOST           = 'lost';

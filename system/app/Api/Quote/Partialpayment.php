@@ -40,11 +40,6 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
             $this->_error($translator->translate('Quote not found'));
         }
 
-        $isQuoteSigned = $quote->getIsQuoteSigned();
-        if (!empty($isQuoteSigned)) {
-            $this->_error($translator->translate('This quote already signed'));
-        }
-
         if (empty($partialPercentage)) {
             $this->_error($translator->translate('Please specify partial payment percentage'));
         }

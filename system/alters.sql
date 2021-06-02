@@ -44,8 +44,12 @@ INSERT INTO `template_type` (`id`, `title`) VALUES ('typepdfquote', 'Quote pdf')
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_signed', 'Quote_Tools_QuoteMailWatchdog');
 
--- 27/05/2021
+-- 11/05/2021
 -- version: 2.3.0
+ALTER TABLE `shopping_quote` MODIFY COLUMN `status` ENUM('new','sent','signature_only_signed','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new';
+
+-- 27/05/2021
+-- version: 2.3.1
 CREATE TABLE IF NOT EXISTS `quote_custom_fields_config` (
     `id` INT(10) UNSIGNED AUTO_INCREMENT NOT NULL,
     `param_type` ENUM('text','select','radio','textarea','checkbox') DEFAULT 'text',
@@ -75,5 +79,5 @@ CREATE TABLE IF NOT EXISTS `quote_custom_params_data` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.1' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.2' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

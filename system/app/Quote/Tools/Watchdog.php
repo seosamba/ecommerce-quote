@@ -140,6 +140,9 @@ class Quote_Tools_Watchdog implements Interfaces_Observer {
 			case Quote_Models_Model_Quote::STATUS_SENT:
 				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_PROCESSING);
 			break;
+            case Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED:
+                $gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_NOT_VERIFIED);
+                break;
 			case Quote_Models_Model_Quote::STATUS_LOST:
 				$gateway->updateCartStatus($this->_quote->getCartId(), Models_Model_CartSession::CART_STATUS_CANCELED);
 			break;

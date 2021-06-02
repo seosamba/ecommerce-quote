@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `shopping_quote`;
 CREATE TABLE `shopping_quote` (
   `id` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `status` enum('new','sent','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new',
+  `status` enum('new','sent','signature_only_signed','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new',
   `disclaimer` text COLLATE utf8_unicode_ci,
   `internal_note` text COLLATE utf8_unicode_ci,
   `discount_tax_rate` enum('0','1','2','3') COLLATE utf8_unicode_ci DEFAULT '1',
@@ -79,4 +79,4 @@ CREATE TABLE IF NOT EXISTS `quote_custom_params_data` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.1' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.2' WHERE `name` = 'quote';
