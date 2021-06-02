@@ -152,12 +152,18 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
         $reloadPage = false;
         if ($quote->getPaymentType() === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
-            $quote->setStatus(Quote_Models_Model_Quote::STATUS_SOLD);
-            $quote->registerObserver(new Quote_Tools_Watchdog(array(
-                'gateway' => new Quote(array(), array())
-            )))->registerObserver(new Quote_Tools_GarbageCollector(array(
-                'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
-            )));
+            $quote->setStatus(Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED);
+//            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+//                'gateway' => new Quote(array(), array())
+//            )))->registerObserver(new Quote_Tools_GarbageCollector(array(
+//                'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
+//            )));
+            $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+            $cart = $cartSessionMapper->find($quote->getCartId());
+            if ($cart instanceof Models_Model_CartSession) {
+                $cart->setStatus(Models_Model_CartSession::CART_STATUS_NOT_VERIFIED);
+                $cartSessionMapper->save($cart);
+            }
 
             $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you.';
             $reloadPage = true;
