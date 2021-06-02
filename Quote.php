@@ -713,4 +713,14 @@ class Quote extends Tools_PaymentGateway
         }
     }
 
+    public function quoteCustomFieldsConfigAction()
+    {
+        if (Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)) {
+            if ($this->_request->isGet()) {
+                $this->_layout->content = $this->_view->render('quote-custom-fields-config.phtml');
+                echo $this->_layout->render();
+            }
+        }
+    }
+
 }

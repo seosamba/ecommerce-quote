@@ -1,0 +1,17 @@
+<div id="quote-custom-params-config-block" class="seotoaster container">
+    <?php echo $this->partial(
+        'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
+        array(
+            'headerText' => $this->translate('Quote custom fields config'),
+        )
+    ); ?>
+    <div id="quote-custom-params-config"></div>
+    <input type="hidden" id="quote-custom-params-config-token" name="secureToken" value="<?php echo Tools_System_Tools::initSecureToken(Quote::QUOTE_SECURE_TOKEN); ?>"/>
+</div>
+
+<input id="system-language-quote-custom-fields" type="hidden" name="system-language" value="<?php echo Tools_Misc::getJsTranslationLanguage();?>"/>
+<script>
+    $(function () {
+        $.getScript('<?php echo $this->websiteUrl . "plugins/quote/web/js/vue-modules/quotecustomparamsconfig.js"?>', function(result){});
+    });
+</script>
