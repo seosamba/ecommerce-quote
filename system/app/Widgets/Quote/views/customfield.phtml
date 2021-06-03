@@ -34,6 +34,7 @@
                     <?php $optionIds = explode(',', $field['option_ids']);?>
                     <?php $optionValues = explode(',', $field['option_values']);?>
                     <select class="custom-field-element" name="custom-field-element" data-type="select" data-field-id="<?php echo $field['id'];?>">
+                        <option value=""><?php echo $this->translate('Select'); ?></option>
                         <?php foreach($optionIds as $key => $value): ?>
                             <option value="<?php echo $value; ?>" <?php echo ($value == $field['value']) ? 'selected="selected"' : ''; ?>><?php echo $optionValues[$key] ; ?></option>
                         <?php endforeach; ?>
