@@ -614,6 +614,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
             $addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
 
+
             if(in_array('customfields', $this->_options)) {
                $customfieldsOptionKey = array_search('customfields', $this->_options);
 
@@ -633,12 +634,21 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                    }
 
                    if(!empty($customFieldsArray)) {
+                       $customFieldsArraySorted = array();
+                       foreach ($customfieldsOptions as $field) {
+                           foreach ($customFieldsArray as $cfield) {
+                               if($field == $cfield['param_name']) {
+                                   $customFieldsArraySorted[] = $cfield;
+                               }
+                           }
+                       }
+
                        $cartId = $this->_cart->getId();
                        $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
 
                        $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
 
-                       foreach ($customFieldsArray as $field) {
+                       foreach ($customFieldsArraySorted as $field) {
                            $field['value'] = '';
                            if(!empty($quoteCustomParamsData))  {
                                foreach ($quoteCustomParamsData as $key => $paramsData) {
