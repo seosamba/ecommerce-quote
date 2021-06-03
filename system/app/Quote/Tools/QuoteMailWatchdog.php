@@ -518,27 +518,36 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
         $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
 
-        if(!empty($quoteCustomParamsData)) {
-            foreach ($quoteCustomParamsData as $paramsData) {
+        $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
+        $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
+
+        if(!empty($customFields)) {
+            foreach ($customFields as $field) {
                 $paramValue = '';
-                if($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
-                    if(!empty($paramsData['param_value'])) {
-                        $paramValue = $paramsData['param_value'];
+
+                if(!empty($quoteCustomParamsData)) {
+                    foreach ($quoteCustomParamsData as $paramsData) {
+                        if($field['param_name'] == $paramsData['param_name']) {
+                            if($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                                if(!empty($paramsData['param_value'])) {
+                                    $paramValue = $paramsData['param_value'];
+                                }
+                            } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                                if(!empty($paramsData['params_option_id'])) {
+                                    $paramValue = $paramsData['option_val'];
+                                }
+                            } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+
+                            } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+
+                            } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+
+                            }
+                        }
                     }
-                } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
-                    if(!empty($paramsData['params_option_id'])) {
-                        $paramValue = $paramsData['option_val'];
-                    }
-                } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
-
-                } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
-
-                } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
-
                 }
 
-                $this->_entityParser->addToDictionary(array('quotecustomfields:'.$paramsData['param_name'] => $paramValue));
-
+                $this->_entityParser->addToDictionary(array('quotecustomfields:'.$field['param_name'] => $paramValue));
             }
         }
 
