@@ -24,6 +24,7 @@
         <?php endforeach;?>
     <?php endforeach;?>
 <?php else:?>
+    <input type="hidden" id="cart-id" value="<?php echo $this->cartId;?>" />
     <?php foreach ($this->customfieldsOptions as $paramsOption) :?>
         <?php foreach ($this->customFields as $field) :?>
             <?php if($paramsOption == $field['param_name']) :?>
@@ -48,32 +49,3 @@
         <?php endforeach;?>
     <?php endforeach;?>
 <?php endif;?>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $(document).on('change', '.custom-field-element', function() {
-            var cartId = '<?php echo $this->cartId;?>',
-                customFieldValue = $(this).val(),
-                customFieldType = $(this).data('type'),
-                customFieldId = $(this).data('field-id');
-
-            $.ajax({
-                type: 'POST',
-                url:  '<?php echo $this->websiteUrl; ?>plugin/quote/run/updateCustomfield',
-                data: {
-                    cartId           : cartId,
-                    customFieldValue : customFieldValue,
-                    customFieldType  : customFieldType,
-                    customFieldId    : customFieldId
-                }
-            }).done(function(response){
-                if (response.error == '1') {
-                    showMessage(response.responseText, true, 3000);
-                    return false;
-                } else {
-                    showMessage(response.responseText, false, 2000);
-                }
-            });
-        });
-    });
-
-</script>
