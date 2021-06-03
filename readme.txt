@@ -38,6 +38,11 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 {$quote:item:photo[:link]} - Displays product photo.
 :link - link to product page.
 
+{$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly]]}
+customfields:fieldName,fieldName2 - display quote custom fields
+{$quote:cartId} - if cartId option isn't added, widget will try to find quote cartId automatically
+readonly - display only custom field text
+
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource
 Ex: guest, customer, member

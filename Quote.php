@@ -723,4 +723,51 @@ class Quote extends Tools_PaymentGateway
         }
     }
 
+    public function updateCustomfieldAction() {
+        $currentRole = $this->_sessionHelper->getCurrentUser()->getRoleId();
+        if (($currentRole === Tools_Security_Acl::ROLE_SUPERADMIN || $currentRole === Tools_Security_Acl::ROLE_ADMIN || $currentRole === Shopping::ROLE_SALESPERSON) && $this->_request->isPost()) {
+            $cartId = filter_var($this->_request->getParam('cartId'), FILTER_SANITIZE_NUMBER_INT);
+            $customFieldValue = filter_var($this->_request->getParam('customFieldValue'), FILTER_SANITIZE_STRING);
+            $customFieldType = filter_var($this->_request->getParam('customFieldType'), FILTER_SANITIZE_STRING);
+            $customFieldId = filter_var($this->_request->getParam('customFieldId'), FILTER_SANITIZE_NUMBER_INT);
+
+            if (empty($cartId)) {
+                $this->_responseHelper->fail($this->_translator->translate('Cart id is missing'));
+            }
+
+            if (empty($customFieldId)) {
+                $this->_responseHelper->fail($this->_translator->translate('Can\'t update custom field'));
+            }
+
+            $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+            $quoteCustomParamsDataModel = $quoteCustomParamsDataMapper->checkIfParamExists($cartId, $customFieldId);
+
+            if(!$quoteCustomParamsDataModel instanceof Quote_Models_Model_QuoteCustomParamsDataModel) {
+                $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+
+                $quoteCustomParamsDataModel->setCartId($cartId);
+                $quoteCustomParamsDataModel->setParamId($customFieldId);
+            }
+
+            if($customFieldType == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                $quoteCustomParamsDataModel->setParamValue($customFieldValue);
+            } elseif ($customFieldType == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                $quoteCustomParamsDataModel->setParamsOptionId($customFieldValue);
+            } elseif ($customFieldType == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+
+            } elseif ($customFieldType == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+
+            } elseif ($customFieldType == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+
+            }
+
+            $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+
+            $this->_responseHelper->success($this->_translator->translate('Updated'));
+        }
+
+        $this->_responseHelper->fail($this->_translator->translate('Can\'t update custom field'));
+    }
+
 }
