@@ -112,7 +112,9 @@ class Api_Quote_Quotecustomfieldsconfig extends Api_Service_Abstract
             return array('status' => 'error', 'message' => $translator->translate('Your session has timed-out. Please Log back in '.'<a href="'.$websiteUrl.'go">here</a>'));
         }
 
-        if(preg_match('~[^\w-]~ui', $data['param_name'])) {
+        $data['param_name'] = trim(preg_replace('~[^0-9a-zA-Z]~', '', $data['param_name']));
+
+        if(preg_match('~[^\w]~ui', $data['param_name'])) {
             return array('status' => 'error', 'message' => $translator->translate('Invalid param name. You can use only alphabet and digits. You can also use "-". White Spaces not allowed'));
         }
 
@@ -191,7 +193,9 @@ class Api_Quote_Quotecustomfieldsconfig extends Api_Service_Abstract
 
             $oldParamName = $quoteCustomFieldsConfigModel->getParamName();
 
-            if(preg_match('~[^\w-]~ui', $data['param_name'])) {
+            $data['param_name'] = trim(preg_replace('~[^0-9a-zA-Z]~', '', $data['param_name']));
+
+            if(preg_match('~[^\w]~ui', $data['param_name'])) {
                 return array('status' => 'error', 'message' => $translator->translate('Invalid param name. You can use only alphabet and digits. You can also use "-". White Spaces not allowed'));
             }
             $currentParamName = $data['param_name'];
