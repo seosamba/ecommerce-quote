@@ -176,7 +176,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         Models_Model_CartSession::CART_STATUS_SHIPPED,
         Models_Model_CartSession::CART_STATUS_DELIVERED,
         Models_Model_CartSession::CART_STATUS_REFUNDED,
-        Models_Model_CartSession::CART_STATUS_PARTIAL
+        Models_Model_CartSession::CART_STATUS_PARTIAL,
+        Models_Model_CartSession::CART_STATUS_NOT_VERIFIED
     );
 
     /**
