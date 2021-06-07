@@ -167,6 +167,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     );
 
     /**
+     * Deny autosave quote address field by cart statuses
+     * @var false[]
+     *
+     */
+    protected $_denyQuoteCartStatuses = array(
+        Models_Model_CartSession::CART_STATUS_COMPLETED,
+        Models_Model_CartSession::CART_STATUS_SHIPPED,
+        Models_Model_CartSession::CART_STATUS_DELIVERED,
+        Models_Model_CartSession::CART_STATUS_REFUNDED,
+        Models_Model_CartSession::CART_STATUS_PARTIAL
+    );
+
+    /**
      * Initialize all helpers, cofigs, etc...
      *
      */
@@ -597,7 +610,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteStatus = $this->_quote->getStatus();
             $quoteUserId = $this->_quote->getUserId();
 
-            if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId)) {
+            if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId) && !in_array($this->_cart->getStatus(), $this->_denyQuoteCartStatuses)) {
                 $allowAutoSave = true;
             }
         }
