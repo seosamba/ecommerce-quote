@@ -1,5 +1,5 @@
 <?php if($this->editAllowed): ?>
-	<div class="quote-info <?php echo ($this->allowAutoSave) ? 'allow-auto-save' : '';?>" id="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
+	<div class="quote-info <?php echo $this->statusNotPaidClass;?> <?php echo ($this->allowAutoSave) ? 'allow-auto-save' : '';?>" id="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">
 		<p class="title"><?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?>
             <span class="ticon-refresh use-lead-address pointer fl-right" data-type="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'billing' : 'shipping';?>"> </span>
         </p>
