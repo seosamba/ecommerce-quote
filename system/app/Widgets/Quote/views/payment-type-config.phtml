@@ -2,7 +2,7 @@
     <?php if ($this->accessAllowed === true): ?>
         <p><label><?php echo $this->translate('Payment type'); ?></label>
             <select
-                <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD || $this->cartStatus == Models_Model_CartSession::CART_STATUS_PARTIAL) ? 'disabled' : '') ?> id="quote-payment-type-selector"
+                <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD || $this->cartStatus == Models_Model_CartSession::CART_STATUS_PARTIAL || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED) ? 'disabled' : '') ?> id="quote-payment-type-selector"
                 name="quote-payment-type-selector">
                 <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_FULL === $this->paymentType) ? 'selected' : ''); ?>
                         value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_FULL; ?>"><?php echo $this->translate('Full Payment required'); ?></option>
