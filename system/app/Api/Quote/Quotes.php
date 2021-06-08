@@ -464,7 +464,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         }
 
         if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses)) {
-            $this->_error($translator->translate('You can\'t edit the quote which is already paid.'));
+            $response->fail($translator->translate('You can\'t edit the quote which is already paid.'));
         }
 
         // Update status outdated quote
