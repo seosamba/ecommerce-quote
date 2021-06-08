@@ -332,7 +332,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                             $errMsg = $translator->translate('Empty cart ID');
                             $cartId = $quote->getCartId();
                             if(!empty($cartId)){
-                                $currentCart = $cartMapper->find($quote->getCartId());
+                                $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                                $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                                $currentCart = $cartMapper->find($cartId);
                                 if($currentCart instanceof Models_Model_CartSession){
                                     $errMsg = '';
                                     $currentCart->setId(null);
@@ -341,6 +345,19 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                     $currentCart->setPurchasedOn('');
                                     $currentCart->setPartialPurchasedOn('');
                                     $cart =  $cartMapper->save($currentCart);
+
+                                    $newCartId = $cart->getId();
+                                    if(!empty($quoteCustomParamsData)) {
+                                        foreach ($quoteCustomParamsData as $paramsData) {
+                                            $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+                                            $quoteCustomParamsDataModel->setCartId($newCartId);
+                                            $quoteCustomParamsDataModel->setParamId($paramsData['param_id']);
+                                            $quoteCustomParamsDataModel->setParamValue($paramsData['param_value']);
+                                            $quoteCustomParamsDataModel->setParamsOptionId($paramsData['params_option_id']);
+
+                                            $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+                                        }
+                                    }
                                 }
                             }
 
