@@ -42,6 +42,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('post'))
     );
 
+    public static $_alreadyPaidStatuses = array(
+        Models_Model_CartSession::CART_STATUS_COMPLETED,
+        Models_Model_CartSession::CART_STATUS_PARTIAL,
+        Models_Model_CartSession::CART_STATUS_REFUNDED,
+        Models_Model_CartSession::CART_STATUS_NOT_VERIFIED,
+        Models_Model_CartSession::CART_STATUS_DELIVERED,
+        Models_Model_CartSession::CART_STATUS_SHIPPED
+    );
+
     /**
      * Initialization
      *
@@ -452,6 +461,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         if(!$cart instanceof Models_Model_CartSession) {
             $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
+        }
+
+        if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses)) {
+            $response->fail($translator->translate('You can\'t edit the quote which is already paid.'));
         }
 
         // Update status outdated quote

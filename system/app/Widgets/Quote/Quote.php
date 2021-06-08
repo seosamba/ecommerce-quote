@@ -176,7 +176,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         Models_Model_CartSession::CART_STATUS_SHIPPED,
         Models_Model_CartSession::CART_STATUS_DELIVERED,
         Models_Model_CartSession::CART_STATUS_REFUNDED,
-        Models_Model_CartSession::CART_STATUS_PARTIAL
+        Models_Model_CartSession::CART_STATUS_PARTIAL,
+        Models_Model_CartSession::CART_STATUS_NOT_VERIFIED
     );
 
     /**
@@ -615,6 +616,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId) && !in_array($this->_cart->getStatus(), $this->_denyQuoteCartStatuses)) {
                 $allowAutoSave = true;
             }
+        }
+
+        if ($quoteStatus === Quote_Models_Model_Quote::STATUS_NEW || $quoteStatus === Quote_Models_Model_Quote::STATUS_SENT) {
+            $this->_view->statusNotPaidClass = 'notPaidClass';
+        } else {
+            $this->_view->statusNotPaidClass = '';
         }
 
         $this->_view->allowAutoSave = $allowAutoSave;
