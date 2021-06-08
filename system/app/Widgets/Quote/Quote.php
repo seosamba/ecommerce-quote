@@ -618,6 +618,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             }
         }
 
+        if ($quoteStatus === Quote_Models_Model_Quote::STATUS_NEW || $quoteStatus === Quote_Models_Model_Quote::STATUS_SENT) {
+            $this->_view->statusNotPaidClass = 'notPaidClass';
+        } else {
+            $this->_view->statusNotPaidClass = '';
+        }
+
         $this->_view->allowAutoSave = $allowAutoSave;
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
