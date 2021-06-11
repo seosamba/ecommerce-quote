@@ -287,8 +287,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                     $currentCart->setId(null);
                                     $currentCart->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
                                     $currentCart->setPartialPaidAmount('0');
-                                    $currentCart->setPurchasedOn('');
-                                    $currentCart->setPartialPurchasedOn('');
+                                    $currentCart->setPurchasedOn(null);
+                                    $currentCart->setPartialPurchasedOn(null);
                                     $cart =  $cartMapper->save($currentCart);
                                 }
                             }
@@ -331,8 +331,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $cartSessionModel->setId(null);
                     $cartSessionModel->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
                     $cartSessionModel->setPartialPaidAmount('0');
-                    $cartSessionModel->setPurchasedOn('');
-                    $cartSessionModel->setPartialPurchasedOn('');
+                    $cartSessionModel->setPurchasedOn(null);
+                    $cartSessionModel->setPartialPurchasedOn(null);
                     $cart =  $cartMapper->save($cartSessionModel);
                 } else {
                     $this->_error($translator->translate('cart not found'));
