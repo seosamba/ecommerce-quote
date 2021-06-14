@@ -1,0 +1,1 @@
+export { default as generalconfig } from './general-config.vue';

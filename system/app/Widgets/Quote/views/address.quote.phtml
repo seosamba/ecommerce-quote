@@ -5,6 +5,22 @@
         </p>
 		<?php echo $this->addressForm; ?>
 	</div>
+<?php elseif(!empty($this->quoteCustomParamsData) && !empty($this->customfieldsOptions)) :?>
+    <?php foreach ($this->quoteCustomParamsData as $paramsData) :?>
+        <?php if(in_array($paramsData['param_name'], $this->customfieldsOptions)) :?>
+            <?php if($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) :?>
+                <p><?php echo $paramsData['param_value'];?></p>
+            <?php elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) :?>
+                <p><?php echo $paramsData['option_val'];?></p>
+            <?php elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) :?>
+
+            <?php elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) :?>
+
+            <?php elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) :?>
+
+            <?php endif;?>
+        <?php endif;?>
+    <?php endforeach;?>
 <?php else: ?>
 	<?php if(!empty($this->address)): ?>
         <div class="quote-info" id="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'quote-billing-info' : 'quote-shipping-info';?>">

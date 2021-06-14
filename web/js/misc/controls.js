@@ -338,6 +338,32 @@ $(function() {
 
     getLeadLink(quoteId);
 
+    $(document).on('change', '.custom-field-element', function(e) {
+        e.preventDefault();
+        var cartId = $('#cart-id').val(),
+            customFieldValue = $(this).val(),
+            customFieldType = $(this).data('type'),
+            customFieldId = $(this).data('field-id');
+
+        $.ajax({
+            type: 'POST',
+            url:  $('#website_url').val() +  'plugin/quote/run/updateCustomfield',
+            data: {
+                cartId           : cartId,
+                customFieldValue : customFieldValue,
+                customFieldType  : customFieldType,
+                customFieldId    : customFieldId
+            }
+        }).done(function(response){
+            if (response.error == '1') {
+                showMessage(response.responseText, true, 3000);
+                return false;
+            } else {
+                //showMessage(response.responseText, false, 2000);
+            }
+        });
+    });
+
 });
 
 var getLeadLink = function (quoteId) {
