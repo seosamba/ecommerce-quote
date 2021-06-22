@@ -20,7 +20,7 @@
     'Cannot save quote draggable configuration.' => 'Impossible de sauvegarder la configuration déplaçable du devis.',
     'Quote id is missing' => 'ID de devis n\'est pas indiqué',
     'Quote not found' => 'Devis introuvable',
-    'Sorry, but you didn\'t fill all the required fields or you entered a wrong captcha. Please try again.' => 'Merci de cocher la case 'je ne suis pas un robot' et réessayer',
+    'Sorry, but you didn\'t fill all the required fields or you entered a wrong captcha. Please try again.' => 'Merci de cocher la case \'je ne suis pas un robot\' et réessayer',
     'Sorry, but you didn\'t fill all the required fields. Please try again.' => 'Désolé, mais vous n\'avez pas rempli tous les champs obligatoires. Veuillez réessayer.',
     'Server encountered a problem. Unable to create quote' => 'Le serveur a rencontré un problème. Impossible de créer un devis',
     'Can\'t duplicate Quote' => 'Impossible de dupliquer le devis',
