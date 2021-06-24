@@ -149,6 +149,7 @@
     'partial payment lag time' => 'temps de paiement partiel',
     'Send payment complement request automatically after' => 'Envoyer automatiquement la demande de complément de paiement après',
     'To activate partial options please turn on \'Accept partial payments for quote\'' => 'Pour activer les options partielles, veuillez choisir \'Accepter les paiements partiels pour le devis \'',
-    'To activate this option please turn on \'Accept partial payments for quote\'' => 'Pour activer cette option, veuillez choisir \'Accepter les paiments partiels pour le devis\''
+    'To activate this option please turn on \'Accept partial payments for quote\'' => 'Pour activer cette option, veuillez choisir \'Accepter les paiments partiels pour le devis\'',
+    'Learn more' => 'En savoir plus'
 
 );?>
