@@ -962,7 +962,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                             $optionStr = '';
                         }
 
-                        if (isset($optData['priceValue']) && is_numeric($optData['priceValue'])) {
+                        if (isset($optData['priceValue']) && is_numeric($optData['priceValue']) && !empty((float) $optData['priceValue'])) {
                             if ((bool)$item['taxRate'] && (bool)$this->_shoppingConfig['showPriceIncTax'] === true) {
                                 $optPriceMod = $optData['priceValue'] * (100 + $item['taxRate']) / 100;
                             } else {
