@@ -143,10 +143,10 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                         type: "quoteForm-success"
                     });
                 }
-            }).fail(function(xhr, responseText, error) {
+            }).fail(function(response) {
                 hideLoader();
-                var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html">Learn more</a>';
-                showMessage(xhr.responseText.replace(/"/g, '') + ' ' + msg, true);
+                var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html"><?php echo $this->translate("Learn more")?></a>';
+                showMessage(response.responseJSON.replace(/"/g, '') + ' ' + msg, true);
             });
 
             return false;
