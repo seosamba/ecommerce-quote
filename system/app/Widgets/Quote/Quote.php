@@ -731,6 +731,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     }
                 }
 
+                if ($this->_options[1] === 'prefix') {
+                    return $this->_translator->translate($address[$this->_options[1]]);
+                }
+
                 return $address[$this->_options[1]];
             } elseif (!$this->_editAllowed && isset($this->_options[1]) && in_array('customfields', $this->_options)) {
                 $customfieldsOptionKey = array_search('customfields', $this->_options);
