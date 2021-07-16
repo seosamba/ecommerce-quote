@@ -41,7 +41,7 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
         }
 
         if (empty($partialPercentage)) {
-            $this->_error($translator->translate('Please specify partial payment percentage'));
+            $this->_error($translator->translate('Please specify partial payment amount'));
         }
 
         $cartId = $quote->getCartId();

@@ -65,6 +65,7 @@
                 <p id="quote-payment-type-percentage-block" class="<?php echo $displayPartialPercentagePaymentNotificationClass;?>">
                     <?php echo $this->form->getElement('quotePartialPercentage')->renderLabel(); ?>
                     <?php echo $this->form->getElement('quotePartialPercentage')->renderViewHelper(); ?>
+                    <?php echo $this->form->getElement('quotePartialType')->renderViewHelper(); ?>
                 </p>
         </fieldset>
         <p id="quote-download-label-block">
@@ -175,6 +176,7 @@ $(document).ready(function(){
                 enabledPartialPayment: enabledPartialPayment,
                 partialNotifyAfterType: partialNotifyAfterType,
                 partialNotifyAfterQuantity: partialNotifyAfterQuantity,
+                quotePartialType: $('#quote-partial-type').val(),
                 secureToken: $('.quote-secure-token').val()
             },
             success: function(responce){

@@ -1,2 +1,7 @@
-<?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?> <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage+0;?>" /> % <?php echo $this->translate('which is');?> <span id="partial-payment-percentage-payment-amount">
+<?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?>
+<input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage+0;?>" />
+<select id="partial-payment-type" name="partial-payment-type">
+    <option value="percentage" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) ? 'selected':'';?>>%</option>
+    <option value="amount" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) ? 'selected':'';?>><?php echo $this->currency;?></option>
+</select> <?php echo $this->translate('which is');?> <span id="partial-payment-percentage-payment-amount">
   <?php echo $this->partialToPayAmount;?></span> <?php echo $this->translate('using the credit card form below');?>:

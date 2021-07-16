@@ -97,7 +97,7 @@ $(function() {
         var control  = $(e.currentTarget);
 
         if ($('#quote-payment-type-selector').attr('disabled') !== 'disabled' &&  $('#quote-payment-type-selector').val() === 'partial_payment' && (parseInt($('#partial-payment-percentage').val()) < 1 || isNaN(parseInt($('#partial-payment-percentage').val())))) {
-            showMessage('Please specify partial payment percentage', true, 5000);
+            showMessage('Please specify partial payment amount', true, 5000);
             hideLoader();
             return false;
         }
@@ -245,6 +245,27 @@ $(function() {
 
     });
 
+    $(document).on('change', '#partial-payment-type',function(e){
+        e.preventDefault();
+
+        var data = {
+            qid   : quoteId,
+            type  : 'taxrate',
+            value : $(e.currentTarget).val()
+        };
+
+        updateQuote(quoteId, false, '');
+
+        var request = _update('api/quote/quotes/', data, false);
+
+        request.done(function(response) {
+            hideSpinner();
+            $.extend(data, {summary:response});
+            recalculate(data);
+        });
+
+    });
+
     $(document).on('change', '#quote-payment-type-selector', function (e) {
         var paymentType = $(e.currentTarget).val(),
             isSignatureRequired = 0;
@@ -308,7 +329,8 @@ $(function() {
                 type       : 'POST',
                 data       : {
                     quoteId: quoteId,
-                    partialPercentage: $('#partial-payment-percentage').val()
+                    partialPercentage: $('#partial-payment-percentage').val(),
+                    partialType: $('#partial-payment-type').val()
                 },
                 dataType   : 'json',
                 beforeSend : showSpinner()
@@ -458,6 +480,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         // pdfTemplate : $('#quote-pdf-template-selector').val(),
         isSignatureRequired : isQuoteSignatureRequired,
         partialPaymentPercentage : $('#partial-payment-percentage').val(),
+        partialPaymentType : $('#partial-payment-type').val(),
         ccEmails    : ccEmails
     };
 
@@ -524,6 +547,10 @@ var recalculate = function(options, sid) {
     if ($('#partial-payment-percentage').length > 0) {
         var currentPercentage = $('#partial-payment-percentage').val(),
             partialTotal = accounting.formatMoney((currentPercentage*summary.total)/100);
+
+            if ($('#partial-payment-type').val() === 'amount') {
+                partialTotal = accounting.formatMoney(summary.total - currentPercentage);
+            }
 
         $('#partial-payment-percentage-payment-amount').html(partialTotal);
     }

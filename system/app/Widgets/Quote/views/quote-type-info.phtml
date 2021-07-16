@@ -17,6 +17,10 @@
                 <span id="quote-type-info-message"><?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?>
                     <?php if($this->isAdmin === true):?>
                         <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage+0;?>" />
+                        <select id="partial-payment-type" name="partial-payment-type">
+                            <option value="percentage" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) ? 'selected':'';?>>%</option>
+                            <option value="amount" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) ? 'selected':'';?>><?php echo $this->currency;?></option>
+                        </select>
                     <?php else:?>
                         <?php echo round($this->partialPercentage, 1);?>
                     <?php endif;?>
@@ -26,6 +30,10 @@
                 <span id="quote-type-info-message"><?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a non-refundable down payment of ');?>
                 <?php if($this->isAdmin === true):?>
                     <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage+0;?>" />
+                    <select id="partial-payment-type" name="partial-payment-type">
+                        <option value="percentage" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) ? 'selected':'';?>>%</option>
+                        <option value="amount" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) ? 'selected':'';?>><?php echo $this->currency;?></option>
+                    </select>
                 <?php else:?>
                     <?php echo round($this->partialPercentage, 1);?>
                 <?php endif;?>

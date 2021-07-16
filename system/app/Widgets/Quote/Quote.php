@@ -1492,6 +1492,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
             }
 
+            $currency = Zend_Registry::get('Zend_Currency');
+            $partialPaymentType = $this->_cart->getPartialType();
+            if (empty($partialPaymentType)) {
+                $partialPaymentType = Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE;
+            }
+
             $leftAmountToPaid = 0;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
@@ -1501,7 +1507,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $isPartialPaid = false;
                 if ((int) $this->_cart->getPartialPaidAmount() > 0 && !in_array($this->_cart->getStatus(), $cartStatuses) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
                     $isPartialPaid = true;
-                    $leftAmountToPaid = round(($this->_cart->getTotal() -($this->_cart->getTotal()*$this->_cart->getPartialPercentage())/100), 2);
+                    if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                        $leftAmountToPaid = round(($this->_cart->getTotal() - $this->_cart->getPartialPercentage()),
+                            2);
+                    } else {
+                        $leftAmountToPaid = round(($this->_cart->getTotal() - ($this->_cart->getTotal() * $this->_cart->getPartialPercentage()) / 100),
+                            2);
+                    }
                 }
             }
 
@@ -1513,6 +1525,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->partialPaidDate = date('Y-m-d', strtotime($this->_cart->getPartialPurchasedOn()));
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
+            $this->_view->partialPercentage = $partialPercentage;
+            if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                $this->_view->partialToPayAmount = $currency->toCurrency($this->_cart->getTotal() - $partialPercentage);
+            } else {
+                $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $this->_cart->getTotal() / 100));
+            }
+            $this->_view->currency = $currency->getSymbol();
+            $this->_view->partialPaymentType = $partialPaymentType;
             $this->_view->quoteTotal = $this->_cart->getTotal();
             $this->_view->isSignatureRequired = $isSignatureRequired;
             $this->_view->isAdmin = $isAdmin;
