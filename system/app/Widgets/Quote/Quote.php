@@ -1589,7 +1589,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $paymentType = $this->_quote->getPaymentType();
             $partialPercent = $this->_cart->getPartialPercentage();
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
-                return $this->_currency->toCurrency(round(($this->_cart->getTotal()*$partialPercent)/100, 2));
+                $partialPaymentType = $this->_cart->getPartialType();
+                if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                    return $this->_currency->toCurrency(round($this->_cart->getTotal() - $partialPercent, 2));
+                } else {
+                    return $this->_currency->toCurrency(round(($this->_cart->getTotal() * $partialPercent) / 100, 2));
+                }
             }
 
             return '';
@@ -1616,7 +1621,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $paymentType = $this->_quote->getPaymentType();
             $partialPercent = $this->_cart->getPartialPercentage();
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
-                return round($partialPercent,1);
+                $partialPaymentType = $this->_cart->getPartialType();
+                if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) {
+                    return round($partialPercent, 1);
+                }
             }
 
             return '';

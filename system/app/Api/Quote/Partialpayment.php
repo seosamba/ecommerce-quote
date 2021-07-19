@@ -52,13 +52,25 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
 
         $partialPaidAmount = $cart->getPartialPaidAmount();
         $cart->setIsPartial('1');
+        $partialPaymentType = $cart->getPartialType();
         if (!empty($partialPaidAmount) && $partialPaidAmount !== '0.00' && !empty((int)$partialPaidAmount)) {
             $cart->setPartialPaidAmount($cart->getTotal());
-            $amountToPayPartial = round($cart->getTotal() - round(($cart->getTotal() * $cart->getPartialPercentage()) / 100,
-                    2), 2);
+            if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                $amountToPayPartial = round($cart->getTotal() - round($cart->getTotal() - $cart->getPartialPercentage(),
+                        2), 2);
+            } else {
+                $amountToPayPartial = round($cart->getTotal() - round(($cart->getTotal() * $cart->getPartialPercentage()) / 100,
+                        2), 2);
+            }
             $updatePaymentStatus = Models_Model_CartSession::CART_STATUS_COMPLETED;
         } else {
-            $amountToPayPartial = round(($cart->getTotal() * $cart->getPartialPercentage()) / 100, 2);
+            if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                $amountToPayPartial = round(($cart->getTotal() - $partialPercentage), 2);
+            } else {
+                $amountToPayPartial = round(($cart->getTotal() * $cart->getPartialPercentage()) / 100, 2);
+            }
+
+
             $cart->setPartialPaidAmount($amountToPayPartial);
             $updatePaymentStatus = Models_Model_CartSession::CART_STATUS_PARTIAL;
         }
