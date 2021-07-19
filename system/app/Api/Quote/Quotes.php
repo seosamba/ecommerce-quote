@@ -42,6 +42,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         Tools_Security_Acl::ROLE_GUEST      => array('allow' => array('post'))
     );
 
+    public static $_alreadyPaidStatuses = array(
+        Models_Model_CartSession::CART_STATUS_COMPLETED,
+        Models_Model_CartSession::CART_STATUS_PARTIAL,
+        Models_Model_CartSession::CART_STATUS_REFUNDED,
+        Models_Model_CartSession::CART_STATUS_NOT_VERIFIED,
+        Models_Model_CartSession::CART_STATUS_DELIVERED,
+        Models_Model_CartSession::CART_STATUS_SHIPPED
+    );
+
     /**
      * Initialization
      *
@@ -111,9 +120,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         switch($type) {
             case Quote::QUOTE_TYPE_GENERATE:
-                $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions;
                 $form        = new Quote_Forms_Quote();
                 $data        = $this->_request->getParams();
+
+                if(!empty($data['formOptions'])) {
+                    $sessionFormOptions = $data['formOptions'];
+                    $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->$sessionFormOptions;
+                }
 
                 if($formOptions) {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
@@ -209,7 +222,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!empty($enableQuoteDefaultType)) {
                     $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
                     $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
-                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && !empty($quotePartialPercentage)) {
+                    if (($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) && !empty($quotePartialPercentage)) {
                         $cart->setIsPartial('1');
                         $cart->setPartialPercentage($quotePartialPercentage);
                     }
@@ -243,8 +256,64 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                             $cart->setShippingPrice($result['price']);
                         }
                     }
+                }
 
-                    $cart = $cartMapper->save($cart);
+                $cart = $cartMapper->save($cart);
+
+                $customFieldOpt = preg_grep("/^customfields/", $formOptions);
+
+                if(!empty($customFieldOpt)) {
+                    $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
+                    $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
+                    $customFieldsArray = array();
+
+                    if(!empty($customFields)) {
+                        foreach ($customFieldOpt as $customfieldsOptionKey => $opt) {
+                            if (!empty($formOptions[$customfieldsOptionKey + 1])) {
+                                $customfieldsOptions = array_filter(explode(',', $formOptions[$customfieldsOptionKey + 1]));
+
+                                if (!empty($customfieldsOptions)) {
+                                    foreach ($customFields as $key => $field) {
+                                        if (in_array($field['param_name'], $customfieldsOptions)) {
+                                            $customFieldsArray[$key] = $field;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if(!empty($customFieldsArray)) {
+                            $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                            foreach ($customFieldsArray as $field) {
+                                if(array_key_exists($field['param_name'], $data) && !empty($data[$field['param_name']])) {
+
+                                    $quoteCustomParamsDataModel = $quoteCustomParamsDataMapper->checkIfParamExists($cartId, $field['id']);
+
+                                    if(!$quoteCustomParamsDataModel instanceof Quote_Models_Model_QuoteCustomParamsDataModel) {
+                                        $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+
+                                        $quoteCustomParamsDataModel->setCartId($cart->getId());
+                                        $quoteCustomParamsDataModel->setParamId($field['id']);
+                                    }
+
+                                    if($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                                        $quoteCustomParamsDataModel->setParamValue($data[$field['param_name']]);
+                                    } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                                        $quoteCustomParamsDataModel->setParamsOptionId($data[$field['param_name']]);
+                                    } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+                                        //$quoteCustomParamsDataModel->setParamsOptionId($data[$field['param_name']]);
+                                    } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+                                        //$quoteCustomParamsDataModel->setParamValue($data[$field['param_name']]);
+                                    } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+                                        //$quoteCustomParamsDataModel->setParamsOptionId($data[$field['param_name']]);
+                                    }
+
+                                    $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
@@ -272,15 +341,32 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                             $errMsg = $translator->translate('Empty cart ID');
                             $cartId = $quote->getCartId();
                             if(!empty($cartId)){
-                                $currentCart = $cartMapper->find($quote->getCartId());
+                                $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                                $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                                $currentCart = $cartMapper->find($cartId);
                                 if($currentCart instanceof Models_Model_CartSession){
                                     $errMsg = '';
                                     $currentCart->setId(null);
                                     $currentCart->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
                                     $currentCart->setPartialPaidAmount('0');
-                                    $currentCart->setPurchasedOn('');
-                                    $currentCart->setPartialPurchasedOn('');
+                                    $currentCart->setPurchasedOn(null);
+                                    $currentCart->setPartialPurchasedOn(null);
                                     $cart =  $cartMapper->save($currentCart);
+
+                                    $newCartId = $cart->getId();
+                                    if(!empty($quoteCustomParamsData)) {
+                                        foreach ($quoteCustomParamsData as $paramsData) {
+                                            $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+                                            $quoteCustomParamsDataModel->setCartId($newCartId);
+                                            $quoteCustomParamsDataModel->setParamId($paramsData['param_id']);
+                                            $quoteCustomParamsDataModel->setParamValue($paramsData['param_value']);
+                                            $quoteCustomParamsDataModel->setParamsOptionId($paramsData['params_option_id']);
+
+                                            $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+                                        }
+                                    }
                                 }
                             }
 
@@ -322,8 +408,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $cartSessionModel->setId(null);
                     $cartSessionModel->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
                     $cartSessionModel->setPartialPaidAmount('0');
-                    $cartSessionModel->setPurchasedOn('');
-                    $cartSessionModel->setPartialPurchasedOn('');
+                    $cartSessionModel->setPurchasedOn(null);
+                    $cartSessionModel->setPartialPurchasedOn(null);
                     $cart =  $cartMapper->save($cartSessionModel);
                 } else {
                     $this->_error($translator->translate('cart not found'));
@@ -377,8 +463,16 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if (!empty($enableQuoteDefaultType) && $type === Quote::QUOTE_TYPE_GENERATE) {
                 $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
                 if (!empty($quotePaymentType)) {
-                    $quote->setPaymentType($quotePaymentType);
-                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
+                    $quotePaymentTypeName = $quotePaymentType;
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT;
+                    }
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+                    }
+
+                    $quote->setPaymentType($quotePaymentTypeName);
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
                         $quote->setIsSignatureRequired('1');
                     } else {
                         $quote->setIsSignatureRequired('0');
@@ -444,6 +538,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         if(!$cart instanceof Models_Model_CartSession) {
             $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
+        }
+
+        if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses)) {
+            $response->fail($translator->translate('You can\'t edit the quote which is already paid.'));
         }
 
         // Update status outdated quote
@@ -521,13 +619,17 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
 		            $customer = Models_Mapper_CustomerMapper::getInstance()->find($quote->getUserId());
 	            } else {
-                    $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
-		            $quote->setUserId($customer->getId());
+	                if(!empty($quoteData['billing']['email'])) {
+                        $customer = Quote_Tools_Tools::processCustomer($quoteData['billing']);
+                        $quote->setUserId($customer->getId());
+                    }
 	            }
 
-	            $cart->setBillingAddressId(
-		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING)
-	            );
+	            if($customer instanceof Models_Model_Customer) {
+                    $cart->setBillingAddressId(
+                        Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['billing'], Models_Model_Customer::ADDRESS_TYPE_BILLING)
+                    );
+                }
 
             }
 
@@ -557,16 +659,64 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
-                    $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
-                    $quote->setUserId($customer->getId());
+	                if(!empty($quoteData['shipping']['email'])) {
+                        $customer = Quote_Tools_Tools::processCustomer($quoteData['shipping']);
+                        $quote->setUserId($customer->getId());
+                    }
 	            }
 
-	            $cart->setShippingAddressId(
-		            Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
-	            );
+                if($customer instanceof Models_Model_Customer) {
+                    $cart->setShippingAddressId(
+                        Models_Mapper_CustomerMapper::getInstance()->addAddress($customer, $quoteData['shipping'], Models_Model_Customer::ADDRESS_TYPE_SHIPPING)
+                    );
+                }
 
             }
 
+            $cartId = $cart->getId();
+            $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+            $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
+            $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
+
+            if(!empty($customFields)) {
+                foreach ($customFields as $field) {
+                    if(isset($quoteData['billing'][$field['param_name']]) || isset($quoteData['shipping'][$field['param_name']])) {
+                        $type = Widgets_Quote_Quote::ADDRESS_TYPE_BILLING;
+
+                        $quoteCustomParamsDataModel = $quoteCustomParamsDataMapper->checkIfParamExists($cartId, $field['id']);
+
+                        if(!$quoteCustomParamsDataModel instanceof Quote_Models_Model_QuoteCustomParamsDataModel) {
+                            $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+
+                            $quoteCustomParamsDataModel->setCartId($cartId);
+                            $quoteCustomParamsDataModel->setParamId($field['id']);
+                        }
+
+                        if($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                            if(isset($quoteData['shipping'][$field['param_name']])) {
+                                $type = Widgets_Quote_Quote::ADDRESS_TYPE_SHIPPING;
+                            }
+
+                            $quoteCustomParamsDataModel->setParamValue($quoteData[$type][$field['param_name']]);
+                        } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                            if(isset($quoteData['shipping'][$field['param_name']])) {
+                                $type = Widgets_Quote_Quote::ADDRESS_TYPE_SHIPPING;
+                            }
+
+                            $quoteCustomParamsDataModel->setParamsOptionId($quoteData[$type][$field['param_name']]);
+                        } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+
+                        } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+
+                        } elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+
+                        }
+
+                        $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+                    }
+                }
+            }
 
             if (!empty($quoteData['paymentType']) && $quoteData['paymentType'] === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $cart->setPartialPercentage($quoteData['partialPaymentPercentage']);
@@ -576,7 +726,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $cart->setPartialPercentage('');
             }
 
-            if($customer) {
+            if($customer instanceof Models_Model_Customer) {
                 $cart->setUserId($customer->getId());
                 Models_Mapper_CartSessionMapper::getInstance()->save($cart);
             }

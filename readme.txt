@@ -5,11 +5,13 @@ Used for creating quotes directly from page or at the checkout step.
 Quote widgets:
 
 Widgets on product page and checkout:
-{$quote:form} - Displays a quote form at the checkout page (users can request a quote on a few products at the same time) or directly on the product page template.
+{$quote:form[:customfields:[fieldName,fieldName2,...]]} - Displays a quote form at the checkout page (users can request a quote on a few products at the same time) or directly on the product page template.
+customfields:fieldName,fieldName2 - display quote custom fields
 
 Widgets that working with quote page (dashboard):
 {$quote:search} - Displays the search form on the quote page.
-{$quote:address:billing[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays the form to input user's address which used as user's payment info. (for admin)
+{$quote:address:billing[:required-lastname,company,address1,address2,city,zip,mobile,phone][:customfields:fieldName]} - Displays the form to input user's address which used as user's payment info. (for admin)
+customfields:fieldName - display quote custom field
 {$quote:address:shipping[:required-lastname,company,address1,address2,city,zip,mobile,phone]} - Displays a form to enter the user's shipping address. (for admin)
 {$quote:title} - Displays the quote name.
 {$quote:creator} - Displays creator name
@@ -20,6 +22,9 @@ Widgets that working with quote page (dashboard):
 {$quote:shipping} - Displays the shipping price.
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".
+{$quote:userid} - Reture quote user ID
+{$quote:address[:customfields:fieldName]}
+customfields:fieldName - display quote custom field
 
 Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working with quote page (dashboard):
 {$quote:item:name} - Displays the product name added to the quote.
@@ -30,6 +35,13 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
  :unit - price for single unit
 {$quote:item:remove} - Displays remove button.
 {$quote:item:sid} - Unique product hash (product name + product sku + product options).
+{$quote:item:photo[:link]} - Displays product photo.
+:link - link to product page.
+
+{$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly]]}
+customfields:fieldName,fieldName2 - display quote custom fields
+{$quote:cartId} - if cartId option isn't added, widget will try to find quote cartId automatically
+readonly - display only custom field text
 
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource
@@ -88,3 +100,14 @@ Here you can put quote item widgets
 Quote action emails lexems:
 {quoteowner:email} - This lexem return quote owner email address
 {widcard:BizEmail} - This lexem return widcard email address
+{$quote:item:option:optionName} -> option without title
+{$quote:item:option:optionName:title} -> option with title
+:optionName - option name
+
+{orderstatus[:partial,completed,...]}
+{paymenttype[:full_payment|full_payment_signature|partial_payment|partial_payment_signature|only_signature]]}
+{quoteadminonly}{/quoteadminonly} - return content for everyone who have access to the storemanagement resource
+{$quote:secondpaymentamount} - second payment amount
+{quoteleadorganizationlogo} - This lexem return quote lead organization logo
+{quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src
+{quotecustomfields:fieldName} - This lexem return quote customfield where "fieldName" is customfield name

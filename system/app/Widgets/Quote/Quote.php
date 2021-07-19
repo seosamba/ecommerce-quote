@@ -167,6 +167,20 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     );
 
     /**
+     * Deny autosave quote address field by cart statuses
+     * @var false[]
+     *
+     */
+    protected $_denyQuoteCartStatuses = array(
+        Models_Model_CartSession::CART_STATUS_COMPLETED,
+        Models_Model_CartSession::CART_STATUS_SHIPPED,
+        Models_Model_CartSession::CART_STATUS_DELIVERED,
+        Models_Model_CartSession::CART_STATUS_REFUNDED,
+        Models_Model_CartSession::CART_STATUS_PARTIAL,
+        Models_Model_CartSession::CART_STATUS_NOT_VERIFIED
+    );
+
+    /**
      * Initialize all helpers, cofigs, etc...
      *
      */
@@ -593,6 +607,24 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->addressType = $addressType;
         $this->_view->address     = $address;
 
+        $allowAutoSave = false;
+        if($this->_quote instanceof Quote_Models_Model_Quote) {
+            $quoteStatus = $this->_quote->getStatus();
+            $quoteUserId = $this->_quote->getUserId();
+
+            if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId) && !in_array($this->_cart->getStatus(), $this->_denyQuoteCartStatuses)) {
+                $allowAutoSave = true;
+            }
+        }
+
+        if ($quoteStatus === Quote_Models_Model_Quote::STATUS_NEW || $quoteStatus === Quote_Models_Model_Quote::STATUS_SENT) {
+            $this->_view->statusNotPaidClass = 'notPaidClass';
+        } else {
+            $this->_view->statusNotPaidClass = '';
+        }
+
+        $this->_view->allowAutoSave = $allowAutoSave;
+
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
             foreach (preg_grep('/^required-.*$/', $this->_options) as $reqOpt) {
@@ -602,21 +634,96 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             }
 
             $addressForm = $this->_initAddressForm($addressType, $address, $requiredFields);
+
+
+            if(in_array('customfields', $this->_options)) {
+               $customfieldsOptionKey = array_search('customfields', $this->_options);
+
+               $customfieldsOptions = array_filter(explode(',', $this->_options[$customfieldsOptionKey + 1]));
+
+               if(!empty($customfieldsOptions)) {
+                   $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
+                   $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
+                   $customFieldsArray = array();
+
+                   if(!empty($customFields)) {
+                       foreach ($customFields as $key => $field) {
+                           if(in_array($field['param_name'], $customfieldsOptions)) {
+                               $customFieldsArray[$key] = $field;
+                           }
+                       }
+                   }
+
+                   if(!empty($customFieldsArray)) {
+                       $customFieldsArraySorted = array();
+                       foreach ($customfieldsOptions as $field) {
+                           foreach ($customFieldsArray as $cfield) {
+                               if($field == $cfield['param_name']) {
+                                   $customFieldsArraySorted[] = $cfield;
+                               }
+                           }
+                       }
+
+                       $cartId = $this->_cart->getId();
+                       $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                       $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                       foreach ($customFieldsArraySorted as $field) {
+                           $field['value'] = '';
+                           if(!empty($quoteCustomParamsData))  {
+                               foreach ($quoteCustomParamsData as $key => $paramsData) {
+                                   if($field['param_name'] == $paramsData['param_name']) {
+                                       if($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                                            if(!empty($paramsData['param_value'])) {
+                                                $field['value'] = $paramsData['param_value'];
+                                            }
+                                       } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                                           if(!empty($paramsData['params_option_id'])) {
+                                               $field['value'] = $paramsData['params_option_id'];
+                                           }
+                                       } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+
+                                       } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+
+                                       } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+
+                                       }
+                                   }
+                               }
+                           }
+
+                           $addressForm = Quote_Tools_Tools::addFormFields($addressForm, $field);
+
+                           $formColumn = 'rcol';
+                           if($addressType ==  Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) {
+                               $formColumn = 'rightColumn';
+                           }
+
+                           $displayGroup = $addressForm->getDisplayGroup($formColumn)->getElements();
+                           $displayGroup[$field['param_name']] = $addressForm->getElement($field['param_name']);
+                           $addressForm->addDisplayGroups(array($formColumn => array($displayGroup)));
+                       }
+                   }
+               }
+            }
+
             if (!empty($addressForm->getElement('overwriteQuoteUserBilling'))) {
                 $addressForm->getElement('overwriteQuoteUserBilling')
                     ->setAttrib('checked', 'checked')
                     ->setAttrib('class', 'hidden')
                     ->setLabel('');
             }
+
             $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
                 if ($this->_options[1] === 'phone') {
-                    return $address['phone_country_code_value'].$address[$this->_options[1]];
+                    return $address['phone_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
                 }
                 if ($this->_options[1] === 'mobile') {
-                    return $address['mobile_country_code_value'].$address[$this->_options[1]];
+                    return $address['mobile_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $address['mobilecountrycode']);
                 }
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
                     $stateData = Tools_Geo::getStateById($address['state']);
@@ -625,8 +732,30 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     }
                 }
 
+                if ($this->_options[1] === 'prefix') {
+                    return $this->_translator->translate($address[$this->_options[1]]);
+                }
+
                 return $address[$this->_options[1]];
+            } elseif (!$this->_editAllowed && isset($this->_options[1]) && in_array('customfields', $this->_options)) {
+                $customfieldsOptionKey = array_search('customfields', $this->_options);
+
+                $customfieldsOptions = array_filter(explode(',', $this->_options[$customfieldsOptionKey + 1]));
+
+                if(!empty($customfieldsOptions)) {
+                    $cartId = $this->_cart->getId();
+                    $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                    $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                    if(!empty($quoteCustomParamsData)) {
+                        $this->_view->customfieldsOptions = $customfieldsOptions;
+                        $this->_view->quoteCustomParamsData = $quoteCustomParamsData;
+                        return $this->_view->render('address.quote.phtml');
+                    }
+                }
             } elseif ($this->_options[1] == 'default') {
+
                 return $this->_view->render('address.quote.phtml');
             }
         }
@@ -819,6 +948,80 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $notRender = false;
 
         $widgetOption = $this->_options[0];
+        if ($widgetOption === 'option' && !empty($this->_options[1])) {
+            if (!empty($options[$this->_options[1]])) {
+                $singleOpt = $options[$this->_options[1]];
+                $options = array();
+                $options[$this->_options[1]] = $singleOpt;
+                $optionStr = '';
+                $withTitle = false;
+                if (!empty($this->_options[2]) && $this->_options[2] === 'title') {
+                    $withTitle = true;
+                }
+                $item['taxRate'] = Tools_Tax_Tax::calculateProductTax($product, null, true);
+                foreach ($options as $optionTitle => $optData) {
+                    if (is_array($optData)) {
+                        if (!empty($optData['title']) && $withTitle === true) {
+                            $optionStr = '<span>'.$optionTitle. ':</span> <span>'.$optData['title'].'</span> ';
+                        } else {
+                            $optionStr = '';
+                        }
+
+                        if (isset($optData['priceValue']) && is_numeric($optData['priceValue']) && !empty((float) $optData['priceValue'])) {
+                            if ((bool)$item['taxRate'] && (bool)$this->_shoppingConfig['showPriceIncTax'] === true) {
+                                $optPriceMod = $optData['priceValue'] * (100 + $item['taxRate']) / 100;
+                            } else {
+                                $optPriceMod = $optData['priceValue'];
+                            }
+
+                            if ($withTitle === true) {
+                                if ($optData['priceType'] === 'percent') {
+                                    $optionStr .= '<span>(' . $optData['priceSign'] . '%'. number_format($optPriceMod, 2) .')</span>';
+                                } else {
+                                    $optPriceMod = $this->_currency->toCurrency($optPriceMod);
+
+                                    $optionStr .= '<span>(' . $optData['priceSign'] . $optPriceMod .')</span>';
+                                }
+                            } else {
+                                if ($optData['priceType'] === 'percent') {
+                                    $optionStr .= $optData['priceSign'] . '%' . number_format($optPriceMod, 2);
+                                } else {
+                                    $optPriceMod = $this->_currency->toCurrency($optPriceMod);
+
+                                    $optionStr .= $optData['priceSign'] . $optPriceMod;
+                                }
+                            }
+
+                        }
+                        if (isset($optData['weightValue']) && intval($optData['weightValue'])) {
+                            if ($withTitle === true) {
+                                $optionStr .= '<span>(' . $optData['weightSign'] . ' ' . $optData['weightValue'] . ' ' . $this->_shoppingConfig['weightUnit'] . ')</span>';
+                            } else {
+                                $optionStr .= $optData['weightSign'] . ' ' . $optData['weightValue'] . ' ' . $this->_shoppingConfig['weightUnit'];
+                            }
+                        }
+
+                        if (!isset($optData['priceValue']) && !isset($optData['weightValue'])) {
+                            return $optData['title'];
+                        }
+
+                    } else {
+                        $optData = trim($optData);
+                        if (!empty($optData)) {
+                            return $optData;
+                        }
+                    }
+                }
+
+                return $optionStr;
+            }
+        }
+
+
+        if (in_array('clean', $this->_options, true)) {
+            $this->_view->clean = true;
+        }
+
         if (empty((int)$product->getPrice()) && empty($product->getEnabled()) && $widgetOption !== 'sid') {
             $notRender = true;
         }
@@ -839,6 +1042,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 $this->_view->imageUrl = $photoUrl;
 
+                $linkFlag = false;
+                if(in_array('link', $this->_options, true)) {
+                    $productUrl =  $this->_websiteHelper->getUrl() . $product->getPage()->getUrl();
+                    $linkFlag = true;
+
+                    $this->_view->productUrl = $productUrl;
+                }
+
+                $this->_view->linkFlag = $linkFlag;
+
             break;
             case 'price':
                 $price                  = ($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
@@ -854,6 +1067,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if(!$defaultOptions || empty($defaultOptions)) {
                     return false;
                 }
+
+                $allowEditOptions = false;
+
+                if(is_array($defaultOptions)) {
+                    foreach ($defaultOptions as $key => $opt) {
+                        if($opt['type'] != Models_Model_Option::TYPE_ADDITIONALPRICEFIELD) {
+                            $allowEditOptions = true;
+                        }
+                    }
+                }
+
+                $this->_view->allowEditOptions = $allowEditOptions;
+
                 $value                   = $options;
                 $this->_view->weightSign = $this->_shoppingConfig['weightUnit'];
             break;
@@ -930,8 +1156,137 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         //set store country as default country for the form
         $quoteForm = $this->_fixFormCountry($quoteForm);
 
+        $options = $this->_options;
+        $customFieldOpt = preg_grep("/^customfields/", $options);
+
+        if(!empty($customFieldOpt)) {
+            foreach ($customFieldOpt as $customfieldsOptionKey => $opt) {
+                if(!empty($options[$customfieldsOptionKey + 1])) {
+                    unset($options[$customfieldsOptionKey + 1]);
+                }
+                unset($options[$customfieldsOptionKey]);
+            }
+        }
+
         // adjust dynamic quote from fields
-        $quoteForm = Quote_Tools_Tools::adjustFormFields($quoteForm, $this->_options, $this->_formMandatoryFields);
+        $quoteForm = Quote_Tools_Tools::adjustFormFields($quoteForm, $options, $this->_formMandatoryFields);
+
+        if(!empty($customFieldOpt)) {
+            $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
+            $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
+            $customFieldsArray = array();
+
+            if(!empty($customFields)) {
+                $sortOptionResult = array();
+
+                foreach ($customFieldOpt as $customfieldsOptionKey => $opt) {
+                    if (!empty($this->_options[$customfieldsOptionKey + 1])) {
+                        $customfieldsOptions = array_filter(explode(',', $this->_options[$customfieldsOptionKey + 1]));
+
+                        if (!empty($customfieldsOptions)) {
+                            foreach ($customFields as $key => $field) {
+                                if (in_array($field['param_name'], $customfieldsOptions)) {
+                                    $customFieldsArray[$key] = $field;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(!empty($customFieldsArray)) {
+                    $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                    foreach ($customFieldsArray as $field) {
+                        $cartId = $cartStorage->getCartId();
+
+                        if(!empty($cartId)) {
+                            $field['value'] = '';
+                            $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                            if(!empty($quoteCustomParamsData))  {
+                                foreach ($quoteCustomParamsData as $key => $paramsData) {
+                                    if($field['param_name'] == $paramsData['param_name']) {
+                                        if($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                                            if(!empty($paramsData['param_value'])) {
+                                                $field['value'] = $paramsData['param_value'];
+                                            }
+                                        } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                                            if(!empty($paramsData['params_option_id'])) {
+                                                $field['value'] = $paramsData['params_option_id'];
+                                            }
+                                        } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+
+                                        } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+
+                                        } elseif ($paramsData['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        $quoteForm = Quote_Tools_Tools::addFormFields($quoteForm, $field);
+
+                        if(empty($options)) {
+                            $displayGroup = $quoteForm->getDisplayGroup('rightColumn')->getElements();
+                            $displayGroup[$field['param_name']] = $quoteForm->getElement($field['param_name']);
+
+                            $disclaimer = $quoteForm->getDisplayGroup('rightColumn')->getElement('disclaimer');
+                            if (!empty($disclaimer)) {
+                                unset($displayGroup['disclaimer']);
+                                $displayGroup['disclaimer'] = $disclaimer;
+                            }
+
+                            $quoteForm->addDisplayGroups(array('rightColumn' => array($displayGroup)));
+
+                        } else {
+                            $originalWidgetOptions = $this->_options;
+
+                            $customFieldOption = $field['param_name'];
+
+                            foreach ($originalWidgetOptions as $key => $value) {
+                                $optionParams = explode(',', $value);
+
+                                if(in_array($customFieldOption, $optionParams)) {
+                                    if(empty($sortOptionResult[$key])) {
+                                        $sortOptionResult[$key] = $customFieldOption;
+                                    } else {
+                                        $sortOptionResult[] = $customFieldOption;
+                                    }
+                                }
+
+                                if($value == 'customfields') {
+                                    unset($originalWidgetOptions[$key]);
+                                }
+                            }
+                        }
+                    }
+
+                    $resultOrderFormElements = array();
+                    if(!empty($sortOptionResult) && !empty($options)) {
+                        $formElements = $quoteForm->getElements();
+
+                        foreach ($originalWidgetOptions as $widgetOption) {
+                            $widgetOptionClear = str_replace('*', '', $widgetOption);
+                            $widgetOption = explode(',', $widgetOptionClear);
+
+                            foreach ($widgetOption as $wopt) {
+                                if(!empty($quoteForm->getElement($wopt))) {
+                                    $resultOrderFormElements[$wopt] = $quoteForm->getElement($wopt);
+                                }
+                            }
+                        }
+
+                        if(!empty($resultOrderFormElements)) {
+                            $elements = array_merge($resultOrderFormElements, $formElements);
+                            $quoteForm->setElements($elements);
+                        }
+                    }
+                }
+            }
+        }
+
         if ($product instanceof Models_Model_Product) {
             $quoteForm->addElement('text', md5($product->getId()), array('style' => 'display:none;', 'aria-label' => 'product id'));
             $quoteForm->getElement(md5($product->getId()))->removeDecorator('HtmlTag');
@@ -940,7 +1295,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteForm->getElement(md5($cartStorage->getCartId()))->removeDecorator('HtmlTag');
         }
 
-        Zend_Controller_Action_HelperBroker::getStaticHelper('session')->formOptions = $this->_options;
+        $quoteOptionsHash = 'formOptions-' . md5(microtime(true));
+        $quoteForm->addElement('text', 'formOptions', array('class' => 'hidden', 'value' => $quoteOptionsHash));
+        $quoteForm->getElement('formOptions')->removeDecorator('HtmlTag');
+
+        Zend_Controller_Action_HelperBroker::getStaticHelper('session')->$quoteOptionsHash = $this->_options;
 
 
         $elements = $quoteForm->getElements();
@@ -1195,6 +1554,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $partialPaymentAllowed = true;
             }
 
+            $this->_view->cartStatus = $this->_cart->getStatus();
+            $this->_view->gatewayName = $this->_cart->getGateway();
+
             $this->_view->quoteId = $this->_quote->getId();
             $this->_view->quoteStatus = $quoteStatus;
             $this->_view->paymentType = $paymentType;
@@ -1205,6 +1567,83 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('payment-type-config.phtml');
         }
     }
+
+    protected function _renderFirstpaymentamount()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                return $this->_currency->toCurrency(round(($this->_cart->getTotal()*$partialPercent)/100, 2));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderSecondpaymentamount()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && $this->_cart->getStatus() === Models_Model_CartSession::CART_STATUS_PARTIAL) {
+                return $this->_currency->toCurrency(round(($this->_cart->getTotal() - $this->_cart->getPartialPaidAmount()),
+                    2));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderFirstpaymentpercentage()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $paymentType = $this->_quote->getPaymentType();
+            $partialPercent = $this->_cart->getPartialPercentage();
+            if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
+                return round($partialPercent,1);
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderPartiallypaid()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $partiallyPaid = $this->_cart->getPartialPaidAmount();
+            if (!empty($partiallyPaid)) {
+                return  $this->_currency->toCurrency($partiallyPaid);
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderPartiallypaiddate()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            $partialPurchasedOn = $this->_cart->getPartialPurchasedOn();
+            if (!empty($partialPurchasedOn)) {
+                return  date('Y-m-d', strtotime($partialPurchasedOn));
+            }
+
+            return '';
+        }
+    }
+
+    protected function _renderQuotenotsigneddate()
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            if (!empty($this->_quote->getIsQuoteSigned())) {
+                return date('d-M-Y', strtotime($this->_quote->getQuoteSignedAt()));
+            } else {
+                return date('d-M-Y', strtotime('now'));
+            }
+        }
+    }
+
 
     protected function _renderQuotesigneddate()
     {
@@ -1226,13 +1665,21 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && !$this->_editAllowed) {
             if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                $translator = Zend_Registry::get('Zend_Translate');
+
                 if (empty($this->_quote->getIsQuoteSigned())) {
                     $this->_view->quoteId = $this->_quote->getId();
+
+                    $buttonLabel = $translator->translate('Download Proposal PDF');
+                    if (!empty($this->_options[0])) {
+                        $buttonLabel = $this->_options[0];
+                    }
+
+                    $this->_view->buttonLabel = $buttonLabel;
 
                     return $this->_view->render('download-preview-button.phtml');
                 }
 
-                $translator = Zend_Registry::get('Zend_Translate');
 
                 $userId = $this->_quote->getUserId();
                 $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($userId);
@@ -1286,6 +1733,74 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
             }
         }
+        return '';
+    }
+
+    protected function _renderCustomfield() {
+        $readonly = false;
+        if(in_array('readonly', $this->_options)) {
+            $readonlyKey = array_search('readonly', $this->_options);
+            unset($this->_options[$readonlyKey]);
+
+            $readonly = true;
+        }
+
+        if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+            $readonly = true;
+        }
+
+        if (empty($this->_options[2])) {
+            if ($this->_quote instanceof Quote_Models_Model_Quote) {
+                $cartId = $this->_quote->getCartId();
+            }
+        } else {
+            $cartId = (int) $this->_options[2];
+        }
+
+        if(in_array('customfields', $this->_options) && !empty($cartId)) {
+            $customfieldsOptionKey = array_search('customfields', $this->_options);
+
+            $customfieldsOptions = array_filter(explode(',', $this->_options[$customfieldsOptionKey + 1]));
+
+            if(!empty($customfieldsOptions)) {
+                $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
+                $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
+
+                $this->_view->readonly = $readonly;
+
+                if(!empty($customFields)) {
+                    foreach ($customFields as $key => $fields) {
+                        $quoteCustomParamsDataModel = $quoteCustomParamsDataMapper->checkIfParamExists($cartId, $fields['id']);
+
+                        $value = '';
+                        if($quoteCustomParamsDataModel instanceof Quote_Models_Model_QuoteCustomParamsDataModel) {
+                            if($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                                $value = $quoteCustomParamsDataModel->getParamValue();
+                            } elseif ($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                                $value = $quoteCustomParamsDataModel->getParamsOptionId();
+                            } elseif ($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) {
+
+                            } elseif ($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) {
+
+                            } elseif ($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
+
+                            }
+                        }
+
+                        $customFields[$key]['value'] = $value;
+                    }
+
+                    $this->_view->customFields = $customFields;
+                    $this->_view->customfieldsOptions = $customfieldsOptions;
+                    $this->_view->cartId = $cartId;
+
+                    return $this->_view->render('customfield.phtml');
+                }
+            }
+        }
+
         return '';
     }
 

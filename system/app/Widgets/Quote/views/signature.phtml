@@ -67,6 +67,14 @@
                 }).done(function(response) {
                     hideSpinner();
                     if (response.error == '0') {
+                        if (typeof response.responseText.reload !== 'undefined') {
+                            showMessage(response.responseText.message, true, 3000);
+                            window.setTimeout(function () {
+                                window.location.reload();
+                            }, 2000);
+                            return false;
+                        }
+
                         showMessage(response.responseText, false, 5000);
                         $('#quote-signature-form').replaceWith('<img id="quote-signature-signed-img" src="'+signature+'">');
                     }

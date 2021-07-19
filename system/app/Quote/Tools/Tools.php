@@ -530,4 +530,112 @@ class Quote_Tools_Tools {
         return '';
     }
 
+    /**
+     * @param Zend_Form $form
+     * @param $fieldsParams
+     * @return Zend_Form
+     * @throws Zend_Exception
+     * @throws Zend_Form_Exception
+     */
+    public static function addFormFields (Zend_Form $form, $fieldsParams) {
+        $translator = Zend_Registry::get('Zend_Translate');
+
+        if(!empty($fieldsParams)) {
+            switch ($fieldsParams['param_type']) {
+                case 'text':
+                    $form->addElement(new Zend_Form_Element_Text(array(
+                        'name'  => $fieldsParams['param_name'],
+                        'id'    => $fieldsParams['param_name'],
+                        'label' => $translator->translate($fieldsParams['label']),
+                        //'placeholder' => $translator->translate($fieldsParams['label']),
+                        'value' => !empty($fieldsParams['value']) ? $fieldsParams['value'] : '',
+                        'decorators' => array(
+                            'ViewHelper',
+                            array('Label'),
+                            array('HtmlTag', array('tag' => 'p'))
+                        )
+                    )));
+
+                    break;
+                case 'select':
+                    $optionValues = array();
+                    if(!empty($fieldsParams['option_values']) && !empty($fieldsParams['option_ids'])) {
+                        $optionValues = explode(',', $fieldsParams['option_values']);
+                        $optionIds = explode(',', $fieldsParams['option_ids']);
+
+                        $optionValues = array_combine($optionIds, $optionValues);
+                    }
+
+                    $form->addElement(new Zend_Form_Element_Select(array(
+                        'name'         => $fieldsParams['param_name'],
+                        'id'           => $fieldsParams['param_name'],
+                        'label'        => $translator->translate($fieldsParams['label']),
+                        'multiOptions' => array('' => $translator->translate('Select')) + $optionValues,
+                        'value' => !empty($fieldsParams['value']) ? $fieldsParams['value'] : '',
+                        'decorators' => array(
+                            'ViewHelper',
+                            array('Label'),
+                            array('HtmlTag', array('tag' => 'p'))
+                        )
+                    )));
+
+                    break;
+                case 'radio':
+                    $optionValues = array();
+                    if(!empty($fieldsParams['option_values'])) {
+                        $optionValues = explode(',', $fieldsParams['option_values']);
+                    }
+
+                    $form->addElement(new Zend_Form_Element_Radio(array(
+                        'name'  => $fieldsParams['param_name'],
+                        'id'    => $fieldsParams['param_name'],
+                        'label' => $translator->translate($fieldsParams['label']),
+                        //'value' => !empty($fieldsParams['value']) ? $fieldsParams['value'] : '',
+                        'multiOptions' => $optionValues,
+                        'decorators' => array(
+                            'ViewHelper',
+                            array('Label'),
+                            array('HtmlTag', array('tag' => 'p'))
+                        )
+                    )));
+
+                    break;
+                case 'textarea':
+                    $form->addElement(new Zend_Form_Element_Textarea(array(
+                        'name'  => $fieldsParams['param_name'],
+                        'id'    => $fieldsParams['param_name'],
+                        'label' => $translator->translate($fieldsParams['label']),
+                        'cols'  => '15',
+                        'rows'  => '4',
+                        //'value' => !empty($fieldsParams['value']) ? $fieldsParams['value'] : '',
+                        'decorators' => array(
+                            'ViewHelper',
+                            array('Label'),
+                            array('HtmlTag', array('tag' => 'p'))
+                        )
+                    )));
+
+                    break;
+                case 'checkbox':
+                    $form->addElement(new Zend_Form_Element_Checkbox(array(
+                        'name'  => $fieldsParams['param_name'],
+                        'id'    => $fieldsParams['param_name'],
+                        'label' => $translator->translate($fieldsParams['label']),
+                        //'value' => !empty($fieldsParams['value']) ? $fieldsParams['value'] : '',
+                        'decorators' => array(
+                            'ViewHelper',
+                            array('Label'),
+                            array('HtmlTag', array('tag' => 'p'))
+                        )
+                    )));
+
+                    break;
+                default:
+                    return $form;
+            }
+        }
+
+        return $form;
+    }
+
 }

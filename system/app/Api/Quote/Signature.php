@@ -91,7 +91,13 @@ class Api_Quote_Signature extends Api_Service_Abstract
                 $pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile->WriteHTML($content);
 
-                $pdfFileName = 'Proposal-quote-' . $quote->getTitle() . '.pdf';
+                $quoteProposalQuote = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quoteDownloadLabel');
+
+                if (!empty($quoteProposalQuote)) {
+                    $pdfFileName = $quoteProposalQuote.'-' . $quote->getTitle() . '.pdf';
+                } else {
+                    $pdfFileName = 'Proposal-quote-' . $quote->getTitle() . '.pdf';
+                }
 
                 $storedData = Tools_LeadDocumentsTools::generateStoredName(array('name' => $pdfFileName));
 
@@ -144,19 +150,31 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
         $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you. Now to effectively place this order, please make a payment as instructed.';
 
+        $reloadPage = false;
         if ($quote->getPaymentType() === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE) {
-            $quote->setStatus(Quote_Models_Model_Quote::STATUS_SOLD);
-            $quote->registerObserver(new Quote_Tools_Watchdog(array(
-                'gateway' => new Quote(array(), array())
-            )))->registerObserver(new Quote_Tools_GarbageCollector(array(
-                'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
-            )));
+            $quote->setStatus(Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED);
+//            $quote->registerObserver(new Quote_Tools_Watchdog(array(
+//                'gateway' => new Quote(array(), array())
+//            )))->registerObserver(new Quote_Tools_GarbageCollector(array(
+//                'action' => Tools_System_GarbageCollector::CLEAN_ONUPDATE
+//            )));
+            $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+            $cart = $cartSessionMapper->find($quote->getCartId());
+            if ($cart instanceof Models_Model_CartSession) {
+                $cart->setStatus(Models_Model_CartSession::CART_STATUS_NOT_VERIFIED);
+                $cartSessionMapper->save($cart);
+            }
 
             $message = 'Thank you! A confirmation email with a copy of this agreement has been sent to you.';
+            $reloadPage = true;
         }
 
         $quoteMapper->save($quote);
-        $this->_responseHelper->success($translator->translate($message));
+        if ($reloadPage === false) {
+            $this->_responseHelper->success($translator->translate($message));
+        } else {
+            $this->_responseHelper->success(array('reload' => '1', 'message' => $translator->translate($message)));
+        }
 
     }
 

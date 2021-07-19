@@ -2,7 +2,7 @@
     <?php if ($this->accessAllowed === true): ?>
         <p><label><?php echo $this->translate('Payment type'); ?></label>
             <select
-                <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : '') ?> id="quote-payment-type-selector"
+                <?php echo (($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD || $this->cartStatus == Models_Model_CartSession::CART_STATUS_PARTIAL || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED) ? 'disabled' : '') ?> id="quote-payment-type-selector"
                 name="quote-payment-type-selector">
                 <option <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_FULL === $this->paymentType) ? 'selected' : ''); ?>
                         value="<?php echo Quote_Models_Model_Quote::PAYMENT_TYPE_FULL; ?>"><?php echo $this->translate('Full Payment required'); ?></option>
@@ -25,13 +25,31 @@
 <!--                --><?php //endif; ?>
 <!--            </select>-->
 <!--        </p>-->
-        <p class="signature-required-block">
-            <label><?php echo $this->translate('Signature required'); ?></label>
-            <input <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD) ? 'disabled' : ''); ?>  <?php echo(($this->isSignatureRequired == '1') ? 'checked' : ''); ?>
-                    id="quote-signature-required"
-                    name="quote-signature-required"
-                    type="checkbox"/>
-        </p>
+        <div class="signature-and-payment-block-wrap">
+            <p class="signature-required-block">
+                <label><?php echo $this->translate('Signature required'); ?></label>
+                <input <?php echo((Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE === $this->paymentType || $this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD || $this->cartStatus == Models_Model_CartSession::CART_STATUS_PARTIAL) ? 'disabled' : ''); ?>  <?php echo(($this->isSignatureRequired == '1') ? 'checked' : ''); ?>
+                        id="quote-signature-required"
+                        name="quote-signature-required"
+                        type="checkbox"/>
+            </p>
+            <?php $firstPaymentPayedClass = 'hidden';?>
+            <?php if($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT):?>
+                <?php $firstPaymentPayedClass = '';?>
+            <?php endif;?>
+            <?php if($this->gatewayName === 'Quote'):?>
+                <p id="mark-first-payment-paid-block" class="<?php echo $firstPaymentPayedClass;?>">
+                    <span id="confirm-message-for-first-payment-not-checked" class="hidden"><?php echo $this->translate('You are now confirming that a deposit of')?></span>
+                    <span id="confirm-message-for-first-payment-not-checked-second-part" class="hidden"><?php echo $this->translate('has been received. (If the amount is incorrect, modify the deposit amount required on the quote itself)')?></span>
+                    <span id="confirm-message-for-first-payment-checked" class="hidden"><?php echo $this->translate('You are about to remove first part of the partial order as paid. Are you sure?')?></span>
+                    <label><?php echo $this->translate('Has this quote deposit been collected outside this system?'); ?></label>
+                    <input <?php echo(($this->quoteStatus === Quote_Models_Model_Quote::STATUS_SOLD || $this->cartStatus == Models_Model_CartSession::CART_STATUS_PARTIAL) ? 'disabled' : ''); ?>  <?php echo(($this->cartStatus == Models_Model_CartSession::CART_STATUS_PARTIAL) ? 'checked' : ''); ?>
+                            id="is-partial-payment-payed"
+                            name="is-partial-payment-payed"
+                            type="checkbox"/>
+                </p>
+            <?php endif;?>
+        </div>
     <?php endif; ?>
     <input type="hidden" id="quote-id-payment-type" name="quote-id-payment-type" value="<?php echo $this->quoteId; ?>">
 </div>

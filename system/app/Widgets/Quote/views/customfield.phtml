@@ -1,0 +1,52 @@
+<?php if(!empty($this->readonly)): ?>
+    <?php foreach ($this->customfieldsOptions as $option) :?>
+        <?php foreach ($this->customFields as $field) :?>
+            <?php if($option == $field['param_name']) :?>
+                <?php if($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) :?>
+                    <p><?php echo $field['value'];?></p>
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) :?>
+                    <?php $optionIds = explode(',', $field['option_ids']);?>
+                    <?php $optionValues = explode(',', $field['option_values']);?>
+
+                    <?php foreach($optionIds as $key => $value): ?>
+                        <?php if($value == $field['value']) :?>
+                            <p><?php echo $optionValues[$key];?></p>
+                        <?php endif;?>
+                    <?php endforeach;?>
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) :?>
+
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) :?>
+
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) :?>
+
+                <?php endif;?>
+            <?php endif;?>
+        <?php endforeach;?>
+    <?php endforeach;?>
+<?php else:?>
+    <input type="hidden" id="cart-id" value="<?php echo $this->cartId;?>" />
+    <?php foreach ($this->customfieldsOptions as $paramsOption) :?>
+        <?php foreach ($this->customFields as $field) :?>
+            <?php if($paramsOption == $field['param_name']) :?>
+                <?php if($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) :?>
+                    <input class="custom-field-element" name="custom-field-element" data-type="text" data-field-id="<?php echo $field['id'];?>" value="<?php echo $field['value'];?>" />
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) :?>
+                    <?php $optionIds = explode(',', $field['option_ids']);?>
+                    <?php $optionValues = explode(',', $field['option_values']);?>
+                    <select class="custom-field-element" name="custom-field-element" data-type="select" data-field-id="<?php echo $field['id'];?>">
+                        <option value=""><?php echo $this->translate('Select'); ?></option>
+                        <?php foreach($optionIds as $key => $value): ?>
+                            <option value="<?php echo $value; ?>" <?php echo ($value == $field['value']) ? 'selected="selected"' : ''; ?>><?php echo $optionValues[$key] ; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_RADIO) :?>
+
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXTAREA) :?>
+
+                <?php elseif ($field['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) :?>
+
+                <?php endif;?>
+            <?php endif;?>
+        <?php endforeach;?>
+    <?php endforeach;?>
+<?php endif;?>

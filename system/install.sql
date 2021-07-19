@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `shopping_quote`;
 CREATE TABLE `shopping_quote` (
   `id` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `status` enum('new','sent','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new',
+  `status` enum('new','sent','signature_only_signed','sold','lost') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'new',
   `disclaimer` text COLLATE utf8_unicode_ci,
   `internal_note` text COLLATE utf8_unicode_ci,
   `discount_tax_rate` enum('0','1','2','3') COLLATE utf8_unicode_ci DEFAULT '1',
@@ -50,5 +50,33 @@ CREATE TABLE IF NOT EXISTS `shopping_quote_draggable` (
   FOREIGN KEY  (`quoteId`) REFERENCES `shopping_quote` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `quote_custom_fields_config` (
+    `id` INT(10) UNSIGNED AUTO_INCREMENT NOT NULL,
+    `param_type` ENUM('text','select','radio','textarea','checkbox') DEFAULT 'text',
+    `param_name` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
+    `label` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
+    PRIMARY KEY(`id`),
+    UNIQUE(`param_type`, `param_name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `quote_custom_params_options_data` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `custom_param_id` INT UNSIGNED NOT NULL,
+    `option_value` VARCHAR(255) NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`custom_param_id`) REFERENCES `quote_custom_fields_config` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `quote_custom_params_data` (
+    `id` INT(10) UNSIGNED AUTO_INCREMENT NOT NULL,
+    `cart_id` INT(10) UNSIGNED NOT NULL,
+    `param_id` INT(10) UNSIGNED NOT NULL,
+    `param_value` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL,
+    `params_option_id` INT(10) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`param_id`) REFERENCES `quote_custom_fields_config` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.0' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.2' WHERE `name` = 'quote';

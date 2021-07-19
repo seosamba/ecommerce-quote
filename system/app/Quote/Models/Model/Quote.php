@@ -11,6 +11,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	const STATUS_SENT           = 'sent';
 
+    const STATUS_SIGNATURE_ONLY_SIGNED    = 'signature_only_signed';
+
 	const STATUS_SOLD           = 'sold';
 
 	const STATUS_LOST           = 'lost';
@@ -21,11 +23,15 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     const PAYMENT_TYPE_FULL = 'full_payment';
 
+    const PAYMENT_TYPE_FULL_SIGNATURE = 'full_payment_signature';
+
     const PAYMENT_TYPE_PARTIAL_PAYMENT = 'partial_payment';
+
+    const PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE = 'partial_payment_signature';
 
     const PAYMENT_TYPE_ONLY_SIGNATURE = 'only_signature';
 
-    public static $_paymentTypesList = array(self::PAYMENT_TYPE_FULL, self::PAYMENT_TYPE_ONLY_SIGNATURE, self::PAYMENT_TYPE_PARTIAL_PAYMENT);
+    public static $_paymentTypesList = array(self::PAYMENT_TYPE_FULL, self::PAYMENT_TYPE_ONLY_SIGNATURE, self::PAYMENT_TYPE_PARTIAL_PAYMENT, self::PAYMENT_TYPE_FULL_SIGNATURE, self::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE);
 
 	protected $_id              = '';
 
