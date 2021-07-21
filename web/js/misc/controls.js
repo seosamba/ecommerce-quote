@@ -550,6 +550,9 @@ var recalculate = function(options, sid) {
 
             if ($('#partial-payment-type').val() === 'amount') {
                 partialTotal = accounting.formatMoney(summary.total - currentPercentage);
+                $('#percentage-amount-text').addClass('hidden');
+            } else {
+                $('#percentage-amount-text').removeClass('hidden');
             }
 
         $('#partial-payment-percentage-payment-amount').html(partialTotal);
