@@ -61,15 +61,33 @@ class MagicSpaces_Paymenttype_Paymenttype extends Tools_MagicSpaces_Abstract
                     return $result;
                 }
 
+                $partialPaymentType = $cartSessionModel->getPartialType();
+
                 if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE && $quote->getIsSignatureRequired()) {
                     return $result;
                 }
 
                 if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT && !$quote->getIsSignatureRequired()) {
+                    if (!empty($this->_params[1])) {
+                        if ($partialPaymentType === $this->_params[1]) {
+                            return $result;
+                        } else {
+                            return '';
+                        }
+                    }
+
                     return $result;
                 }
 
                 if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE && $quote->getIsSignatureRequired()) {
+                    if (!empty($this->_params[1])) {
+                        if ($partialPaymentType === $this->_params[1]) {
+                            return $result;
+                        } else {
+                            return '';
+                        }
+                    }
+
                     return $result;
                 }
 
