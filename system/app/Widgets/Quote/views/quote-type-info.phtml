@@ -29,9 +29,14 @@
                         <?php endif;?>
                     <?php endif;?>
                     <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
-                        <?php echo $this->translate('which is');?>
-                        <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span>
+                        <?php $infoTextClass = '';?>
+                    <?php else:?>
+                        <?php $infoTextClass = 'hidden';?>
                     <?php endif;?>
+                    <span id="percentage-amount-text" class="<?php echo $infoTextClass;?>">
+                            <?php echo $this->translate('which is');?>
+                            <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span>
+                    </span>
                   <?php echo $this->translate('using the credit card form below');?>:
                 </span>
             <?php else:?>
