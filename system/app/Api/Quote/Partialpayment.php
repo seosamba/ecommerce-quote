@@ -65,7 +65,7 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
             $updatePaymentStatus = Models_Model_CartSession::CART_STATUS_COMPLETED;
         } else {
             if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
-                $amountToPayPartial = round(($cart->getTotal() - $partialPercentage), 2);
+                $amountToPayPartial = round($partialPercentage, 2);
             } else {
                 $amountToPayPartial = round(($cart->getTotal() * $cart->getPartialPercentage()) / 100, 2);
             }

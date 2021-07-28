@@ -1527,7 +1527,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->paymentType = $paymentType;
             $this->_view->partialPercentage = $partialPercentage;
             if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
-                $this->_view->partialToPayAmount = $currency->toCurrency($this->_cart->getTotal() - $partialPercentage);
+                $this->_view->partialToPayAmount = $currency->toCurrency($partialPercentage);
             } else {
                 $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $this->_cart->getTotal() / 100));
             }
