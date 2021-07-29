@@ -23,7 +23,7 @@
                         </select>
                     <?php else:?>
                         <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
-                            <?php echo round($this->partialPercentage, 1);?>
+                            <?php echo round($this->partialPercentage, 1);?>%
                         <?php else:?>
                             <?php echo $this->currency($this->partialPercentage, 1);?>
                         <?php endif;?>
