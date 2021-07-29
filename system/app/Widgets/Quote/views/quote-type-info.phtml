@@ -48,7 +48,11 @@
                         <option value="amount" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) ? 'selected':'';?>><?php echo $this->currency;?></option>
                     </select>
                 <?php else:?>
-                    <?php echo round($this->partialPercentage, 1);?>
+                    <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
+                        <?php echo round($this->partialPercentage, 1);?>%
+                    <?php else:?>
+                        <?php echo $this->currency($this->partialPercentage, 1);?>
+                    <?php endif;?>
                 <?php endif;?>
                 <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
                     <?php $infoTextClass = '';?>
