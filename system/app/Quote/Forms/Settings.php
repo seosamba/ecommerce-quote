@@ -72,8 +72,20 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Text(array(
             'name'  => 'quotePartialPercentage',
             'id'    => 'quote-partial-percentage',
-            'class' => 'grid_6 alpha',
-            'label' => $translator->translate('Partial payment percentage')
+            'class' => 'grid_4 alpha',
+            'label' => $translator->translate('Partial payment')
+        )));
+
+        $currency = Zend_Registry::get('Zend_Currency');
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'  => 'quotePartialType',
+            'id'    => 'quote-partial-type',
+            'class' => 'grid_2 alpha omega',
+            'multiOptions' => array(
+                Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE => '%',
+                Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT => $currency->getSymbol()
+            )
         )));
 
         $this->addElement(new Zend_Form_Element_Text(array(

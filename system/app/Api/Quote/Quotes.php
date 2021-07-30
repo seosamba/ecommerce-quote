@@ -222,9 +222,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!empty($enableQuoteDefaultType)) {
                     $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
                     $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
+                    $quotePartialType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialType');
                     if (($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) && !empty($quotePartialPercentage)) {
                         $cart->setIsPartial('1');
                         $cart->setPartialPercentage($quotePartialPercentage);
+                        if (!empty($quotePartialType)) {
+                            $cart->setPartialType($quotePartialType);
+                        } else {
+                            $cart->setPartialType(null);
+                        }
                     }
                 }
 
@@ -716,10 +722,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if (!empty($quoteData['paymentType']) && $quoteData['paymentType'] === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $cart->setPartialPercentage($quoteData['partialPaymentPercentage']);
+                $cart->setPartialType($quoteData['partialPaymentType']);
                 $cart->setIsPartial('1');
             } else {
                 $cart->setIsPartial('0');
                 $cart->setPartialPercentage('');
+                $cart->setPartialType(null);
             }
 
             if($customer instanceof Models_Model_Customer) {

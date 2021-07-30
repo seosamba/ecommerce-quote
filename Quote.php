@@ -379,8 +379,19 @@ class Quote extends Tools_PaymentGateway
                 if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                     $currency = Zend_Registry::get('Zend_Currency');
                     $partialPercentage = $cart->getPartialPercentage();
+                    $partialPaymentType = $cart->getPartialType();
+                    if (empty($partialPaymentType)) {
+                        $partialPaymentType = Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE;
+                    }
                     $this->_view->partialPercentage = $partialPercentage;
-                    $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $cart->getTotal()/100));
+                    if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                        $this->_view->partialToPayAmount = $currency->toCurrency($partialPercentage);
+                    } else {
+                        $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $cart->getTotal() / 100));
+                    }
+
+                    $this->_view->currency = $currency->getSymbol();
+                    $this->_view->partialPaymentType = $partialPaymentType;
                     $message = $this->_view->render('partial-payment-select-info.phtml');
                 }
 

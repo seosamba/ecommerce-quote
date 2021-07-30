@@ -141,7 +141,7 @@
     'Enable products draggable' => 'Activer l\'aperçu des produits',
     'Enable quote payment type' => 'Activer le type de paiement de devis',
     'Quote payment types' => 'Type de paiement de devis',
-    'Partial payment percentage' => 'Pourcentage de paiement partiel',
+    'Partial payment' => 'Pourcentage de paiement',
     'Quote download label' => 'Libellé de téléchargement de devis',
     'Update quote configuration' => 'Mettre à jour les configurations du devis',
     'Select quote template' => 'Sélectionner un modèle de devis',
