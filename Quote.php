@@ -385,7 +385,7 @@ class Quote extends Tools_PaymentGateway
                     }
                     $this->_view->partialPercentage = $partialPercentage;
                     if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
-                        $this->_view->partialToPayAmount = $currency->toCurrency($cart->getTotal() - $partialPercentage);
+                        $this->_view->partialToPayAmount = $currency->toCurrency($partialPercentage);
                     } else {
                         $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $cart->getTotal() / 100));
                     }
