@@ -150,6 +150,8 @@
     'Send payment complement request automatically after' => 'Envoyer automatiquement la demande de complément de paiement après',
     'To activate partial options please turn on \'Accept partial payments for quote\'' => 'Pour activer les options partielles, veuillez choisir \'Accepter les paiements partiels pour le devis \'',
     'To activate this option please turn on \'Accept partial payments for quote\'' => 'Pour activer cette option, veuillez choisir \'Accepter les paiments partiels pour le devis\'',
-    'Learn more' => 'En savoir plus'
+    'Learn more' => 'En savoir plus',
+    'Maximum quantity of products allowed in the quote' => 'Quantité max des produits dans le panier',
+    'The number of products in the cart exceeds the allowed limit!' => 'Le nombre de produits dans le panier dépasse la limite autorisée!'
 
 );?>

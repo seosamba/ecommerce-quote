@@ -72,6 +72,10 @@
             <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
             <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
         </p>
+        <p id="maximum-products-in-quote-block">
+            <?php echo $this->form->getElement('maxProductsInQuote')->renderLabel(); ?>
+            <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
+        </p>
 
         <p>
             <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
@@ -142,7 +146,8 @@ $(document).ready(function(){
               enableQuoteDefaultType = 0,
               partialNotifyAfterType = $('#partial-notify-after-type').val(),
               partialNotifyAfterQuantity = $('#partial-notify-after-quantity').val(),
-              enabledPartialPayment = 0;
+              enabledPartialPayment = 0,
+              maxProductsInQuote = parseInt($('#max-products-in-quote').val());
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -167,6 +172,7 @@ $(document).ready(function(){
             data: {
                 autoQuote: autoQuote,
                 quoteDraggableProducts: draggableProducts,
+                maxProductsInQuote:maxProductsInQuote,
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
                 enableQuoteDefaultType: enableQuoteDefaultType,
