@@ -151,7 +151,10 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                 }
             }).fail(function(response) {
                 hideLoader();
-                var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html"><?php echo $this->translate("Learn more")?></a>';
+                var msg = '';
+                <?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)):?>
+                    var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html"><?php echo $this->translate("Learn more")?></a>';
+                <?php endif;?>
                 showMessage(response.responseJSON.replace(/"/g, '') + ' ' + msg, true);
             });
 

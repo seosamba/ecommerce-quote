@@ -132,6 +132,21 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
 
+                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                if (!empty($shoppingConfig['maxProductsInQuote'])) {
+                    $inCartContent = $this->_cartStorage->getContent();
+                    if (intval($shoppingConfig['maxProductsInQuote']) > 0 && !empty($inCartContent)) {
+                        $qtyInCart = 0;
+                        foreach ($inCartContent as $content) {
+                            $qtyInCart += $content['qty'];
+                        }
+
+                        if ($qtyInCart >= $shoppingConfig['maxProductsInQuote']) {
+                            $this->_error($translator->translate('The number of products in the cart exceeds the allowed limit!'));
+                        }
+                    }
+                }
+
                 if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
