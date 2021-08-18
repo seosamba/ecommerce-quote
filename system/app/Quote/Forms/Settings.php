@@ -50,6 +50,18 @@ class  Quote_Forms_Settings extends Zend_Form {
         )));
 
         $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'allowAutosave',
+            'id'    => 'allow-autosave-quote',
+            'label' => $translator->translate('Allow autosave quote')
+        )));
+
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'disableAutosaveEmail',
+            'id'    => 'disable-autosave-email',
+            'label' => $translator->translate('Disable autosave email')
+        )));
+
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'quoteDraggableProducts',
             'id'    => 'draggable-products',
             'label' => $translator->translate('Enable products draggable')

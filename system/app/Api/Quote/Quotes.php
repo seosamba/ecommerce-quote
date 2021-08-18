@@ -497,6 +497,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
+        $additionalEmailValidate = !empty($quoteData['additionalEmailValidate']) ? $quoteData['additionalEmailValidate'] : '';
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
@@ -596,7 +597,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if(isset($quoteData['billing'])) {
                 if(!empty($quoteData['errorMessage']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please fill in the required fields'));
+                    if(empty($additionalEmailValidate)) {
+                        $response->fail($translator->translate('Please fill in the required fields'));
+                    }
                 }
 
                 parse_str($quoteData['billing'], $quoteData['billing']);
@@ -640,7 +643,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if(isset($quoteData['shipping'])) {
                 if(!empty($quoteData['errorMessage']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please fill in the required fields'));
+                    if(empty($additionalEmailValidate)) {
+                        $response->fail($translator->translate('Please fill in the required fields'));
+                    }
                 }
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
                 $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);

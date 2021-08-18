@@ -29,8 +29,21 @@ $(function() {
     });
 
     $(document).on('change', '.quote-info', function(e){
+        var controlEl  = $(e.originalEvent),
+            additionalEmailValidate = 0;
+
+        if($(controlEl).get(0).target.id == 'quote-form-email' || $(controlEl).get(0).target.id == 'email') {
+            additionalEmailValidate = 1;
+            var defaultValue = $(controlEl).get(0).target.defaultValue;
+
+            if($(this).closest('.quote-info').hasClass('disable-autosave-email')) {
+                $('#'+$(controlEl).get(0).target.id).val(defaultValue);
+
+                return false;
+            }
+        }
         if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
-            updateQuote(quoteId, false, '', '1', '', true);
+            updateQuote(quoteId, false, '', '', '', true, additionalEmailValidate);
         }
     });
 
@@ -425,7 +438,7 @@ var processDraggable = function(quoteId) {
     return true;
 }
 
-var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner, additionalEmailValidate) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
         notValidElements = [],
@@ -481,7 +494,8 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         isSignatureRequired : isQuoteSignatureRequired,
         partialPaymentPercentage : $('#partial-payment-percentage').val(),
         partialPaymentType : $('#partial-payment-type').val(),
-        ccEmails    : ccEmails
+        ccEmails    : ccEmails,
+        additionalEmailValidate : (additionalEmailValidate) ? additionalEmailValidate : '',
     };
 
     var request = _update('api/quote/quotes/', data, noSpinner);

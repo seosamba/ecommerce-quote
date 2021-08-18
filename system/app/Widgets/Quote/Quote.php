@@ -612,7 +612,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteUserId = $this->_quote->getUserId();
 
             if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId) && !in_array($this->_cart->getStatus(), $this->_denyQuoteCartStatuses)) {
-                $allowAutoSave = true;
+                $allowAutosaveQuote = $this->_shoppingConfig['allowAutosave'];
+
+                if(!empty($allowAutosaveQuote)) {
+                    $allowAutoSave = true;
+                }
             }
         }
 
@@ -623,6 +627,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $this->_view->allowAutoSave = $allowAutoSave;
+
+        $disableAutosaveEmailConfig = $this->_shoppingConfig['disableAutosaveEmail'];
+
+        $disableAutosaveEmail = false;
+        if(!empty($disableAutosaveEmailConfig)) {
+            $disableAutosaveEmail = true;
+        }
+
+        $this->_view->disableAutosaveEmail = $disableAutosaveEmail;
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
