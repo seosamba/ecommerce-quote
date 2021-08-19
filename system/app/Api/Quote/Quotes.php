@@ -596,7 +596,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['billing'])) {
-                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
+                if(!empty($quoteData['errorMessage']) /*&& empty($eventType)*/) {
                     if(empty($additionalEmailValidate)) {
                         $response->fail($translator->translate('Please fill in the required fields'));
                     }
@@ -606,7 +606,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 if(!empty($eventType)) {
                     if(!$emailValidator->isValid($quoteData['billing']['email'])) {
-                        $response->fail($translator->translate('Please enter a valid email address'));
+                        if(!empty($quoteData['billing']['email'])) {
+                            $response->fail($translator->translate('Please enter a valid email address'));
+                        }
+                        $response->success('');
                     }
                 }
 
@@ -648,7 +651,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['shipping'])) {
-                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
+                if(!empty($quoteData['errorMessage']) /*&& empty($eventType)*/) {
                     if(empty($additionalEmailValidate)) {
                         $response->fail($translator->translate('Please fill in the required fields'));
                     }
@@ -657,7 +660,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 if(!empty($eventType)) {
                     if(!$emailValidator->isValid($quoteData['shipping']['email'])) {
-                        $response->fail($translator->translate('Please enter a valid email address'));
+                        if(!empty($quoteData['shipping']['email'])) {
+                            $response->fail($translator->translate('Please enter a valid email address'));
+                        }
+                        $response->success('');
                     }
                 }
 
