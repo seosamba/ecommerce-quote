@@ -538,6 +538,8 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         if(!$('.quote-info').hasClass('allow-auto-save') && response.allowAutosave) {
             $('.quote-info').addClass('allow-auto-save');
 
+            getDisableEmailAutosave();
+
             if(!$('.quote-info').hasClass('disable-autosave-email') && response.disableAutosaveEmail) {
                 $('.quote-info').addClass('disable-autosave-email');
             }
@@ -555,7 +557,6 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         }
 
         getLeadLink(quoteId);
-        getDisableEmailAutosave();
         processDraggable(quoteId);
         recalculate({summary:response});
     });
