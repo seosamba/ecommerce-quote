@@ -604,6 +604,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
+                if(!empty($eventType)) {
+                    if(!$emailValidator->isValid($quoteData['billing']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                }
+
                 $quoteData['billing']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['phone']);
                 $quoteData['billing']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['mobile']);
                 if (!empty($quoteData['billing']['phonecountrycode'])) {
@@ -648,6 +654,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
+
+                if(!empty($eventType)) {
+                    if(!$emailValidator->isValid($quoteData['shipping']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                }
+
                 $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);
                 $quoteData['shipping']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['mobile']);
                 if (!empty($quoteData['shipping']['phonecountrycode'])) {
