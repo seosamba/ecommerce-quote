@@ -30,20 +30,26 @@ $(function() {
 
     $(document).on('change', '.quote-info', function(e){
         var controlEl  = $(e.originalEvent),
-            additionalEmailValidate = 0;
+            additionalEmailValidate = 0,
+            disableAutosaveEmail = 0;
 
-        if($(controlEl).get(0).target.id == 'quote-form-email' || $(controlEl).get(0).target.id == 'email') {
-            additionalEmailValidate = 1;
-            var defaultValue = $(controlEl).get(0).target.defaultValue;
-
-            if($(this).closest('.quote-info').hasClass('disable-autosave-email')) {
-                $('#'+$(controlEl).get(0).target.id).val(defaultValue);
-
-                return false;
-            }
-        }
         if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
-            updateQuote(quoteId, false, '', '', '', true, additionalEmailValidate);
+            if($(this).closest('.quote-info').hasClass('disable-autosave-email')) {
+                disableAutosaveEmail = 1;
+            }
+
+            if($(controlEl).get(0).target.id == 'quote-form-email' || $(controlEl).get(0).target.id == 'email') {
+                additionalEmailValidate = 1;
+                var defaultValue = $(controlEl).get(0).target.defaultValue;
+
+                if(typeof defaultValue !== 'undefined' && defaultValue !== '') {
+                    $('#'+$(controlEl).get(0).target.id).attr('data-email', defaultValue);
+                }
+                if(disableAutosaveEmail) {
+                    return false;
+                }
+            }
+            updateQuote(quoteId, false, '', '', '', true, additionalEmailValidate, disableAutosaveEmail);
         }
     });
 
@@ -372,6 +378,7 @@ $(function() {
     });
 
     getLeadLink(quoteId);
+    getDisableEmailAutosave();
 
     $(document).on('change', '.custom-field-element', function(e) {
         e.preventDefault();
@@ -410,11 +417,20 @@ var getLeadLink = function (quoteId) {
     }).done(function(response) {
         $('.lead-link').remove();
         if(response.responseText.link) {
-            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_8 alpha icon-profile" title="Go to CRM Lead" href="'+ response.responseText.link +'"></a>';
+            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_7 alpha icon-profile" title="Go to CRM Lead" href="'+ response.responseText.link +'"></a>';
             $('#quote-form-email').closest('p').find('label').append(leadProfile);
             //$('#email').closest('p').find('label').append(leadProfile);
         }
     });
+}
+
+var getDisableEmailAutosave = function () {
+    if($('.quote-info').hasClass('allow-auto-save') && $('.quote-info').hasClass('disable-autosave-email')) {
+        $('.disable-email-autosave').remove();
+        var tooltipEl = '<a href="javascript:;" class="disable-email-autosave ticon-info tooltip icon18 fl-right grid_8" title="Email won\'t be saved automatically, please turn off (Disable email autosave) in config or Save the quote manually"></a>';
+        $('#quote-form-email').closest('p').find('label').append(tooltipEl);
+        $('#email').closest('p').find('label').append(tooltipEl);
+    }
 }
 
 var processDraggable = function(quoteId) {
@@ -438,7 +454,7 @@ var processDraggable = function(quoteId) {
     return true;
 }
 
-var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner, additionalEmailValidate) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner, additionalEmailValidate, disableAutosaveEmail) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
         notValidElements = [],
@@ -477,6 +493,19 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         isQuoteSignatureRequired = 1;
     }
 
+    if(disableAutosaveEmail) {
+        var quoteFormEmail = $('#quote-form-email').data('email');
+        var email = $('#email').data('email');
+
+        if(typeof quoteFormEmail !== 'undefined' && quoteFormEmail !== '') {
+            $('#quote-form-email').val(quoteFormEmail);
+        }
+
+        if(typeof email !== 'undefined' && email !== '') {
+            $('#email').val(email);
+        }
+    }
+
     var data = {
         qid         : quoteId,
         sendMail    : sendMail,
@@ -505,11 +534,28 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
             showMessage(response.responseText, true, 5000);
             return false;
         }
-        if(!$('.quote-info').hasClass('allow-auto-save')) {
+
+        if(!$('.quote-info').hasClass('allow-auto-save') && response.allowAutosave) {
             $('.quote-info').addClass('allow-auto-save');
+
+            if(!$('.quote-info').hasClass('disable-autosave-email') && response.disableAutosaveEmail) {
+                $('.quote-info').addClass('disable-autosave-email');
+            }
+
+            var quoteFormEmail = $('#quote-form-email').val();
+            var email = $('#email').val();
+
+            if(typeof quoteFormEmail !== 'undefined' && quoteFormEmail !== '') {
+                $('#quote-form-email').attr('data-email', quoteFormEmail);
+            }
+
+            if(typeof email !== 'undefined' && email !== '') {
+                $('#email').attr('data-email', email);
+            }
         }
 
         getLeadLink(quoteId);
+        getDisableEmailAutosave();
         processDraggable(quoteId);
         recalculate({summary:response});
     });

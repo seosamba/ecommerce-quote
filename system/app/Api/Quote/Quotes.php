@@ -747,7 +747,22 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $skipGroupPriceRecalculation = true;
         }
 
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
+        $quoteParams = Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
+
+        $allowAutosaveQuote = $this->_shoppingConfig['allowAutosave'];
+
+        $quoteParams['allowAutosave'] = 0;
+        $quoteParams['disableAutosaveEmail'] = 0;
+        if(!empty($allowAutosaveQuote)) {
+            $quoteParams['allowAutosave'] = $allowAutosaveQuote;
+
+            $disableAutosaveEmailConfig = $this->_shoppingConfig['disableAutosaveEmail'];
+            if(!empty($disableAutosaveEmailConfig)) {
+                $quoteParams['disableAutosaveEmail'] = $disableAutosaveEmailConfig;
+            }
+        }
+
+        return $quoteParams;
     }
 
     public function deleteAction() {

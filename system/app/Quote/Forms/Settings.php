@@ -52,13 +52,13 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'allowAutosave',
             'id'    => 'allow-autosave-quote',
-            'label' => $translator->translate('Allow autosave quote')
+            'label' => $translator->translate('Allow quote autosave')
         )));
 
         $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'disableAutosaveEmail',
             'id'    => 'disable-autosave-email',
-            'label' => $translator->translate('Disable autosave email')
+            'label' => $translator->translate('Disable email autosave')
         )));
 
         $this->addElement(new Zend_Form_Element_Checkbox(array(

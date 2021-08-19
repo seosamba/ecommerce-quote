@@ -151,7 +151,7 @@
     'To activate partial options please turn on \'Accept partial payments for quote\'' => 'Pour activer les options partielles, veuillez choisir \'Accepter les paiements partiels pour le devis \'',
     'To activate this option please turn on \'Accept partial payments for quote\'' => 'Pour activer cette option, veuillez choisir \'Accepter les paiments partiels pour le devis\'',
     'Learn more' => 'En savoir plus',
-    'Allow autosave quote' => 'Autoriser l\'auto-enregistrement du devis',
-    'Disable autosave email' => 'Désactiver l\'auto-enregistrement d\'email'
+    'Allow quote autosave' => 'Autoriser l\'auto-enregistrement du devis',
+    'Disable email autosave' => 'Désactiver l\'auto-enregistrement d'email'
 
 );?>
