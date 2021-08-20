@@ -645,7 +645,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please enter a valid email address'));
+                    if(!empty($quoteData['billing']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                    $response->success('');
                 }
 
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
@@ -698,7 +701,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please enter a valid email address'));
+                    if(!empty($quoteData['shipping']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                    $response->success('');
                 }
 
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
