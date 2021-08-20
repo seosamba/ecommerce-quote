@@ -114,6 +114,13 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Accept partial payments for quote: Yes/No'),
         )));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'maxProductsInQuote',
+            'id'    => 'max-products-in-quote',
+            'class' => 'grid_6 alpha',
+            'label' => $translator->translate('Maximum quantity of products allowed in the quote')
+        )));
+
         $this->setDecorators(array('FormElements', 'Form'))
             ->setElementDecorators(array(
                 'ViewHelper',
