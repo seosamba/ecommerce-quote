@@ -37,8 +37,8 @@ $(function() {
             if($(this).closest('.quote-info').hasClass('disable-autosave-email')) {
                 disableAutosaveEmail = 1;
             }
-
-            if($(controlEl).get(0).target.id == 'quote-form-email' || $(controlEl).get(0).target.id == 'email') {
+            
+            if(typeof $(controlEl).get(0) !== 'undefined' && ($(controlEl).get(0).target.id == 'quote-form-email' || $(controlEl).get(0).target.id == 'email')) {
                 additionalEmailValidate = 1;
                 var defaultValue = $(controlEl).get(0).target.defaultValue;
 
