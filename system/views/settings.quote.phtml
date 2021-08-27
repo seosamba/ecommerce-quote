@@ -20,6 +20,12 @@
             <?php $displayPartialPaymentClass = '';?>
         <?php endif;?>
 
+        <?php $disableAutosaveEmailClass = 'hidden';?>
+        <?php $disableAutosaveEmail = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('allowAutosave');?>
+        <?php if (!empty($disableAutosaveEmail)):?>
+            <?php $disableAutosaveEmailClass = '';?>
+        <?php endif;?>
+
         <p>
             <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
             <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
@@ -32,6 +38,17 @@
             <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
             <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
         </p>
+        <fieldset class="background">
+            <p>
+                <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
+                <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
+            </p>
+
+            <p id="disable-autosave-email-block" class="mb10px <?php echo $disableAutosaveEmailClass;?>">
+                <?php echo $this->form->getElement('disableAutosaveEmail')->renderLabel(); ?>
+                <?php echo $this->form->getElement('disableAutosaveEmail')->renderViewHelper(); ?>
+            </p>
+        </fieldset>
         <p>
             <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
             <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
@@ -139,6 +156,15 @@ $(document).ready(function(){
         $('#quote-payment-types').data('prev-option', selectedOption);
     });
 
+    $(document).on('change', '#allow-autosave-quote', function () {
+        if ($(this).is(':checked')) {
+            $('#disable-autosave-email-block').removeClass('hidden');
+        } else {
+            $('#disable-autosave-email-block').addClass('hidden');
+            $('#disable-autosave-email').prop('checked', false);
+        }
+    });
+
     $(document).on("click", "#applySettings", function(e){
           e.preventDefault();
           var autoQuote = 0,
@@ -147,7 +173,9 @@ $(document).ready(function(){
               partialNotifyAfterType = $('#partial-notify-after-type').val(),
               partialNotifyAfterQuantity = $('#partial-notify-after-quantity').val(),
               enabledPartialPayment = 0,
-              maxProductsInQuote = parseInt($('#max-products-in-quote').val());
+              maxProductsInQuote = parseInt($('#max-products-in-quote').val()),
+              allowAutosave = 0,
+              disableAutosaveEmail = 0;
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -164,6 +192,14 @@ $(document).ready(function(){
           if($('#enabled-partial-payment').prop("checked")){
               enabledPartialPayment = 1;
           }
+
+        if($('#allow-autosave-quote').prop("checked")){
+            allowAutosave = 1;
+        }
+
+        if($('#disable-autosave-email').prop("checked")){
+            disableAutosaveEmail = 1;
+        }
 
           $.ajax({
             type: "POST",
@@ -183,6 +219,8 @@ $(document).ready(function(){
                 partialNotifyAfterType: partialNotifyAfterType,
                 partialNotifyAfterQuantity: partialNotifyAfterQuantity,
                 quotePartialType: $('#quote-partial-type').val(),
+                allowAutosave: allowAutosave,
+                disableAutosaveEmail: disableAutosaveEmail,
                 secureToken: $('.quote-secure-token').val()
             },
             success: function(responce){

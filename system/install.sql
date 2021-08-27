@@ -78,5 +78,9 @@ CREATE TABLE IF NOT EXISTS `quote_custom_params_data` (
     FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES
+('allowAutosave', 1),
+('disableAutosaveEmail', 0);
+
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.2' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.3' WHERE `name` = 'quote';

@@ -512,6 +512,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
+        $additionalEmailValidate = !empty($quoteData['additionalEmailValidate']) ? $quoteData['additionalEmailValidate'] : '';
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
@@ -610,11 +611,22 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['billing'])) {
-                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please fill in the required fields'));
+                if(!empty($quoteData['errorMessage']) /*&& empty($eventType)*/) {
+                    if(empty($additionalEmailValidate)) {
+                        $response->fail($translator->translate('Please fill in the required fields'));
+                    }
                 }
 
                 parse_str($quoteData['billing'], $quoteData['billing']);
+
+                if(!empty($eventType)) {
+                    if(!$emailValidator->isValid($quoteData['billing']['email'])) {
+                        if(!empty($quoteData['billing']['email'])) {
+                            $response->fail($translator->translate('Please enter a valid email address'));
+                        }
+                        $response->success('');
+                    }
+                }
 
                 $quoteData['billing']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['phone']);
                 $quoteData['billing']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['mobile']);
@@ -633,7 +645,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please enter a valid email address'));
+                    if(!empty($quoteData['billing']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                    $response->success('');
                 }
 
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
@@ -654,10 +669,22 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['shipping'])) {
-                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please fill in the required fields'));
+                if(!empty($quoteData['errorMessage']) /*&& empty($eventType)*/) {
+                    if(empty($additionalEmailValidate)) {
+                        $response->fail($translator->translate('Please fill in the required fields'));
+                    }
                 }
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
+
+                if(!empty($eventType)) {
+                    if(!$emailValidator->isValid($quoteData['shipping']['email'])) {
+                        if(!empty($quoteData['shipping']['email'])) {
+                            $response->fail($translator->translate('Please enter a valid email address'));
+                        }
+                        $response->success('');
+                    }
+                }
+
                 $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);
                 $quoteData['shipping']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['mobile']);
                 if (!empty($quoteData['shipping']['phonecountrycode'])) {
@@ -674,7 +701,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please enter a valid email address'));
+                    if(!empty($quoteData['shipping']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                    $response->success('');
                 }
 
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
@@ -757,7 +787,22 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $skipGroupPriceRecalculation = true;
         }
 
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
+        $quoteParams = Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
+
+        $allowAutosaveQuote = $this->_shoppingConfig['allowAutosave'];
+
+        $quoteParams['allowAutosave'] = 0;
+        $quoteParams['disableAutosaveEmail'] = 0;
+        if(!empty($allowAutosaveQuote)) {
+            $quoteParams['allowAutosave'] = $allowAutosaveQuote;
+
+            $disableAutosaveEmailConfig = $this->_shoppingConfig['disableAutosaveEmail'];
+            if(!empty($disableAutosaveEmailConfig)) {
+                $quoteParams['disableAutosaveEmail'] = $disableAutosaveEmailConfig;
+            }
+        }
+
+        return $quoteParams;
     }
 
     public function deleteAction() {
