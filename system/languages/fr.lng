@@ -154,6 +154,6 @@
     'Maximum quantity of products allowed in the quote' => 'Quantité max des produits dans le panier',
     'The number of products in the cart exceeds the allowed limit!' => 'Le nombre de produits dans le panier dépasse la limite autorisée!',
     'Allow quote autosave' => 'Autoriser l\'auto-enregistrement du devis',
-    'Disable email autosave' => 'Désactiver l\'auto-enregistrement d'email'
+    'Disable email autosave' => 'Désactiver l\'auto-enregistrement d\'email'
 
 );?>
