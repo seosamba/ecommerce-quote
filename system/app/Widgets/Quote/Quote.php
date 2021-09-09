@@ -1490,7 +1490,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
     protected function _renderQuotetypeinfo()
     {
-        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
             $currentCartStatus = $this->_cart->getStatus();
             if ($currentCartStatus === Models_Model_CartSession::CART_STATUS_COMPLETED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_SHIPPED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_DELIVERED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_REFUNDED) {
                 return '';
