@@ -1450,7 +1450,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
     protected function _renderSignature()
     {
-        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
             $this->_view->accessAllowed = $this->_editAllowed;
 
             $quoteId = $this->_quote->getId();
