@@ -218,5 +218,37 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
         return $data;
     }
 
+    /**
+     * @param false $pairs
+     * @param false $adminGroup
+     * @return mixed
+     * @throws Exception
+     */
+    public function getAllUsers($pairs = false, $adminGroup = false, $order = null)
+    {
+        $select = $this->getDbTable()->getAdapter()->select()->from(array('u' => 'user'),
+            array('id', 'full_name'));
+
+        if(!empty($order)) {
+            $select->order($order);
+        }
+
+        if ($adminGroup === true) {
+            $where = $this->getDbTable()->getAdapter()->quoteInto('role_id IN (?)',
+                array(Tools_Security_Acl::ROLE_SUPERADMIN,
+                    Tools_Security_Acl::ROLE_ADMIN,
+                    Shopping::ROLE_SALESPERSON
+                )
+            );
+            $select->where($where);
+        }
+
+        if ($pairs ===true) {
+            return $this->getDbTable()->getAdapter()->fetchPairs($select);
+        } else {
+            return $this->getDbTable()->getAdapter()->fetchAssoc($select);
+        }
+    }
+
 
 }
