@@ -38,6 +38,10 @@
             <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
             <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
         </p>
+<!--        <p>-->
+<!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
+<!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
+<!--        </p>-->
         <fieldset class="background">
             <p>
                 <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
@@ -176,6 +180,7 @@ $(document).ready(function(){
               maxProductsInQuote = parseInt($('#max-products-in-quote').val()),
               allowAutosave = 0,
               disableAutosaveEmail = 0;
+              // defaultQuoteCreatorId = '';
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -221,7 +226,8 @@ $(document).ready(function(){
                 quotePartialType: $('#quote-partial-type').val(),
                 allowAutosave: allowAutosave,
                 disableAutosaveEmail: disableAutosaveEmail,
-                secureToken: $('.quote-secure-token').val()
+                secureToken: $('.quote-secure-token').val(),
+                //defaultQuoteCreatorId: $('#default-quote-creator-id').val()
             },
             success: function(responce){
                 smoke.signal('<?php echo $this->translate('Saved');?>');

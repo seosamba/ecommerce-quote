@@ -28,7 +28,7 @@ CREATE TABLE `shopping_quote` (
   KEY `cart_id` (`cart_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `shopping_quote_ibfk_2` FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION
+  CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_created', 'Quote_Tools_QuoteMailWatchdog');
@@ -82,5 +82,5 @@ INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES
 ('allowAutosave', 1),
 ('disableAutosaveEmail', 0);
 
-UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.3' WHERE `name` = 'quote';
+UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.4' WHERE `name` = 'quote';
