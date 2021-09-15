@@ -45,7 +45,7 @@
             <div class="quote-grid-block-search grid_5 alpha border-box">
                 <div class="quote-qrid-search">
                     <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'mb5px', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
-                    <div class="grid_6 alpha">
+                    <div class="grid_6 alpha t-grid_3 t-alpha">
                         <select name="quote-owner-name" id="quote-owner-name">
                             <option selected="selected" value=""><?php echo $this->translate('filter by owner');?></option>
                             <?php if(!empty($this->ownerRoles)) :?>
@@ -55,7 +55,7 @@
                             <?php endif;?>
                         </select>
                     </div>
-                    <div class="grid_6 omega">
+                    <div class="grid_6 omega t-grid_3 t-omega">
                         <select name="quote-status-name" id="quote-status-name">
                             <option selected="selected" value=""><?php echo $this->translate('filter by status');?></option>
                             <option value="<?php echo Quote_Models_Model_Quote::STATUS_NEW;?>"><?php echo $this->translate('Quote New');?></option>
