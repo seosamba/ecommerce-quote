@@ -126,18 +126,14 @@ define([
             });
         },
         searchAction: function() {
-            if(this.quotes.currentPage) {
-                this.quotes.goTo(this.quotes.firstPage);
-            }
+            this.quotes.goTo(this.quotes.firstPage);
 
         },
         searchEnterAction: function(event)
         {
             if (event.keyCode === 13) {
                 event.preventDefault();
-                if(this.quotes.currentPage) {
-                    this.quotes.goTo(this.quotes.firstPage);
-                }
+                this.quotes.goTo(this.quotes.firstPage);
             }
         },
         navigateAction: function(e) {
