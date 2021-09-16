@@ -49,6 +49,17 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Default quote expiration delay')
         )));
 
+//        $adminUsers = Quote_Models_Mapper_QuoteMapper::getInstance()->getAllUsers(true, true);
+//
+//        //default quote email
+//        $this->addElement(new Zend_Form_Element_Select(array(
+//            'name'  => 'defaultQuoteCreatorId',
+//            'id'    => 'default-quote-creator-id',
+//            'class' => 'grid_6 alpha',
+//            'label' => $translator->translate('Default quote creator user id'),
+//            'multiOptions' => $adminUsers
+//        )));
+
         $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'allowAutosave',
             'id'    => 'allow-autosave-quote',
