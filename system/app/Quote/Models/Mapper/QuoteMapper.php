@@ -219,10 +219,25 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
     }
 
     /**
-     * @param false $pairs
-     * @param false $adminGroup
-     * @return mixed
+     * Update creator id
+     *
+     * @param int $oldCreatorId old creator id
+     * @param int $newCreatorId new creator id
      * @throws Exception
+     */
+    public function updateCreatorId($oldCreatorId, $newCreatorId)
+    {
+        $where = $this->getDbTable()->getAdapter()->quoteInto('creator_id = ?', $oldCreatorId);
+        $data = array('creator_id' => $newCreatorId);
+        $this->getDbTable()->getAdapter()->update('shopping_quote', $data, $where);
+    }
+
+    /**
+     * Get users info
+     * @param bool $pairs return result in pairs key => value
+     * @param bool $adminGroup admin group user only flag
+     * @param string $order OPTIONAL An SQL ORDER clause.
+     * @return array
      */
     public function getAllUsers($pairs = false, $adminGroup = false, $order = null)
     {
@@ -249,6 +264,5 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             return $this->getDbTable()->getAdapter()->fetchAssoc($select);
         }
     }
-
 
 }

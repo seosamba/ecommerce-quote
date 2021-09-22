@@ -348,6 +348,25 @@ class Quote extends Tools_PaymentGateway
     }
 
 
+//    /**
+//     * @return array
+//     */
+//    public static function deleteSystemUser($data)
+//    {
+//
+//        if (!empty($data) && !empty($data['userId'])) {
+//            $userId = $data['userId'];
+//            $defaultQuoteCreatorId = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('defaultQuoteCreatorId');
+//            if (!empty($defaultQuoteCreatorId)) {
+//                //Quote_Models_Mapper_QuoteMapper::getInstance()->updateCreatorId($userId, $defaultQuoteCreatorId);
+//            }
+//
+//        }
+//
+//    }
+
+
+
     public function getPaymenttypeinfoAction()
     {
         $accessList = array(
