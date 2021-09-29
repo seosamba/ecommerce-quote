@@ -64,7 +64,7 @@
     'Preview' => 'Aperçu ',
     'Delete' => 'Supprimer',
     'search quote by title, by creator, by client email & name' => 'rechercher le devis par titre, par créateur, par e-mail et nom du client',
-    'Search Quote' => 'Rechercher un devis',
+    'Search Quote' => 'Rechercher',
     'Create a new quote' => 'Créer un nouveau devis',
     'Create quote from a template' => 'Créer un devis à partir d\'un modèle',
     'Search by quote title' => 'Rechercher par titre du devis ',
@@ -154,6 +154,9 @@
     'Maximum quantity of products allowed in the quote' => 'Quantité max des produits dans le panier',
     'The number of products in the cart exceeds the allowed limit!' => 'Le nombre de produits dans le panier dépasse la limite autorisée!',
     'Allow quote autosave' => 'Autoriser l\'auto-enregistrement du devis',
-    'Disable email autosave' => 'Désactiver l\'auto-enregistrement d\'email'
+    'Disable email autosave' => 'Désactiver l\'auto-enregistrement d\'email',
+    'filter by owner' => 'filtrer par propriétaire',
+    'filter by status' => 'filtrer par statut',
+    'Quote Signed (Signature only quote)' => 'Devis signé (Signature seulement devis)'
 
 );?>

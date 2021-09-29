@@ -461,7 +461,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return mixed
      */
     protected function _renderGrid() {
-        $this->_view->quotes = Quote_Models_Mapper_QuoteMapper::getInstance()->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $this->_view->quotes = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+
+        $ownerRoles = array();
+
+        $userRolesList = $quoteMapper->getAllUsers(true, true, 'full_name ASC');
+
+        if(!empty($userRolesList)) {
+            $ownerRoles = $userRolesList;
+        }
+
+        $this->_view->ownerRoles = $ownerRoles;
+
         return $this->_view->render('grid.quote.phtml');
     }
 

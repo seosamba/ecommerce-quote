@@ -32,7 +32,9 @@ define([
             this.quotes.on('remove', this.render, this);
 
             this.quotes.server_api = _.extend(this.quotes.server_api, {
-                search: function() {return $('#quote-grid-search').val()}
+                search: function() {return $('#quote-grid-search').val()},
+                quoteOwnerId: function() {return $('#quote-owner-name').val()},
+                quoteStatusName: function() {return $('#quote-status-name').val()}
             });
         },
         sortGridAction: function(e) {
@@ -124,13 +126,14 @@ define([
             });
         },
         searchAction: function() {
-            this.quotes.pager();
+            this.quotes.goTo(this.quotes.firstPage);
+
         },
         searchEnterAction: function(event)
         {
             if (event.keyCode === 13) {
                 event.preventDefault();
-                this.quotes.pager();
+                this.quotes.goTo(this.quotes.firstPage);
             }
         },
         navigateAction: function(e) {
