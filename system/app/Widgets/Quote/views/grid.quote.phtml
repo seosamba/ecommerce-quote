@@ -42,31 +42,29 @@
     ?>
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
-            <div class="quote-grid-block-search grid_5 alpha border-box">
-                <div class="quote-qrid-search">
-                    <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'mb5px', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
-                    <div class="grid_6 alpha t-grid_3 t-alpha">
-                        <select name="quote-owner-name" id="quote-owner-name">
-                            <option selected="selected" value=""><?php echo $this->translate('filter by owner');?></option>
-                            <?php if(!empty($this->ownerRoles)) :?>
-                                <?php foreach ($this->ownerRoles as $ownerId => $ownerFullName) :?>
-                                    <option value="<?php echo $ownerId;?>"><?php echo $ownerFullName;?></option>
-                                <?php endforeach;?>
-                            <?php endif;?>
-                        </select>
-                    </div>
-                    <div class="grid_6 omega t-grid_3 t-omega">
-                        <select name="quote-status-name" id="quote-status-name">
-                            <option selected="selected" value=""><?php echo $this->translate('filter by status');?></option>
-                            <option value="<?php echo Quote_Models_Model_Quote::STATUS_NEW;?>"><?php echo $this->translate('Quote New');?></option>
-                            <option value="<?php echo Quote_Models_Model_Quote::STATUS_SENT;?>"><?php echo $this->translate('Quote Sent');?></option>
-                            <option value="<?php echo Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED;?>"><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
-                            <option value="<?php echo Quote_Models_Model_Quote::STATUS_SOLD;?>"><?php echo $this->translate('Payment received');?></option>
-                            <option value="<?php echo Quote_Models_Model_Quote::STATUS_LOST;?>"><?php echo $this->translate('Lost opportunity');?></option>
-                        </select>
-                    </div>
+            <div class="grid_5 alpha flex-row border-box">
+                <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'mb5px', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
+                <div class="grid_4 alpha t-grid_3 t-alpha">
+                    <select name="quote-owner-name" id="quote-owner-name">
+                        <option selected="selected" value=""><?php echo $this->translate('filter by owner');?></option>
+                        <?php if(!empty($this->ownerRoles)) :?>
+                            <?php foreach ($this->ownerRoles as $ownerId => $ownerFullName) :?>
+                                <option value="<?php echo $ownerId;?>"><?php echo $ownerFullName;?></option>
+                            <?php endforeach;?>
+                        <?php endif;?>
+                    </select>
                 </div>
-                <a href="javascript:;" id="search-quote-button" class="btn green"><?php echo $this->translate('Search Quote');?></a>
+                <div class="grid_4 t-grid_3 t-omega">
+                    <select name="quote-status-name" id="quote-status-name">
+                        <option selected="selected" value=""><?php echo $this->translate('filter by status');?></option>
+                        <option value="<?php echo Quote_Models_Model_Quote::STATUS_NEW;?>"><?php echo $this->translate('Quote New');?></option>
+                        <option value="<?php echo Quote_Models_Model_Quote::STATUS_SENT;?>"><?php echo $this->translate('Quote Sent');?></option>
+                        <option value="<?php echo Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED;?>"><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
+                        <option value="<?php echo Quote_Models_Model_Quote::STATUS_SOLD;?>"><?php echo $this->translate('Payment received');?></option>
+                        <option value="<?php echo Quote_Models_Model_Quote::STATUS_LOST;?>"><?php echo $this->translate('Lost opportunity');?></option>
+                    </select>
+                </div>
+                <a href="javascript:;" id="search-quote-button" class="btn green grid_4 omega"><?php echo $this->translate('Search Quote');?></a>
                 <?php $quoteTemplates = array_merge(
                     array(0 => 'Select quote template'),
                     Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
