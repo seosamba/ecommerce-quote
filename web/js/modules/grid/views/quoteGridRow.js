@@ -35,7 +35,7 @@ define([
         },
         statusAction: function(e) {
             var quote = appView.quotes.get(e.currentTarget.id);
-            quote.set({status: e.currentTarget.value});
+            quote.set({status: e.currentTarget.value, skipStatusVerification:'1'});
             showSpinner();
             quote.save(null, {
                 success: function(model, response) {
