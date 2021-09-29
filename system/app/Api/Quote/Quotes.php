@@ -577,7 +577,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
         }
 
-        if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses)) {
+        if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses) && empty($quoteData['skipStatusVerification'])) {
             $response->fail($translator->translate('You can\'t edit the quote which is already paid.'));
         }
 
