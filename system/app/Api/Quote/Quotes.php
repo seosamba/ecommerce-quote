@@ -79,9 +79,24 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $order     = filter_var($this->_request->getParam('order', 'created_at'), FILTER_SANITIZE_STRING);
         $orderType = filter_var($this->_request->getParam('orderType', 'desc'), FILTER_SANITIZE_STRING);
         $search    = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
+        $quoteOwnerId    = filter_var($this->_request->getParam('quoteOwnerId'), FILTER_SANITIZE_NUMBER_INT);
+        $quoteStatusName    = filter_var($this->_request->getParam('quoteStatusName'), FILTER_SANITIZE_STRING);
+
+        $where = '';
+        if(!empty($quoteOwnerId)) {
+            $where = $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.creator_id = ?', $quoteOwnerId);
+        }
+
+        if(!empty($quoteStatusName)) {
+            if(!empty($where)) {
+                $where .= ' AND ';
+            }
+
+            $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.status = ?', $quoteStatusName);
+        }
 
         $quotes    = $this->_quoteMapper->fetchAll(
-            null,
+            ($where)  ? $where : null,
             ($order)  ? array($order . ' ' . strtoupper($orderType)) : array(),
             ($limit)  ? $limit : null,
             ($offset) ? $offset : null,

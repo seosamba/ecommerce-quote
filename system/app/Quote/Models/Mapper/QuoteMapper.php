@@ -236,13 +236,17 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
      * Get users info
      * @param bool $pairs return result in pairs key => value
      * @param bool $adminGroup admin group user only flag
-     *
+     * @param string $order OPTIONAL An SQL ORDER clause.
      * @return array
      */
-    public function getAllUsers($pairs = false, $adminGroup = false)
+    public function getAllUsers($pairs = false, $adminGroup = false, $order = null)
     {
         $select = $this->getDbTable()->getAdapter()->select()->from(array('u' => 'user'),
-            array('id', 'full_name'))->order('full_name');
+            array('id', 'full_name'));
+
+        if(!empty($order)) {
+            $select->order($order);
+        }
 
         if ($adminGroup === true) {
             $where = $this->getDbTable()->getAdapter()->quoteInto('role_id IN (?)',
