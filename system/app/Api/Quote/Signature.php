@@ -33,7 +33,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
             $this->_error($translator->translate('Quote id is missing'));
         }
 
-        if (strlen(base64_decode($signature)) < 2678) {
+        if (strlen(base64_decode($signature)) < 2691) {
             $this->_error($translator->translate('Please sign the quote'));
         }
 

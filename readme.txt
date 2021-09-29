@@ -97,6 +97,9 @@ Here you can put quote item widgets
  id="quote-sortable" - special ID to allow use draggable products.
  data-sort-product-sid="{$quote:item:sid}" - unique product hash with options.
 
+ MAGICSPACE: quotediscount
+  {quotediscount}{/quotediscount} - Hide content if quote discount doesn't exist. Doesn't work for everyone who have admin access.
+
 Quote action emails lexems:
 {quoteowner:email} - This lexem return quote owner email address
 {widcard:BizEmail} - This lexem return widcard email address
