@@ -162,6 +162,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
+                $isAlreadyPayed = Tools_ShoppingCart::verifyIfAlreadyPayed();
+                if ($isAlreadyPayed === true) {
+                    $cartStorage = Tools_ShoppingCart::getInstance();
+                    $cartStorage->clean();
+                    $this->_error($translator->translate('Your cart content was changed'));
+                }
+
                 if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
