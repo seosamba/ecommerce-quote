@@ -1148,6 +1148,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $quoteForm->removeElement('sameForShipping');
         $quoteForm->removeElement('position');
 
+        $isAlreadyPayed = Tools_ShoppingCart::verifyIfAlreadyPayed();
+        if ($isAlreadyPayed === true) {
+            $cartStorage = Tools_ShoppingCart::getInstance();
+            $cartStorage->clean();
+        }
+
         //check if the automatic quote generation is set up - add extra class to the form
         if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
             $quoteForm->setAttrib('class', '_reload ' . $quoteForm->getAttrib('class'));
