@@ -1152,6 +1152,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if ($isAlreadyPayed === true) {
             $cartStorage = Tools_ShoppingCart::getInstance();
             $cartStorage->clean();
+            $redirector = new Zend_Controller_Action_Helper_Redirector();
+            $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+            if (!empty($this->_toasterOptions['id'])) {
+                $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($this->_toasterOptions['id']);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    $redirector->gotoUrl($websiteHelper->getUrl() . $pageModel->getUrl());
+                }
+            }
         }
 
         //check if the automatic quote generation is set up - add extra class to the form
