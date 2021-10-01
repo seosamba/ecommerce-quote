@@ -162,6 +162,13 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
+                $isAlreadyPayed = Tools_ShoppingCart::verifyIfAlreadyPayed();
+                if ($isAlreadyPayed === true) {
+                    $cartStorage = Tools_ShoppingCart::getInstance();
+                    $cartStorage->clean();
+                    $this->_error($translator->translate('Your cart content was changed'));
+                }
+
                 if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
@@ -174,6 +181,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 $formData = filter_var_array($form->getValues(), FILTER_SANITIZE_STRING);
+
+                $cartId = $this->_cartStorage->getCartId();
+                $quote = null;
+                if (!empty($cartId)) {
+                    $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->findByCartId($cartId);
+                }
 
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart
                 $initialProducts = array();
@@ -192,7 +205,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
-                $cart     = Quote_Tools_Tools::invokeCart(null, $initialProducts);
+                if ($quote instanceof Quote_Models_Model_Quote) {
+                    $cart = Quote_Tools_Tools::invokeCart($quote, $initialProducts, true);
+                } else {
+                    $cart = Quote_Tools_Tools::invokeCart(null, $initialProducts);
+                }
 
                 if (!empty($formData['phone'])) {
                     $formData['phone'] = Quote_Tools_Tools::cleanNumber($formData['phone']);

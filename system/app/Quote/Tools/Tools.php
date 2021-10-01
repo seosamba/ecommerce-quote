@@ -106,13 +106,18 @@ class Quote_Tools_Tools {
      *
      * @param Quote_Models_Model_Quote $quote
      * @param array $initialProducts
+     * @param bool $forceCreateNewCart force to add products to the cart
      * @return Models_Model_CartSession
      */
-    public static function invokeCart($quote = null, $initialProducts = array()) {
+    public static function invokeCart($quote = null, $initialProducts = array(), $forceCreateNewCart = false) {
         $cart   = null;
         $mapper = Models_Mapper_CartSessionMapper::getInstance();
-        if(!$quote instanceof Quote_Models_Model_Quote) {
+        if(!$quote instanceof Quote_Models_Model_Quote || $forceCreateNewCart === true) {
             $cartStorage = Tools_ShoppingCart::getInstance();
+            if ($forceCreateNewCart === true) {
+                $cartStorage->setContent(array());
+                $cartStorage->setCartId(null);
+            }
 
             if(is_array($initialProducts) && !empty($initialProducts)) {
                 foreach($initialProducts as $initialData) {
