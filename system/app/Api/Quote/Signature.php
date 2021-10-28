@@ -95,11 +95,14 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
                 if (!empty($quoteProposalQuote)) {
                     $pdfFileName = $quoteProposalQuote.'-' . $quote->getTitle() . '.pdf';
+                    $pdfFileNameLocally = $quoteProposalQuote.'-' . $quote->getId() . '.pdf';
                 } else {
                     $pdfFileName = 'Proposal-quote-' . $quote->getTitle() . '.pdf';
+                    $pdfFileNameLocally = 'Proposal-quote-' . $quote->getId() . '.pdf';
                 }
 
                 $storedData = Tools_LeadDocumentsTools::generateStoredName(array('name' => $pdfFileName));
+                $storedDataLocally = Quote_Tools_Tools::generateStoredName(array('name' => $pdfFileNameLocally), false);
 
                 $leadsMapper = Leads_Mapper_LeadsMapper::getInstance();
                 $leadModel = $leadsMapper->findByUserId($quote->getUserId());
@@ -113,6 +116,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
                 if ($leadModel instanceof Leads_Model_LeadsModel) {
                     $savePath = Tools_LeadDocumentsTools::getFilePath($storedData['fileStoredName']);
+                    $quoteSaveLocallyPath = Quote_Tools_Tools::getFilePath($storedDataLocally['fileStoredName']);
                     $leadId = $leadModel->getId();
                     $leadsDocumentsMapper = Leads_Mapper_LeadsDocumentsMapper::getInstance();
                     $leadsDocumentsModel = new Leads_Model_LeadsDocumentsModel();
@@ -125,6 +129,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
                     $leadsDocumentsMapper->save($leadsDocumentsModel);
                     $pdfFile->Output($savePath, 'F');
+                    $pdfFile->Output($quoteSaveLocallyPath, 'F');
 
                     $attachment = new Zend_Mime_Part(file_get_contents($savePath));
                     $attachment->type = 'application/pdf';
