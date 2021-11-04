@@ -511,6 +511,11 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     }
                 }
             }
+        } else {
+            $this->_entityParser->addToDictionary(array(
+                'customer:full_name' => '',
+                'customer:email' => ''
+            ));
         }
 
         $cartId = $this->_quote->getCartId();
