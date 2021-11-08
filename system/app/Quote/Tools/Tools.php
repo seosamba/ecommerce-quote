@@ -16,6 +16,11 @@ class Quote_Tools_Tools {
     const TITLE_PREFIX = 'New quote: ';
 
     /**
+     * General files folder
+     */
+    const FILES_FOLDER = 'quotePdf';
+
+    /**
      * Defined user prefixes
      * @var array
      */
@@ -628,6 +633,103 @@ class Quote_Tools_Tools {
         }
 
         return $form;
+    }
+
+    /**
+     * Get path to file
+     *
+     * @param string $fileStoredName file stored name
+     * @return string
+     */
+    public static function getFilePath($fileStoredName)
+    {
+        $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+
+        return $websiteHelper->getPath() . 'plugins' . DIRECTORY_SEPARATOR . 'quote' .
+            DIRECTORY_SEPARATOR . self::FILES_FOLDER
+            . DIRECTORY_SEPARATOR . $fileStoredName;
+
+    }
+
+    /**
+     * Generate stored and hash
+     *
+     * @param array $file file info
+     * @param bool $uniqueHash unique hash flag
+     * @return array
+     * @throws Zend_Exception
+     */
+    public static function generateStoredName($file, $uniqueHash = true)
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $storedData = array();
+
+        preg_match('~[^\x00-\x1F"<>\|:\*\?/]+\.[\w\d]{2,8}$~iU', $file['name'], $match);
+        if (!$match) {
+            $storedData['error'] = array('result' => $translator->translate('Corrupted filename'), 'error' => 1);
+        }
+
+        $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $fileName = pathinfo($file['name'], PATHINFO_FILENAME);
+
+        $storedData['fileExtension'] = $fileExtension;
+        $storedData['fileName'] = $fileName;
+        if ($uniqueHash === true) {
+            $storedData['fileStoredName'] = self::generateUniqueFileStoredName($fileName, $fileExtension);
+            $storedData['fileHash'] = self::generateUniqueHash($fileName);
+        } else {
+            $storedData['fileStoredName'] = self::generateFileStoredName($fileName, $fileExtension);
+            $storedData['fileHash'] = self::generateHash($fileName);
+        }
+
+        return $storedData;
+    }
+
+
+    /**
+     * Generate unique file hash name
+     *
+     * @param string $fileName file name
+     * @return string
+     */
+    public static function generateUniqueHash($fileName)
+    {
+        return sha1($fileName . uniqid(microtime()));
+    }
+
+    /**
+     * Generate file hash name
+     *
+     * @param string $fileName file name
+     * @return string
+     */
+    public static function generateHash($fileName)
+    {
+        return sha1($fileName);
+    }
+
+    /**
+     * Generate unique file stored hash name
+     *
+     * @param string $fileName file name
+     * @param string $fileExtension file extension
+     * @return string
+     */
+    public static function generateUniqueFileStoredName($fileName, $fileExtension)
+    {
+        return self::generateUniqueHash($fileName) . '.' . $fileExtension;
+    }
+
+    /**
+     * Generate  file stored hash name
+     *
+     * @param string $fileName file name
+     * @param string $fileExtension file extension
+     * @return string
+     */
+    public static function generateFileStoredName($fileName, $fileExtension)
+    {
+        return self::generateHash($fileName) . '.' . $fileExtension;
     }
 
 }
