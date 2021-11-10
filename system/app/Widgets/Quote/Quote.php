@@ -462,7 +462,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return mixed
      */
     protected function _renderGrid() {
-        $this->_view->quotes = Quote_Models_Mapper_QuoteMapper::getInstance()->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $this->_view->quotes = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+
+        $ownerRoles = array();
+
+        $userRolesList = $quoteMapper->getAllUsers(true, true, 'full_name ASC');
+
+        if(!empty($userRolesList)) {
+            $ownerRoles = $userRolesList;
+        }
+
+        $this->_view->ownerRoles = $ownerRoles;
+
         return $this->_view->render('grid.quote.phtml');
     }
 
@@ -613,7 +625,11 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $quoteUserId = $this->_quote->getUserId();
 
             if($quoteStatus != Quote_Models_Model_Quote::STATUS_SOLD && !empty($quoteUserId) && !in_array($this->_cart->getStatus(), $this->_denyQuoteCartStatuses)) {
-                $allowAutoSave = true;
+                $allowAutosaveQuote = $this->_shoppingConfig['allowAutosave'];
+
+                if(!empty($allowAutosaveQuote)) {
+                    $allowAutoSave = true;
+                }
             }
         }
 
@@ -624,6 +640,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $this->_view->allowAutoSave = $allowAutoSave;
+
+        $disableAutosaveEmailConfig = $this->_shoppingConfig['disableAutosaveEmail'];
+
+        $disableAutosaveEmail = false;
+        if(!empty($disableAutosaveEmailConfig)) {
+            $disableAutosaveEmail = true;
+        }
+
+        $this->_view->disableAutosaveEmail = $disableAutosaveEmail;
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
@@ -1124,6 +1149,20 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $quoteForm->removeElement('sameForShipping');
         $quoteForm->removeElement('position');
 
+        $isAlreadyPayed = Tools_ShoppingCart::verifyIfAlreadyPayed();
+        if ($isAlreadyPayed === true) {
+            $cartStorage = Tools_ShoppingCart::getInstance();
+            $cartStorage->clean();
+            $redirector = new Zend_Controller_Action_Helper_Redirector();
+            $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+            if (!empty($this->_toasterOptions['id'])) {
+                $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($this->_toasterOptions['id']);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    $redirector->gotoUrl($websiteHelper->getUrl() . $pageModel->getUrl());
+                }
+            }
+        }
+
         //check if the automatic quote generation is set up - add extra class to the form
         if(isset($this->_shoppingConfig['autoQuote']) && $this->_shoppingConfig['autoQuote']) {
             $quoteForm->setAttrib('class', '_reload ' . $quoteForm->getAttrib('class'));
@@ -1438,7 +1477,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
     protected function _renderSignature()
     {
-        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
             $this->_view->accessAllowed = $this->_editAllowed;
 
             $quoteId = $this->_quote->getId();
@@ -1478,7 +1517,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
     protected function _renderQuotetypeinfo()
     {
-        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
             $currentCartStatus = $this->_cart->getStatus();
             if ($currentCartStatus === Models_Model_CartSession::CART_STATUS_COMPLETED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_SHIPPED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_DELIVERED || $currentCartStatus === Models_Model_CartSession::CART_STATUS_REFUNDED) {
                 return '';
@@ -1497,6 +1536,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $paymentType = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
             }
 
+            $currency = Zend_Registry::get('Zend_Currency');
+            $partialPaymentType = $this->_cart->getPartialType();
+            if (empty($partialPaymentType)) {
+                $partialPaymentType = Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE;
+            }
+
             $leftAmountToPaid = 0;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
@@ -1506,7 +1551,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $isPartialPaid = false;
                 if ((int) $this->_cart->getPartialPaidAmount() > 0 && !in_array($this->_cart->getStatus(), $cartStatuses) && $this->_cart->getPartialPaidAmount() < $this->_cart->getTotal()) {
                     $isPartialPaid = true;
-                    $leftAmountToPaid = round(($this->_cart->getTotal() -($this->_cart->getTotal()*$this->_cart->getPartialPercentage())/100), 2);
+                    if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                        $leftAmountToPaid = round(($this->_cart->getTotal() - $this->_cart->getPartialPercentage()),
+                            2);
+                    } else {
+                        $leftAmountToPaid = round(($this->_cart->getTotal() - ($this->_cart->getTotal() * $this->_cart->getPartialPercentage()) / 100),
+                            2);
+                    }
                 }
             }
 
@@ -1518,6 +1569,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->partialPaidDate = date('Y-m-d', strtotime($this->_cart->getPartialPurchasedOn()));
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
+            $this->_view->partialPercentage = $partialPercentage;
+            if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                $this->_view->partialToPayAmount = $currency->toCurrency($partialPercentage);
+            } else {
+                $this->_view->partialToPayAmount = $currency->toCurrency(($partialPercentage * $this->_cart->getTotal() / 100));
+            }
+            $this->_view->currency = $currency->getSymbol();
+            $this->_view->partialPaymentType = $partialPaymentType;
             $this->_view->quoteTotal = $this->_cart->getTotal();
             $this->_view->isSignatureRequired = $isSignatureRequired;
             $this->_view->isAdmin = $isAdmin;
@@ -1574,7 +1633,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $paymentType = $this->_quote->getPaymentType();
             $partialPercent = $this->_cart->getPartialPercentage();
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
-                return $this->_currency->toCurrency(round(($this->_cart->getTotal()*$partialPercent)/100, 2));
+                $partialPaymentType = $this->_cart->getPartialType();
+                if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
+                    return $this->_currency->toCurrency(round($partialPercent, 2));
+                } else {
+                    return $this->_currency->toCurrency(round(($this->_cart->getTotal() * $partialPercent) / 100, 2));
+                }
             }
 
             return '';
@@ -1601,7 +1665,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $paymentType = $this->_quote->getPaymentType();
             $partialPercent = $this->_cart->getPartialPercentage();
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
-                return round($partialPercent,1);
+                $partialPaymentType = $this->_cart->getPartialType();
+                if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) {
+                    return round($partialPercent, 1);
+                }
             }
 
             return '';

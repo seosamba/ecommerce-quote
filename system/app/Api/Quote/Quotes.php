@@ -79,9 +79,24 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $order     = filter_var($this->_request->getParam('order', 'created_at'), FILTER_SANITIZE_STRING);
         $orderType = filter_var($this->_request->getParam('orderType', 'desc'), FILTER_SANITIZE_STRING);
         $search    = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
+        $quoteOwnerId    = filter_var($this->_request->getParam('quoteOwnerId'), FILTER_SANITIZE_NUMBER_INT);
+        $quoteStatusName    = filter_var($this->_request->getParam('quoteStatusName'), FILTER_SANITIZE_STRING);
+
+        $where = '';
+        if(!empty($quoteOwnerId)) {
+            $where = $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.creator_id = ?', $quoteOwnerId);
+        }
+
+        if(!empty($quoteStatusName)) {
+            if(!empty($where)) {
+                $where .= ' AND ';
+            }
+
+            $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.status = ?', $quoteStatusName);
+        }
 
         $quotes    = $this->_quoteMapper->fetchAll(
-            null,
+            ($where)  ? $where : null,
             ($order)  ? array($order . ' ' . strtoupper($orderType)) : array(),
             ($limit)  ? $limit : null,
             ($offset) ? $offset : null,
@@ -132,6 +147,28 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
 
+                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                if (!empty($shoppingConfig['maxProductsInQuote'])) {
+                    $inCartContent = $this->_cartStorage->getContent();
+                    if (intval($shoppingConfig['maxProductsInQuote']) > 0 && !empty($inCartContent)) {
+                        $qtyInCart = 0;
+                        foreach ($inCartContent as $content) {
+                            $qtyInCart += $content['qty'];
+                        }
+
+                        if ($qtyInCart >= $shoppingConfig['maxProductsInQuote']) {
+                            $this->_error($translator->translate('The number of products in the cart exceeds the allowed limit!'));
+                        }
+                    }
+                }
+
+                $isAlreadyPayed = Tools_ShoppingCart::verifyIfAlreadyPayed();
+                if ($isAlreadyPayed === true) {
+                    $cartStorage = Tools_ShoppingCart::getInstance();
+                    $cartStorage->clean();
+                    $this->_error($translator->translate('Your cart content was changed'));
+                }
+
                 if (!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $googleRecaptcha = new Tools_System_GoogleRecaptcha();
                     if (!$form->isValid($this->_request->getParams()) || empty($data['g-recaptcha-response']) || !$googleRecaptcha->isValid($data['g-recaptcha-response'])) {
@@ -144,6 +181,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 $formData = filter_var_array($form->getValues(), FILTER_SANITIZE_STRING);
+
+                $cartId = $this->_cartStorage->getCartId();
+                $quote = null;
+                if (!empty($cartId)) {
+                    $quote = Quote_Models_Mapper_QuoteMapper::getInstance()->findByCartId($cartId);
+                }
 
                 //if we have a product id passed then this is a single product quote request and we should add product to the cart
                 $initialProducts = array();
@@ -162,7 +205,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     }
                 }
 
-                $cart     = Quote_Tools_Tools::invokeCart(null, $initialProducts);
+                if ($quote instanceof Quote_Models_Model_Quote) {
+                    $cart = Quote_Tools_Tools::invokeCart($quote, $initialProducts, true);
+                } else {
+                    $cart = Quote_Tools_Tools::invokeCart(null, $initialProducts);
+                }
 
                 if (!empty($formData['phone'])) {
                     $formData['phone'] = Quote_Tools_Tools::cleanNumber($formData['phone']);
@@ -222,9 +269,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!empty($enableQuoteDefaultType)) {
                     $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
                     $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
+                    $quotePartialType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialType');
                     if (($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) && !empty($quotePartialPercentage)) {
                         $cart->setIsPartial('1');
                         $cart->setPartialPercentage($quotePartialPercentage);
+                        if (!empty($quotePartialType)) {
+                            $cart->setPartialType($quotePartialType);
+                        } else {
+                            $cart->setPartialType(null);
+                        }
                     }
                 }
 
@@ -491,6 +544,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
         $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
+        $additionalEmailValidate = !empty($quoteData['additionalEmailValidate']) ? $quoteData['additionalEmailValidate'] : '';
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
@@ -540,7 +594,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $this->_error('Can\'t find cart assosiated with the current quote.', self::REST_STATUS_NO_CONTENT);
         }
 
-        if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses)) {
+        if (in_array($cart->getStatus(), self::$_alreadyPaidStatuses) && empty($quoteData['skipStatusVerification'])) {
             $response->fail($translator->translate('You can\'t edit the quote which is already paid.'));
         }
 
@@ -589,12 +643,23 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['billing'])) {
-                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please fill in the required fields'));
+                if(!empty($quoteData['errorMessage']) /*&& empty($eventType)*/) {
+                    if(empty($additionalEmailValidate)) {
+                        $response->fail($translator->translate('Please fill in the required fields'));
+                    }
                 }
 
                 parse_str($quoteData['billing'], $quoteData['billing']);
 
+
+                if(!empty($eventType)) {
+                    if(!$emailValidator->isValid($quoteData['billing']['email'])) {
+                        if(!empty($quoteData['billing']['email'])) {
+                            $response->fail($translator->translate('Please enter a valid email address'));
+                        }
+                        $response->success('');
+                    }
+                }
 
                 $quoteData['billing']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['phone']);
                 $quoteData['billing']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['billing']['mobile']);
@@ -613,7 +678,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 if (!$emailValidator->isValid($quoteData['billing']['email']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please enter a valid email address'));
+                    if(!empty($quoteData['billing']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                    $response->success('');
                 }
 
 	            if ($quote->getUserId() && empty($quoteData['billing']['overwriteQuoteUserBilling'])){
@@ -634,10 +702,22 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if(isset($quoteData['shipping'])) {
-                if(!empty($quoteData['errorMessage']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please fill in the required fields'));
+                if(!empty($quoteData['errorMessage']) /*&& empty($eventType)*/) {
+                    if(empty($additionalEmailValidate)) {
+                        $response->fail($translator->translate('Please fill in the required fields'));
+                    }
                 }
                 parse_str($quoteData['shipping'], $quoteData['shipping']);
+
+                if(!empty($eventType)) {
+                    if(!$emailValidator->isValid($quoteData['shipping']['email'])) {
+                        if(!empty($quoteData['shipping']['email'])) {
+                            $response->fail($translator->translate('Please enter a valid email address'));
+                        }
+                        $response->success('');
+                    }
+                }
+
                 $quoteData['shipping']['phone'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['phone']);
                 $quoteData['shipping']['mobile'] = Quote_Tools_Tools::cleanNumber($quoteData['shipping']['mobile']);
                 if (!empty($quoteData['shipping']['phonecountrycode'])) {
@@ -655,7 +735,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
 
                 if (!$emailValidator->isValid($quoteData['shipping']['email']) && empty($eventType)) {
-                    $response->fail($translator->translate('Please enter a valid email address'));
+                    if(!empty($quoteData['shipping']['email'])) {
+                        $response->fail($translator->translate('Please enter a valid email address'));
+                    }
+                    $response->success('');
                 }
 
 	            if (!$customer || !empty($quoteData['shipping']['overwriteQuoteUserShipping'])){
@@ -720,10 +803,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
             if (!empty($quoteData['paymentType']) && $quoteData['paymentType'] === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $cart->setPartialPercentage($quoteData['partialPaymentPercentage']);
+                $cart->setPartialType($quoteData['partialPaymentType']);
                 $cart->setIsPartial('1');
             } else {
                 $cart->setIsPartial('0');
                 $cart->setPartialPercentage('');
+                $cart->setPartialType(null);
             }
 
             if($customer instanceof Models_Model_Customer) {
@@ -738,7 +823,22 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $skipGroupPriceRecalculation = true;
         }
 
-        return Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
+        $quoteParams = Quote_Tools_Tools::calculate(Quote_Tools_Tools::invokeQuoteStorage($quoteId), false, true, $quoteId, $skipGroupPriceRecalculation);
+
+        $allowAutosaveQuote = $this->_shoppingConfig['allowAutosave'];
+
+        $quoteParams['allowAutosave'] = 0;
+        $quoteParams['disableAutosaveEmail'] = 0;
+        if(!empty($allowAutosaveQuote)) {
+            $quoteParams['allowAutosave'] = $allowAutosaveQuote;
+
+            $disableAutosaveEmailConfig = $this->_shoppingConfig['disableAutosaveEmail'];
+            if(!empty($disableAutosaveEmailConfig)) {
+                $quoteParams['disableAutosaveEmail'] = $disableAutosaveEmailConfig;
+            }
+        }
+
+        return $quoteParams;
     }
 
     public function deleteAction() {

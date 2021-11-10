@@ -49,6 +49,29 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Default quote expiration delay')
         )));
 
+//        $adminUsers = Quote_Models_Mapper_QuoteMapper::getInstance()->getAllUsers(true, true);
+//
+//        //default quote email
+//        $this->addElement(new Zend_Form_Element_Select(array(
+//            'name'  => 'defaultQuoteCreatorId',
+//            'id'    => 'default-quote-creator-id',
+//            'class' => 'grid_6 alpha',
+//            'label' => $translator->translate('Default quote creator user id'),
+//            'multiOptions' => $adminUsers
+//        )));
+
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'allowAutosave',
+            'id'    => 'allow-autosave-quote',
+            'label' => $translator->translate('Allow quote autosave')
+        )));
+
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'disableAutosaveEmail',
+            'id'    => 'disable-autosave-email',
+            'label' => $translator->translate('Disable email autosave')
+        )));
+
         $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'quoteDraggableProducts',
             'id'    => 'draggable-products',
@@ -72,8 +95,20 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Text(array(
             'name'  => 'quotePartialPercentage',
             'id'    => 'quote-partial-percentage',
-            'class' => 'grid_6 alpha',
-            'label' => $translator->translate('Partial payment percentage')
+            'class' => 'grid_4 alpha',
+            'label' => $translator->translate('Partial payment')
+        )));
+
+        $currency = Zend_Registry::get('Zend_Currency');
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'  => 'quotePartialType',
+            'id'    => 'quote-partial-type',
+            'class' => 'grid_2 alpha omega',
+            'multiOptions' => array(
+                Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE => '%',
+                Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT => $currency->getSymbol()
+            )
         )));
 
         $this->addElement(new Zend_Form_Element_Text(array(
@@ -88,6 +123,13 @@ class  Quote_Forms_Settings extends Zend_Form {
             'name'  => 'enabledPartialPayment',
             'id'    => 'enabled-partial-payment',
             'label' => $translator->translate('Accept partial payments for quote: Yes/No'),
+        )));
+
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'maxProductsInQuote',
+            'id'    => 'max-products-in-quote',
+            'class' => 'grid_6 alpha',
+            'label' => $translator->translate('Maximum quantity of products allowed in the quote')
         )));
 
         $this->setDecorators(array('FormElements', 'Form'))

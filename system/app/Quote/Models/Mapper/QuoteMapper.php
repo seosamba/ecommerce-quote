@@ -218,5 +218,51 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
         return $data;
     }
 
+    /**
+     * Update creator id
+     *
+     * @param int $oldCreatorId old creator id
+     * @param int $newCreatorId new creator id
+     * @throws Exception
+     */
+    public function updateCreatorId($oldCreatorId, $newCreatorId)
+    {
+        $where = $this->getDbTable()->getAdapter()->quoteInto('creator_id = ?', $oldCreatorId);
+        $data = array('creator_id' => $newCreatorId);
+        $this->getDbTable()->getAdapter()->update('shopping_quote', $data, $where);
+    }
+
+    /**
+     * Get users info
+     * @param bool $pairs return result in pairs key => value
+     * @param bool $adminGroup admin group user only flag
+     * @param string $order OPTIONAL An SQL ORDER clause.
+     * @return array
+     */
+    public function getAllUsers($pairs = false, $adminGroup = false, $order = null)
+    {
+        $select = $this->getDbTable()->getAdapter()->select()->from(array('u' => 'user'),
+            array('id', 'full_name'));
+
+        if(!empty($order)) {
+            $select->order($order);
+        }
+
+        if ($adminGroup === true) {
+            $where = $this->getDbTable()->getAdapter()->quoteInto('role_id IN (?)',
+                array(Tools_Security_Acl::ROLE_SUPERADMIN,
+                    Tools_Security_Acl::ROLE_ADMIN,
+                    Shopping::ROLE_SALESPERSON
+                )
+            );
+            $select->where($where);
+        }
+
+        if ($pairs ===true) {
+            return $this->getDbTable()->getAdapter()->fetchPairs($select);
+        } else {
+            return $this->getDbTable()->getAdapter()->fetchAssoc($select);
+        }
+    }
 
 }

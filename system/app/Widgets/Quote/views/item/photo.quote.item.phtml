@@ -1,7 +1,7 @@
 <?php if($this->linkFlag) :?>
     <a href="<?php echo $this->productUrl; ?>" target="_blank">
-        <img src="<?php echo $this->imageUrl; ?>" alt="<?php echo $this->name; ?>">
+        <img src="<?php echo $this->imageUrl; ?>" alt="<?php echo htmlentities($this->name); ?>">
     </a>
 <?php else:?>
-    <img src="<?php echo $this->imageUrl; ?>" alt="<?php echo $this->name; ?>">
+    <img src="<?php echo $this->imageUrl; ?>" alt="<?php echo htmlentities($this->name); ?>">
 <?php endif;?>

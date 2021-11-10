@@ -17,24 +17,63 @@
                 <span id="quote-type-info-message"><?php echo $this->translate('To place this order, and get things started, please make a non-refundable down payment of ');?>
                     <?php if($this->isAdmin === true):?>
                         <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage+0;?>" />
+                        <select id="partial-payment-type" name="partial-payment-type">
+                            <option value="percentage" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) ? 'selected':'';?>>%</option>
+                            <option value="amount" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) ? 'selected':'';?>><?php echo $this->currency;?></option>
+                        </select>
                     <?php else:?>
-                        <?php echo round($this->partialPercentage, 1);?>
+                        <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
+                            <?php echo round($this->partialPercentage, 1);?>%
+                        <?php else:?>
+                            <?php echo $this->currency($this->partialPercentage, 1);?>
+                        <?php endif;?>
                     <?php endif;?>
-                    % <?php echo $this->translate('which is');?> <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span> <?php echo $this->translate('using the credit card form below');?>:
+                    <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
+                        <?php $infoTextClass = '';?>
+                    <?php else:?>
+                        <?php $infoTextClass = 'hidden';?>
+                    <?php endif;?>
+                    <span id="percentage-amount-text" class="<?php echo $infoTextClass;?>">
+                            <?php echo $this->translate('which is');?>
+                            <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span>
+                    </span>
+                  <?php echo $this->translate('using the credit card form below');?>:
                 </span>
             <?php else:?>
                 <span id="quote-type-info-message"><?php echo $this->translate('Please sign and validate your signature first, then to get things started, please make a non-refundable down payment of ');?>
                 <?php if($this->isAdmin === true):?>
                     <input id="partial-payment-percentage" name="partial-payment-percentage" value="<?php echo $this->partialPercentage+0;?>" />
+                    <select id="partial-payment-type" name="partial-payment-type">
+                        <option value="percentage" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE) ? 'selected':'';?>>%</option>
+                        <option value="amount" <?php echo ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) ? 'selected':'';?>><?php echo $this->currency;?></option>
+                    </select>
                 <?php else:?>
-                    <?php echo round($this->partialPercentage, 1);?>
+                    <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
+                        <?php echo round($this->partialPercentage, 1);?>%
+                    <?php else:?>
+                        <?php echo $this->currency($this->partialPercentage, 1);?>
+                    <?php endif;?>
                 <?php endif;?>
-                % <?php echo $this->translate('which is');?> <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span> <?php echo $this->translate('using the credit card form below');?>:
+                <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
+                    <?php $infoTextClass = '';?>
+                <?php else:?>
+                    <?php $infoTextClass = 'hidden';?>
+                <?php endif;?>
+                    <span id="percentage-amount-text" class="<?php echo $infoTextClass;?>"><?php echo $this->translate('which is');?>
+                        <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span></span> <?php echo $this->translate('using the credit card form below');?>:
             </span>
             <?php endif;?>
         <?php else:?>
             <span id="quote-type-info-message">
-                <?php echo $this->translate('We received your');?> <?php echo round($this->partialPercentage, 1);?>%     <?php echo $this->translate('deposit of');?> <?php echo $this->currency($this->partialAmountPaid);?> on <?php echo $this->partialPaidDate;?> on this quote, and we thank you for it. <?php echo $this->translate('Please pay the remaining amount of');?> <?php echo $this->currency($this->leftAmountToPaid);?> <?php echo $this->translate('When instructed to do so using the credit card form below');?> :
+                <?php echo $this->translate('We received your');?>
+                <?php if ($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT):?>
+                    <?php echo $this->currency(round($this->partialPercentage, 1));?>
+                    <?php echo $this->translate('deposit');?>
+                <?php else:?>
+                    <?php echo round($this->partialPercentage, 1);?> %
+                    <?php echo $this->translate('deposit of');?> <?php echo $this->currency($this->partialAmountPaid);?>
+                <?php endif;?>
+                 on <?php echo $this->partialPaidDate;?> on this quote, and we thank you for it. <?php echo $this->translate('Please pay the remaining amount of');?> <?php echo $this->currency($this->leftAmountToPaid);?> <?php echo $this->translate('When instructed to do so using the credit card form below');?> :
             </span>
         <?php endif;?>
     <?php elseif ($this->paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE): ?>

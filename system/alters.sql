@@ -78,6 +78,18 @@ CREATE TABLE IF NOT EXISTS `quote_custom_params_data` (
     FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+-- 18/09/2021
+-- version: 2.3.2
+INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES
+('allowAutosave', 1),
+('disableAutosaveEmail', 0);
+
+-- 13/08/2021
+-- version: 2.3.3
+UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission' WHERE `name` = 'quote';
+ALTER TABLE `shopping_quote` DROP FOREIGN KEY `shopping_quote_ibfk_3`;
+ALTER TABLE `shopping_quote` ADD CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.2' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.4' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

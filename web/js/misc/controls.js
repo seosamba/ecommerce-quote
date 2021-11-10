@@ -29,8 +29,27 @@ $(function() {
     });
 
     $(document).on('change', '.quote-info', function(e){
+        var controlEl  = $(e.originalEvent),
+            additionalEmailValidate = 0,
+            disableAutosaveEmail = 0;
+
         if($(this).closest('.quote-info').hasClass('allow-auto-save')) {
-            updateQuote(quoteId, false, '', '1', '', true);
+            if($(this).closest('.quote-info').hasClass('disable-autosave-email')) {
+                disableAutosaveEmail = 1;
+            }
+            
+            if(typeof $(controlEl).get(0) !== 'undefined' && ($(controlEl).get(0).target.id == 'quote-form-email' || $(controlEl).get(0).target.id == 'email')) {
+                additionalEmailValidate = 1;
+                var defaultValue = $(controlEl).get(0).target.defaultValue;
+
+                if(typeof defaultValue !== 'undefined' && defaultValue !== '') {
+                    $('#'+$(controlEl).get(0).target.id).attr('data-email', defaultValue);
+                }
+                if(disableAutosaveEmail) {
+                    return false;
+                }
+            }
+            updateQuote(quoteId, false, '', '', '', true, additionalEmailValidate, disableAutosaveEmail);
         }
     });
 
@@ -97,7 +116,7 @@ $(function() {
         var control  = $(e.currentTarget);
 
         if ($('#quote-payment-type-selector').attr('disabled') !== 'disabled' &&  $('#quote-payment-type-selector').val() === 'partial_payment' && (parseInt($('#partial-payment-percentage').val()) < 1 || isNaN(parseInt($('#partial-payment-percentage').val())))) {
-            showMessage('Please specify partial payment percentage', true, 5000);
+            showMessage('Please specify partial payment amount', true, 5000);
             hideLoader();
             return false;
         }
@@ -245,6 +264,27 @@ $(function() {
 
     });
 
+    $(document).on('change', '#partial-payment-type',function(e){
+        e.preventDefault();
+
+        var data = {
+            qid   : quoteId,
+            type  : 'taxrate',
+            value : $(e.currentTarget).val()
+        };
+
+        updateQuote(quoteId, false, '');
+
+        var request = _update('api/quote/quotes/', data, false);
+
+        request.done(function(response) {
+            hideSpinner();
+            $.extend(data, {summary:response});
+            recalculate(data);
+        });
+
+    });
+
     $(document).on('change', '#quote-payment-type-selector', function (e) {
         var paymentType = $(e.currentTarget).val(),
             isSignatureRequired = 0;
@@ -308,7 +348,8 @@ $(function() {
                 type       : 'POST',
                 data       : {
                     quoteId: quoteId,
-                    partialPercentage: $('#partial-payment-percentage').val()
+                    partialPercentage: $('#partial-payment-percentage').val(),
+                    partialType: $('#partial-payment-type').val()
                 },
                 dataType   : 'json',
                 beforeSend : showSpinner()
@@ -337,6 +378,7 @@ $(function() {
     });
 
     getLeadLink(quoteId);
+    getDisableEmailAutosave();
 
     $(document).on('change', '.custom-field-element', function(e) {
         e.preventDefault();
@@ -375,11 +417,20 @@ var getLeadLink = function (quoteId) {
     }).done(function(response) {
         $('.lead-link').remove();
         if(response.responseText.link) {
-            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_8 alpha icon-profile" title="Go to CRM Lead" href="'+ response.responseText.link +'"></a>';
+            var leadProfile = '<a target="_blank" class="lead-link icon-link fl-right grid_7 alpha icon-profile" title="Go to CRM Lead" href="'+ response.responseText.link +'"></a>';
             $('#quote-form-email').closest('p').find('label').append(leadProfile);
             //$('#email').closest('p').find('label').append(leadProfile);
         }
     });
+}
+
+var getDisableEmailAutosave = function () {
+    if($('.quote-info').hasClass('allow-auto-save') && $('.quote-info').hasClass('disable-autosave-email')) {
+        $('.disable-email-autosave').remove();
+        var tooltipEl = '<a href="javascript:;" class="disable-email-autosave ticon-info tooltip icon18 fl-right grid_8" title="Email won\'t be saved automatically, please turn off (Disable email autosave) in config or Save the quote manually"></a>';
+        $('#quote-form-email').closest('p').find('label').append(tooltipEl);
+        $('#email').closest('p').find('label').append(tooltipEl);
+    }
 }
 
 var processDraggable = function(quoteId) {
@@ -403,7 +454,7 @@ var processDraggable = function(quoteId) {
     return true;
 }
 
-var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner, additionalEmailValidate, disableAutosaveEmail) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
         notValidElements = [],
@@ -442,6 +493,19 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         isQuoteSignatureRequired = 1;
     }
 
+    if(disableAutosaveEmail) {
+        var quoteFormEmail = $('#quote-form-email').data('email');
+        var email = $('#email').data('email');
+
+        if(typeof quoteFormEmail !== 'undefined' && quoteFormEmail !== '') {
+            $('#quote-form-email').val(quoteFormEmail);
+        }
+
+        if(typeof email !== 'undefined' && email !== '') {
+            $('#email').val(email);
+        }
+    }
+
     var data = {
         qid         : quoteId,
         sendMail    : sendMail,
@@ -458,7 +522,9 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         // pdfTemplate : $('#quote-pdf-template-selector').val(),
         isSignatureRequired : isQuoteSignatureRequired,
         partialPaymentPercentage : $('#partial-payment-percentage').val(),
-        ccEmails    : ccEmails
+        partialPaymentType : $('#partial-payment-type').val(),
+        ccEmails    : ccEmails,
+        additionalEmailValidate : (additionalEmailValidate) ? additionalEmailValidate : '',
     };
 
     var request = _update('api/quote/quotes/', data, noSpinner);
@@ -468,8 +534,26 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
             showMessage(response.responseText, true, 5000);
             return false;
         }
-        if(!$('.quote-info').hasClass('allow-auto-save')) {
+
+        if(!$('.quote-info').hasClass('allow-auto-save') && response.allowAutosave) {
             $('.quote-info').addClass('allow-auto-save');
+
+            getDisableEmailAutosave();
+
+            if(!$('.quote-info').hasClass('disable-autosave-email') && response.disableAutosaveEmail) {
+                $('.quote-info').addClass('disable-autosave-email');
+            }
+
+            var quoteFormEmail = $('#quote-form-email').val();
+            var email = $('#email').val();
+
+            if(typeof quoteFormEmail !== 'undefined' && quoteFormEmail !== '') {
+                $('#quote-form-email').attr('data-email', quoteFormEmail);
+            }
+
+            if(typeof email !== 'undefined' && email !== '') {
+                $('#email').attr('data-email', email);
+            }
         }
 
         getLeadLink(quoteId);
@@ -524,6 +608,13 @@ var recalculate = function(options, sid) {
     if ($('#partial-payment-percentage').length > 0) {
         var currentPercentage = $('#partial-payment-percentage').val(),
             partialTotal = accounting.formatMoney((currentPercentage*summary.total)/100);
+
+            if ($('#partial-payment-type').val() === 'amount') {
+                partialTotal = accounting.formatMoney(currentPercentage);
+                $('#percentage-amount-text').addClass('hidden');
+            } else {
+                $('#percentage-amount-text').removeClass('hidden');
+            }
 
         $('#partial-payment-percentage-payment-amount').html(partialTotal);
     }
