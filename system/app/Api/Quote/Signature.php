@@ -61,7 +61,7 @@ class Api_Quote_Signature extends Api_Service_Abstract
             $pdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($pdfTemplate);
             if ($pdfTemplate instanceof Application_Model_Models_Template) {
                 $websiteConfig = Zend_Registry::get('website');
-                $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
+                $pdfTmpPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
 //                if (!defined('_MPDF_TEMP_PATH')) {
 //                    define('_MPDF_TEMP_PATH', $pdfPath);
 //                }
@@ -93,7 +93,8 @@ class Api_Quote_Signature extends Api_Service_Abstract
                 //$pdfFile = new mPDF('utf-8', 'A4');
                 $pdfFile = new \Mpdf\Mpdf([
                     'mode' => 'utf-8',
-                    'format' => 'A4'
+                    'format' => 'A4',
+                    'tempDir' => $pdfTmpPath
                 ]);
                 $pdfFile->WriteHTML($content);
 

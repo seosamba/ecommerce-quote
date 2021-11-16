@@ -492,7 +492,7 @@ class Quote extends Tools_PaymentGateway
             $pdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($pdfTemplate);
             if ($pdfTemplate instanceof Application_Model_Models_Template) {
                 $websiteConfig = Zend_Registry::get('website');
-                $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
+                $pdfTmpPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
 //                if (!defined('_MPDF_TEMP_PATH')) {
 //                    define('_MPDF_TEMP_PATH', $pdfPath);
 //                }
@@ -523,7 +523,8 @@ class Quote extends Tools_PaymentGateway
 
                 $pdfFile = new \Mpdf\Mpdf([
                     'mode' => 'utf-8',
-                    'format' => 'A4'
+                    'format' => 'A4',
+                    'tempDir' => $pdfTmpPath
                 ]);
 
 //                $pdfFile = new mPDF('utf-8', 'A4');
