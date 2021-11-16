@@ -62,11 +62,13 @@ class Api_Quote_Signature extends Api_Service_Abstract
             if ($pdfTemplate instanceof Application_Model_Models_Template) {
                 $websiteConfig = Zend_Registry::get('website');
                 $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
-                if (!defined('_MPDF_TEMP_PATH')) {
-                    define('_MPDF_TEMP_PATH', $pdfPath);
-                }
+//                if (!defined('_MPDF_TEMP_PATH')) {
+//                    define('_MPDF_TEMP_PATH', $pdfPath);
+//                }
 
-                require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'system/library/mpdf/mpdf.php');
+                require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR.'system/library/mpdflatest/vendor/autoload.php');
+
+//                require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'system/library/mpdf/mpdf.php');
                 $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
                 $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
                 $themeData = Zend_Registry::get('theme');
@@ -88,7 +90,11 @@ class Api_Quote_Signature extends Api_Service_Abstract
                 $parser = new Tools_Content_Parser($pdfTemplate->getContent(), $page, $parserOptions);
                 $content = $parser->parse();
 
-                $pdfFile = new mPDF('utf-8', 'A4');
+                //$pdfFile = new mPDF('utf-8', 'A4');
+                $pdfFile = new \Mpdf\Mpdf([
+                    'mode' => 'utf-8',
+                    'format' => 'A4'
+                ]);
                 $pdfFile->WriteHTML($content);
 
                 $quoteProposalQuote = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quoteDownloadLabel');
