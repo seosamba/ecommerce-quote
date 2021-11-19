@@ -732,4 +732,127 @@ class Quote_Tools_Tools {
         return self::generateHash($fileName) . '.' . $fileExtension;
     }
 
+    /**
+     * Copy existing quote
+     *
+     * @param string $quoteId quote it
+     * @return array
+     * @throws Exceptions_SeotoasterPluginException
+     * @throws Zend_Exception
+     */
+    public static function copyQuote($quoteId)
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $cartMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $shoppingConfigMapper = Models_Mapper_ShoppingConfig::getInstance();
+        $quoteTitle = '';
+        $type = 'clone';
+
+        $errMsg = $translator->translate('Can\'t duplicate Quote');
+        if (!empty($quoteId)) {
+            $quote = $quoteMapper->find($quoteId);
+            if ($quote instanceof Quote_Models_Model_Quote) {
+                $errMsg = $translator->translate('Empty cart ID');
+                $cartId = $quote->getCartId();
+                if (!empty($cartId)) {
+                    $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                    $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                    $currentCart = $cartMapper->find($cartId);
+                    if ($currentCart instanceof Models_Model_CartSession) {
+                        $errMsg = '';
+                        $currentCart->setId(null);
+                        $currentCart->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+                        $currentCart->setPartialPaidAmount('0');
+                        $currentCart->setPurchasedOn(null);
+                        $currentCart->setPartialPurchasedOn(null);
+                        $cart = $cartMapper->save($currentCart);
+
+                        $newCartId = $cart->getId();
+                        if (!empty($quoteCustomParamsData)) {
+                            foreach ($quoteCustomParamsData as $paramsData) {
+                                $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+                                $quoteCustomParamsDataModel->setCartId($newCartId);
+                                $quoteCustomParamsDataModel->setParamId($paramsData['param_id']);
+                                $quoteCustomParamsDataModel->setParamValue($paramsData['param_value']);
+                                $quoteCustomParamsDataModel->setParamsOptionId($paramsData['params_option_id']);
+
+                                $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+                            }
+                        }
+                    }
+                }
+
+
+                $quotePage = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($quoteId . '.html');
+
+                if ($quotePage instanceof Application_Model_Models_Page) {
+                    $oldPageId = $quotePage->getId();
+                }
+
+            }
+        }
+
+        $currentUser = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+
+        if ($currentUser instanceof Application_Model_Models_User) {
+            $editedBy = $currentUser->getFullName();
+            $creatorId = $currentUser->getId();
+        } else {
+            $editedBy = Shopping::ROLE_CUSTOMER;
+            $creatorId = 0;
+        }
+
+        $options = array(
+            'editedBy' => $editedBy,
+            'creatorId' => $creatorId,
+            'disclaimer' => '',
+            'actionType' => $type,
+            'oldQuoteId' => $quoteId,
+            'oldPageId' => $oldPageId,
+            'quoteTitle' => $quoteTitle
+        );
+
+        if (!empty($templateName)) {
+            $options['templateName'] = $templateName;
+        }
+
+        $quote = Quote_Tools_Tools::createQuote($cart, $options);
+
+
+        if ($quote instanceof Quote_Models_Model_Quote) {
+            $quoteData = $quote->toArray();
+            $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
+            if (!empty($ownerInfo)) {
+                $quoteData['ownerName'] = $ownerInfo['ownerName'];
+            }
+
+            $enableQuoteDefaultType = $shoppingConfigMapper->getConfigParam('enableQuoteDefaultType');
+            if (!empty($enableQuoteDefaultType) && $type === Quote::QUOTE_TYPE_GENERATE) {
+                $quotePaymentType = $shoppingConfigMapper->getConfigParam('quotePaymentType');
+                if (!empty($quotePaymentType)) {
+                    $quotePaymentTypeName = $quotePaymentType;
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT;
+                    }
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+                    }
+
+                    $quote->setPaymentType($quotePaymentTypeName);
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quote->setIsSignatureRequired('1');
+                    } else {
+                        $quote->setIsSignatureRequired('0');
+                    }
+                    $quoteMapper->save($quote);
+                }
+            }
+
+            return $quoteData;
+        }
+    }
+
 }
