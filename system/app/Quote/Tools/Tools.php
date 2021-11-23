@@ -749,11 +749,9 @@ class Quote_Tools_Tools {
         $quoteTitle = '';
         $type = 'clone';
 
-        $errMsg = $translator->translate('Can\'t duplicate Quote');
         if (!empty($quoteId)) {
             $quote = $quoteMapper->find($quoteId);
             if ($quote instanceof Quote_Models_Model_Quote) {
-                $errMsg = $translator->translate('Empty cart ID');
                 $cartId = $quote->getCartId();
                 if (!empty($cartId)) {
                     $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
@@ -762,7 +760,6 @@ class Quote_Tools_Tools {
 
                     $currentCart = $cartMapper->find($cartId);
                     if ($currentCart instanceof Models_Model_CartSession) {
-                        $errMsg = '';
                         $currentCart->setId(null);
                         $currentCart->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
                         $currentCart->setPartialPaidAmount('0');
@@ -821,7 +818,6 @@ class Quote_Tools_Tools {
 
         $quote = Quote_Tools_Tools::createQuote($cart, $options);
 
-
         if ($quote instanceof Quote_Models_Model_Quote) {
             $quoteData = $quote->toArray();
             $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
@@ -855,4 +851,67 @@ class Quote_Tools_Tools {
         }
     }
 
+
+    public static function replaceQuote($fromQuoteId, $toQuoteId)
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $fromQuoteModel = $quoteMapper->find($fromQuoteId);
+        if (!$fromQuoteModel instanceof Quote_Models_Model_Quote) {
+            return array('error' => '1', 'message' => $translator->translate('Original quote not found'));
+        }
+
+        $quoteToModel = $quoteMapper->find($toQuoteId);
+        if (!$quoteToModel instanceof Quote_Models_Model_Quote) {
+            return array('error' => '1', 'message' => $translator->translate('Quote to not found'));
+        }
+
+        $fromCartId = $fromQuoteModel->getCartId();
+        $quoteToCartId = $quoteToModel->getCartId();
+
+        $cartMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $fromCartModel = $cartMapper->find($fromCartId);
+        if (!$fromCartModel instanceof Models_Model_CartSession) {
+            return array('error' => '1', 'message' => $translator->translate('Original cart not found'));
+        }
+
+        $cartToModel = $cartMapper->find($quoteToCartId);
+        if (!$cartToModel instanceof Models_Model_CartSession) {
+            return array('error' => '1', 'message' => $translator->translate('Cart to not found'));
+        }
+
+        $cartToStatus = $cartToModel->getStatus();
+        if ($cartToStatus !== Models_Model_CartSession::CART_STATUS_PARTIAL) {
+            return array('error' => '1', 'message' => $translator->translate('You can replace only partially paid quotes!'));
+        }
+
+        //Copy cart content and current total price
+        $fromCartContent = $fromCartModel->getCartContent();
+        $fromTotal = $fromCartModel->getTotal();
+        $fromDiscount = $fromCartModel->getDiscount();
+        $fromSubTotal = $fromCartModel->getSubTotal();
+        $fromTotalTax = $fromCartModel->getTotalTax();
+        $fromSubTotalTax = $fromCartModel->getSubTotalTax();
+        $fromDiscountTax = $fromCartModel->getDiscountTax();
+        $fromDiscountTaxRate = $fromCartModel->getDiscountTaxRate();
+
+        $cartToModel->setCartContent($fromCartContent);
+        $cartToModel->setTotal($fromTotal);
+        $cartToModel->setDiscount($fromDiscount);
+        $cartToModel->setSubTotal($fromSubTotal);
+        $cartToModel->setTotalTax($fromTotalTax);
+        $cartToModel->setSubTotalTax($fromSubTotalTax);
+        $cartToModel->setDiscountTax($fromDiscountTax);
+        $cartToModel->setDiscountTaxRate($fromDiscountTaxRate);
+
+        //prepare partially payed founds
+        //set always to payment type "amount"
+        $cartToModel->setPartialType(Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT);
+        $cartToModel->setPartialPercentage($cartToModel->getPartialPaidAmount());
+        $cartMapper->save($cartToModel);
+
+        $quoteToModel->setUpdatedAt(date(Tools_System_Tools::DATE_MYSQL));
+
+        return array('error' => '0');
+    }
 }
