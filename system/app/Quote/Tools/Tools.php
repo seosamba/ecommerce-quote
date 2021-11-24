@@ -911,6 +911,12 @@ class Quote_Tools_Tools {
         $cartMapper->save($cartToModel);
 
         $quoteToModel->setUpdatedAt(date(Tools_System_Tools::DATE_MYSQL));
+        $quoteMapper->save($quoteToModel);
+
+        if ($fromQuoteModel->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD && $fromQuoteModel->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
+            $fromQuoteModel->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
+            $quoteMapper->save($fromQuoteModel);
+        }
 
         return array('error' => '0');
     }
