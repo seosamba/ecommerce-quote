@@ -10,25 +10,27 @@
         <?php echo $this->translate('Add product'); ?>
     </a>
 
-    <!-- save quote controll -->
-	<a href="javascript:;" class="quote-control btn-toaster quote-control-save" data-sendmail="0">
-        <?php echo $this->translate('Save quote'); ?>
-    </a>
+    <?php if($this->restrictedControlAccess === false):?>
+        <!-- save quote controll -->
+        <a href="javascript:;" class="quote-control btn-toaster quote-control-save" data-sendmail="0">
+            <?php echo $this->translate('Save quote'); ?>
+        </a>
 
-    <!-- save quote and send e-mail controll -->
-	<a href="javascript:;" class="quote-control btn-toaster" data-sendmail="1" data-trigger="<?php echo ($this->status == Quote_Models_Model_Quote::STATUS_NEW) ? Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED : Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED; ?>">
-        <?php echo $this->translate('Save and Send quote'); ?>
-    </a>
+        <!-- save quote and send e-mail controll -->
+        <a href="javascript:;" class="quote-control btn-toaster" data-sendmail="1" data-trigger="<?php echo ($this->status == Quote_Models_Model_Quote::STATUS_NEW) ? Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED : Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED; ?>">
+            <?php echo $this->translate('Save and Send quote'); ?>
+        </a>
 
-    <!-- preview quote controll -->
-	<a href="<?php echo $this->websiteUrl;?><?php echo $this->quoteId; ?>.html?mode=preview" data-type="skipCheckRequired" class="quote-control btn-toaster" target="_blank">
-        <?php echo $this->translate('Preview quote'); ?>
-    </a>
+        <!-- preview quote controll -->
+        <a href="<?php echo $this->websiteUrl;?><?php echo $this->quoteId; ?>.html?mode=preview" data-type="skipCheckRequired" class="quote-control btn-toaster" target="_blank">
+            <?php echo $this->translate('Preview quote'); ?>
+        </a>
 
-    <!-- clone quote -->
-    <a href="javascript:;" class="clone-quote btn-toaster" data-type="skipCheckRequired">
-        <?php echo $this->translate('Duplicate quote'); ?>
-    </a>
+        <!-- clone quote -->
+        <a href="javascript:;" class="clone-quote btn-toaster" data-type="skipCheckRequired">
+            <?php echo $this->translate('Duplicate quote'); ?>
+        </a>
+    <?php endif;?>
 
     <!-- Quote draggable -->
     <input type="hidden" name="quote-draggable-products" id="quote-draggable-products" value="<?php echo $this->quoteDraggableProducts; ?>" />

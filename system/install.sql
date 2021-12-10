@@ -21,6 +21,7 @@ CREATE TABLE `shopping_quote` (
   `signature` LONGTEXT COLLATE utf8_unicode_ci DEFAULT '',
   `is_quote_signed` ENUM('0','1') DEFAULT '0',
   `quote_signed_at` TIMESTAMP NULL,
+  `is_quote_restricted_control` ENUM('0','1') DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `title` (`title`),
   KEY `status` (`status`),
@@ -83,4 +84,4 @@ INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES
 ('disableAutosaveEmail', 0);
 
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.4' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.5' WHERE `name` = 'quote';

@@ -736,11 +736,12 @@ class Quote_Tools_Tools {
      * Copy existing quote
      *
      * @param string $quoteId quote it
+     * @param bool $restrictedControlAccess restricted control access
      * @return array
      * @throws Exceptions_SeotoasterPluginException
      * @throws Zend_Exception
      */
-    public static function copyQuote($quoteId)
+    public static function copyQuote($quoteId, $restrictedControlAccess = false)
     {
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
@@ -843,9 +844,17 @@ class Quote_Tools_Tools {
                     } else {
                         $quote->setIsSignatureRequired('0');
                     }
-                    $quoteMapper->save($quote);
+
                 }
             }
+
+            if ($restrictedControlAccess === true) {
+                $quote->setIsQuoteRestrictedControl('1');
+            } else {
+                $quote->setIsQuoteRestrictedControl('0');
+            }
+
+            $quoteMapper->save($quote);
 
             return $quoteData;
         }
