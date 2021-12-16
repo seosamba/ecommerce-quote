@@ -114,3 +114,6 @@ Quote action emails lexems:
 {quoteleadorganizationlogo} - This lexem return quote lead organization logo
 {quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src
 {quotecustomfields:fieldName} - This lexem return quote customfield where "fieldName" is customfield name
+
+
+{quoterestrictedcontrol}{/quoterestrictedcontrol} - display content if quote has restricted access control
