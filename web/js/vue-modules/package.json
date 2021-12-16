@@ -17,7 +17,7 @@
     "juice": "^5.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.20.1",
-    "plupload": "^2.3.6",
+    "plupload": "^2.3.9",
     "progressbar.js": "^1.1.0",
     "v-tooltip": "^2.0.0-rc.33",
     "vee-validate": "^2.2.15",
