@@ -30,10 +30,12 @@
                     <?php endif;?>
                     <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
                         <?php $infoTextClass = '';?>
+                        <?php $stylesInfoClass = '';?>
                     <?php else:?>
                         <?php $infoTextClass = 'hidden';?>
+                        <?php $stylesInfoClass = 'display:none';?>
                     <?php endif;?>
-                    <span id="percentage-amount-text" class="<?php echo $infoTextClass;?>">
+                    <span style="<?php echo $stylesInfoClass;?>" id="percentage-amount-text" class="<?php echo $infoTextClass;?>">
                             <?php echo $this->translate('which is');?>
                             <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span>
                     </span>
@@ -56,10 +58,12 @@
                 <?php endif;?>
                 <?php if($this->partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE):?>
                     <?php $infoTextClass = '';?>
+                    <?php $stylesInfoClass = '';?>
                 <?php else:?>
                     <?php $infoTextClass = 'hidden';?>
+                    <?php $stylesInfoClass = 'display:none';?>
                 <?php endif;?>
-                    <span id="percentage-amount-text" class="<?php echo $infoTextClass;?>"><?php echo $this->translate('which is');?>
+                    <span style="<?php echo $stylesInfoClass;?>" id="percentage-amount-text" class="<?php echo $infoTextClass;?>"><?php echo $this->translate('which is');?>
                         <span id="partial-payment-percentage-payment-amount"><?php echo $this->partialToPayAmount;?></span></span> <?php echo $this->translate('using the credit card form below');?>:
             </span>
             <?php endif;?>
