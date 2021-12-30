@@ -89,6 +89,10 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
         $message = $currency->toCurrency($amountToPayPartial);
 
         $paymentStatus = $updatePaymentStatus;
+
+        $cart->setIsFirstPaymentManuallyPaid('1');
+        $cart->setFirstPaymentGateway(Models_Model_CartSession::MANUALLY_PAYED_GATEWAY_QUOTE);
+
         $cart->setPurchasedOn(date(Tools_System_Tools::DATE_MYSQL));
         $cart->setPartialPurchasedOn(date(Tools_System_Tools::DATE_MYSQL));
         $cart->setStatus($paymentStatus);
