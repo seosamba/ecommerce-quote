@@ -1,5 +1,15 @@
 <div class="product-data grid_2">
-    <img class="lazy" src="<%= $('#website_url').val() %><% if (photo) { %>media/<%= photo.replace('/', '/small/') %> <% } else { %>'system/images/noimage.png' <% } %>" alt="<%= name %>" />
+    <% photoUrl = '';%>
+    <% if (photo) {%>
+        <% if (photo.match('http|https:\/\/')) {%>
+            <% photoUrl = photo%>
+        <% } else { %>
+            <% photoUrl = $('#website_url').val()+'media/'+photo.replace('/', '/small/') %>
+        <% } %>
+    <% } else  { %>
+       <% photoUrl = $('#website_url').val() + 'system/images/noimage.png' %>
+    <% } %>
+    <img class="lazy" src="<%= photoUrl %>" alt="<%= name %>" />
     <span id="product-name" class="gray-light-bg"><%= name %></span>
 </div>
 <div class="grid_2 alpha omega text-left">
