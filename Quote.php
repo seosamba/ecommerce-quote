@@ -721,7 +721,7 @@ class Quote extends Tools_PaymentGateway
                                                     $mobilecountrycode      = $organizationModel->getOrganizationMobileCountryCode();
                                                     $mobileCountryCodeValue = $organizationModel->getOrganizationMobileCountryCodeValue();
                                                     $phone                  = $organizationModel->getOrganizationPhone();
-                                                    $phonecountrycode       = $organizationModel->getOrganizationCountryCode();
+                                                    $phonecountrycode       = $organizationModel->getOrganizationPhoneCountryCode();
                                                     $phoneCountryCodeValue  = $organizationModel->getOrganizationPhoneCountryCodeValue();
                                                     $customerNotes          = $organizationModel->getOrganizationNotes();
                                                 }
