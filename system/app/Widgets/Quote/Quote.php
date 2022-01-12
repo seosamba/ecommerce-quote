@@ -579,6 +579,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $useDraggable = true;
         }
 
+        $restrictedControlAccess = false;
+        $isRestrictedControlAccess = $this->_quote->getIsQuoteRestrictedControl();
+        if (!empty($isRestrictedControlAccess)) {
+            $restrictedControlAccess = true;
+        }
+
+        $this->_view->restrictedControlAccess = $restrictedControlAccess;
+
         $this->_view->quoteDraggableProducts  = $useDraggable;
 
         return $this->_view->render('controls.quote.phtml');

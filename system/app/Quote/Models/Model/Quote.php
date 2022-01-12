@@ -81,6 +81,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     protected $_quoteSignedAt = '';
 
+    protected $_isQuoteRestrictedControl = '0';
+
     public function setCustomerName($customerName) {
         $this->_customerName = $customerName;
         return $this;
@@ -355,6 +357,40 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public static function getPaymentTypesList()
+    {
+        return self::$_paymentTypesList;
+    }
 
+    /**
+     * @param array $paymentTypesList
+     * @return array
+     */
+    public static function setPaymentTypesList($paymentTypesList)
+    {
+        self::$_paymentTypesList = $paymentTypesList;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsQuoteRestrictedControl()
+    {
+        return $this->_isQuoteRestrictedControl;
+    }
+
+    /**
+     * @param string $isQuoteRestrictedControl
+     * @return string
+     */
+    public function setIsQuoteRestrictedControl($isQuoteRestrictedControl)
+    {
+        $this->_isQuoteRestrictedControl = $isQuoteRestrictedControl;
+
+        return $this;
+    }
 
 }
