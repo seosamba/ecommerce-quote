@@ -190,6 +190,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->setHelperPath(APPLICATION_PATH . '/views/helpers/');
         $this->_view->addHelperPath('ZendX/JQuery/View/Helper/', 'ZendX_JQuery_View_Helper');
 
+        $this->_view->addScriptPath(__DIR__ . '/../../../../../cart/system/views/');
+
         //website helper
         $this->_websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
 
@@ -1151,6 +1153,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return Quote_Forms_Quote
      */
     protected function _renderForm() {
+
+        if (Tools_Misc::isStoreClosed() === true) {
+            $storeIsClosedMessage = Tools_Misc::getStoreIsClosedMessage();
+            $this->_view->storeClosedMessage = $storeIsClosedMessage;
+            return $this->_view->render('store-is-closed.phtml');
+        }
+
         //init quote form and remove elements we don't need
         $quoteForm   = new Quote_Forms_Quote();
         $quoteForm->removeElement('sameForShipping');
