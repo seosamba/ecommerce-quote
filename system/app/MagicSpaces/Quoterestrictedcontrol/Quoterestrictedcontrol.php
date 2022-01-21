@@ -14,7 +14,7 @@ class MagicSpaces_Quoterestrictedcontrol_Quoterestrictedcontrol extends Tools_Ma
         $quote       = Quote_Models_Mapper_QuoteMapper::getInstance()->find($pageHelper->clean($this->_toasterData['url']));
         if($quote instanceof Quote_Models_Model_Quote){
             $isQuoteRestrictedControl = $quote->getIsQuoteRestrictedControl();
-            if (empty($isQuoteRestrictedControl)) {
+            if (!empty($isQuoteRestrictedControl)) {
                 return '';
             }
 
