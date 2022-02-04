@@ -510,6 +510,43 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     }
 
     /**
+     * Render created or expires quote dates
+     *
+     * {$quote:timestamp[:_created_|:expires]}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderTimestamp() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+        $dateType          = isset($this->_options[0]) ? $this->_options[0] : self::DATE_TYPE_CREATED;
+        $date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getExpiresAt();
+
+        $format = 'm-d-Y h:i';
+
+        if (!empty($this->_options[1])) {
+            $format = $this->_options[1];
+        }
+
+        $serverTimezone = date_default_timezone_get();
+        if (empty($serverTimezone)) {
+            $serverTimezone = 'UTC';
+        }
+
+        $shoppingConfigMapper =  Models_Mapper_ShoppingConfig::getInstance();
+        $storeTimezone = $shoppingConfigMapper->getConfigParam('timezone');
+
+        $date = Tools_System_Tools::convertDateFromTimezone($date, $serverTimezone, 'UTC');
+
+        $date = date(Tools_System_Tools::DATE_MYSQL, strtotime($date .'+'.Tools_EmailSequenceTools::getTimezoneShift('UTC', $storeTimezone).'hours'));
+
+        $date = date($format, strtotime($date));
+
+        return $date;
+    }
+
+    /**
      * Render creator name
      *
      * {$quote:creator}

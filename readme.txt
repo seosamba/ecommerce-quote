@@ -23,6 +23,7 @@ customfields:fieldName - display quote custom field
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".
 {$quote:userid} - Reture quote user ID
+{$quote:timestamp[:created|expires][:m-d-Y h:i]} - return quote creation timestamp or expires timestamp
 {$quote:address[:customfields:fieldName]}
 customfields:fieldName - display quote custom field
 
