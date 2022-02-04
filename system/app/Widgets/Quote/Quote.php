@@ -527,6 +527,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         if (!empty($this->_options[1])) {
             $format = $this->_options[1];
+            if (!empty($this->_options[2])) {
+                $format .=':'. $this->_options[2];
+            }
         }
 
         $serverTimezone = date_default_timezone_get();
