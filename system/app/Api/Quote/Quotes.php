@@ -288,10 +288,16 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $cartSession->calculate(true);
                 $cartSession->saveCartSession();
 
+                $shippingServiceInfo = $cartSession->getShippingData();
+                $serviceName = '';
+                if (!empty($shippingServiceInfo)) {
+                    $serviceName = $shippingServiceInfo['service'];
+                }
+
                 $shippingServices = Models_Mapper_ShippingConfigMapper::getInstance()->fetchByStatus(
                     Models_Mapper_ShippingConfigMapper::STATUS_ENABLED
                 );
-                if (!empty($shippingServices)) {
+                if (!empty($shippingServices) && $serviceName !== 'pickup') {
                     $shippingServices = array_map(
                         function ($shipper) {
                             return in_array($shipper['name'], array(Shopping::SHIPPING_FLATRATE)) ? array(
