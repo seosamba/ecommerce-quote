@@ -12,7 +12,7 @@ class MagicSpaces_Pickuponly_Pickuponly extends Tools_MagicSpaces_Abstract {
             $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
             $cartSessionModel = $cartSessionMapper->find($quote->getCartId());
             if ($cartSessionModel instanceof Models_Model_CartSession) {
-                $shippingType = $this->_cart->getShippingService();
+                $shippingType = $cartSessionModel->getShippingService();
                 if (!empty($this->_params[0]) && $this->_params[0] === 'not') {
                     if ($shippingType !== 'pickup') {
                         return $this->_spaceContent;
