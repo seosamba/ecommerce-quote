@@ -115,6 +115,8 @@ Quote action emails lexems:
 {quoteleadorganizationlogo} - This lexem return quote lead organization logo
 {quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src
 {quotecustomfields:fieldName} - This lexem return quote customfield where "fieldName" is customfield name
+{pickuponly}{/pickuponly} - display if cart has pickup
+{pickuponly:not}{/pickuponly} - not display if cart has pickup
 
 
 {quoterestrictedcontrol}{/quoterestrictedcontrol} - display content if quote has restricted access control
