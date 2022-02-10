@@ -534,6 +534,29 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
             }
 
+            $enableAdminQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('defaultQuoteTypeForAdmin');
+            if (!empty($enableAdminQuoteDefaultType) && $type === Quote::QUOTE_TYPE_BUILD) {
+                $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
+                if (!empty($quotePaymentType)) {
+                    $quotePaymentTypeName = $quotePaymentType;
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT;
+                    }
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+                    }
+
+                    $quote->setPaymentType($quotePaymentTypeName);
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quote->setIsSignatureRequired('1');
+                    } else {
+                        $quote->setIsSignatureRequired('0');
+                    }
+                    $this->_quoteMapper->save($quote);
+                }
+
+            }
+
             return $quoteData;
         }
         $this->_error();
