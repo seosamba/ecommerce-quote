@@ -84,6 +84,12 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Enable quote payment type')
         )));
 
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'defaultQuoteTypeForAdmin',
+            'id'    => 'default-quote-default-type-for-admin',
+            'label' => $translator->translate('Default dashboard payment type'),
+        )));
+
         $this->addElement(new Zend_Form_Element_Select(array(
             'name'         => 'quotePaymentType',
             'id'           => 'quote-payment-types',
