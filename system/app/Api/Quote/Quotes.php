@@ -377,6 +377,23 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $cartSessionModel = new Models_Model_CartSession();
                     $cartSessionModel->setDiscountTaxRate(1);
+
+                    $enableAdminQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('defaultQuoteTypeForAdmin');
+                    if (!empty($enableAdminQuoteDefaultType)) {
+                        $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
+                        $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
+                        $quotePartialType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialType');
+                        if (($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) && !empty($quotePartialPercentage)) {
+                            $cartSessionModel->setIsPartial('1');
+                            $cartSessionModel->setPartialPercentage($quotePartialPercentage);
+                            if (!empty($quotePartialType)) {
+                                $cartSessionModel->setPartialType($quotePartialType);
+                            } else {
+                                $cartSessionModel->setPartialType(null);
+                            }
+                        }
+                    }
+
                     $cart = $cartMapper->save($cartSessionModel);
                 } else {
                     $this->_error();
