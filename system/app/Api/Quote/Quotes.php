@@ -874,6 +874,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
         }
 
+
+        if ($quoteData['sendMail']) {
+            $response->success($translator->translate('The email has been sent'));
+        }
+
         return $quoteParams;
     }
 
