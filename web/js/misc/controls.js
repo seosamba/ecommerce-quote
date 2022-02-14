@@ -535,6 +535,10 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
             return false;
         }
 
+        if (response.error == 0 && response.responseText) {
+            showMessage(response.responseText, false, 3000);
+        }
+
         if(!$('.quote-info').hasClass('allow-auto-save') && response.allowAutosave) {
             $('.quote-info').addClass('allow-auto-save');
 
