@@ -6,9 +6,11 @@
     <input type="hidden" name="currencySymbol" id="quote-currency" value="<?php echo $this->symbol; ?>" />
 
     <!-- add product to quote controll -->
-    <a href="javascript:;" id="add-product-to-quote" data-type="skipCheckRequired" class="tpopup btn-toaster" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
-        <?php echo $this->translate('Add product'); ?>
-    </a>
+    <?php if ($this->blockAddProduct === false):?>
+        <a href="javascript:;" id="add-product-to-quote" data-type="skipCheckRequired" class="tpopup btn-toaster" data-url="<?php echo $this->websiteUrl;?>plugin/quote/run/product/qid/<?php echo $this->quoteId; ?>" data-pheight="560">
+            <?php echo $this->translate('Add product'); ?>
+        </a>
+    <?php endif;?>
 
     <?php if($this->restrictedControlAccess === false):?>
         <!-- save quote controll -->

@@ -587,6 +587,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $restrictedControlAccess = true;
         }
 
+        $blockAddProduct = false;
+        if ($this->_cart instanceof Models_Model_CartSession) {
+            $cartStatus = $this->_cart->getStatus();
+            if (in_array($cartStatus, $this->_denyQuoteCartStatuses)) {
+                $blockAddProduct = true;
+            }
+        }
+
+        $this->_view->blockAddProduct = $blockAddProduct;
+
         $this->_view->restrictedControlAccess = $restrictedControlAccess;
 
         $this->_view->quoteDraggableProducts  = $useDraggable;
