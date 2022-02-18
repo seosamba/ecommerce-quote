@@ -510,6 +510,46 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     }
 
     /**
+     * Render created or expires quote dates
+     *
+     * {$quote:timestamp[:_created_|:expires]}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderTimestamp() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+        $dateType          = isset($this->_options[0]) ? $this->_options[0] : self::DATE_TYPE_CREATED;
+        $date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getExpiresAt();
+
+        $format = 'm-d-Y h:i';
+
+        if (!empty($this->_options[1])) {
+            $format = $this->_options[1];
+            if (!empty($this->_options[2])) {
+                $format .=':'. $this->_options[2];
+            }
+        }
+
+        $serverTimezone = date_default_timezone_get();
+        if (empty($serverTimezone)) {
+            $serverTimezone = 'UTC';
+        }
+
+        $shoppingConfigMapper =  Models_Mapper_ShoppingConfig::getInstance();
+        $storeTimezone = $shoppingConfigMapper->getConfigParam('timezone');
+
+        $date = Tools_System_Tools::convertDateFromTimezone($date, $serverTimezone, 'UTC');
+
+        $date = date(Tools_System_Tools::DATE_MYSQL, strtotime($date .'+'.Tools_EmailSequenceTools::getTimezoneShift('UTC', $storeTimezone).'hours'));
+
+        $date = date($format, strtotime($date));
+
+        return $date;
+    }
+
+    /**
      * Render creator name
      *
      * {$quote:creator}
@@ -763,21 +803,84 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
+
+                $shippingType = $this->_cart->getShippingService();
+
                 if ($this->_options[1] === 'phone') {
-                    return $address['phone_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['phone'];
+                    } else {
+                        return $address['phone_country_code_value'] . ' ' . Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]],
+                                Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
+                    }
                 }
-                if ($this->_options[1] === 'mobile') {
-                    return $address['mobile_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $address['mobilecountrycode']);
+
+                if ($this->_options[1] === 'company') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['company'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
                 }
+
+                if ($this->_options[1] === 'zip') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['zip'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'address1') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['address1'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'city') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['city'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'address2') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['address2'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'country') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['country'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
-                    $stateData = Tools_Geo::getStateById($address['state']);
-                    if (!empty($stateData['state'])) {
-                        return $stateData['state'];
+                    if ($shippingType === 'pickup') {
+                        $state = Tools_Geo::getStateById($this->shoppingConfig['state']);
+                        return $state;
+                    } else {
+                        $stateData = Tools_Geo::getStateById($address['state']);
+                        if (!empty($stateData['state'])) {
+                            return $stateData['state'];
+                        }
                     }
                 }
 
                 if ($this->_options[1] === 'prefix') {
-                    return $this->_translator->translate($address[$this->_options[1]]);
+                    if ($shippingType === 'pickup') {
+                        return '';
+                    } else {
+                        return $this->_translator->translate($address[$this->_options[1]]);
+                    }
                 }
 
                 return $address[$this->_options[1]];
