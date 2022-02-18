@@ -16,7 +16,7 @@
     <td><%= (ownerName != null) ? ownerName : "<?php echo $this->translate('unknown'); ?>" %></td>
     <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
-        <select name="quoteStatus" class="quote-status" id="<%= id %>">
+        <select <% if (status == 'sold') { %> disabled="disabled" <% } %> name="quoteStatus" class="quote-status" id="<%= id %>">
             <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>><?php echo $this->translate('Quote New');?></option>
             <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Sent');?></option>
             <option value="signature_only_signed" <% if (status == 'signature_only_signed') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
