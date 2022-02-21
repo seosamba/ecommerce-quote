@@ -170,6 +170,26 @@ class  Quote_Forms_Settings extends Zend_Form {
             )
         )));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'notifyExpiryUnitQuote',
+            'id'    => 'notify-expiry-unit-quote',
+            'class' => 'grid_2 alpha',
+            'label' => $translator->translate('Quote expiration date notification')
+        )));
+
+        $notifyExpiryDayQuote = array(
+            '' => $translator->translate('Select units'),
+            'hour' => $translator->translate('Hour(s)'),
+            'day' => $translator->translate('Day(s)')
+        );
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'         => 'notifyExpiryQuoteType',
+            'id'           => 'notify-expiry-quote-type',
+            'class'        => 'grid_4 alpha omega',
+            'multiOptions' => $notifyExpiryDayQuote
+        )));
+
         $this->addElement(new Zend_Form_Element_Button(array(
             'name'       => 'applySettings',
             'label'      => $translator->translate('Update quote configuration'),

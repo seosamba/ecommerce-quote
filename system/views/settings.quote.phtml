@@ -102,6 +102,13 @@
             <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
         </p>
 
+        <fieldset id="quote-expiration-block" class="background mt5px">
+            <p id="quote-expiration-date-block">
+                <?php echo $this->form->getElement('notifyExpiryUnitQuote')->addDecorator('Label', array('class' => 'grid_6 alpha'))->renderLabel(); ?>
+                <?php echo $this->form->getElement('notifyExpiryUnitQuote')->renderViewHelper(); ?>
+                <?php echo $this->form->getElement('notifyExpiryQuoteType')->renderViewHelper(); ?>
+            </p>
+        </fieldset>
         <p>
             <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
         </p>
@@ -184,11 +191,18 @@ $(document).ready(function(){
               partialNotifyAfterType = $('#partial-notify-after-type').val(),
               partialNotifyAfterQuantity = $('#partial-notify-after-quantity').val(),
               enabledPartialPayment = 0,
-              maxProductsInQuote = parseInt($('#max-products-in-quote').val()),
               allowAutosave = 0,
               disableAutosaveEmail = 0,
-              defaultQuoteTypeForAdmin = 0;
+              defaultQuoteTypeForAdmin = 0,
+              notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
+              notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
               // defaultQuoteCreatorId = '';
+
+          var maxProductsInQuote = parseInt($('#max-products-in-quote').val());
+
+          if(isNaN(maxProductsInQuote)) {
+              maxProductsInQuote = '';
+          }
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -239,10 +253,13 @@ $(document).ready(function(){
                 allowAutosave: allowAutosave,
                 disableAutosaveEmail: disableAutosaveEmail,
                 defaultQuoteTypeForAdmin: defaultQuoteTypeForAdmin,
+                notifyExpiryUnitQuote: notifyExpiryUnitQuote,
+                notifyExpiryQuoteType: notifyExpiryQuoteType,
                 secureToken: $('.quote-secure-token').val(),
                 //defaultQuoteCreatorId: $('#default-quote-creator-id').val()
             },
             success: function(responce){
+                $('#max-products-in-quote').val(maxProductsInQuote);
                 smoke.signal('<?php echo $this->translate('Saved');?>');
             }
 
