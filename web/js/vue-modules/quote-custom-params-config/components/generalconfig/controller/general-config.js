@@ -65,7 +65,6 @@ export default {
             this.label = currentLabel;
         },
         async addCustomField(e){
-            debugger;
             if (this.param_type == '') {
                 showMessage(this.$t('message.specifyParamType'), true, 2000);
                 return false;
