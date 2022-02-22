@@ -174,7 +174,7 @@ class  Quote_Forms_Settings extends Zend_Form {
             'name'  => 'notifyExpiryUnitQuote',
             'id'    => 'notify-expiry-unit-quote',
             'class' => 'grid_2 alpha',
-            'label' => $translator->translate('Quote expiration date notification')
+            'label' => $translator->translate('Quote expiration date prior notification')
         )));
 
         $notifyExpiryDayQuote = array(

@@ -336,8 +336,6 @@ if (!empty($shoppingConfig) && !empty($shoppingConfig['notifyExpiryQuoteType']) 
                     'params' => $quote,
                 )));
 
-                $quoteModel->notifyObservers();
-
                 $quoteModel->setExpirationNotificationIsSend(1);
 
                 $quoteMapper->save($quoteModel);
