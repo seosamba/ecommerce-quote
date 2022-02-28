@@ -53,7 +53,7 @@
                     </p>
                     <p class="grid_3 omega mt0px">
                         <input id="quote-custom-params-form-save" class="btn mt20px" type="submit" name="quote-custom-params-form-save"
-                               value="Add custom field"/>
+                               :value="[$t('message.quoteCustomParamsFormAdd')]"/>
                     </p>
                 </fieldset>
             </form>
@@ -96,7 +96,7 @@
                         </div>
                         <p class="grid_12 fl-right">
                             <input class="btn mt20px" type="submit" name="quote-custom-params-form"
-                                   value="Add custom field"/>
+                                   :value="[$t('message.quoteCustomParamsFormSave')]"/>
                         </p>
                     </div>
                 </div>
