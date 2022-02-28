@@ -288,6 +288,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             'quoteId' => 'sq.id',
             'sq.expires_at',
             'userEmail' => 'u.email',
+            'userFullName' => 'u.full_name',
             'userMobileCountryCode' => 'u.mobile_country_code_value',
             'userMobilePhone' => 'u.mobile_phone',
             'userDesctopCountryCode' => 'u.desktop_country_code_value',
@@ -302,14 +303,18 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
                 'shipping_phone_country_code_value' => 'phone_country_code_value',
                 'shipping_phone' => 'phone',
                 'shipping_mobile_country_code_value' => 'mobile_country_code_value',
-                'shipping_mobile' => 'mobile'
+                'shipping_mobile' => 'mobile',
+                'shipping_firstname' => 'firstname',
+                'shipping_lastname' => 'lastname'
             ))
             ->joinLeft(array('b_adr' => 'shopping_customer_address'), 'b_adr.id = scs.billing_address_id', array(
                 'billing_email' => 'email',
                 'billing_phone_country_code_value' => 'phone_country_code_value',
                 'billing_phone' => 'phone',
                 'billing_mobile_country_code_value' => 'mobile_country_code_value',
-                'billing_mobile' => 'mobile'
+                'billing_mobile' => 'mobile',
+                'billing_firstname' => 'firstname',
+                'billing_lastname' => 'lastname'
             ))
             ->where($where);
 
