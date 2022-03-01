@@ -50,6 +50,14 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
             $this->_error($translator->translate('Wrong quote payment type'));
         }
 
+        $isSignatureRequired = $quote->getIsSignatureRequired();
+        if (!empty($isSignatureRequired)) {
+            $quoteIsSigned = $quote->getIsQuoteSigned();
+            if (empty($quoteIsSigned)) {
+                $this->_error($translator->translate('Please sign quote first'));
+            }
+        }
+
         $partialPaidAmount = $cart->getPartialPaidAmount();
         $cart->setIsPartial('1');
         $partialPaymentType = $cart->getPartialType();
