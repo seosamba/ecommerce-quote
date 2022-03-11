@@ -451,12 +451,14 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 if($this->_options['recipient'] == Tools_Security_Acl::ROLE_SUPERADMIN) {
                     $adminPhone = !empty($this->_configHelper->getConfig('phone')) ? $this->_configHelper->getConfig('phone') : '';
                     if(!empty($adminPhone)) {
-                        $userMapper = Application_Model_Mappers_UserMapper::getInstance();
+                        //$userMapper = Application_Model_Mappers_UserMapper::getInstance();
+                        //$user = $userMapper->findByRole(Tools_Security_Acl::ROLE_SUPERADMIN);
 
-                        $user = $userMapper->findByRole(Tools_Security_Acl::ROLE_SUPERADMIN);
+                        $customerFieldData = $this->_prepareCustomerFieldData($data);
+
                         $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($adminPhone);
                         $message = strip_tags($this->_options['message']);
-                        $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $user, $this->_websiteHelper->getUrl());
+                        $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $customerFieldData/*$user*/, $this->_websiteHelper->getUrl());
 
                         if (!empty($smsNumber)) {
                             $subscriber['subscriber']['user'] = array(
@@ -474,7 +476,11 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?", $this->_options['recipient']);
                     $allUsers = $userMapper->fetchAll($where);
                     if (!empty($allUsers)) {
+                        $customerFieldData = $this->_prepareCustomerFieldData($data);
+
                         foreach ($allUsers as $user) {
+                            $smsNumber = '';
+
                             if(!empty($user->getMobileCountryCodeValue()) && !empty($user->getMobilePhone())) {
                                 $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($user->getMobileCountryCodeValue() . $user->getMobilePhone());
                             } elseif (!empty($user->getDesktopCountryCodeValue()) && !empty($user->getDesktopPhone())) {
@@ -483,7 +489,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
                             $message = strip_tags($this->_options['message']);
 
-                            $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $user, $this->_websiteHelper->getUrl());
+                            $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $customerFieldData/*$user*/, $this->_websiteHelper->getUrl());
 
                             if (!empty($smsNumber)) {
                                 $subscriber['subscriber']['user'] = array(
