@@ -458,7 +458,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                         $message = strip_tags($this->_options['message']);
                         $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $user, $this->_websiteHelper->getUrl());
 
-                        if (!empty($smsPhoneNumber)) {
+                        if (!empty($smsNumber)) {
                             $subscriber['subscriber']['user'] = array(
                                 'phone' => array($smsNumber),
                                 'message' => $message,
@@ -485,7 +485,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
                             $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $user, $this->_websiteHelper->getUrl());
 
-                            if (!empty($smsPhoneNumber)) {
+                            if (!empty($smsNumber)) {
                                 $subscriber['subscriber']['user'] = array(
                                     'phone' => array($smsNumber),
                                     'message' => $message,
