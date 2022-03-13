@@ -53,6 +53,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_expiresAt       = '';
 
+	protected $_expirationNotificationIsSend = 0;
+
 	protected $_userId          = 0;
 
 	protected $_createdAt       = '';
@@ -232,6 +234,24 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     public function getExpiresAt() {
         return $this->_expiresAt;
+    }
+
+    /**
+     * @return int
+     */
+    public function getExpirationNotificationIsSend()
+    {
+        return $this->_expirationNotificationIsSend;
+    }
+
+    /**
+     * @param int $expirationNotificationIsSend
+     * @return Quote_Models_Model_Quote
+     */
+    public function setExpirationNotificationIsSend($expirationNotificationIsSend)
+    {
+        $this->_expirationNotificationIsSend = $expirationNotificationIsSend;
+        return $this;
     }
 
     public function setCreatorId($creatorId) {

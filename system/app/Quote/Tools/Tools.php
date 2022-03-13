@@ -1021,4 +1021,52 @@ class Quote_Tools_Tools {
 
     }
 
+    /**
+     * @param $smsMessage
+     * @param $data
+     * @param $user
+     * @param $websiteUrl
+     * @return mixed|string
+     */
+    public static function addDictionarySmsFields($smsMessage, $data, $user, $websiteUrl) {
+        $quoteId = '';
+        $customerName = '';
+        $customerEmail = '';
+
+        if(!empty($data['quoteId'])) {
+            $quoteId = $data['quoteId'];
+        }
+
+        if(!empty($user)) {
+            if($user instanceof Application_Model_Models_User) {
+                $userFullName = $user->getFullName();
+                $userEmail = $user->getEmail();
+
+                if(!empty($userFullName)) {
+                    $customerName = $userFullName;
+                }
+
+                if(!empty($userEmail)) {
+                    $customerEmail = $userEmail;
+                }
+            } else {
+                $customerName = $user['customerFullName'];
+                $customerEmail = $user['customerEmail'];
+            }
+        }
+
+        $dictionary = array(
+            '$website:url'       => $websiteUrl,
+            'quote:id'           => $quoteId,
+            'customer:full_name' => $customerName,
+            'customer:email'     => $customerEmail,
+        );
+
+        $entityParser = new Tools_Content_EntityParser();
+
+        $entityParser->addToDictionary($dictionary);
+
+        return $entityParser->parse(strip_tags($smsMessage));
+    }
+
 }

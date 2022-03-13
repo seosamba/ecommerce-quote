@@ -94,6 +94,13 @@ ALTER TABLE `shopping_quote` ADD CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY 
 -- version: 2.3.4
 ALTER TABLE `shopping_quote` ADD COLUMN `is_quote_restricted_control` ENUM('0','1') DEFAULT '0';
 
+-- 17/02/2022
+-- version: 2.3.5
+INSERT IGNORE INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES
+('1', 'quote_notifyexpiryquote', 'Quote_Tools_QuoteMailWatchdog');
+
+ALTER TABLE `shopping_quote` ADD COLUMN `expiration_notification_is_send` ENUM('0','1') DEFAULT '0' AFTER `expires_at`;
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.5' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.6' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

@@ -651,6 +651,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
         }
 
+        if($quote->getExpiresAt() != date(Tools_System_Tools::DATE_MYSQL, strtotime($quoteData['expiresAt'])) && ($cart->getStatus() == Models_Model_CartSession::CART_STATUS_NEW || $cart->getStatus() == Models_Model_CartSession::CART_STATUS_PROCESSING || $cart->getStatus() == Models_Model_CartSession::CART_STATUS_PENDING)) {
+            $quote->setExpirationNotificationIsSend(0);
+        }
+
         if(isset($quoteData['type']) && $quoteData['type']) {
             $value = floatval($quoteData['value']);
             if(!$value) {
