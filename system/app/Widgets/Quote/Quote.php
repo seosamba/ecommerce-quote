@@ -1273,6 +1273,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('store-is-closed.phtml');
         }
 
+        if (Tools_Misc::isStoreDisabled() === true) {
+            $storeIsClosedMessage = Tools_Misc::getStoreIsDisabledMessage();
+            $this->_view->storeClosedMessage = $storeIsClosedMessage;
+            return $this->_view->render('store-is-closed.phtml');
+        }
+
         //init quote form and remove elements we don't need
         $quoteForm   = new Quote_Forms_Quote();
         $quoteForm->removeElement('sameForShipping');
