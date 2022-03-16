@@ -53,6 +53,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	protected $_expiresAt       = '';
 
+	protected $_expirationNotificationIsSend = 0;
+
 	protected $_userId          = 0;
 
 	protected $_createdAt       = '';
@@ -80,6 +82,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
     protected $_isQuoteSigned = '';
 
     protected $_quoteSignedAt = '';
+
+    protected $_isQuoteRestrictedControl = '0';
 
     public function setCustomerName($customerName) {
         $this->_customerName = $customerName;
@@ -232,6 +236,24 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
         return $this->_expiresAt;
     }
 
+    /**
+     * @return int
+     */
+    public function getExpirationNotificationIsSend()
+    {
+        return $this->_expirationNotificationIsSend;
+    }
+
+    /**
+     * @param int $expirationNotificationIsSend
+     * @return Quote_Models_Model_Quote
+     */
+    public function setExpirationNotificationIsSend($expirationNotificationIsSend)
+    {
+        $this->_expirationNotificationIsSend = $expirationNotificationIsSend;
+        return $this;
+    }
+
     public function setCreatorId($creatorId) {
         $this->_creatorId = $creatorId;
         return $this;
@@ -355,6 +377,40 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public static function getPaymentTypesList()
+    {
+        return self::$_paymentTypesList;
+    }
 
+    /**
+     * @param array $paymentTypesList
+     * @return array
+     */
+    public static function setPaymentTypesList($paymentTypesList)
+    {
+        self::$_paymentTypesList = $paymentTypesList;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsQuoteRestrictedControl()
+    {
+        return $this->_isQuoteRestrictedControl;
+    }
+
+    /**
+     * @param string $isQuoteRestrictedControl
+     * @return string
+     */
+    public function setIsQuoteRestrictedControl($isQuoteRestrictedControl)
+    {
+        $this->_isQuoteRestrictedControl = $isQuoteRestrictedControl;
+
+        return $this;
+    }
 
 }

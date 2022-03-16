@@ -288,10 +288,16 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $cartSession->calculate(true);
                 $cartSession->saveCartSession();
 
+                $shippingServiceInfo = $cartSession->getShippingData();
+                $serviceName = '';
+                if (!empty($shippingServiceInfo)) {
+                    $serviceName = $shippingServiceInfo['service'];
+                }
+
                 $shippingServices = Models_Mapper_ShippingConfigMapper::getInstance()->fetchByStatus(
                     Models_Mapper_ShippingConfigMapper::STATUS_ENABLED
                 );
-                if (!empty($shippingServices)) {
+                if (!empty($shippingServices) && $serviceName !== 'pickup') {
                     $shippingServices = array_map(
                         function ($shipper) {
                             return in_array($shipper['name'], array(Shopping::SHIPPING_FLATRATE)) ? array(
@@ -377,6 +383,23 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
                     $cartSessionModel = new Models_Model_CartSession();
                     $cartSessionModel->setDiscountTaxRate(1);
+
+                    $enableAdminQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('defaultQuoteTypeForAdmin');
+                    if (!empty($enableAdminQuoteDefaultType)) {
+                        $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
+                        $quotePartialPercentage = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialPercentage');
+                        $quotePartialType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePartialType');
+                        if (($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) && !empty($quotePartialPercentage)) {
+                            $cartSessionModel->setIsPartial('1');
+                            $cartSessionModel->setPartialPercentage($quotePartialPercentage);
+                            if (!empty($quotePartialType)) {
+                                $cartSessionModel->setPartialType($quotePartialType);
+                            } else {
+                                $cartSessionModel->setPartialType(null);
+                            }
+                        }
+                    }
+
                     $cart = $cartMapper->save($cartSessionModel);
                 } else {
                     $this->_error();
@@ -534,6 +557,29 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
             }
 
+            $enableAdminQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('defaultQuoteTypeForAdmin');
+            if (!empty($enableAdminQuoteDefaultType) && $type === Quote::QUOTE_TYPE_BUILD) {
+                $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');
+                if (!empty($quotePaymentType)) {
+                    $quotePaymentTypeName = $quotePaymentType;
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT;
+                    }
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+                    }
+
+                    $quote->setPaymentType($quotePaymentTypeName);
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quote->setIsSignatureRequired('1');
+                    } else {
+                        $quote->setIsSignatureRequired('0');
+                    }
+                    $this->_quoteMapper->save($quote);
+                }
+
+            }
+
             return $quoteData;
         }
         $this->_error();
@@ -603,6 +649,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $quote->getExpiresAt() != date(Tools_System_Tools::DATE_MYSQL, strtotime($quoteData['expiresAt'])) &&
             date('Ymd', strtotime($quoteData['expiresAt'])) >= date('Ymd')) {
             $quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+        }
+
+        if($quote->getExpiresAt() != date(Tools_System_Tools::DATE_MYSQL, strtotime($quoteData['expiresAt'])) && ($cart->getStatus() == Models_Model_CartSession::CART_STATUS_NEW || $cart->getStatus() == Models_Model_CartSession::CART_STATUS_PROCESSING || $cart->getStatus() == Models_Model_CartSession::CART_STATUS_PENDING)) {
+            $quote->setExpirationNotificationIsSend(0);
         }
 
         if(isset($quoteData['type']) && $quoteData['type']) {
@@ -832,6 +882,11 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             if(!empty($disableAutosaveEmailConfig)) {
                 $quoteParams['disableAutosaveEmail'] = $disableAutosaveEmailConfig;
             }
+        }
+
+
+        if ($quoteData['sendMail']) {
+            $response->success($translator->translate('The email has been sent'));
         }
 
         return $quoteParams;

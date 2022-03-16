@@ -732,4 +732,341 @@ class Quote_Tools_Tools {
         return self::generateHash($fileName) . '.' . $fileExtension;
     }
 
+    /**
+     * Copy existing quote
+     *
+     * @param string $quoteId quote it
+     * @param bool $restrictedControlAccess restricted control access
+     * @return array
+     * @throws Exceptions_SeotoasterPluginException
+     * @throws Zend_Exception
+     */
+    public static function copyQuote($quoteId, $restrictedControlAccess = false)
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $cartMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $shoppingConfigMapper = Models_Mapper_ShoppingConfig::getInstance();
+        $quoteTitle = '';
+        $type = 'clone';
+
+        if (!empty($quoteId)) {
+            $quote = $quoteMapper->find($quoteId);
+            if ($quote instanceof Quote_Models_Model_Quote) {
+                $cartId = $quote->getCartId();
+                if (!empty($cartId)) {
+                    $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+
+                    $quoteCustomParamsData = $quoteCustomParamsDataMapper->findByCartId($cartId);
+
+                    $currentCart = $cartMapper->find($cartId);
+                    if ($currentCart instanceof Models_Model_CartSession) {
+                        $currentCart->setId(null);
+                        $currentCart->setStatus(Quote_Models_Model_Quote::STATUS_NEW);
+                        $currentCart->setPartialPaidAmount('0');
+                        $currentCart->setPurchasedOn(null);
+                        $currentCart->setPartialPurchasedOn(null);
+                        $cart = $cartMapper->save($currentCart);
+
+                        $newCartId = $cart->getId();
+                        if (!empty($quoteCustomParamsData)) {
+                            foreach ($quoteCustomParamsData as $paramsData) {
+                                $quoteCustomParamsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+                                $quoteCustomParamsDataModel->setCartId($newCartId);
+                                $quoteCustomParamsDataModel->setParamId($paramsData['param_id']);
+                                $quoteCustomParamsDataModel->setParamValue($paramsData['param_value']);
+                                $quoteCustomParamsDataModel->setParamsOptionId($paramsData['params_option_id']);
+
+                                $quoteCustomParamsDataMapper->save($quoteCustomParamsDataModel);
+                            }
+                        }
+                    }
+                }
+
+
+                $quotePage = Application_Model_Mappers_PageMapper::getInstance()->findByUrl($quoteId . '.html');
+
+                if ($quotePage instanceof Application_Model_Models_Page) {
+                    $oldPageId = $quotePage->getId();
+                }
+
+            }
+        }
+
+        $currentUser = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+
+        if ($currentUser instanceof Application_Model_Models_User) {
+            $editedBy = $currentUser->getFullName();
+            $creatorId = $currentUser->getId();
+        } else {
+            $editedBy = Shopping::ROLE_CUSTOMER;
+            $creatorId = 0;
+        }
+
+        $options = array(
+            'editedBy' => $editedBy,
+            'creatorId' => $creatorId,
+            'disclaimer' => '',
+            'actionType' => $type,
+            'oldQuoteId' => $quoteId,
+            'oldPageId' => $oldPageId,
+            'quoteTitle' => $quoteTitle
+        );
+
+        if (!empty($templateName)) {
+            $options['templateName'] = $templateName;
+        }
+
+        $quote = Quote_Tools_Tools::createQuote($cart, $options);
+
+        if ($quote instanceof Quote_Models_Model_Quote) {
+            $quoteData = $quote->toArray();
+            $ownerInfo = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnerInfo($quoteData['id']);
+            if (!empty($ownerInfo)) {
+                $quoteData['ownerName'] = $ownerInfo['ownerName'];
+            }
+
+            $enableQuoteDefaultType = $shoppingConfigMapper->getConfigParam('enableQuoteDefaultType');
+            if (!empty($enableQuoteDefaultType) && $type === Quote::QUOTE_TYPE_GENERATE) {
+                $quotePaymentType = $shoppingConfigMapper->getConfigParam('quotePaymentType');
+                if (!empty($quotePaymentType)) {
+                    $quotePaymentTypeName = $quotePaymentType;
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT;
+                    }
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quotePaymentTypeName = Quote_Models_Model_Quote::PAYMENT_TYPE_FULL;
+                    }
+
+                    $quote->setPaymentType($quotePaymentTypeName);
+                    if ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_ONLY_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_FULL_SIGNATURE) {
+                        $quote->setIsSignatureRequired('1');
+                    } else {
+                        $quote->setIsSignatureRequired('0');
+                    }
+
+                }
+            }
+
+            if ($restrictedControlAccess === true) {
+                $quote->setIsQuoteRestrictedControl('1');
+            } else {
+                $quote->setIsQuoteRestrictedControl('0');
+            }
+
+            $quoteMapper->save($quote);
+
+            return $quoteData;
+        }
+    }
+
+
+    public static function replaceQuote($fromQuoteId, $toQuoteId)
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $fromQuoteModel = $quoteMapper->find($fromQuoteId);
+        if (!$fromQuoteModel instanceof Quote_Models_Model_Quote) {
+            return array('error' => '1', 'message' => $translator->translate('Original quote not found'));
+        }
+
+        $quoteToModel = $quoteMapper->find($toQuoteId);
+        if (!$quoteToModel instanceof Quote_Models_Model_Quote) {
+            return array('error' => '1', 'message' => $translator->translate('Quote to not found'));
+        }
+
+        $fromCartId = $fromQuoteModel->getCartId();
+        $quoteToCartId = $quoteToModel->getCartId();
+
+        $cartMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $fromCartModel = $cartMapper->find($fromCartId);
+        if (!$fromCartModel instanceof Models_Model_CartSession) {
+            return array('error' => '1', 'message' => $translator->translate('Original cart not found'));
+        }
+
+        $cartToModel = $cartMapper->find($quoteToCartId);
+        if (!$cartToModel instanceof Models_Model_CartSession) {
+            return array('error' => '1', 'message' => $translator->translate('Cart to not found'));
+        }
+
+        $cartToStatus = $cartToModel->getStatus();
+        if ($cartToStatus !== Models_Model_CartSession::CART_STATUS_PARTIAL) {
+            return array('error' => '1', 'message' => $translator->translate('You can replace only partially paid quotes!'));
+        }
+
+        //Copy cart content and current total price
+        $fromCartContent = $fromCartModel->getCartContent();
+        $fromTotal = $fromCartModel->getTotal();
+        $fromDiscount = $fromCartModel->getDiscount();
+        $fromSubTotal = $fromCartModel->getSubTotal();
+        $fromTotalTax = $fromCartModel->getTotalTax();
+        $fromSubTotalTax = $fromCartModel->getSubTotalTax();
+        $fromDiscountTax = $fromCartModel->getDiscountTax();
+        $fromDiscountTaxRate = $fromCartModel->getDiscountTaxRate();
+
+        $cartToModel->setCartContent($fromCartContent);
+        $cartToModel->setTotal($fromTotal);
+        $cartToModel->setDiscount($fromDiscount);
+        $cartToModel->setSubTotal($fromSubTotal);
+        $cartToModel->setTotalTax($fromTotalTax);
+        $cartToModel->setSubTotalTax($fromSubTotalTax);
+        $cartToModel->setDiscountTax($fromDiscountTax);
+        $cartToModel->setDiscountTaxRate($fromDiscountTaxRate);
+
+        //prepare partially payed founds
+        //set always to payment type "amount"
+        $cartToModel->setPartialType(Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT);
+        $cartToModel->setPartialPercentage($cartToModel->getPartialPaidAmount());
+        $cartMapper->save($cartToModel);
+
+        $quoteToModel->setUpdatedAt(date(Tools_System_Tools::DATE_MYSQL));
+        $quoteMapper->save($quoteToModel);
+
+        if ($fromQuoteModel->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD && $fromQuoteModel->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
+            $fromQuoteModel->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
+            $quoteMapper->save($fromQuoteModel);
+        }
+
+        return array('error' => '0');
+    }
+
+    public static function generateQuotePdf($quoteId)
+    {
+        $translator = Zend_Registry::get('Zend_Translate');
+
+        $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
+        if (!$quoteModel instanceof Quote_Models_Model_Quote) {
+            return array('error' => '1', 'message' => $translator->translate('Quote not found'));
+        }
+
+        $pdfTemplate = Application_Model_Mappers_TemplateMapper::getInstance()->find($quoteModel->getPdfTemplate());
+        if (!$pdfTemplate instanceof Application_Model_Models_Template) {
+            return array('error' => '1', 'message' => $translator->translate('Quote pdf not found'));
+        }
+
+        $quoteProposalQuote = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quoteDownloadLabel');
+
+        if (!empty($quoteProposalQuote)) {
+            $pdfFileName = $quoteProposalQuote.'-' . $quoteModel->getTitle() . '.pdf';
+            $pdfFileNameLocally = $quoteProposalQuote.'-' . $quoteModel->getId() . '.pdf';
+        } else {
+            $pdfFileName = 'Proposal-quote-' . $quoteModel->getTitle() . '.pdf';
+            $pdfFileNameLocally = 'Proposal-quote-' . $quoteModel->getId() . '.pdf';
+        }
+
+        $storedData = Tools_LeadDocumentsTools::generateStoredName(array('name' => $pdfFileName));
+        $storedDataLocally = Quote_Tools_Tools::generateStoredName(array('name' => $pdfFileNameLocally), false);
+
+        $websiteConfig = Zend_Registry::get('website');
+        $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
+        if (!defined('_MPDF_TEMP_PATH')) {
+            define('_MPDF_TEMP_PATH', $pdfPath);
+        }
+
+        require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'system/library/mpdf/mpdf.php');
+        $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
+        $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+        $themeData = Zend_Registry::get('theme');
+
+        $session = Zend_Controller_Action_HelperBroker::getExistingHelper('session');
+        $session->storeCartSessionConversionKey = $quoteModel->getCartId();
+        $registry = Zend_Registry::getInstance();
+        $registry->set('processingAutoQuoteId', $quoteModel->getId());
+
+        $parserOptions = array(
+            'websiteUrl' => $websiteHelper->getUrl(),
+            'websitePath' => $websiteHelper->getPath(),
+            'currentTheme' => $websiteHelper->getConfig('currentTheme'),
+            'themePath' => $themeData['path'],
+        );
+        $page = $pageMapper->findByUrl($quoteModel->getId() . '.html');
+        $page = $page->toArray();
+
+        $parser = new Tools_Content_Parser($pdfTemplate->getContent(), $page, $parserOptions);
+        $content = $parser->parse();
+
+        $pdfFile = new mPDF('utf-8', 'A4');
+        $pdfFile->WriteHTML($content);
+
+        $quoteSaveLocallyPath = Quote_Tools_Tools::getFilePath($storedDataLocally['fileStoredName']);
+        $pdfFile->Output($quoteSaveLocallyPath, 'F');
+
+        $leadsMapper = Leads_Mapper_LeadsMapper::getInstance();
+        $leadModel = $leadsMapper->findByUserId($quoteModel->getUserId());
+        if (!$leadModel instanceof Leads_Model_LeadsModel) {
+            $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($quoteModel->getUserId());
+            if ($userModel instanceof Application_Model_Models_User) {
+                $leadModel = $leadsMapper->findByEmail($userModel->getEmail());
+            }
+        }
+
+        if ($leadModel instanceof Leads_Model_LeadsModel) {
+            $savePath = Tools_LeadDocumentsTools::getFilePath($storedData['fileStoredName']);
+
+            $leadId = $leadModel->getId();
+            $leadsDocumentsMapper = Leads_Mapper_LeadsDocumentsMapper::getInstance();
+            $leadsDocumentsModel = new Leads_Model_LeadsDocumentsModel();
+            $leadsDocumentsModel->setLeadId($leadId);
+            $leadsDocumentsModel->setFileStoredName($storedData['fileStoredName']);
+            $leadsDocumentsModel->setFileHash($storedData['fileHash']);
+            $leadsDocumentsModel->setOriginalFileName($storedData['fileName'] . '.' . $storedData['fileExtension']);
+            $leadsDocumentsModel->setDisplayFileName($storedData['fileName']);
+            $leadsDocumentsModel->setUploadedAt(date(Tools_System_Tools::DATE_MYSQL));
+
+            $leadsDocumentsMapper->save($leadsDocumentsModel);
+            $pdfFile->Output($savePath, 'F');
+        }
+
+        return array('error' => '0');
+
+    }
+
+    /**
+     * @param $smsMessage
+     * @param $data
+     * @param $user
+     * @param $websiteUrl
+     * @return mixed|string
+     */
+    public static function addDictionarySmsFields($smsMessage, $data, $user, $websiteUrl) {
+        $quoteId = '';
+        $customerName = '';
+        $customerEmail = '';
+
+        if(!empty($data['quoteId'])) {
+            $quoteId = $data['quoteId'];
+        }
+
+        if(!empty($user)) {
+            if($user instanceof Application_Model_Models_User) {
+                $userFullName = $user->getFullName();
+                $userEmail = $user->getEmail();
+
+                if(!empty($userFullName)) {
+                    $customerName = $userFullName;
+                }
+
+                if(!empty($userEmail)) {
+                    $customerEmail = $userEmail;
+                }
+            } else {
+                $customerName = $user['customerFullName'];
+                $customerEmail = $user['customerEmail'];
+            }
+        }
+
+        $dictionary = array(
+            '$website:url'       => $websiteUrl,
+            'quote:id'           => $quoteId,
+            'customer:full_name' => $customerName,
+            'customer:email'     => $customerEmail,
+        );
+
+        $entityParser = new Tools_Content_EntityParser();
+
+        $entityParser->addToDictionary($dictionary);
+
+        return $entityParser->parse(strip_tags($smsMessage));
+    }
+
 }

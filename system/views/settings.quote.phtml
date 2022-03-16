@@ -88,6 +88,10 @@
                     <?php echo $this->form->getElement('quotePartialPercentage')->renderViewHelper(); ?>
                     <?php echo $this->form->getElement('quotePartialType')->renderViewHelper(); ?>
                 </p>
+                <p id="quote-payment-type-percentage-block-admin" class="<?php echo $displayPartialPercentagePaymentNotificationClass;?>">
+                    <?php echo $this->form->getElement('defaultQuoteTypeForAdmin')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('defaultQuoteTypeForAdmin')->renderViewHelper(); ?>
+                </p>
         </fieldset>
         <p id="quote-download-label-block">
             <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
@@ -98,6 +102,13 @@
             <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
         </p>
 
+        <fieldset id="quote-expiration-block" class="background mt5px">
+            <p id="quote-expiration-date-block">
+                <?php echo $this->form->getElement('notifyExpiryUnitQuote')->addDecorator('Label', array('class' => 'grid_6 alpha'))->renderLabel(); ?>
+                <?php echo $this->form->getElement('notifyExpiryUnitQuote')->renderViewHelper(); ?>
+                <?php echo $this->form->getElement('notifyExpiryQuoteType')->renderViewHelper(); ?>
+            </p>
+        </fieldset>
         <p>
             <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
         </p>
@@ -114,15 +125,18 @@ $(document).ready(function(){
         if ($(this).is(':checked')) {
             $('#quote-payment-type-block').removeClass('hidden');
             $('#quote-payment-type-percentage-block').removeClass('hidden');
+            $('#quote-payment-type-percentage-block-admin').removeClass('hidden');
 
             var paymentType = $('#quote-payment-types').val();
 
             if(paymentType != 'partial_payment' && paymentType != 'partial_payment_signature') {
                 $('#quote-payment-type-percentage-block').addClass('hidden');
+                $('#quote-payment-type-percentage-block-admin').addClass('hidden');
             }
         } else {
             $('#quote-payment-type-block').addClass('hidden');
             $('#quote-payment-type-percentage-block').addClass('hidden');
+            $('#quote-payment-type-percentage-block-admin').addClass('hidden');
         }
     });
 
@@ -177,10 +191,18 @@ $(document).ready(function(){
               partialNotifyAfterType = $('#partial-notify-after-type').val(),
               partialNotifyAfterQuantity = $('#partial-notify-after-quantity').val(),
               enabledPartialPayment = 0,
-              maxProductsInQuote = parseInt($('#max-products-in-quote').val()),
               allowAutosave = 0,
-              disableAutosaveEmail = 0;
+              disableAutosaveEmail = 0,
+              defaultQuoteTypeForAdmin = 0,
+              notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
+              notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
               // defaultQuoteCreatorId = '';
+
+          var maxProductsInQuote = parseInt($('#max-products-in-quote').val());
+
+          if(isNaN(maxProductsInQuote)) {
+              maxProductsInQuote = '';
+          }
 
           if($('#auto-quote').prop("checked")){
               autoQuote = 1;
@@ -192,6 +214,10 @@ $(document).ready(function(){
 
           if($('#enable-quote-default-type').prop("checked")){
               enableQuoteDefaultType = 1;
+          }
+
+          if($('#default-quote-default-type-for-admin').prop("checked")){
+              defaultQuoteTypeForAdmin = 1;
           }
 
           if($('#enabled-partial-payment').prop("checked")){
@@ -226,10 +252,14 @@ $(document).ready(function(){
                 quotePartialType: $('#quote-partial-type').val(),
                 allowAutosave: allowAutosave,
                 disableAutosaveEmail: disableAutosaveEmail,
+                defaultQuoteTypeForAdmin: defaultQuoteTypeForAdmin,
+                notifyExpiryUnitQuote: notifyExpiryUnitQuote,
+                notifyExpiryQuoteType: notifyExpiryQuoteType,
                 secureToken: $('.quote-secure-token').val(),
                 //defaultQuoteCreatorId: $('#default-quote-creator-id').val()
             },
             success: function(responce){
+                $('#max-products-in-quote').val(maxProductsInQuote);
                 smoke.signal('<?php echo $this->translate('Saved');?>');
             }
 

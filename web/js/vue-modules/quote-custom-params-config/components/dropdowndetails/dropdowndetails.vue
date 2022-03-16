@@ -38,7 +38,7 @@
                         </div>
                         <p class="grid_12 fl-right">
                             <input class="btn mt20px" type="submit" name="quote-custom-params-form"
-                                   value="Add custom field"/>
+                                   :value="[$t('message.quoteCustomParamsFormUpdate')]"/>
                         </p>
                     </div>
                 </div>

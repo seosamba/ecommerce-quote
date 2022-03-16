@@ -28,6 +28,12 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
     const TRIGGER_QUOTE_SIGNED     = 'quote_signed';
 
     /**
+     * Quote expiration at trigger
+     *
+     */
+    const TRIGGER_QUOTE_NOTIFYEXPIRYQUOTE = 'quote_notifyexpiryquote';
+
+    /**
      * Quote mail recipient 'sales person'
      *
      */
@@ -410,6 +416,208 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $this->_observableModel = $this->_options['observableModel'];
 
         return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
+    }
+
+    protected function _sendQuoteNotifyexpiryquoteMail()
+    {
+        $data = $this->_options['params'];
+        $adminEmail = !empty($this->_configHelper->getConfig('adminEmail')) ? $this->_configHelper->getConfig('adminEmail') : 'admin@localhost';
+        $bccArray = array();
+        $userMapper = Application_Model_Mappers_UserMapper::getInstance();
+
+        if ($this->_options['service'] === 'sms') {
+            if($this->_options['recipient'] == self::RECIPIENT_CUSTOMER || $this->_options['recipient'] == self::RECIPIENT_MEMBER) {
+                $smsPhoneNumber = $this->_prepareMobilePhone($data);
+
+                if(!empty($smsPhoneNumber)) {
+                    $customerFieldData = $this->_prepareCustomerFieldData($data);
+
+                    $message = strip_tags($this->_options['message']);
+                    $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $customerFieldData, $this->_websiteHelper->getUrl());
+
+                    $subscriber['subscriber']['user'] = array(
+                        'phone' => array($smsPhoneNumber),
+                        'message' => $message,
+                        'owner_type' => Apps::SMS_OWNER_TYPE_USER,
+                        'custom_params' => array(),
+                        'sms_from_type' => 'info',
+                    );
+
+                    $response = Apps::apiCall('POST', 'apps', array('twilioSms'), $subscriber);
+
+                    return true;
+                }
+            } elseif ($this->_options['recipient'] == self::RECIPIENT_SALESPERSON || $this->_options['recipient'] == self::RECIPIENT_ADMIN || $this->_options['recipient'] == Tools_Security_Acl::ROLE_SUPERADMIN) {
+                if($this->_options['recipient'] == Tools_Security_Acl::ROLE_SUPERADMIN) {
+                    $adminPhone = !empty($this->_configHelper->getConfig('phone')) ? $this->_configHelper->getConfig('phone') : '';
+                    if(!empty($adminPhone)) {
+                        //$userMapper = Application_Model_Mappers_UserMapper::getInstance();
+                        //$user = $userMapper->findByRole(Tools_Security_Acl::ROLE_SUPERADMIN);
+
+                        $customerFieldData = $this->_prepareCustomerFieldData($data);
+
+                        $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($adminPhone);
+                        $message = strip_tags($this->_options['message']);
+                        $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $customerFieldData/*$user*/, $this->_websiteHelper->getUrl());
+
+                        if (!empty($smsNumber)) {
+                            $subscriber['subscriber']['user'] = array(
+                                'phone' => array($smsNumber),
+                                'message' => $message,
+                                'owner_type' => Apps::SMS_OWNER_TYPE_ADMIN,
+                                'custom_params' => array(),
+                                'sms_from_type' => 'info',
+                            );
+
+                            $response = Apps::apiCall('POST', 'apps', array('twilioSms'), $subscriber);
+                        }
+                    }
+                } else {
+                    $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?", $this->_options['recipient']);
+                    $allUsers = $userMapper->fetchAll($where);
+                    if (!empty($allUsers)) {
+                        $customerFieldData = $this->_prepareCustomerFieldData($data);
+
+                        foreach ($allUsers as $user) {
+                            $smsNumber = '';
+
+                            if(!empty($user->getMobileCountryCodeValue()) && !empty($user->getMobilePhone())) {
+                                $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($user->getMobileCountryCodeValue() . $user->getMobilePhone());
+                            } elseif (!empty($user->getDesktopCountryCodeValue()) && !empty($user->getDesktopPhone())) {
+                                $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($user->getDesktopCountryCodeValue() . $user->getDesktopPhone());
+                            }
+
+                            $message = strip_tags($this->_options['message']);
+
+                            $message = Quote_Tools_Tools::addDictionarySmsFields($message, $data, $customerFieldData/*$user*/, $this->_websiteHelper->getUrl());
+
+                            if (!empty($smsNumber)) {
+                                $subscriber['subscriber']['user'] = array(
+                                    'phone' => array($smsNumber),
+                                    'message' => $message,
+                                    'owner_type' => Apps::SMS_OWNER_TYPE_ADMIN,
+                                    'custom_params' => array(),
+                                    'sms_from_type' => 'info',
+                                );
+
+                                $response = Apps::apiCall('POST', 'apps', array('twilioSms'), $subscriber);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            switch($this->_options['recipient']) {
+                case self::RECIPIENT_CUSTOMER:
+                case self::RECIPIENT_MEMBER:
+                    $recipient = $this->_getCustomerRecipient();
+                    if(!$recipient) {
+                        return false;
+                    }
+                    $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
+                    break;
+                case self::RECIPIENT_SALESPERSON:
+                    $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
+                        self::RECIPIENT_SALESPERSON);
+                    $salesUsers = $userMapper->fetchAll($where);
+                    //store owner
+
+                    $bccArray[] = $this->_storeConfig['email'];
+
+                    if (!empty($salesUsers)) {
+                        foreach ($salesUsers as $sales) {
+                            array_push($bccArray, $sales->getEmail());
+                        }
+                        if (!empty($bccArray)) {
+                            $this->_mailer->setMailBcc($bccArray);
+                        }
+                    }
+
+                    $this->_mailer->setMailToLabel($this->_storeConfig['company']);
+                    break;
+                case self::RECIPIENT_ADMIN:
+                    // all admins
+                    $this->_mailer->setMailToLabel('Admin')
+                        ->setMailTo($adminEmail);
+                    $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
+                        Tools_Security_Acl::ROLE_ADMIN);
+                    $adminUsers = $userMapper->fetchAll($where);
+                    if (!empty($adminUsers)) {
+                        foreach ($adminUsers as $admin) {
+                            array_push($bccArray, $admin->getEmail());
+                        }
+                        if (!empty($bccArray)) {
+                            $this->_mailer->setMailBcc($bccArray);
+                        }
+                    }
+
+                    break;
+                default:
+                    if($this->_debugEnabled) {
+                        error_log('Quote Mail Watchdog report: Unsupported recipient '.$this->_options['recipient'].' given');
+                    }
+                    return false;
+                    break;
+            }
+
+            return ($this->_send() !== false);
+        }
+    }
+
+    protected function _prepareMobilePhone($data) {
+        $smsPhoneNumber = '';
+
+        if(!empty($data)) {
+            if(!empty($data['userMobileCountryCode']) && !empty($data['userMobilePhone'])) {
+                $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($data['userMobileCountryCode'] . $data['userMobilePhone']);
+            } elseif (!empty($data['userDesctopCountryCode']) && !empty($data['userDesctopPhone'])) {
+                $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($data['userDesctopCountryCode'] . $data['userDesctopPhone']);
+            } elseif (!empty($data['billingAddressId'])) {
+                if(!empty($data['billing_phone_country_code_value']) && !empty($data['billing_phone'])) {
+                    $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($data['billing_phone_country_code_value'] . $data['billing_phone']);
+                } elseif (!empty($data['billing_mobile_country_code_value']) && !empty($data['billing_mobile'])) {
+                    $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($data['billing_mobile_country_code_value'] . $data['billing_mobile']);
+                }
+            } elseif (!empty($data['shippingAddressId'])) {
+                if(!empty($data['shipping_phone_country_code_value']) && !empty($data['shipping_phone'])) {
+                    $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($data['shipping_phone_country_code_value'] . $data['shipping_phone']);
+                } elseif (!empty($data['shipping_mobile_country_code_value']) && !empty($data['shipping_mobile'])) {
+                    $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($data['shipping_mobile_country_code_value'] . $data['shipping_mobile']);
+                }
+            }
+
+        }
+
+        return $smsPhoneNumber;
+    }
+
+    /**
+     * Customer email and Customer full name
+     * @param $data
+     * @return array
+     */
+    protected function _prepareCustomerFieldData($data) {
+        $customerEmail = '';
+        $customerFullName = '';
+
+        if(!empty($data)) {
+            if(!empty($data['userEmail']) && !empty($data['userFullName'])) {
+                $customerEmail = $data['userEmail'];
+                $customerFullName = $data['userFullName'];
+            } elseif (!empty($data['billingAddressId'])) {
+                if(!empty($data['billing_email']) && (!empty($data['billing_firstname']) || !empty($data['billing_lastname']))) {
+                    $customerEmail = $data['billing_email'];
+                    $customerFullName = $data['billing_firstname'] . ' ' . $data['billing_lastname'];
+                }
+            } elseif (!empty($data['shippingAddressId'])) {
+                if(!empty($data['shipping_email']) && (!empty($data['shipping_firstname']) || !empty($data['shipping_lastname']))) {
+                    $customerEmail = $data['shipping_email'];
+                    $customerFullName = $data['shipping_firstname'] . ' ' . $data['shipping_lastname'];
+                }
+            }
+        }
+
+        return array('customerEmail' => $customerEmail, 'customerFullName' => $customerFullName);
     }
 
 

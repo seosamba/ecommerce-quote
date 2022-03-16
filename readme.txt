@@ -23,6 +23,7 @@ customfields:fieldName - display quote custom field
 {$quote:discount} - Displays the product discount.
 {$quote:controls} - Displays buttons "add product", "save the quote", "save and send the quote".
 {$quote:userid} - Reture quote user ID
+{$quote:timestamp[:created|expires][:m-d-Y h:i]} - return quote creation timestamp or expires timestamp
 {$quote:address[:customfields:fieldName]}
 customfields:fieldName - display quote custom field
 
@@ -114,3 +115,8 @@ Quote action emails lexems:
 {quoteleadorganizationlogo} - This lexem return quote lead organization logo
 {quoteleadorganizationlogo:src} - This lexem return quote lead organization logo src
 {quotecustomfields:fieldName} - This lexem return quote customfield where "fieldName" is customfield name
+{pickuponly}{/pickuponly} - display if cart has pickup
+{pickuponly:not}{/pickuponly} - not display if cart has pickup
+
+
+{quoterestrictedcontrol}{/quoterestrictedcontrol} - display content if quote has restricted access control
