@@ -868,7 +868,6 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $userMapper = Application_Model_Mappers_UserMapper::getInstance();
         $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
         $orderModel = $cartSessionMapper->find($orderId);
-        $quoteId = $this->_quote->getId();
         $websiteUrl = $this->_websiteHelper->getUrl();
         $orderMapper = Models_Mapper_OrdersMapper::getInstance();
         $where = $orderMapper->getDbTable()->getAdapter()->quoteInto('oc.cart_id=?', $orderId);
@@ -880,9 +879,12 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             }
         }
 
+        foreach ($this->_quote->toArray() as $orderKey => $value) {
+            $dictionary['quote:' . strtolower($orderKey)] = $value;
+        }
+
         $message = strip_tags($this->_options['message']);
         $dictionary['$website:url'] = $websiteUrl;
-        $dictionary['quote:id'] = $quoteId;
 
         $entityParser = new Tools_Content_EntityParser();
 
