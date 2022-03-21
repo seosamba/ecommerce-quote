@@ -205,8 +205,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      *
      */
     protected function _initMailMessage() {
-        $this->_options['message'] = (isset($this->_options['mailMessage']) ? $this->_options['mailMessage'] : $this->_options['message']);
-        unset($this->_options['mailMessage']);
+        if ($this->_options['service'] !== 'sms') {
+            $this->_options['message'] = (isset($this->_options['mailMessage']) ? $this->_options['mailMessage'] : $this->_options['message']);
+            unset($this->_options['mailMessage']);
+        }
     }
 
 
@@ -220,51 +222,56 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
     protected function _sendQuoteCreatedMail() {
         // switch through the recipients and init proper mailer values for them
-        switch($this->_options['recipient']) {
-            case self::RECIPIENT_CUSTOMER:
-            case self::RECIPIENT_MEMBER:
-                $recipient = $this->_getCustomerRecipient();
-                if(!$recipient) {
-                    return false;
-                }
-                $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
-            break;
-            case self::RECIPIENT_SALESPERSON:
-                // store owner
-                $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-                // all other sales persons
-                $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+        $data = $this->_options['params'];
+        if ($this->_options['service'] === 'sms') {
+            return $this->_sendSms($data);
+        } else {
+            switch ($this->_options['recipient']) {
+                case self::RECIPIENT_CUSTOMER:
+                case self::RECIPIENT_MEMBER:
+                    $recipient = $this->_getCustomerRecipient();
+                    if (!$recipient) {
+                        return false;
+                    }
+                    $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
+                    break;
+                case self::RECIPIENT_SALESPERSON:
+                    // store owner
+                    $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                    // all other sales persons
+                    $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
                         self::RECIPIENT_SALESPERSON
                     )));
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
-            break;
-            case self::RECIPIENT_STOREOWNER:
-            case self::RECIPIENT_ADMIN:
-                // all admins
-                $emails = Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_ADMIN
-                ));
-                if (!empty($emails)) {
                     $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
-                }
-            break;
-            default:
-                if($this->_debugEnabled) {
-                    error_log('Quote Mail Watchdog report: Unsupported recipient '.$this->_options['recipient'].' given');
-                }
-                return false;
-            break;
-        }
+                    break;
+                case self::RECIPIENT_STOREOWNER:
+                case self::RECIPIENT_ADMIN:
+                    // all admins
+                    $emails = Quote_Tools_Tools::getEmailData(array(
+                        self::RECIPIENT_ADMIN
+                    ));
+                    if (!empty($emails)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    }
+                    break;
+                default:
+                    if ($this->_debugEnabled) {
+                        error_log('Quote Mail Watchdog report: Unsupported recipient ' . $this->_options['recipient'] . ' given');
+                    }
+                    return false;
+                    break;
+            }
 
-        //changing quote status to send
-        $this->_quote->removeObserver(new Tools_Mail_Watchdog());
-        if($this->_quote->getEditedBy() == 'auto'){
-            Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT));
-        }else{
-            Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW));
-        }
+            //changing quote status to send
+            $this->_quote->removeObserver(new Tools_Mail_Watchdog());
+            if ($this->_quote->getEditedBy() == 'auto') {
+                Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT));
+            } else {
+                Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW));
+            }
 
-        return $this->_send(array('subject' =>  $this->_storeConfig['company'] . $this->_translator->translate(' Hello! We created a new quote for you')));
+            return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! We created a new quote for you')));
+        }
     }
 
     /**
@@ -275,66 +282,71 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      * @return boolean
      */
     protected function _sendQuoteupdatedMail() {
-        switch($this->_options['recipient']) {
-            case self::RECIPIENT_CUSTOMER:
-                $recipient = $this->_getCustomerRecipient();
-                $this->_mailer->setMailToLabel($recipient->getFullName());
+        $data = $this->_options['params'];
+        if ($this->_options['service'] === 'sms') {
+            return $this->_sendSms($data);
+        } else {
+            switch ($this->_options['recipient']) {
+                case self::RECIPIENT_CUSTOMER:
+                    $recipient = $this->_getCustomerRecipient();
+                    $this->_mailer->setMailToLabel($recipient->getFullName());
 
-                // restore the cart
-                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
-                if(!$cart instanceof Models_Model_CartSession) {
-                    if($this->_debugEnabled) {
-                        error_log('Quote Mail Watchdog report: Cannot find cart with id: ' . $this->_quote->getCartId() . ' for the quote with id: ' . $this->_quote->getId());
-                    }
-                    return false;
-                }
-
-                $defaultsMail = array('mailTo' => $recipient->getFullName());
-
-                // get the name => email for the customer
-                $recipientEmails = $this->_getCustomerEmails(array(
-                    Tools_ShoppingCart::getAddressById($cart->getShippingAddressId()),
-                    Tools_ShoppingCart::getAddressById($cart->getBillingAddressId())
-                ), $defaultsMail);
-
-                if(empty($recipientEmails)) {
-                    if($this->_debugEnabled) {
-                        error_log('Quote Mail Watchdog report: Can\'t find any address for the recipient with id: ' . $recipient->getId());
-                    }
-                }
-
-                $ccEmails = $this->_options['ccEmails'];
-
-                if(!empty($ccEmails)) {
-                    $additionalEmails = array();
-                    foreach ($ccEmails as $email) {
-                        $additionalEmails[][$defaultsMail['mailTo']] = $email;
+                    // restore the cart
+                    $cart = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
+                    if (!$cart instanceof Models_Model_CartSession) {
+                        if ($this->_debugEnabled) {
+                            error_log('Quote Mail Watchdog report: Cannot find cart with id: ' . $this->_quote->getCartId() . ' for the quote with id: ' . $this->_quote->getId());
+                        }
+                        return false;
                     }
 
-                    $recipientEmails = array_merge($recipientEmails, $additionalEmails);
-                }
+                    $defaultsMail = array('mailTo' => $recipient->getFullName());
 
-                $this->_mailer->setMailTo($recipientEmails);
-            break;
-            case self::RECIPIENT_SALESPERSON:
-                // store owner
-                $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-                // all other recipients
-                $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_SALESPERSON
-                )));
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
-            break;
-            case self::RECIPIENT_STOREOWNER:
-            case self::RECIPIENT_ADMIN:
-                // all admins
-                $emails = Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_ADMIN
-                ));
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
-            break;
+                    // get the name => email for the customer
+                    $recipientEmails = $this->_getCustomerEmails(array(
+                        Tools_ShoppingCart::getAddressById($cart->getShippingAddressId()),
+                        Tools_ShoppingCart::getAddressById($cart->getBillingAddressId())
+                    ), $defaultsMail);
+
+                    if (empty($recipientEmails)) {
+                        if ($this->_debugEnabled) {
+                            error_log('Quote Mail Watchdog report: Can\'t find any address for the recipient with id: ' . $recipient->getId());
+                        }
+                    }
+
+                    $ccEmails = $this->_options['ccEmails'];
+
+                    if (!empty($ccEmails)) {
+                        $additionalEmails = array();
+                        foreach ($ccEmails as $email) {
+                            $additionalEmails[][$defaultsMail['mailTo']] = $email;
+                        }
+
+                        $recipientEmails = array_merge($recipientEmails, $additionalEmails);
+                    }
+
+                    $this->_mailer->setMailTo($recipientEmails);
+                    break;
+                case self::RECIPIENT_SALESPERSON:
+                    // store owner
+                    $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                    // all other recipients
+                    $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                        self::RECIPIENT_SALESPERSON
+                    )));
+                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    break;
+                case self::RECIPIENT_STOREOWNER:
+                case self::RECIPIENT_ADMIN:
+                    // all admins
+                    $emails = Quote_Tools_Tools::getEmailData(array(
+                        self::RECIPIENT_ADMIN
+                    ));
+                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    break;
+            }
+            return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
         }
-        return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
     }
 
 
@@ -346,76 +358,80 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
     protected function _sendQuotesignedMail() {
 
         $attachment = $this->_options['attachment'];
+        $data = $this->_options['params'];
+        if ($this->_options['service'] === 'sms') {
+            return $this->_sendSms($data);
+        } else {
+            switch ($this->_options['recipient']) {
+                case self::RECIPIENT_CUSTOMER:
+                    $recipient = $this->_getCustomerRecipient();
+                    $this->_mailer->setMailToLabel($recipient->getFullName());
 
-        switch($this->_options['recipient']) {
-            case self::RECIPIENT_CUSTOMER:
-                $recipient = $this->_getCustomerRecipient();
-                $this->_mailer->setMailToLabel($recipient->getFullName());
-
-                // restore the cart
-                $cart = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
-                if(!$cart instanceof Models_Model_CartSession) {
-                    if($this->_debugEnabled) {
-                        error_log('Quote Mail Watchdog report: Cannot find cart with id: ' . $this->_quote->getCartId() . ' for the quote with id: ' . $this->_quote->getId());
-                    }
-                    return false;
-                }
-
-                $defaultsMail = array('mailTo' => $recipient->getFullName());
-
-                // get the name => email for the customer
-                $recipientEmails = $this->_getCustomerEmails(array(
-                    Tools_ShoppingCart::getAddressById($cart->getShippingAddressId()),
-                    Tools_ShoppingCart::getAddressById($cart->getBillingAddressId())
-                ), $defaultsMail);
-
-                if(empty($recipientEmails)) {
-                    if($this->_debugEnabled) {
-                        error_log('Quote Mail Watchdog report: Can\'t find any address for the recipient with id: ' . $recipient->getId());
-                    }
-                }
-
-                $recipientEmails = array_unique($recipientEmails);
-
-                $ccEmails = $this->_options['ccEmails'];
-
-                if(!empty($ccEmails)) {
-                    $additionalEmails = array();
-                    foreach ($ccEmails as $email) {
-                        $additionalEmails[][$defaultsMail['mailTo']] = $email;
+                    // restore the cart
+                    $cart = Models_Mapper_CartSessionMapper::getInstance()->find($this->_quote->getCartId());
+                    if (!$cart instanceof Models_Model_CartSession) {
+                        if ($this->_debugEnabled) {
+                            error_log('Quote Mail Watchdog report: Cannot find cart with id: ' . $this->_quote->getCartId() . ' for the quote with id: ' . $this->_quote->getId());
+                        }
+                        return false;
                     }
 
-                    $recipientEmails = array_merge($recipientEmails, $additionalEmails);
-                }
+                    $defaultsMail = array('mailTo' => $recipient->getFullName());
 
-                $this->_mailer->setMailTo($recipientEmails);
-                break;
-            case self::RECIPIENT_SALESPERSON:
-                // store owner
-                $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-                // all other recipients
-                $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_SALESPERSON
-                )));
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
-                break;
-            case self::RECIPIENT_STOREOWNER:
-            case self::RECIPIENT_ADMIN:
-                // all admins
-                $emails = Quote_Tools_Tools::getEmailData(array(
-                    self::RECIPIENT_ADMIN
-                ));
-                $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
-                break;
+                    // get the name => email for the customer
+                    $recipientEmails = $this->_getCustomerEmails(array(
+                        Tools_ShoppingCart::getAddressById($cart->getShippingAddressId()),
+                        Tools_ShoppingCart::getAddressById($cart->getBillingAddressId())
+                    ), $defaultsMail);
+
+                    if (empty($recipientEmails)) {
+                        if ($this->_debugEnabled) {
+                            error_log('Quote Mail Watchdog report: Can\'t find any address for the recipient with id: ' . $recipient->getId());
+                        }
+                    }
+
+                    $recipientEmails = array_unique($recipientEmails);
+
+                    $ccEmails = $this->_options['ccEmails'];
+
+                    if (!empty($ccEmails)) {
+                        $additionalEmails = array();
+                        foreach ($ccEmails as $email) {
+                            $additionalEmails[][$defaultsMail['mailTo']] = $email;
+                        }
+
+                        $recipientEmails = array_merge($recipientEmails, $additionalEmails);
+                    }
+
+                    $this->_mailer->setMailTo($recipientEmails);
+                    break;
+                case self::RECIPIENT_SALESPERSON:
+                    // store owner
+                    $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                    // all other recipients
+                    $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                        self::RECIPIENT_SALESPERSON
+                    )));
+                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    break;
+                case self::RECIPIENT_STOREOWNER:
+                case self::RECIPIENT_ADMIN:
+                    // all admins
+                    $emails = Quote_Tools_Tools::getEmailData(array(
+                        self::RECIPIENT_ADMIN
+                    ));
+                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    break;
+            }
+
+            if (!empty($attachment)) {
+                $this->_mailer->addAttachment($attachment);
+            }
+
+            $this->_observableModel = $this->_options['observableModel'];
+
+            return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
         }
-
-        if (!empty($attachment)) {
-            $this->_mailer->addAttachment($attachment);
-        }
-
-        $this->_observableModel = $this->_options['observableModel'];
-
-        return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
     }
 
     protected function _sendQuoteNotifyexpiryquoteMail()
@@ -841,5 +857,153 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         $parser = new Tools_Content_Parser($mailFrom, array(), $parserOptions);
 
         return Tools_Content_Tools::stripEditLinks($parser->parseSimple());
+    }
+
+    /**
+     * @param array $data additional data
+     * @return bool
+     * @throws Exceptions_SeotoasterPluginException
+     */
+    protected function _sendSms($data)
+    {
+        $orderId = $this->_quote->getCartId();
+        $userMapper = Application_Model_Mappers_UserMapper::getInstance();
+        $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $orderModel = $cartSessionMapper->find($orderId);
+        $websiteUrl = $this->_websiteHelper->getUrl();
+        $orderMapper = Models_Mapper_OrdersMapper::getInstance();
+        $where = $orderMapper->getDbTable()->getAdapter()->quoteInto('oc.cart_id=?', $orderId);
+        $currentOrder = $orderMapper->fetchAll($where);
+        $dictionary = array();
+        if (!empty($currentOrder)) {
+            foreach ($currentOrder[0] as $orderKey => $value) {
+                $dictionary['customer:' . $orderKey] = $value;
+            }
+        }
+
+        foreach ($this->_quote->toArray() as $orderKey => $value) {
+            $dictionary['quote:' . strtolower($orderKey)] = $value;
+        }
+
+        $message = strip_tags($this->_options['message']);
+        $dictionary['$website:url'] = $websiteUrl;
+
+        $entityParser = new Tools_Content_EntityParser();
+
+        $entityParser->addToDictionary($dictionary);
+
+        $message = $entityParser->parse($message);
+
+        if ($orderModel instanceof Models_Model_CartSession) {
+            if ($this->_options['recipient'] == Tools_Security_Acl::ROLE_GUEST || $this->_options['recipient'] == Tools_StoreMailWatchdog::RECIPIENT_CUSTOMER || $this->_options['recipient'] == Tools_Security_Acl::ROLE_MEMBER) {
+                $smsPhoneNumber = $this->_prepareCustomerPhoneNumber();
+
+                $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($smsPhoneNumber);
+
+                if (!empty($smsPhoneNumber)) {
+                    $subscriber['subscriber']['user'] = array(
+                        'phone' => array($smsPhoneNumber),
+                        'message' => $message,
+                        'owner_type' => Apps::SMS_OWNER_TYPE_USER,
+                        'custom_params' => array(),
+                        'sms_from_type' => 'info'
+                    );
+
+                    $response = Apps::apiCall('POST', 'apps', array('twilioSms'), $subscriber);
+                }
+
+            } elseif ($this->_options['recipient'] == Tools_StoreMailWatchdog::RECIPIENT_SALESPERSON || $this->_options['recipient'] == Tools_StoreMailWatchdog::RECIPIENT_ADMIN || $this->_options['recipient'] == Tools_Security_Acl::ROLE_SUPERADMIN) {
+                if ($this->_options['recipient'] == Tools_Security_Acl::ROLE_SUPERADMIN) {
+                    $adminPhone = !empty($this->_configHelper->getConfig('phone')) ? $this->_configHelper->getConfig('phone') : '';
+                    if (!empty($adminPhone)) {
+                        $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($adminPhone);
+
+                        if (!empty($smsNumber)) {
+                            $subscriber['subscriber']['user'] = array(
+                                'phone' => array($smsNumber),
+                                'message' => $message,
+                                'owner_type' => Apps::SMS_OWNER_TYPE_ADMIN,
+                                'custom_params' => array(),
+                                'sms_from_type' => 'info',
+                            );
+
+                            $response = Apps::apiCall('POST', 'apps', array('twilioSms'), $subscriber);
+                        }
+                    }
+                } else {
+                    $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?", $this->_options['recipient']);
+                    $allUsers = $userMapper->fetchAll($where);
+                    if (!empty($allUsers)) {
+                        foreach ($allUsers as $user) {
+                            $smsNumber = '';
+
+                            if (!empty($user->getMobileCountryCodeValue()) && !empty($user->getMobilePhone())) {
+                                $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($user->getMobileCountryCodeValue() . $user->getMobilePhone());
+                            } elseif (!empty($user->getDesktopCountryCodeValue()) && !empty($user->getDesktopPhone())) {
+                                $smsNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($user->getDesktopCountryCodeValue() . $user->getDesktopPhone());
+                            }
+
+                            if (!empty($smsNumber)) {
+                                $subscriber['subscriber']['user'] = array(
+                                    'phone' => array($smsNumber),
+                                    'message' => $message,
+                                    'owner_type' => Apps::SMS_OWNER_TYPE_ADMIN,
+                                    'custom_params' => array(),
+                                    'sms_from_type' => 'info',
+                                );
+
+                                $response = Apps::apiCall('POST', 'apps', array('twilioSms'), $subscriber);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected function _prepareCustomerPhoneNumber()
+    {
+        $orderId = $this->_quote->getCartId();
+        $userId = $this->_quote->getUserId();
+        $userMapper = Application_Model_Mappers_UserMapper::getInstance();
+        $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
+        $orderModel = $cartSessionMapper->find($orderId);
+        $userModel = $userMapper->find($userId);
+        $smsPhoneNumber = '';
+
+        if ($orderModel instanceof Models_Model_CartSession) {
+            if ($userModel instanceof Application_Model_Models_User) {
+                if (!empty($userModel->getMobilePhone())) {
+                    $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($userModel->getMobileCountryCodeValue() . $userModel->getMobilePhone());
+                } else {
+                    $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($userModel->getDesktopCountryCodeValue() . $userModel->getDesktopPhone());
+                }
+            }
+            if (empty($smsPhoneNumber)) {
+                if(!empty($orderModel->getBillingAddressId())) {
+                    $billingAddressData = Tools_ShoppingCart::getAddressById($orderModel->getBillingAddressId());
+                    if (!empty($billingAddressData['mobile_country_code_value']) && !empty($billingAddressData['mobile'])) {
+                        $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($billingAddressData['mobile_country_code_value'] . $billingAddressData['mobile']);
+                    } elseif (!empty($billingAddressData['phone_country_code_value']) && !empty($billingAddressData['phone'])) {
+                        $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($billingAddressData['phone_country_code_value'] . $billingAddressData['phone']);
+                    }
+                }
+                if (empty($smsPhoneNumber)) {
+                    if(!empty($orderModel->getShippingAddressId())) {
+                        $shippingAddressData = Tools_ShoppingCart::getAddressById($orderModel->getShippingAddressId());
+                        if (!empty($shippingAddressData['mobile_country_code_value']) && !empty($shippingAddressData['mobile'])) {
+                            $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($shippingAddressData['mobile_country_code_value'] . $shippingAddressData['mobile']);
+                        } elseif (!empty($shippingAddressData['phone_country_code_value']) && !empty($shippingAddressData['phone'])) {
+                            $smsPhoneNumber = Apps_Tools_Twilio::normalizePhoneNumberToE164($shippingAddressData['phone_country_code_value'] . $shippingAddressData['phone']);
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return $smsPhoneNumber;
     }
 }
