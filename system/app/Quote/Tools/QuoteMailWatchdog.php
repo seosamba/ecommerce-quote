@@ -205,8 +205,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
      *
      */
     protected function _initMailMessage() {
-        $this->_options['message'] = (isset($this->_options['mailMessage']) ? $this->_options['mailMessage'] : $this->_options['message']);
-        unset($this->_options['mailMessage']);
+        if ($this->_options['service'] !== 'sms') {
+            $this->_options['message'] = (isset($this->_options['mailMessage']) ? $this->_options['mailMessage'] : $this->_options['message']);
+            unset($this->_options['mailMessage']);
+        }
     }
 
 
