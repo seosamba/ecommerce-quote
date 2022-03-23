@@ -1967,6 +1967,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             if(!empty($customfieldsOptions)) {
                 $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
                 $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+                $quoteCustomFieldsOptionsDataMapper = Quote_Models_Mapper_QuoteCustomFieldsOptionsDataMapper::getInstance();
 
                 $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
 
@@ -1974,6 +1975,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 if(!empty($customFields)) {
                     foreach ($customFields as $key => $fields) {
+                        if($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                            $dataSelections = $quoteCustomFieldsOptionsDataMapper->findByCustomParamId($fields['id'], true);
+
+                            if(!empty($dataSelections)) {
+                                $customFields[$key]['option_values'] = implode(',', $dataSelections);
+                                $customFields[$key]['option_ids'] = implode(',', array_keys($dataSelections));
+                            }
+                        }
+
                         $quoteCustomParamsDataModel = $quoteCustomParamsDataMapper->checkIfParamExists($cartId, $fields['id']);
 
                         $value = '';
