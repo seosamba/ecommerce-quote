@@ -339,7 +339,7 @@ if (!empty($shoppingConfig) && !empty($shoppingConfig['enabledPartialPayment']))
                     $cartSession = $cartSessionMapper->find($cartId);
                     $cartSession->registerObserver(new Tools_Mail_Watchdog(array(
                         'trigger' => Tools_StoreMailWatchdog::TRIGGER_STORE_PARTIALPAYMENT_NOTIFICATION,
-                        'excludeNotify' => '1'
+                        //'excludeNotify' => '1'
                     )));
 
                     $cartSession->notifyObservers();
