@@ -271,7 +271,9 @@ $filePath = $configIni->website->website->path;
 $pluginIncludePath = array(
     '0' => realpath($filePath.'plugins/quote/system/app'),
     '1' => realpath($filePath.'plugins/shopping/system/app'),
-    '2' => realpath($filePath.'plugins/cart/system/app')
+    '2' => realpath($filePath.'plugins/cart/system/app'),
+    '3' => realpath($filePath.'plugins/apps/system/app'),
+    '4' => realpath($filePath.'plugins/leads/system/app'),
 );
 
 set_include_path(implode(PATH_SEPARATOR, $pluginIncludePath) . PATH_SEPARATOR . get_include_path());
@@ -303,6 +305,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
     $filePath . '/plugins/quote',
     $filePath . '/plugins/shopping',
     $filePath . '/plugins/cart',
+    $filePath . '/plugins/apps',
+    $filePath . '/plugins/leads',
     get_include_path()
 )));
 
