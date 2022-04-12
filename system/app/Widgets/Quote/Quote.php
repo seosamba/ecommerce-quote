@@ -81,6 +81,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     const TOTAL_TYPE_WOTAX  = 'totalwotax';
 
+    const SIGNATURE_INFO_FIELD = 'signature-info-field';
+
     /**
      * Flag that tells toaster cache the widget or not. Should be set to true for production
      *
@@ -1622,6 +1624,16 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->isQuoteSigned = $isQuoteSigned;
             $this->_view->signature = $signature;
             $this->_view->quoteId = $quoteId;
+
+            $withSignatureInfoField = false;
+
+            if (in_array(self::SIGNATURE_INFO_FIELD, $this->_options)) {
+                $withSignatureInfoField = true;
+            }
+
+            $signatureInfoField = '';
+            $this->_view->signatureInfoField = $signatureInfoField;
+            $this->_view->withSignatureInfoField = $withSignatureInfoField;
 
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
 
