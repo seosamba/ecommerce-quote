@@ -120,3 +120,7 @@ Quote action emails lexems:
 
 
 {quoterestrictedcontrol}{/quoterestrictedcontrol} - display content if quote has restricted access control
+
+{$quote:signature:signature-info-field} - display additional info field signature
+
+{$quote:singatureadditionalinfo} - displays field with signature additional info

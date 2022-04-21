@@ -279,6 +279,45 @@ class Quote extends Tools_PaymentGateway
         $this->_show();
     }
 
+    public function saveSignatureInfoFieldAction()
+    {
+        $roleId = $this->_sessionHelper->getCurrentUser()->getRoleId();
+        $signatureInfoField = filter_var($this->_request->getParam('signatureInfoField'), FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+        $accessList = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+
+        if (empty($quoteId)) {
+            $this->_responseHelper->fail($this->_translator->translate('Quote id is missing'));
+        }
+
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $quoteModel = $quoteMapper->find($quoteId);
+        if (!$quoteModel instanceof Quote_Models_Model_Quote) {
+            $this->_responseHelper->fail($this->_translator->translate('Quote model not found'));
+        }
+
+        if (in_array($roleId, $accessList)) {
+            if ($quoteModel->getSignatureInfoField() != $signatureInfoField) {
+                $quoteModel->setSignatureInfoField($signatureInfoField);
+                $quoteMapper->save($quoteModel);
+            }
+        } else {
+            $quoteSigned = $quoteModel->getIsQuoteSigned();
+            if (empty($quoteSigned)) {
+                if ($quoteModel->getSignatureInfoField() != $signatureInfoField) {
+                    $quoteModel->setSignatureInfoField($signatureInfoField);
+                    $quoteMapper->save($quoteModel);
+                }
+            }
+        }
+
+        $this->_responseHelper->success($this->_translator->translate('Saved'));
+    }
+
     /**
      * Show manage product options screen
      *

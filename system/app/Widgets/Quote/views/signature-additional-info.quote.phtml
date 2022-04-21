@@ -1,0 +1,37 @@
+{$header:signatureinfofieldtext:static}
+
+<?php if ($this->accessAllowed === true):?>
+    <textarea id="signature-info-field-text"><?php echo $this->signatureInfoField;?></textarea>
+<?php elseif(empty($this->isSignatureSigned)) :?>
+    <textarea id="signature-info-field-text"><?php echo $this->signatureInfoField;?></textarea>
+<?php else:?>
+    <span class="signature-info-field-result"><?php echo $this->signatureInfoField;?></span>
+<?php endif;?>
+
+<script>
+    $(function() {
+        $(document).on('blur', '#signature-info-field-text', function () {
+            var signatureInfoField = $(this).val();
+
+            if (signatureInfoField) {
+                $('#quote-signature-form').removeClass('hidden');
+            } else {
+                $('#quote-signature-form').addClass('hidden');
+            }
+
+            $.ajax({
+                url: $('#website_url').val() + 'plugin/quote/run/saveSignatureInfoField',
+                data: {'quoteId': '<?php echo $this->id;?>', 'signatureInfoField': signatureInfoField},
+                type: 'post',
+                dataType: 'json'
+            }).done(function (response) {
+                if (response.error == '1') {
+                    showMessage(response.responseText, true, 5000);
+                    return false;
+                } else {
+                    //showMessage(response.responseText, false, 3000);
+                }
+            });
+        });
+    });
+</script>
