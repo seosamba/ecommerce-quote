@@ -124,7 +124,7 @@
 
             $.ajax({
                 url: $('#website_url').val() + 'plugin/quote/run/saveSignatureInfoField',
-                data: {'quoteId': $('#signature-quote-id').val(), 'signatureInfoField': signatureInfoField},
+                data: {'quoteId': '<?php echo $this->quoteId;?>', 'signatureInfoField': signatureInfoField},
                 type: 'post',
                 dataType: 'json'
             }).done(function (response) {
