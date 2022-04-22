@@ -15,8 +15,10 @@
 
             if (signatureInfoField) {
                 $('#quote-signature-form').removeClass('hidden');
+                $('#quote-signature-form-label').removeClass('hidden');
             } else {
                 $('#quote-signature-form').addClass('hidden');
+                $('#quote-signature-form-label').addClass('hidden');
             }
 
             $.ajax({

@@ -27,7 +27,7 @@
                 {$header:signatureinfofieldtext:static}
                 <textarea id="signature-info-field"><?php echo $this->signatureInfoField;?></textarea>
             <?php endif;?>
-            <span><?php echo $this->translate('Sign here using cursor or finger on your smartphone');?>:</span>
+            <span id="quote-signature-form-label" class="<?php echo $signatureInfoClass;?>"><?php echo $this->translate('Sign here using cursor or finger on your smartphone');?>:</span>
             <form class="<?php echo $signatureInfoClass;?>" id="quote-signature-form">
                 <div id="quote-signature-form-refresh" name="quote-signature-form-refresh">
                     <img id="quote-signature-form-clear" src="<?php echo $this->websiteUrl.'plugins/quote/web/images/refresh.png';?>" alt="<?php echo $this->translate('Clear Signature')?>">
@@ -116,8 +116,10 @@
 
             if (signatureInfoField) {
                 $('#quote-signature-form').removeClass('hidden');
+                $('#quote-signature-form-label').removeClass('hidden');
             } else {
                 $('#quote-signature-form').addClass('hidden');
+                $('#quote-signature-form-label').addClass('hidden');
             }
 
             $.ajax({
