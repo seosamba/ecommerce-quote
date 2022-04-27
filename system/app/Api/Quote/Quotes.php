@@ -147,6 +147,18 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
 
+                if (empty($data['email'])) {
+                    $this->_error($translator->translate('Sorry, but you didn\'t fill email address. Please try again.'));
+                }
+
+                $data['email'] = trim($data['email']);
+
+                $emailValidator = new Tools_System_CustomEmailValidator();
+
+                if (!$emailValidator->isValid($data['email'])) {
+                    $this->_error($translator->translate('Not valid email address'));
+                }
+
                 $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
                 if (!empty($shoppingConfig['maxProductsInQuote'])) {
                     $inCartContent = $this->_cartStorage->getContent();
