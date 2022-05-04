@@ -44,7 +44,8 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             'signature'                       => $quote->getSignature(),
             'is_quote_signed'                 => $quote->getIsQuoteSigned(),
             'quote_signed_at'                 => $quote->getQuoteSignedAt(),
-            'is_quote_restricted_control'     => $quote->getIsQuoteRestrictedControl()
+            'is_quote_restricted_control'     => $quote->getIsQuoteRestrictedControl(),
+            'signature_info_field'            => $quote->getSignatureInfoField(),
 		);
 
 		$exists = $this->find($quote->getId());

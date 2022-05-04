@@ -81,6 +81,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     const TOTAL_TYPE_WOTAX  = 'totalwotax';
 
+    const SIGNATURE_INFO_FIELD = 'signature-info-field';
+
     /**
      * Flag that tells toaster cache the widget or not. Should be set to true for production
      *
@@ -1610,6 +1612,21 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return '';
     }
 
+    /**
+     * Renderer for a quote signature additional info {$quote:singatureadditionalinfo}
+     *
+     * @return string
+     */
+    protected function _renderSingatureadditionalinfo()
+    {
+        $this->_view->signatureInfoField = $this->_quote->getSignatureInfoField();
+        $this->_view->id      = $this->_quote->getId();
+        $this->_view->isSignatureSigned = $this->_quote->getIsQuoteSigned();
+        $this->_view->accessAllowed = $this->_editAllowed;
+
+        return $this->_view->render('signature-additional-info.quote.phtml');
+    }
+
     protected function _renderSignature()
     {
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
@@ -1622,6 +1639,25 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->isQuoteSigned = $isQuoteSigned;
             $this->_view->signature = $signature;
             $this->_view->quoteId = $quoteId;
+
+            $withSignatureInfoField = false;
+            $signatureInfoLabel = '';
+
+            if (in_array(self::SIGNATURE_INFO_FIELD, $this->_options)) {
+                $signatureInfoPosition = array_search(self::SIGNATURE_INFO_FIELD, $this->_options);
+                $signatureInfoPosition += 1;
+                if (!empty($this->_options[$signatureInfoPosition])) {
+                    $signatureInfoLabel = $this->_options[$signatureInfoPosition];
+                }
+                $withSignatureInfoField = true;
+
+            }
+
+            $signatureInfoField = $this->_quote->getSignatureInfoField();
+            $this->_view->signatureInfoField = $signatureInfoField;
+            $this->_view->withSignatureInfoField = $withSignatureInfoField;
+            $this->_view->signatureInfoLabel = $signatureInfoLabel;
+            $this->_view->isSignatureSigned = $this->_quote->getIsQuoteSigned();
 
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
 

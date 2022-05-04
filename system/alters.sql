@@ -101,6 +101,9 @@ INSERT IGNORE INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALU
 
 ALTER TABLE `shopping_quote` ADD COLUMN `expiration_notification_is_send` ENUM('0','1') DEFAULT '0' AFTER `expires_at`;
 
+-- version: 2.3.6
+ALTER TABLE `shopping_quote` ADD COLUMN `signature_info_field` text COLLATE utf8_unicode_ci AFTER `is_quote_restricted_control`;
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.6' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.7' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

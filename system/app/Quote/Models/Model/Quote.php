@@ -85,6 +85,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     protected $_isQuoteRestrictedControl = '0';
 
+    protected $_signatureInfoField = '';
+
     public function setCustomerName($customerName) {
         $this->_customerName = $customerName;
         return $this;
@@ -412,5 +414,23 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getSignatureInfoField()
+    {
+        return $this->_signatureInfoField;
+    }
+
+    /**
+     * @param string $signatureInfoField
+     */
+    public function setSignatureInfoField($signatureInfoField)
+    {
+        $this->_signatureInfoField = $signatureInfoField;
+    }
+
+
 
 }
