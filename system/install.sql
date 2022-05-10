@@ -23,7 +23,7 @@ CREATE TABLE `shopping_quote` (
   `is_quote_signed` ENUM('0','1') DEFAULT '0',
   `quote_signed_at` TIMESTAMP NULL,
   `is_quote_restricted_control` ENUM('0','1') DEFAULT '0',
-  `signature_info_field` text COLLATE utf8_unicode_ci AFTER `is_quote_restricted_control`,
+  `signature_info_field` text COLLATE utf8_unicode_ci DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `title` (`title`),
   KEY `status` (`status`),
