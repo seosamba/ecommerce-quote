@@ -114,7 +114,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $translator = Zend_Registry::get('Zend_Translate');
         $type          = filter_var($this->_request->getParam('type'), FILTER_SANITIZE_STRING);
         $duplicateQuoteId  = filter_var($this->_request->getParam('duplicateQuoteId'), FILTER_SANITIZE_STRING);
-        $quoteTitle  = filter_var($this->_request->getParam('quoteTitle'), FILTER_SANITIZE_STRING);
+        $quoteTitle = str_replace('/', '', filter_var($this->_request->getParam('quoteTitle'), FILTER_SANITIZE_STRING));
         $cart          = null;
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
@@ -604,6 +604,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $response = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
         $translator = Zend_Registry::get('Zend_Translate');
         $quoteData = Zend_Json::decode($this->_request->getRawBody());
+        $quoteData['title'] = str_replace('/', '', $quoteData['title']);
         $eventType = !empty($quoteData['eventType']) ? $quoteData['eventType'] : '';
         $additionalEmailValidate = !empty($quoteData['additionalEmailValidate']) ? $quoteData['additionalEmailValidate'] : '';
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
