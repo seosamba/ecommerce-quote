@@ -587,6 +587,8 @@ class Quote extends Tools_PaymentGateway
                     $response = Zend_Controller_Front::getInstance()->getResponse();
                     $fileToDownload = $fileName.'.'. pathinfo($pdfFileName,
                             PATHINFO_EXTENSION);
+                    $fileToDownload = str_replace('/', '', $fileToDownload);
+                    
                     $response->setHeader('Content-Disposition',
                         "attachment; filename=\"$fileToDownload\"")
                         ->setHeader('Content-type', 'application/force-download');
