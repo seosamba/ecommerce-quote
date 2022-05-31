@@ -124,3 +124,5 @@ Quote action emails lexems:
 {$quote:signature:signature-info-field} - display additional info field signature
 
 {$quote:singatureadditionalinfo} - displays field with signature additional info
+
+{postpurchasequotecode} ... {/postpurchasequotecode} - displays content if purchase was made via the quote system
