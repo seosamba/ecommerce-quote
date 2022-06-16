@@ -1713,6 +1713,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $partialPaymentType = Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE;
             }
 
+            $partialPaidDateformat = 'Y-m-d';
+            $customPartialPaidDateformatData = preg_grep('/^partial-paid-date-format-/', $this->_options);
+            if (!empty($customPartialPaidDateformatData)) {
+                $partialPaidDateformat = str_replace('partial-paid-date-format-', '', $customPartialPaidDateformatData[0]);
+            }
+
             $leftAmountToPaid = 0;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
@@ -1737,7 +1743,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $isAdmin = true;
             }
 
-            $this->_view->partialPaidDate = date('Y-m-d', strtotime($this->_cart->getPartialPurchasedOn()));
+            $this->_view->partialPaidDate = date($partialPaidDateformat, strtotime($this->_cart->getPartialPurchasedOn()));
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
             $this->_view->partialPercentage = $partialPercentage;
