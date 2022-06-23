@@ -96,8 +96,7 @@ class Quote_Models_Mapper_QuoteCustomFieldsConfigMapper extends Application_Mode
                 )
             )
             ->joinLeft(array('qcpod' => 'quote_custom_params_options_data'),
-                'qcpod.custom_param_id = qcfc.id', array())
-            ->group('qcfc.id');
+                'qcpod.custom_param_id = qcfc.id', array())->group('qcfc.id');
         if (!empty($order)) {
             $select->order($order);
         }

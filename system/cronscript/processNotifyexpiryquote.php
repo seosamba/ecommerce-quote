@@ -311,46 +311,36 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-if (!empty($shoppingConfig) && !empty($shoppingConfig['enabledPartialPayment'])) {
-    if (!empty($shoppingConfig['partialNotifyAfterQuantity']) && (int) $shoppingConfig['partialNotifyAfterQuantity'] > 0 && !empty($shoppingConfig['partialNotifyAfterType'])) {
-        $quantityOfItemsOfDelay = (int) $shoppingConfig['partialNotifyAfterQuantity'];
-        $timeNow = date('Y-m-d', strtotime(date('Y-m-d', strtotime('now')) .'+'.$quantityOfItemsOfDelay.' '.$shoppingConfig['partialNotifyAfterType']));
-        $lagType = strtoupper($shoppingConfig['partialNotifyAfterType']);
 
-        $storePartialNotifyDbtable      = new Store_DbTable_PartialNotificationLog();
-        $where = '';
-        $where .= " DATE_SUB(NOW(), INTERVAL $quantityOfItemsOfDelay $lagType) > `purchased_on`";
-        $where .= ' AND '. $storePartialNotifyDbtable->getAdapter()->quoteInto('status = ?', Models_Model_CartSession::CART_STATUS_PARTIAL);
-        $where .= ' AND '. new Zend_Db_Expr('psnpl.cart_id IS NULL');
-        $select = $storePartialNotifyDbtable->select()
-            ->setIntegrityCheck(false)
-            ->from(array('scs' => 'shopping_cart_session'), array('scs.id'))
-            ->joinLeft(array('psnpl' => 'plugin_shopping_notification_partial_log'), 'scs.id=psnpl.cart_id', array())
-            ->where($where);
+if (!empty($shoppingConfig) && !empty($shoppingConfig['notifyExpiryQuoteType']) && !empty($shoppingConfig['notifyExpiryUnitQuote'])) {
+    $timeNow = date('Y-m-d H:i:s', strtotime('now'));
+    $timeNowForMach = date('Y-m-d H', strtotime($timeNow));
+    $notifyExpiryQuoteType = $shoppingConfig['notifyExpiryQuoteType'];
 
-        $resultCarts = $storePartialNotifyDbtable->getAdapter()->fetchAssoc($select);
-        if (!empty($resultCarts)) {
-            $partialNotificationMapper = Store_Mapper_PartialNotificationLogMapper::getInstance();
-            $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
-            foreach ($resultCarts as $cart) {
-                $cartId = $cart['id'];
-                $partialNotificationLogModel = $partialNotificationMapper->findByCartId($cartId);
-                if (!$partialNotificationLogModel instanceof Store_Model_PartialNotificationLog) {
-                    $cartSession = $cartSessionMapper->find($cartId);
-                    $cartSession->registerObserver(new Tools_Mail_Watchdog(array(
-                        'trigger' => Tools_StoreMailWatchdog::TRIGGER_STORE_PARTIALPAYMENT_NOTIFICATION,
-                        //'excludeNotify' => '1'
-                    )));
+    if ($notifyExpiryQuoteType !== 'hour') {
+        $expiredAt = date('Y-m-d', strtotime('now' . '+' . $shoppingConfig['notifyExpiryUnitQuote'] . $notifyExpiryQuoteType));
+    } else {
+        $expiredAt = date('Y-m-d H', strtotime($timeNow . '+' . $shoppingConfig['notifyExpiryUnitQuote'] . $notifyExpiryQuoteType));
+    }
 
-                    $cartSession->notifyObservers();
+    $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
 
-                    $partialNotificationLogModel = new Store_Model_PartialNotificationLog();
-                    $partialNotificationLogModel->setCartId($cartId);
-                    $partialNotificationLogModel->setNotifiedAt(date(Tools_System_Tools::DATE_MYSQL));
-                    $partialNotificationMapper->save($partialNotificationLogModel);
-                }
+    $quotes = $quoteMapper->fetchQuotesToNotify($expiredAt);
+
+    if(!empty($quotes)) {
+       foreach ($quotes as $quote) {
+            $quoteModel = $quoteMapper->find($quote['quoteId']);
+            if ($quoteModel instanceof Quote_Models_Model_Quote) {
+                $quoteModel->registerObserver(new Tools_Mail_Watchdog(array(
+                    'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_NOTIFYEXPIRYQUOTE,
+                    'params' => $quote,
+                )));
+
+                $quoteModel->setExpirationNotificationIsSend(1);
+
+                $quoteMapper->save($quoteModel);
             }
-        }
+       }
     }
 }
 

@@ -1,14 +1,18 @@
-<div id="manage-product-options" class="seotoaster container refreshOnClose">
+<div id="manage-product-options" class="seotoaster f-container refreshOnClose">
     <?php echo $this->partial(
         'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
         array(
             'headerText' => $this->translate('Manage options')
         )
     ); ?>
-    <div id="manage-product-options-main" class="grid_12 content-footer scroll"></div>
-    <footer class="grid_12">
-        <a id="save-options" class="fl-right" data-qid="<?php echo $this->quoteId; ?>" href="javascript:;"><?php echo $this->translate('Save options'); ?></a>
-    </footer>
+    <div class="f-content">
+        <div id="manage-product-options-main" class="grid_12"></div>
+    </div>
+    <div class="f-footer">
+        <div class="grid_12">
+            <a id="save-options" class="fl-right" data-qid="<?php echo $this->quoteId; ?>" href="javascript:;"><?php echo $this->translate('Save options'); ?></a>
+        </div>
+    </div>
     <input type="hidden" id="weight-sign" value="<?php echo $this->weightSign; ?>" />
     <input type="hidden" id="sid" value="<?php echo $this->sid; ?>" />
 </div>

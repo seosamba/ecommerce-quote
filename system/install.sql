@@ -12,6 +12,7 @@ CREATE TABLE `shopping_quote` (
   `editor_id` int(10) DEFAULT NULL,
   `creator_id` int(10) unsigned DEFAULT '0',
   `expires_at` timestamp NULL DEFAULT NULL,
+  `expiration_notification_is_send` ENUM('0','1') DEFAULT '0',
   `user_id` int(10) unsigned DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -21,6 +22,8 @@ CREATE TABLE `shopping_quote` (
   `signature` LONGTEXT COLLATE utf8_unicode_ci DEFAULT '',
   `is_quote_signed` ENUM('0','1') DEFAULT '0',
   `quote_signed_at` TIMESTAMP NULL,
+  `is_quote_restricted_control` ENUM('0','1') DEFAULT '0',
+  `signature_info_field` text COLLATE utf8_unicode_ci DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `title` (`title`),
   KEY `status` (`status`),
@@ -82,5 +85,7 @@ INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES
 ('allowAutosave', 1),
 ('disableAutosaveEmail', 0);
 
+INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_notifyexpiryquote', 'Quote_Tools_QuoteMailWatchdog');
+
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.4' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.6' WHERE `name` = 'quote';

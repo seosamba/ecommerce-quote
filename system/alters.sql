@@ -90,6 +90,20 @@ UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission
 ALTER TABLE `shopping_quote` DROP FOREIGN KEY `shopping_quote_ibfk_3`;
 ALTER TABLE `shopping_quote` ADD CONSTRAINT `shopping_quote_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
 
+-- 10/12/2021
+-- version: 2.3.4
+ALTER TABLE `shopping_quote` ADD COLUMN `is_quote_restricted_control` ENUM('0','1') DEFAULT '0';
+
+-- 17/02/2022
+-- version: 2.3.5
+INSERT IGNORE INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES
+('1', 'quote_notifyexpiryquote', 'Quote_Tools_QuoteMailWatchdog');
+
+ALTER TABLE `shopping_quote` ADD COLUMN `expiration_notification_is_send` ENUM('0','1') DEFAULT '0' AFTER `expires_at`;
+
+-- version: 2.3.6
+ALTER TABLE `shopping_quote` ADD COLUMN `signature_info_field` text COLLATE utf8_unicode_ci AFTER `is_quote_restricted_control`;
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.4' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.7' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

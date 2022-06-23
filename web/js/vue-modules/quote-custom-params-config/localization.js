@@ -32,7 +32,10 @@ const messages = {
             specifySelectionEl: 'Please add at least one selection',
             specifyOptionName: 'Please specify option name',
             updateError: 'Can\'t update dropdown field',
-            actionConfirmationDeleteSelect: 'This selection can used in quote, Would you like to delete?'
+            actionConfirmationDeleteSelect: 'This selection can used in quote, Would you like to delete?',
+            quoteCustomParamsFormAdd: 'Add custom field',
+            quoteCustomParamsFormSave: 'Save custom field',
+            quoteCustomParamsFormUpdate: 'Update custom field',
 
         }
     },
@@ -69,7 +72,10 @@ const messages = {
             specifySelectionEl: 'Please add at least one selection',
             specifyOptionName: 'Please specify option name',
             updateError: 'Can\'t update dropdown field',
-            actionConfirmationDeleteSelect: 'This selection can used in quote, Would you like to delete?'
+            actionConfirmationDeleteSelect: 'This selection can used in quote, Would you like to delete?',
+            quoteCustomParamsFormAdd: 'Add custom field',
+            quoteCustomParamsFormSave: 'Save custom field',
+            quoteCustomParamsFormUpdate: 'Update custom field',
 
         }
     },
@@ -106,7 +112,10 @@ const messages = {
             specifySelectionEl: 'Please add at least one selection',
             specifyOptionName: 'Please specify option name',
             updateError: 'Can\'t update dropdown field',
-            actionConfirmationDeleteSelect: 'This selection can used in quote, Would you like to delete?'
+            actionConfirmationDeleteSelect: 'This selection can used in quote, Would you like to delete?',
+            quoteCustomParamsFormAdd: 'Add custom field',
+            quoteCustomParamsFormSave: 'Save custom field',
+            quoteCustomParamsFormUpdate: 'Update custom field',
 
         }
     }

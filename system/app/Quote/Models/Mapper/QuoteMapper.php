@@ -22,27 +22,30 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 		}
 
 		$data = array(
-			'id'                => $quote->getId(),
-			'title'             => $quote->getTitle(),
-			'status'            => $quote->getStatus(),
-            'disclaimer'        => $quote->getDisclaimer(),
-            'internal_note'     => $quote->getInternalNote(),
-			'cart_id'           => $quote->getCartId(),
-			'edited_by'         => $quote->getEditedBy(),
-            'editor_id'        => $quote->getEditorId(),
-            'creator_id'        => $quote->getCreatorId(),
-			'expires_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getExpiresAt())),
-			'user_id'           => $quote->getUserId(),
-			'created_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),
-			'updated_at'        => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getUpdatedAt())),
-            'discount_tax_rate' => $quote->getDiscountTaxRate(),
-            'delivery_type'     => $quote->getDeliveryType(),
-            'payment_type'     => $quote->getPaymentType(),
-            'is_signature_required'     => $quote->getIsSignatureRequired(),
-            'pdf_template'     => $quote->getPdfTemplate(),
-            'signature'     => $quote->getSignature(),
-            'is_quote_signed'     => $quote->getIsQuoteSigned(),
-            'quote_signed_at'     => $quote->getQuoteSignedAt(),
+			'id'                              => $quote->getId(),
+			'title'                           => $quote->getTitle(),
+			'status'                          => $quote->getStatus(),
+            'disclaimer'                      => $quote->getDisclaimer(),
+            'internal_note'                   => $quote->getInternalNote(),
+			'cart_id'                         => $quote->getCartId(),
+			'edited_by'                       => $quote->getEditedBy(),
+            'editor_id'                       => $quote->getEditorId(),
+            'creator_id'                      => $quote->getCreatorId(),
+			'expires_at'                      => date('Y-m-d', strtotime($quote->getExpiresAt())),
+			'expiration_notification_is_send' => $quote->getExpirationNotificationIsSend(),
+			'user_id'                         => $quote->getUserId(),
+			'created_at'                      => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getCreatedAt())),
+			'updated_at'                      => date(Tools_System_Tools::DATE_MYSQL, strtotime($quote->getUpdatedAt())),
+            'discount_tax_rate'               => $quote->getDiscountTaxRate(),
+            'delivery_type'                   => $quote->getDeliveryType(),
+            'payment_type'                    => $quote->getPaymentType(),
+            'is_signature_required'           => $quote->getIsSignatureRequired(),
+            'pdf_template'                    => $quote->getPdfTemplate(),
+            'signature'                       => $quote->getSignature(),
+            'is_quote_signed'                 => $quote->getIsQuoteSigned(),
+            'quote_signed_at'                 => $quote->getQuoteSignedAt(),
+            'is_quote_restricted_control'     => $quote->getIsQuoteRestrictedControl(),
+            'signature_info_field'            => $quote->getSignatureInfoField(),
 		);
 
 		$exists = $this->find($quote->getId());
@@ -264,5 +267,61 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             return $this->getDbTable()->getAdapter()->fetchAssoc($select);
         }
     }
+
+    /**
+     * @param $expiredAt
+     * @return mixed
+     * @throws Exception
+     */
+    public function fetchQuotesToNotify($expiredAt) {
+        $where = $this->getDbTable()->getAdapter()->quoteInto('expiration_notification_is_send = ?', '0');
+        $where .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('scs.status IN (?)', array(
+            Models_Model_CartSession::CART_STATUS_NEW,
+            Models_Model_CartSession::CART_STATUS_PROCESSING,
+            Models_Model_CartSession::CART_STATUS_PENDING
+        ));
+
+        if(!empty($expiredAt)) {
+            $where .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('sq.expires_at <= ?', $expiredAt);
+        }
+
+        $select = $this->getDbTable()->getAdapter()->select()->from(array('sq'=>'shopping_quote'), array(
+            'quoteId' => 'sq.id',
+            'sq.expires_at',
+            'userEmail' => 'u.email',
+            'userFullName' => 'u.full_name',
+            'userMobileCountryCode' => 'u.mobile_country_code_value',
+            'userMobilePhone' => 'u.mobile_phone',
+            'userDesctopCountryCode' => 'u.desktop_country_code_value',
+            'userDesctopPhone' => 'u.desktop_phone',
+            'shippingAddressId' => 'scs.shipping_address_id',
+            'billingAddressId' => 'scs.billing_address_id',
+            'cartId' => 'scs.id',
+        ))->joinLeft(array('scs'=>'shopping_cart_session'), 'sq.cart_id=scs.id', '')
+            ->joinLeft(array('u'=>'user'), 'sq.user_id=u.id', '')
+            ->joinLeft(array('s_adr' => 'shopping_customer_address'), 's_adr.id = scs.shipping_address_id', array(
+                'shipping_email' => 'email',
+                'shipping_phone_country_code_value' => 'phone_country_code_value',
+                'shipping_phone' => 'phone',
+                'shipping_mobile_country_code_value' => 'mobile_country_code_value',
+                'shipping_mobile' => 'mobile',
+                'shipping_firstname' => 'firstname',
+                'shipping_lastname' => 'lastname'
+            ))
+            ->joinLeft(array('b_adr' => 'shopping_customer_address'), 'b_adr.id = scs.billing_address_id', array(
+                'billing_email' => 'email',
+                'billing_phone_country_code_value' => 'phone_country_code_value',
+                'billing_phone' => 'phone',
+                'billing_mobile_country_code_value' => 'mobile_country_code_value',
+                'billing_mobile' => 'mobile',
+                'billing_firstname' => 'firstname',
+                'billing_lastname' => 'lastname'
+            ))
+            ->where($where);
+
+        return $this->getDbTable()->getAdapter()->fetchAll($select);
+
+    }
+
 
 }

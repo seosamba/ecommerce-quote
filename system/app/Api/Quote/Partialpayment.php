@@ -50,6 +50,14 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
             $this->_error($translator->translate('Wrong quote payment type'));
         }
 
+        $isSignatureRequired = $quote->getIsSignatureRequired();
+        if (!empty($isSignatureRequired)) {
+            $quoteIsSigned = $quote->getIsQuoteSigned();
+            if (empty($quoteIsSigned)) {
+                $this->_error($translator->translate('Please sign quote first'));
+            }
+        }
+
         $partialPaidAmount = $cart->getPartialPaidAmount();
         $cart->setIsPartial('1');
         $partialPaymentType = $cart->getPartialType();
@@ -62,6 +70,9 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
                 $amountToPayPartial = round($cart->getTotal() - round(($cart->getTotal() * $cart->getPartialPercentage()) / 100,
                         2), 2);
             }
+
+            $cart->setSecondPartialPaidAmount($amountToPayPartial);
+
             $updatePaymentStatus = Models_Model_CartSession::CART_STATUS_COMPLETED;
         } else {
             if ($partialPaymentType === Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_AMOUNT) {
@@ -70,6 +81,7 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
                 $amountToPayPartial = round(($cart->getTotal() * $cart->getPartialPercentage()) / 100, 2);
             }
 
+            $cart->setFirstPartialPaidAmount($amountToPayPartial);
 
             $cart->setPartialPaidAmount($amountToPayPartial);
             $updatePaymentStatus = Models_Model_CartSession::CART_STATUS_PARTIAL;
@@ -89,6 +101,10 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
         $message = $currency->toCurrency($amountToPayPartial);
 
         $paymentStatus = $updatePaymentStatus;
+
+        $cart->setIsFirstPaymentManuallyPaid('1');
+        $cart->setFirstPaymentGateway(Models_Model_CartSession::MANUALLY_PAYED_GATEWAY_QUOTE);
+
         $cart->setPurchasedOn(date(Tools_System_Tools::DATE_MYSQL));
         $cart->setPartialPurchasedOn(date(Tools_System_Tools::DATE_MYSQL));
         $cart->setStatus($paymentStatus);

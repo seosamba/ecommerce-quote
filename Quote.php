@@ -279,6 +279,45 @@ class Quote extends Tools_PaymentGateway
         $this->_show();
     }
 
+    public function saveSignatureInfoFieldAction()
+    {
+        $roleId = $this->_sessionHelper->getCurrentUser()->getRoleId();
+        $signatureInfoField = filter_var($this->_request->getParam('signatureInfoField'), FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
+        $accessList = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+
+        if (empty($quoteId)) {
+            $this->_responseHelper->fail($this->_translator->translate('Quote id is missing'));
+        }
+
+        $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
+        $quoteModel = $quoteMapper->find($quoteId);
+        if (!$quoteModel instanceof Quote_Models_Model_Quote) {
+            $this->_responseHelper->fail($this->_translator->translate('Quote model not found'));
+        }
+
+        if (in_array($roleId, $accessList)) {
+            if ($quoteModel->getSignatureInfoField() != $signatureInfoField) {
+                $quoteModel->setSignatureInfoField($signatureInfoField);
+                $quoteMapper->save($quoteModel);
+            }
+        } else {
+            $quoteSigned = $quoteModel->getIsQuoteSigned();
+            if (empty($quoteSigned)) {
+                if ($quoteModel->getSignatureInfoField() != $signatureInfoField) {
+                    $quoteModel->setSignatureInfoField($signatureInfoField);
+                    $quoteMapper->save($quoteModel);
+                }
+            }
+        }
+
+        $this->_responseHelper->success($this->_translator->translate('Saved'));
+    }
+
     /**
      * Show manage product options screen
      *
@@ -546,9 +585,12 @@ class Quote extends Tools_PaymentGateway
 
                 if (file_exists($filePath)) {
                     $response = Zend_Controller_Front::getInstance()->getResponse();
+                    $fileToDownload = $fileName.'.'. pathinfo($pdfFileName,
+                            PATHINFO_EXTENSION);
+                    $fileToDownload = str_replace('/', '', $fileToDownload);
+                    
                     $response->setHeader('Content-Disposition',
-                        'attachment; filename=' . $fileName . '.' . pathinfo($pdfFileName,
-                            PATHINFO_EXTENSION))
+                        "attachment; filename=\"$fileToDownload\"")
                         ->setHeader('Content-type', 'application/force-download');
                     readfile($filePath);
                     $response->sendResponse();
@@ -685,35 +727,75 @@ class Quote extends Tools_PaymentGateway
 
                                     $quoteData = array();
                                     if(!empty($customerAddress)) {
-                                        $customerAddress['prefix'] = $leadModel->getPrefix();
-                                        $customerAddress['firstname'] = $leadModel->getLeadFirstName();
-                                        $customerAddress['lastname'] = $leadModel->getLeadLastName();
-                                        $customerAddress['company'] = $company;
-                                        $customerAddress['address1'] = $leadModel->getLeadAddress();
-                                        $customerAddress['address2'] = $leadModel->getLeadAddress1();
+                                        $prefix                 = $leadModel->getPrefix();
+                                        $firstname              = $leadModel->getLeadFirstName();
+                                        $lastname               = $leadModel->getLeadLastName();
+                                        $address1               = $leadModel->getLeadAddress();
+                                        $address2               = $leadModel->getLeadAddress1();
+                                        $country                = $leadModel->getLeadCountryCode();
+                                        $city                   = $leadModel->getLeadCity();
+                                        $stateCode              = $leadModel->getLeadStateCode();
+                                        $zip                    = $leadModel->getLeadZip();
+                                        $mobile                 = $leadModel->getLeadMobile();
+                                        $mobilecountrycode      = $leadModel->getLeadMobileCountryCode();
+                                        $mobileCountryCodeValue = $leadModel->getLeadMobileCountryCodeValue();
+                                        $phone                  = $leadModel->getLeadPhone();
+                                        $phonecountrycode       = $leadModel->getLeadPhoneCountryCode();
+                                        $phoneCountryCodeValue  = $leadModel->getLeadPhoneCountryCodeValue();
+                                        $customerNotes          = $leadModel->getLeadNotes();
+                                        $position               = $leadModel->getLeadPosition();
 
-                                        $country = $leadModel->getLeadCountryCode();
+                                        if($leadModel->getUseOrganizationAddress()) {
+                                            $organizationId = $leadModel->getOrganizationId();
 
-                                        $customerAddress['country'] = $country;
-                                        $customerAddress['city'] = $leadModel->getLeadCity();
+                                            if(!empty($organizationId)) {
+                                                $leadOrganizationMapper = Leads_Mapper_LeadsOrganizationMapper::getInstance();
+                                                $organizationModel = $leadOrganizationMapper->find($organizationId);
 
-                                        $leadStateCode = $leadModel->getLeadStateCode();
-                                        if(!empty($leadStateCode) && !empty($country)) {
-                                            $stateCodes = Tools_LeadTools::getStates($country, true, true, 'id');
-                                            if (array_key_exists($leadStateCode, $stateCodes)) {
-                                                $customerAddress['state'] = $stateCodes[$leadStateCode];
+                                                if($organizationModel instanceof Leads_Model_LeadsOrganizationModel) {
+                                                    $address1               = $organizationModel->getOrganizationAddress();
+                                                    $address2               = $organizationModel->getOrganizationAddress1();
+                                                    $country                = $organizationModel->getOrganizationCountryCode();
+                                                    $city                   = $organizationModel->getOrganizationCity();
+                                                    $stateCode              = $organizationModel->getOrganizationStateCode();
+                                                    $zip                    = $organizationModel->getOrganizationZip();
+                                                    $mobile                 = $organizationModel->getOrganizationMobile();
+                                                    $mobilecountrycode      = $organizationModel->getOrganizationMobileCountryCode();
+                                                    $mobileCountryCodeValue = $organizationModel->getOrganizationMobileCountryCodeValue();
+                                                    $phone                  = $organizationModel->getOrganizationPhone();
+                                                    $phonecountrycode       = $organizationModel->getOrganizationPhoneCountryCode();
+                                                    $phoneCountryCodeValue  = $organizationModel->getOrganizationPhoneCountryCodeValue();
+                                                    $customerNotes          = $organizationModel->getOrganizationNotes();
+                                                }
                                             }
                                         }
 
-                                        $customerAddress['zip'] = $leadModel->getLeadZip();
-                                        $customerAddress['mobile'] = $leadModel->getLeadMobile();
-                                        $customerAddress['mobilecountrycode'] = $leadModel->getLeadMobileCountryCode();
-                                        $customerAddress['mobile_country_code_value'] = $leadModel->getLeadMobileCountryCodeValue();
-                                        $customerAddress['phone'] = $leadModel->getLeadPhone();
-                                        $customerAddress['phonecountrycode'] = $leadModel->getLeadPhoneCountryCode();
-                                        $customerAddress['phone_country_code_value'] = $leadModel->getLeadPhoneCountryCodeValue();
-                                        $customerAddress['customer_notes'] = $leadModel->getLeadNotes();
-                                        $customerAddress['position'] = $leadModel->getLeadPosition();
+                                        $customerAddress['prefix'] = $prefix;
+                                        $customerAddress['firstname'] = $firstname;
+                                        $customerAddress['lastname'] = $lastname;
+                                        $customerAddress['company'] = $company;
+                                        $customerAddress['address1'] = $address1;
+                                        $customerAddress['address2'] = $address2;
+                                        $customerAddress['country'] = $country;
+                                        $customerAddress['city'] = $city;
+
+
+                                        if(!empty($stateCode) && !empty($country)) {
+                                            $stateCodes = Tools_LeadTools::getStates($country, true, true, 'id');
+                                            if (array_key_exists($stateCode, $stateCodes)) {
+                                                $customerAddress['state'] = $stateCodes[$stateCode];
+                                            }
+                                        }
+
+                                        $customerAddress['zip'] = $zip;
+                                        $customerAddress['mobile'] = $mobile;
+                                        $customerAddress['mobilecountrycode'] = $mobilecountrycode;
+                                        $customerAddress['mobile_country_code_value'] = $mobileCountryCodeValue;
+                                        $customerAddress['phone'] = $phone;
+                                        $customerAddress['phonecountrycode'] = $phonecountrycode;
+                                        $customerAddress['phone_country_code_value'] = $phoneCountryCodeValue;
+                                        $customerAddress['customer_notes'] = $customerNotes;
+                                        $customerAddress['position'] = $position;
 
                                         $quoteData[$addressType] = $customerAddress;
 

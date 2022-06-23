@@ -81,6 +81,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     const TOTAL_TYPE_WOTAX  = 'totalwotax';
 
+    const SIGNATURE_INFO_FIELD = 'signature-info-field';
+
     /**
      * Flag that tells toaster cache the widget or not. Should be set to true for production
      *
@@ -190,6 +192,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->setHelperPath(APPLICATION_PATH . '/views/helpers/');
         $this->_view->addHelperPath('ZendX/JQuery/View/Helper/', 'ZendX_JQuery_View_Helper');
 
+        $this->_view->addScriptPath(__DIR__ . '/../../../../../cart/system/views/');
+
         //website helper
         $this->_websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
 
@@ -255,7 +259,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $cartSessionMapper = Models_Mapper_CartSessionMapper::getInstance();
             $cartSessionModel = $cartSessionMapper->find($cartId);
 
-            if ($this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
+            if ($this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED) {
                 if ($cartSessionModel instanceof Models_Model_CartSession) {
                     if (!in_array($cartSessionModel->getStatus(), $this->_statusesNotLostQuotes)) {
                         $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
@@ -509,6 +513,46 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
     }
 
     /**
+     * Render created or expires quote dates
+     *
+     * {$quote:timestamp[:_created_|:expires]}
+     * @return mixed
+     * @throws Exceptions_SeotoasterWidgetException
+     */
+    protected function _renderTimestamp() {
+        if (!$this->_quote instanceof Quote_Models_Model_Quote) {
+            throw new Exceptions_SeotoasterWidgetException('Quote widget error: Quote not found.');
+        }
+        $dateType          = isset($this->_options[0]) ? $this->_options[0] : self::DATE_TYPE_CREATED;
+        $date = ($dateType == self::DATE_TYPE_CREATED) ? $this->_quote->getCreatedAt() : $this->_quote->getExpiresAt();
+
+        $format = 'm-d-Y h:i';
+
+        if (!empty($this->_options[1])) {
+            $format = $this->_options[1];
+            if (!empty($this->_options[2])) {
+                $format .=':'. $this->_options[2];
+            }
+        }
+
+        $serverTimezone = date_default_timezone_get();
+        if (empty($serverTimezone)) {
+            $serverTimezone = 'UTC';
+        }
+
+        $shoppingConfigMapper =  Models_Mapper_ShoppingConfig::getInstance();
+        $storeTimezone = $shoppingConfigMapper->getConfigParam('timezone');
+
+        $date = Tools_System_Tools::convertDateFromTimezone($date, $serverTimezone, 'UTC');
+
+        $date = date(Tools_System_Tools::DATE_MYSQL, strtotime($date .'+'.Tools_EmailSequenceTools::getTimezoneShift('UTC', $storeTimezone).'hours'));
+
+        $date = date($format, strtotime($date));
+
+        return $date;
+    }
+
+    /**
      * Render creator name
      *
      * {$quote:creator}
@@ -579,6 +623,24 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if(!empty($quoteDraggableProducts)) {
             $useDraggable = true;
         }
+
+        $restrictedControlAccess = false;
+        $isRestrictedControlAccess = $this->_quote->getIsQuoteRestrictedControl();
+        if (!empty($isRestrictedControlAccess)) {
+            $restrictedControlAccess = true;
+        }
+
+        $blockAddProduct = false;
+        if ($this->_cart instanceof Models_Model_CartSession) {
+            $cartStatus = $this->_cart->getStatus();
+            if (in_array($cartStatus, $this->_denyQuoteCartStatuses)) {
+                $blockAddProduct = true;
+            }
+        }
+
+        $this->_view->blockAddProduct = $blockAddProduct;
+
+        $this->_view->restrictedControlAccess = $restrictedControlAccess;
 
         $this->_view->quoteDraggableProducts  = $useDraggable;
 
@@ -744,21 +806,84 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
             if (array_key_exists($this->_options[1], $address)) {
+
+                $shippingType = $this->_cart->getShippingService();
+
                 if ($this->_options[1] === 'phone') {
-                    return $address['phone_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['phone'];
+                    } else {
+                        return $address['phone_country_code_value'] . ' ' . Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]],
+                                Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $address['phonecountrycode']);
+                    }
                 }
-                if ($this->_options[1] === 'mobile') {
-                    return $address['mobile_country_code_value'].' '.Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]], Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $address['mobilecountrycode']);
+
+                if ($this->_options[1] === 'company') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['company'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
                 }
+
+                if ($this->_options[1] === 'zip') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['zip'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'address1') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['address1'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'city') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['city'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'address2') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['address2'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
+                if ($this->_options[1] === 'country') {
+                    if ($shippingType === 'pickup') {
+                        return $this->_shoppingConfig['country'];
+                    } else {
+                        return $address[$this->_options[1]];
+                    }
+                }
+
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
-                    $stateData = Tools_Geo::getStateById($address['state']);
-                    if (!empty($stateData['state'])) {
-                        return $stateData['state'];
+                    if ($shippingType === 'pickup') {
+                        $state = Tools_Geo::getStateById($this->shoppingConfig['state']);
+                        return $state;
+                    } else {
+                        $stateData = Tools_Geo::getStateById($address['state']);
+                        if (!empty($stateData['state'])) {
+                            return $stateData['state'];
+                        }
                     }
                 }
 
                 if ($this->_options[1] === 'prefix') {
-                    return $this->_translator->translate($address[$this->_options[1]]);
+                    if ($shippingType === 'pickup') {
+                        return '';
+                    } else {
+                        return $this->_translator->translate($address[$this->_options[1]]);
+                    }
                 }
 
                 return $address[$this->_options[1]];
@@ -1144,6 +1269,19 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      * @return Quote_Forms_Quote
      */
     protected function _renderForm() {
+
+        if (Tools_Misc::isStoreClosed() === true) {
+            $storeIsClosedMessage = Tools_Misc::getStoreIsClosedMessage();
+            $this->_view->storeClosedMessage = $storeIsClosedMessage;
+            return $this->_view->render('store-is-closed.phtml');
+        }
+
+        if (Tools_Misc::isStoreDisabled() === true) {
+            $storeIsClosedMessage = Tools_Misc::getStoreIsDisabledMessage();
+            $this->_view->storeClosedMessage = $storeIsClosedMessage;
+            return $this->_view->render('store-is-closed.phtml');
+        }
+
         //init quote form and remove elements we don't need
         $quoteForm   = new Quote_Forms_Quote();
         $quoteForm->removeElement('sameForShipping');
@@ -1475,6 +1613,21 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return '';
     }
 
+    /**
+     * Renderer for a quote signature additional info {$quote:singatureadditionalinfo}
+     *
+     * @return string
+     */
+    protected function _renderSingatureadditionalinfo()
+    {
+        $this->_view->signatureInfoField = $this->_quote->getSignatureInfoField();
+        $this->_view->id      = $this->_quote->getId();
+        $this->_view->isSignatureSigned = $this->_quote->getIsQuoteSigned();
+        $this->_view->accessAllowed = $this->_editAllowed;
+
+        return $this->_view->render('signature-additional-info.quote.phtml');
+    }
+
     protected function _renderSignature()
     {
         if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST) {
@@ -1487,6 +1640,25 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $this->_view->isQuoteSigned = $isQuoteSigned;
             $this->_view->signature = $signature;
             $this->_view->quoteId = $quoteId;
+
+            $withSignatureInfoField = false;
+            $signatureInfoLabel = '';
+
+            if (in_array(self::SIGNATURE_INFO_FIELD, $this->_options)) {
+                $signatureInfoPosition = array_search(self::SIGNATURE_INFO_FIELD, $this->_options);
+                $signatureInfoPosition += 1;
+                if (!empty($this->_options[$signatureInfoPosition])) {
+                    $signatureInfoLabel = $this->_options[$signatureInfoPosition];
+                }
+                $withSignatureInfoField = true;
+
+            }
+
+            $signatureInfoField = $this->_quote->getSignatureInfoField();
+            $this->_view->signatureInfoField = $signatureInfoField;
+            $this->_view->withSignatureInfoField = $withSignatureInfoField;
+            $this->_view->signatureInfoLabel = $signatureInfoLabel;
+            $this->_view->isSignatureSigned = $this->_quote->getIsQuoteSigned();
 
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
 
@@ -1542,6 +1714,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $partialPaymentType = Models_Model_CartSession::CART_PARTIAL_PAYMENT_TYPE_PERCENTAGE;
             }
 
+            $partialPaidDateformat = 'Y-m-d';
+            $customPartialPaidDateformatData = preg_grep('/^partial-paid-date-format-/', $this->_options);
+            if (!empty($customPartialPaidDateformatData)) {
+                $partialPaidDateformat = str_replace('partial-paid-date-format-', '', $customPartialPaidDateformatData[0]);
+            }
+
             $leftAmountToPaid = 0;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
@@ -1566,7 +1744,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $isAdmin = true;
             }
 
-            $this->_view->partialPaidDate = date('Y-m-d', strtotime($this->_cart->getPartialPurchasedOn()));
+            $this->_view->partialPaidDate = date($partialPaidDateformat, strtotime($this->_cart->getPartialPurchasedOn()));
             $isSignatureRequired = $this->_quote->getIsSignatureRequired();
             $this->_view->paymentType = $paymentType;
             $this->_view->partialPercentage = $partialPercentage;
@@ -1832,6 +2010,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             if(!empty($customfieldsOptions)) {
                 $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
                 $quoteCustomParamsDataMapper = Quote_Models_Mapper_QuoteCustomParamsDataMapper::getInstance();
+                $quoteCustomFieldsOptionsDataMapper = Quote_Models_Mapper_QuoteCustomFieldsOptionsDataMapper::getInstance();
 
                 $customFields = $quoteCustomFieldsConfigMapper->fetchAll(null, null, null, null, true);
 
@@ -1839,6 +2018,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 if(!empty($customFields)) {
                     foreach ($customFields as $key => $fields) {
+                        if($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_SELECT) {
+                            $dataSelections = $quoteCustomFieldsOptionsDataMapper->findByCustomParamId($fields['id'], true);
+
+                            if(!empty($dataSelections)) {
+                                $customFields[$key]['option_values'] = implode(',', $dataSelections);
+                                $customFields[$key]['option_ids'] = implode(',', array_keys($dataSelections));
+                            }
+                        }
+
                         $quoteCustomParamsDataModel = $quoteCustomParamsDataMapper->checkIfParamExists($cartId, $fields['id']);
 
                         $value = '';
