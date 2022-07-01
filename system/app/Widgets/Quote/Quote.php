@@ -809,7 +809,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $shippingType = $this->_cart->getShippingService();
 
                 if ($this->_options[1] === 'phone') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['phone'];
                     } else {
                         return $address['phone_country_code_value'] . ' ' . Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]],
@@ -818,7 +818,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'company') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['company'];
                     } else {
                         return $address[$this->_options[1]];
@@ -826,7 +826,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'zip') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['zip'];
                     } else {
                         return $address[$this->_options[1]];
@@ -834,7 +834,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'address1') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['address1'];
                     } else {
                         return $address[$this->_options[1]];
@@ -842,7 +842,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'city') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['city'];
                     } else {
                         return $address[$this->_options[1]];
@@ -850,7 +850,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'address2') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['address2'];
                     } else {
                         return $address[$this->_options[1]];
@@ -858,7 +858,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'country') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['country'];
                     } else {
                         return $address[$this->_options[1]];
@@ -866,7 +866,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         $state = Tools_Geo::getStateById($this->shoppingConfig['state']);
                         return $state;
                     } else {
@@ -878,7 +878,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'prefix') {
-                    if ($shippingType === 'pickup') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return '';
                     } else {
                         return $this->_translator->translate($address[$this->_options[1]]);
