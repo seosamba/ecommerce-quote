@@ -42,8 +42,8 @@
     ?>
     <div id="quote-grid">
         <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
-            <div class="grid_5 alpha flex-row border-box">
-                <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'mb5px', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
+            <div class="grid_5 alpha flex-row border-box search-block-element">
+                <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'mb5px search-input', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
                 <div class="grid_4 alpha t-grid_3 t-alpha">
                     <select name="quote-owner-name" id="quote-owner-name">
                         <option selected="selected" value=""><?php echo $this->translate('filter by owner');?></option>
