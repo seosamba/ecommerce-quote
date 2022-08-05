@@ -2058,4 +2058,27 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         return '';
     }
 
+    protected function _renderPurchaseinfo()
+    {
+        if ($this->_cart instanceof Models_Model_CartSession && $this->_quote instanceof Quote_Models_Model_Quote) {
+            if ($this->_cart->getGateway()) {
+                $status = $this->_cart->getStatus();
+                $cartStatuses = array(
+                    Models_Model_CartSession::CART_STATUS_COMPLETED,
+                    Models_Model_CartSession::CART_STATUS_REFUNDED,
+                    Models_Model_CartSession::CART_STATUS_DELIVERED,
+                    Models_Model_CartSession::CART_STATUS_SHIPPED,
+                    Models_Model_CartSession::CART_STATUS_CANCELED,
+                    Models_Model_CartSession::CART_STATUS_PARTIAL,
+                    Models_Model_CartSession::CART_STATUS_ERROR,
+                );
+
+                if (in_array($status, $cartStatuses)) {
+                    $this->_view->order = $this->_cart;
+                    return $this->_view->render('purchase-qute-info.phtml');
+                }
+            }
+        }
+    }
+
 }
