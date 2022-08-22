@@ -226,6 +226,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
+            $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch ($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
                 case self::RECIPIENT_MEMBER:
@@ -236,22 +237,30 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
                     break;
                 case self::RECIPIENT_SALESPERSON:
-                    // store owner
-                    $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-                    // all other sales persons
-                    $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                        self::RECIPIENT_SALESPERSON
-                    )));
-                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } else {
+                        // store owner
+                        $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                        // all other sales persons
+                        $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                            self::RECIPIENT_SALESPERSON
+                        )));
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    }
                     break;
                 case self::RECIPIENT_STOREOWNER:
                 case self::RECIPIENT_ADMIN:
-                    // all admins
-                    $emails = Quote_Tools_Tools::getEmailData(array(
-                        self::RECIPIENT_ADMIN
-                    ));
-                    if (!empty($emails)) {
-                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } else {
+                        // all admins
+                        $emails = Quote_Tools_Tools::getEmailData(array(
+                            self::RECIPIENT_ADMIN
+                        ));
+                        if (!empty($emails)) {
+                            $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                        }
                     }
                     break;
                 default:
@@ -286,6 +295,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
+            $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch ($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
                     $recipient = $this->_getCustomerRecipient();
@@ -328,21 +338,29 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     $this->_mailer->setMailTo($recipientEmails);
                     break;
                 case self::RECIPIENT_SALESPERSON:
-                    // store owner
-                    $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-                    // all other recipients
-                    $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                        self::RECIPIENT_SALESPERSON
-                    )));
-                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } else {
+                        // store owner
+                        $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                        // all other recipients
+                        $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                            self::RECIPIENT_SALESPERSON
+                        )));
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    }
                     break;
                 case self::RECIPIENT_STOREOWNER:
                 case self::RECIPIENT_ADMIN:
-                    // all admins
-                    $emails = Quote_Tools_Tools::getEmailData(array(
-                        self::RECIPIENT_ADMIN
-                    ));
-                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } else {
+                        // all admins
+                        $emails = Quote_Tools_Tools::getEmailData(array(
+                            self::RECIPIENT_ADMIN
+                        ));
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    }
                     break;
             }
             return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
@@ -362,6 +380,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
+            $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch ($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
                     $recipient = $this->_getCustomerRecipient();
@@ -406,21 +425,29 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     $this->_mailer->setMailTo($recipientEmails);
                     break;
                 case self::RECIPIENT_SALESPERSON:
-                    // store owner
-                    $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
-                    // all other recipients
-                    $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
-                        self::RECIPIENT_SALESPERSON
-                    )));
-                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } else {
+                        // store owner
+                        $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
+                        // all other recipients
+                        $emails = array_merge($emails, Quote_Tools_Tools::getEmailData(array(
+                            self::RECIPIENT_SALESPERSON
+                        )));
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    }
                     break;
                 case self::RECIPIENT_STOREOWNER:
                 case self::RECIPIENT_ADMIN:
-                    // all admins
-                    $emails = Quote_Tools_Tools::getEmailData(array(
-                        self::RECIPIENT_ADMIN
-                    ));
-                    $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } else {
+                        // all admins
+                        $emails = Quote_Tools_Tools::getEmailData(array(
+                            self::RECIPIENT_ADMIN
+                        ));
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($emails);
+                    }
                     break;
             }
 
@@ -841,7 +868,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             }
             $emails[][(isset($fullName) ? $fullName : $defaults['mailTo'])] = $address['email'];
         }
-        return $emails;
+        return array_unique($emails);
     }
 
     protected function _parseMailFrom($mailFrom)
@@ -1005,5 +1032,23 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         }
 
         return $smsPhoneNumber;
+    }
+
+    /**
+     * @return array
+     */
+    protected function _getCustomEmailNotificationList()
+    {
+        if (!empty($this->_storeConfig['quoteEmailsNotifications'])) {
+            $quoteEmailsNotifications = explode(',', $this->_storeConfig['quoteEmailsNotifications']);
+            if (empty($quoteEmailsNotifications)) {
+                return array();
+            }
+
+            $quoteEmailsNotifications = array_unique($quoteEmailsNotifications);
+            return $quoteEmailsNotifications;
+        }
+
+        return array();
     }
 }
