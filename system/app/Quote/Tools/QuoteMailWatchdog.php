@@ -868,7 +868,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             }
             $emails[][(isset($fullName) ? $fullName : $defaults['mailTo'])] = $address['email'];
         }
-        return $emails;
+        return array_unique($emails);
     }
 
     protected function _parseMailFrom($mailFrom)
