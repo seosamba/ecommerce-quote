@@ -38,6 +38,10 @@
             <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
             <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
         </p>
+        <p>
+            <?php echo $this->form->getElement('quoteEmailsNotifications')->renderLabel(); ?>
+            <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
+        </p>
 <!--        <p>-->
 <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
 <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
@@ -242,6 +246,7 @@ $(document).ready(function(){
                 maxProductsInQuote:maxProductsInQuote,
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
+                quoteEmailsNotifications: $('#quote-emails-notifications').val(),
                 enableQuoteDefaultType: enableQuoteDefaultType,
                 quotePaymentType: $('#quote-payment-types').val(),
                 quotePartialPercentage: $('#quote-partial-percentage').val(),

@@ -49,6 +49,15 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Default quote expiration delay')
         )));
 
+        $this->addElement(new Zend_Form_Element_Text(array(
+            'name'  => 'quoteEmailsNotifications',
+            'id'    => 'quote-emails-notifications',
+            'class' => 'grid_6 alpha',
+            'placeholder' => $translator->translate('Emails comma separated'),
+            'label' => $translator->translate('Quote emails notification')
+        )));
+
+
 //        $adminUsers = Quote_Models_Mapper_QuoteMapper::getInstance()->getAllUsers(true, true);
 //
 //        //default quote email
