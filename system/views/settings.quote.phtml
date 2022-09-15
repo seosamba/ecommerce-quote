@@ -27,19 +27,19 @@
                 <?php $disableAutosaveEmailClass = '';?>
             <?php endif;?>
 
-            <p>
+            <p class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
                 <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
             </p>
-            <p>
+            <p class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('quoteTemplate')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteTemplate')->renderViewHelper(); ?>
             </p>
-            <p>
+            <p class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
                 <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
             </p>
-            <p>
+            <p class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
             </p>
@@ -47,7 +47,7 @@
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
             <!--        </p>-->
-            <fieldset class="background mt10px">
+            <fieldset class="background mt10px grid_12">
                 <p>
                     <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
                     <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
@@ -58,11 +58,11 @@
                     <?php echo $this->form->getElement('disableAutosaveEmail')->renderViewHelper(); ?>
                 </p>
             </fieldset>
-            <p>
+            <p class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
             </p>
-            <fieldset class="background mt10px">
+            <fieldset class="background mt10px grid_12">
                 <p>
                     <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
                     <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
@@ -78,7 +78,7 @@
                 </div>
             </fieldset>
 
-            <fieldset id="quote-default-type-block" class="background mt10px">
+            <fieldset id="quote-default-type-block" class="background mt10px grid_12">
                 <p>
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderLabel(); ?>
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
@@ -98,16 +98,16 @@
                     <?php echo $this->form->getElement('defaultQuoteTypeForAdmin')->renderViewHelper(); ?>
                 </p>
             </fieldset>
-            <p id="quote-download-label-block">
+            <p id="quote-download-label-block" class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
             </p>
-            <p id="maximum-products-in-quote-block">
+            <p id="maximum-products-in-quote-block" class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('maxProductsInQuote')->renderLabel(); ?>
                 <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
             </p>
 
-            <fieldset id="quote-expiration-block" class="background mt10px">
+            <fieldset id="quote-expiration-block" class="background mt10px grid_12">
                 <p id="quote-expiration-date-block">
                     <?php echo $this->form->getElement('notifyExpiryUnitQuote')->addDecorator('Label', array('class' => 'grid_6 alpha'))->renderLabel(); ?>
                     <?php echo $this->form->getElement('notifyExpiryUnitQuote')->renderViewHelper(); ?>
