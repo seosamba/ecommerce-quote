@@ -127,6 +127,8 @@
 $(document).ready(function(){
     checkboxRadioStyle();
 
+    $('#quote-settings-info').closest('div').css('height', '100%');
+
     $('#quote-payment-types').data('prev-option', $('#quote-payment-types').val());
 
     $(document).on('change', '#enable-quote-default-type', function () {
