@@ -2,7 +2,7 @@
     $this->placeholder('headerContent')->set($this->translate('Quote system settings'));
 ?>
 <!--div id="quote-settings" class="ui-widget clearfix"-->
-    <form id="quote-settings-info" enctype="application/x-www-form-urlencoded" method="post" class="quote-settings _fajax f-wrapper ui-widget" action="<?php echo $this->form->getAction();?>">
+    <form id="quote-settings-info" style="height: 100%;" enctype="application/x-www-form-urlencoded" method="post" class="quote-settings _fajax f-wrapper ui-widget" action="<?php echo $this->form->getAction();?>">
         <div class="f-content">
             <?php $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');?>
             <?php $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');?>
