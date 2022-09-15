@@ -3,7 +3,7 @@
 ?>
 <!--div id="quote-settings" class="ui-widget clearfix"-->
     <form id="quote-settings-info" style="height: 100%;" enctype="application/x-www-form-urlencoded" method="post" class="quote-settings _fajax f-wrapper ui-widget" action="<?php echo $this->form->getAction();?>">
-        <div class="f-content">
+        <fieldset class="f-content">
             <?php $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');?>
             <?php $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');?>
             <?php $displayPartialPaymentNotificationClass = 'hidden';?>
@@ -27,19 +27,19 @@
                 <?php $disableAutosaveEmailClass = '';?>
             <?php endif;?>
 
-            <p class="grid_12">
+            <p>
                 <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
                 <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
             </p>
-            <p class="grid_12">
+            <p>
                 <?php echo $this->form->getElement('quoteTemplate')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteTemplate')->renderViewHelper(); ?>
             </p>
-            <p class="grid_12">
+            <p>
                 <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
                 <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
             </p>
-            <p class="grid_12">
+            <p>
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
             </p>
@@ -47,7 +47,7 @@
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
             <!--        </p>-->
-            <fieldset class="background grid_12">
+            <fieldset class="background mt10px">
                 <p>
                     <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
                     <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
@@ -58,11 +58,11 @@
                     <?php echo $this->form->getElement('disableAutosaveEmail')->renderViewHelper(); ?>
                 </p>
             </fieldset>
-            <p class="grid_12">
+            <p>
                 <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
             </p>
-            <fieldset class="background grid_12">
+            <fieldset class="background mt10px">
                 <p>
                     <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
                     <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
@@ -78,7 +78,7 @@
                 </div>
             </fieldset>
 
-            <fieldset id="quote-default-type-block" class="background mt5px grid_12">
+            <fieldset id="quote-default-type-block" class="background mt10px">
                 <p>
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderLabel(); ?>
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
@@ -98,23 +98,23 @@
                     <?php echo $this->form->getElement('defaultQuoteTypeForAdmin')->renderViewHelper(); ?>
                 </p>
             </fieldset>
-            <p class="grid_12" id="quote-download-label-block">
+            <p id="quote-download-label-block">
                 <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
             </p>
-            <p class="grid_12" id="maximum-products-in-quote-block">
+            <p id="maximum-products-in-quote-block">
                 <?php echo $this->form->getElement('maxProductsInQuote')->renderLabel(); ?>
                 <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
             </p>
 
-            <fieldset id="quote-expiration-block" class="background mt5px grid_12">
+            <fieldset id="quote-expiration-block" class="background mt10px">
                 <p id="quote-expiration-date-block">
                     <?php echo $this->form->getElement('notifyExpiryUnitQuote')->addDecorator('Label', array('class' => 'grid_6 alpha'))->renderLabel(); ?>
                     <?php echo $this->form->getElement('notifyExpiryUnitQuote')->renderViewHelper(); ?>
                     <?php echo $this->form->getElement('notifyExpiryQuoteType')->renderViewHelper(); ?>
                 </p>
             </fieldset>
-        </div>
+        </fieldset>
         <div class="f-footer">
             <div class="grid_12">
                 <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
