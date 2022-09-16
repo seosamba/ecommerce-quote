@@ -203,7 +203,7 @@ class  Quote_Forms_Settings extends Zend_Form {
             'name'       => 'applySettings',
             'label'      => $translator->translate('Update quote configuration'),
             'type'       => 'submit',
-            'class'      => 'btn block',
+            'class'      => 'btn',
             'ignore'     => true,
 	        'decorators' => array(
 		        'ViewHelper',
