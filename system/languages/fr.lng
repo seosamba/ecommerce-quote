@@ -52,7 +52,7 @@
     'Save and Send quote' => 'Sauvegarder et envoyer le devis',
     'Preview quote' => 'Aperçu du devis',
     'Duplicate quote' => 'Dupliquer le devis',
-    'Download Proposal PDF' => 'Télécharger le PDF de proposition',
+    'Download Proposal PDF' => 'Cliquez ici afin de télécharger ce devis en PDF',
     'Required fields are missing! Please fill all fields marked with *' => 'Les champs obligatoires ne sont pas remplis! Veuillez remplir tous les champs avec *',
     'Thank you! The quote was generated for you. Our manager will contact you soon to clarify the details' => 'Merci! Le devis a été généré pour vous. Notre responsable va vous contacter pour clarifier les détails',
     'Not set' => 'N\'est pas indiqué',
