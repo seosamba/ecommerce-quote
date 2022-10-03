@@ -1,79 +1,84 @@
 <?php
     $this->placeholder('headerContent')->set($this->translate('Quote system settings'));
 ?>
-<div id="quote-settings" class="ui-widget clearfix">
-    <form id="quote-settings-info" enctype="application/x-www-form-urlencoded" method="post" class="quote-settings _fajax" action="<?php echo $this->form->getAction();?>">
-        <?php $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');?>
-        <?php $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');?>
-        <?php $displayPartialPaymentNotificationClass = 'hidden';?>
-        <?php $displayPartialPercentagePaymentNotificationClass = 'hidden';?>
-        <?php if (!empty($enableQuoteDefaultType)):?>
-            <?php $displayPartialPaymentNotificationClass = '';?>
-        <?php endif;?>
-        <?php if (!empty($enableQuoteDefaultType) && ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE)):?>
-            <?php $displayPartialPercentagePaymentNotificationClass = '';?>
-        <?php endif;?>
+<!--div id="quote-settings" class="ui-widget clearfix"-->
+    <form id="quote-settings-info" style="height: 100%;" enctype="application/x-www-form-urlencoded" method="post" class="quote-settings _fajax f-wrapper ui-widget" action="<?php echo $this->form->getAction();?>">
+        <fieldset class="f-content">
+            <?php $enableQuoteDefaultType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enableQuoteDefaultType');?>
+            <?php $quotePaymentType = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('quotePaymentType');?>
+            <?php $displayPartialPaymentNotificationClass = 'hidden';?>
+            <?php $displayPartialPercentagePaymentNotificationClass = 'hidden';?>
+            <?php if (!empty($enableQuoteDefaultType)):?>
+                <?php $displayPartialPaymentNotificationClass = '';?>
+            <?php endif;?>
+            <?php if (!empty($enableQuoteDefaultType) && ($quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT || $quotePaymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE)):?>
+                <?php $displayPartialPercentagePaymentNotificationClass = '';?>
+            <?php endif;?>
 
-        <?php $displayPartialPaymentClass = 'hidden';?>
-        <?php $enabledPartialPayment = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enabledPartialPayment');?>
-        <?php if (!empty($enabledPartialPayment)):?>
-            <?php $displayPartialPaymentClass = '';?>
-        <?php endif;?>
+            <?php $displayPartialPaymentClass = 'hidden';?>
+            <?php $enabledPartialPayment = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('enabledPartialPayment');?>
+            <?php if (!empty($enabledPartialPayment)):?>
+                <?php $displayPartialPaymentClass = '';?>
+            <?php endif;?>
 
-        <?php $disableAutosaveEmailClass = 'hidden';?>
-        <?php $disableAutosaveEmail = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('allowAutosave');?>
-        <?php if (!empty($disableAutosaveEmail)):?>
-            <?php $disableAutosaveEmailClass = '';?>
-        <?php endif;?>
+            <?php $disableAutosaveEmailClass = 'hidden';?>
+            <?php $disableAutosaveEmail = Models_Mapper_ShoppingConfig::getInstance()->getConfigParam('allowAutosave');?>
+            <?php if (!empty($disableAutosaveEmail)):?>
+                <?php $disableAutosaveEmailClass = '';?>
+            <?php endif;?>
 
-        <p>
-            <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
-            <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
-        </p>
-        <p>
-            <?php echo $this->form->getElement('quoteTemplate')->renderLabel(); ?>
-            <?php echo $this->form->getElement('quoteTemplate')->renderViewHelper(); ?>
-        </p>
-        <p>
-            <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
-            <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
-        </p>
-<!--        <p>-->
-<!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
-<!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
-<!--        </p>-->
-        <fieldset class="background">
-            <p>
-                <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
-                <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('autoQuote')->renderLabel(); ?>
+                <?php echo $this->form->getElement('autoQuote')->renderViewHelper(); ?>
             </p>
-
-            <p id="disable-autosave-email-block" class="mb10px <?php echo $disableAutosaveEmailClass;?>">
-                <?php echo $this->form->getElement('disableAutosaveEmail')->renderLabel(); ?>
-                <?php echo $this->form->getElement('disableAutosaveEmail')->renderViewHelper(); ?>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('quoteTemplate')->renderLabel(); ?>
+                <?php echo $this->form->getElement('quoteTemplate')->renderViewHelper(); ?>
             </p>
-        </fieldset>
-        <p>
-            <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
-            <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
-        </p>
-        <fieldset class="background">
-            <p>
-                <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
-                <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('expirationDelay')->renderLabel(); ?>
+                <?php echo $this->form->getElement('expirationDelay')->renderViewHelper(); ?>
             </p>
-            <div id="partial-notify-block" class="<?php echo $displayPartialPaymentClass;?>">
-                <span class="grid_12"><?php echo $this->translate('Send payment complement request automatically after');?>:<a href="javascript:;" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></a></span>
-                <p class="grid_6 mb10px">
-                    <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderViewHelper(); ?>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('quoteEmailsNotifications')->renderLabel(); ?>
+                <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
+            </p>
+            <!--        <p>-->
+            <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
+            <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
+            <!--        </p>-->
+            <fieldset class="background mt10px grid_12">
+                <p>
+                    <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
                 </p>
-                <p class="grid_6 mb10px">
-                    <?php echo $this->form->getElement('partialNotifyAfterType')->renderViewHelper(); ?>
-                </p>
-            </div>
-        </fieldset>
 
-        <fieldset id="quote-default-type-block" class="background mt5px">
+                <p id="disable-autosave-email-block" class="mb10px <?php echo $disableAutosaveEmailClass;?>">
+                    <?php echo $this->form->getElement('disableAutosaveEmail')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('disableAutosaveEmail')->renderViewHelper(); ?>
+                </p>
+            </fieldset>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('quoteDraggableProducts')->renderLabel(); ?>
+                <?php echo $this->form->getElement('quoteDraggableProducts')->renderViewHelper(); ?>
+            </p>
+            <fieldset class="background mt10px grid_12">
+                <p>
+                    <?php echo $this->form->getElement('enabledPartialPayment')->renderLabel(); ?>
+                    <?php echo $this->form->getElement('enabledPartialPayment')->renderViewHelper(); ?>
+                </p>
+                <div id="partial-notify-block" class="<?php echo $displayPartialPaymentClass;?>">
+                    <span class="grid_12"><?php echo $this->translate('Send payment complement request automatically after');?>:<a href="javascript:;" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Create templates from the action e-mails & SMS screens');?>"></a></span>
+                    <p class="grid_6 mb10px">
+                        <?php echo $this->form->getElement('partialNotifyAfterQuantity')->renderViewHelper(); ?>
+                    </p>
+                    <p class="grid_6 mb10px">
+                        <?php echo $this->form->getElement('partialNotifyAfterType')->renderViewHelper(); ?>
+                    </p>
+                </div>
+            </fieldset>
+
+            <fieldset id="quote-default-type-block" class="background mt10px grid_12">
                 <p>
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderLabel(); ?>
                     <?php echo $this->form->getElement('enableQuoteDefaultType')->renderViewHelper(); ?>
@@ -92,32 +97,37 @@
                     <?php echo $this->form->getElement('defaultQuoteTypeForAdmin')->renderLabel(); ?>
                     <?php echo $this->form->getElement('defaultQuoteTypeForAdmin')->renderViewHelper(); ?>
                 </p>
-        </fieldset>
-        <p id="quote-download-label-block">
-            <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
-            <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
-        </p>
-        <p id="maximum-products-in-quote-block">
-            <?php echo $this->form->getElement('maxProductsInQuote')->renderLabel(); ?>
-            <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
-        </p>
-
-        <fieldset id="quote-expiration-block" class="background mt5px">
-            <p id="quote-expiration-date-block">
-                <?php echo $this->form->getElement('notifyExpiryUnitQuote')->addDecorator('Label', array('class' => 'grid_6 alpha'))->renderLabel(); ?>
-                <?php echo $this->form->getElement('notifyExpiryUnitQuote')->renderViewHelper(); ?>
-                <?php echo $this->form->getElement('notifyExpiryQuoteType')->renderViewHelper(); ?>
+            </fieldset>
+            <p id="quote-download-label-block" class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('quoteDownloadLabel')->renderLabel(); ?>
+                <?php echo $this->form->getElement('quoteDownloadLabel')->renderViewHelper(); ?>
             </p>
+            <p id="maximum-products-in-quote-block" class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('maxProductsInQuote')->renderLabel(); ?>
+                <?php echo $this->form->getElement('maxProductsInQuote')->renderViewHelper(); ?>
+            </p>
+
+            <fieldset id="quote-expiration-block" class="background mt10px grid_12">
+                <p id="quote-expiration-date-block">
+                    <?php echo $this->form->getElement('notifyExpiryUnitQuote')->addDecorator('Label', array('class' => 'grid_6 alpha'))->renderLabel(); ?>
+                    <?php echo $this->form->getElement('notifyExpiryUnitQuote')->renderViewHelper(); ?>
+                    <?php echo $this->form->getElement('notifyExpiryQuoteType')->renderViewHelper(); ?>
+                </p>
+            </fieldset>
         </fieldset>
-        <p>
-            <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
-        </p>
+        <div class="f-footer">
+            <div class="grid_12">
+                <?php echo $this->form->getElement('applySettings')->renderViewHelper(); ?>
+            </div>
+        </div>
     </form>
     <input type="hidden" class="quote-secure-token" name="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" value="<?php echo $this->secureToken;?>" />
-</div>
+<!--/div-->
 <script type="text/javascript">
 $(document).ready(function(){
     checkboxRadioStyle();
+
+    $('#quote-settings-info').closest('div').css('height', '100%');
 
     $('#quote-payment-types').data('prev-option', $('#quote-payment-types').val());
 
@@ -242,6 +252,7 @@ $(document).ready(function(){
                 maxProductsInQuote:maxProductsInQuote,
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
+                quoteEmailsNotifications: $('#quote-emails-notifications').val(),
                 enableQuoteDefaultType: enableQuoteDefaultType,
                 quotePaymentType: $('#quote-payment-types').val(),
                 quotePartialPercentage: $('#quote-partial-percentage').val(),

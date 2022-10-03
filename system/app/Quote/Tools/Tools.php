@@ -971,12 +971,14 @@ class Quote_Tools_Tools {
         $storedDataLocally = Quote_Tools_Tools::generateStoredName(array('name' => $pdfFileNameLocally), false);
 
         $websiteConfig = Zend_Registry::get('website');
-        $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
-        if (!defined('_MPDF_TEMP_PATH')) {
-            define('_MPDF_TEMP_PATH', $pdfPath);
-        }
+//        $pdfPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
+//        if (!defined('_MPDF_TEMP_PATH')) {
+//            define('_MPDF_TEMP_PATH', $pdfPath);
+//        }
 
-        require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'system/library/mpdf/mpdf.php');
+        //require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'system/library/mpdf/mpdf.php');
+        require_once($websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR.'system/library/mpdflatest/vendor/autoload.php');
+
         $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
         $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
         $themeData = Zend_Registry::get('theme');
@@ -998,7 +1000,17 @@ class Quote_Tools_Tools {
         $parser = new Tools_Content_Parser($pdfTemplate->getContent(), $page, $parserOptions);
         $content = $parser->parse();
 
-        $pdfFile = new mPDF('utf-8', 'A4');
+        $pdfTmpPath = $websiteConfig['path'] . 'plugins' . DIRECTORY_SEPARATOR . 'invoicetopdf' . DIRECTORY_SEPARATOR . 'invoices' . DIRECTORY_SEPARATOR;
+
+
+//        $pdfFile = new mPDF('utf-8', 'A4');
+
+        $pdfFile = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'tempDir' => $pdfTmpPath
+        ]);
+
         $pdfFile->WriteHTML($content);
 
         $quoteSaveLocallyPath = Quote_Tools_Tools::getFilePath($storedDataLocally['fileStoredName']);

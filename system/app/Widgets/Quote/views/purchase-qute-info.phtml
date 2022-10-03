@@ -1,0 +1,45 @@
+<?php $gateway = $this->order->getGateway(); ?>
+
+<?php if (!empty($this->order->getSecondPaymentGateway())) : ?>
+    <?php $secondPaymentGateway = $this->order->getSecondPaymentGateway(); ?>
+<?php else: ?>
+    <?php $secondPaymentGateway = $this->order->getGateway(); ?>
+<?php endif; ?>
+<?php if (!empty($this->order->getFirstPaymentGateway())) : ?>
+    <?php $firstPaymentGateway = $this->order->getFirstPaymentGateway(); ?>
+<?php else: ?>
+    <?php $firstPaymentGateway = $this->order->getGateway(); ?>
+<?php endif; ?>
+
+<?php if ($gateway === Models_Model_CartSession::MANUALLY_PAYED_GATEWAY_QUOTE && ($this->order->getStatus() === Models_Model_CartSession::CART_STATUS_COMPLETED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_SHIPPED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_DELIVERED)) : ?>
+    <?php $gateway = $this->translate('Manually paid'); ?>
+<?php endif; ?>
+
+<?php if (!empty($this->order->getIsPartial()) && ($this->order->getStatus() === Models_Model_CartSession::CART_STATUS_COMPLETED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_SHIPPED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_DELIVERED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_PARTIAL)): ?>
+    <span><b><?php echo $this->translate('Payment Method'); ?>:</b></span>
+    <br/>
+    <?php if (!empty($this->order->getIsFirstPaymentManuallyPaid())): ?>
+        <span><?php echo $this->translate('First payment'); ?>: <?php echo $this->translate('Marked'); ?>
+    (<?php echo $this->currency($this->order->getFirstPartialPaidAmount()); ?>) <?php echo $this->translate('paid'); ?> <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPartialPurchasedOn())); ?>
+    </span>
+    <?php else : ?>
+        <span><?php echo $this->translate('First payment'); ?>: <?php echo $this->translate('Processed'); ?>
+                                        (<?php echo $this->currency($this->order->getFirstPartialPaidAmount()); ?>) <?php echo $this->translate('via'); ?> <?php echo $firstPaymentGateway; ?> <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPartialPurchasedOn())); ?>
+                                    </span>
+    <?php endif; ?>
+    <br/>
+    <?php if ($this->order->getStatus() === Models_Model_CartSession::CART_STATUS_COMPLETED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_SHIPPED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_DELIVERED): ?>
+        <?php if (!empty($this->order->getIsSecondPaymentManuallyPaid())): ?>
+            <span><?php echo $this->translate('Second payment'); ?>: <?php echo $this->translate('Marked'); ?>
+                                            (<?php echo $this->currency($this->order->getSecondPartialPaidAmount()); ?>) <?php echo $this->translate('paid'); ?> <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPurchasedOn())); ?>
+                                        </span>
+        <?php else : ?>
+            <span><?php echo $this->translate('Second payment'); ?>: <?php echo $this->translate('Processed'); ?>
+                                            (<?php echo $this->currency($this->order->getSecondPartialPaidAmount()); ?>) <?php echo $this->translate('via'); ?> <?php echo $secondPaymentGateway; ?> <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPurchasedOn())); ?>
+                                        </span>
+        <?php endif; ?>
+    <?php endif; ?>
+<?php else : ?>
+    <span><?php echo $this->translate('Payment Method'); ?>
+                                    : <?php echo $this->translate('Processed'); ?>  (<?php echo $this->currency($this->order->getTotal()); ?>)  <?php echo $this->translate('via'); ?>  <?php echo $gateway; ?> <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPurchasedOn())); ?></span>
+<?php endif; ?>
