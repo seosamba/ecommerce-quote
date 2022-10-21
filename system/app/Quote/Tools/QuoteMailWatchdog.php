@@ -764,6 +764,14 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                         }
                     }
                 }
+
+                $currentDictionary = $this->_entityParser->getDictionary();
+                if (!empty($currentDictionary) && empty($currentDictionary['customer:full_name'])) {
+                    $this->_entityParser->addToDictionary(array(
+                        'customer:full_name' => '',
+                        'customer:email' => ''
+                    ));
+                }
             }
         } else {
             $this->_entityParser->addToDictionary(array(
