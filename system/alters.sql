@@ -114,6 +114,9 @@ CREATE TABLE IF NOT EXISTS `shopping_quote_conversions` (
   FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+INSERT INTO `page_option` (`id`, `title`, `context`, `active`, `option_usage`) VALUES
+('option_quotethankyoupage', 'Quote "Thank you" page', 'Quote system', 1, 'once');
+
 -- These alters are always the latest and updated version of the database
 UPDATE `plugin` SET `version`='2.3.8' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';
