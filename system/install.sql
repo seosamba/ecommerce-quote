@@ -87,5 +87,13 @@ INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES
 
 INSERT INTO `email_triggers` (`enabled`, `trigger_name`, `observer`) VALUES( '1', 'quote_notifyexpiryquote', 'Quote_Tools_QuoteMailWatchdog');
 
+CREATE TABLE IF NOT EXISTS `shopping_quote_conversions` (
+  `id` INT(10) UNSIGNED AUTO_INCREMENT NOT NULL,
+  `cart_id` INT(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.6' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.8' WHERE `name` = 'quote';
