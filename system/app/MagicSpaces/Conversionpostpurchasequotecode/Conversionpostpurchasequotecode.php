@@ -15,6 +15,14 @@ class MagicSpaces_Conversionpostpurchasequotecode_Conversionpostpurchasequotecod
         $cartContent = Tools_ShoppingCart::getInstance();
         $orderId = $cartContent->getCartId();
 
+        $sessionHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('session');
+        if (empty($orderId)) {
+            if (isset($sessionHelper->storeCartSessionKey)) {
+                $orderId = $sessionHelper->storeCartSessionKey;
+                unset($sessionHelper->storeCartSessionKey);
+            }
+        }
+
         if (!empty($orderId)) {
             $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->findByCartId($orderId);
             if ($quoteModel instanceof Quote_Models_Model_Quote) {

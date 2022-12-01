@@ -31,6 +31,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
     const PAYMENT_TYPE_ONLY_SIGNATURE = 'only_signature';
 
+    const OPTION_THANKYOU = 'option_quotethankyoupage';
+
     public static $_paymentTypesList = array(self::PAYMENT_TYPE_FULL, self::PAYMENT_TYPE_ONLY_SIGNATURE, self::PAYMENT_TYPE_PARTIAL_PAYMENT, self::PAYMENT_TYPE_FULL_SIGNATURE, self::PAYMENT_TYPE_PARTIAL_PAYMENT_SIGNATURE);
 
 	protected $_id              = '';

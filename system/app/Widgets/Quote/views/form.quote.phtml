@@ -149,7 +149,11 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                         $.event.trigger({
                             type: "quoteForm-success"
                         });
-                        document.location.href="/";
+                        <?php if (!empty($this->quoteThankYouPage)):?>
+                            document.location.href=$('#website_url').val() + 'plugin/quote/run/thankyou/quoteId/'+response.id;
+                        <?php else:?>
+                            document.location.href="/";
+                        <?php endif;?>
                     }, "5000")
                 }
             }).fail(function(response) {

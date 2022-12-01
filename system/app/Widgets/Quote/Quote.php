@@ -1548,6 +1548,12 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $listMasksMapper = Application_Model_Mappers_MasksListMapper::getInstance();
         $this->_view->mobileMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_MOBILE);
         $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
+        $thankyouPage = Application_Model_Mappers_PageMapper::getInstance()->fetchByOption(        Quote_Models_Model_Quote::OPTION_THANKYOU, true);
+        $this->_view->quoteThankYouPage = '';
+        if ($thankyouPage instanceof Application_Model_Models_Page) {
+            $this->_view->quoteThankYouPage = $this->_websiteHelper->getUrl().$thankyouPage->getUrl();
+        }
+
         return $this->_view->render('form.quote.phtml');
     }
 
