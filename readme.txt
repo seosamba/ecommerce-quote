@@ -38,6 +38,12 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 {$quote:item:sid} - Unique product hash (product name + product sku + product options).
 {$quote:item:photo[:link]} - Displays product photo.
 :link - link to product page.
+{$quote:item:customfield:additional_price:text}
+:additional_price - name of the custom field
+:text - custom field type
+{$quote:item:customfield:testdropdown:select} - custom field select
+:testdropdown - name of the custom field
+:select - custom field type
 
 {$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly]]}
 customfields:fieldName,fieldName2 - display quote custom fields

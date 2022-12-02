@@ -1167,6 +1167,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             }
         }
 
+        $translator = Zend_Registry::get('Zend_Translate');
 
         if (in_array('clean', $this->_options, true)) {
             $this->_view->clean = true;
@@ -1211,6 +1212,29 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
                 $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price * $item['qty']);
                 $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
+            break;
+            case 'customfield':
+                if (empty($this->_options[1]) || empty($this->_options[2])) {
+                    return '';
+                }
+
+                if ($this->_options[2] !== 'select' && $this->_options[2] !== 'text') {
+                    return $translator->translate('Please specify custom field type (select or text)');
+                }
+
+                $type = $this->_options[2];
+
+                $productCustomParamsDataMapper = Store_Mapper_ProductCustomParamsDataMapper::getInstance();
+                $productCustomParamsData = $productCustomParamsDataMapper->findByProductIdAggregated($item['product_id']);
+                if (!empty($productCustomParamsData[$type.'_'.$this->_options[1]])) {
+                    if ($type === 'select') {
+                        return $productCustomParamsData[$type.'_'.$this->_options[1]]['option_val'];
+                    }
+                    return $productCustomParamsData[$type.'_'.$this->_options[1]]['param_value'];
+                }
+
+                return '';
+
             break;
             case 'options':
                 $defaultOptions = $product->getDefaultOptions();
