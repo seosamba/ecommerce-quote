@@ -890,4 +890,31 @@ class Quote extends Tools_PaymentGateway
         $this->_responseHelper->fail($this->_translator->translate('Can\'t update custom field'));
     }
 
+    public function thankyouAction() {
+        $quoteId = $this->_request->getParam('quoteId');
+        $quoteRedirect = $this->_request->getParam('quoteRedirect');
+        if (!empty($quoteId)) {
+            $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
+            if ($quoteModel instanceof Quote_Models_Model_Quote) {
+                $cartId = $quoteModel->getCartId();
+                if (!empty($quoteRedirect)) {
+                    $this->_sessionHelper->storeCartSessionKey = $cartId;
+                    $this->_sessionHelper->storeCartSessionConversionKey = $cartId;
+                    $this->_redirector->gotoUrl($this->_websiteHelper->getUrl() . $quoteModel->getId().'.html');
+                } else {
+                    $thankyouPage = Application_Model_Mappers_PageMapper::getInstance()->fetchByOption(Quote_Models_Model_Quote::OPTION_THANKYOU, true);
+                    if ($thankyouPage instanceof Application_Model_Models_Page) {
+                        $this->_sessionHelper->storeCartSessionKey = $cartId;
+                        $this->_sessionHelper->storeCartSessionConversionKey = $cartId;
+                        $quoteThankYouPage = $this->_websiteHelper->getUrl() . $thankyouPage->getUrl();
+                        $this->_redirector->gotoUrl($quoteThankYouPage);
+                    }
+                }
+
+            }
+        }
+
+        $this->_redirector->gotoUrl($this->_websiteUrl);
+    }
+
 }
