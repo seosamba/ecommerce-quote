@@ -134,3 +134,6 @@ Quote action emails lexems:
 {postpurchasequotecode} ... {/postpurchasequotecode} - displays content if purchase was made via the quote system
 
 {$quote:purchaseinfo} - purchase info
+
+ {conversionpostpurchasequotecode} ... {/conversionpostpurchasequotecode} - conversionpostpurchasequotecode magic space is used to specify place
+whether display or not conversion code
