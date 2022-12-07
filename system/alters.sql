@@ -104,6 +104,19 @@ ALTER TABLE `shopping_quote` ADD COLUMN `expiration_notification_is_send` ENUM('
 -- version: 2.3.6
 ALTER TABLE `shopping_quote` ADD COLUMN `signature_info_field` text COLLATE utf8_unicode_ci AFTER `is_quote_restricted_control`;
 
+-- 17/02/2022
+-- version: 2.3.7
+CREATE TABLE IF NOT EXISTS `shopping_quote_conversions` (
+  `id` INT(10) UNSIGNED AUTO_INCREMENT NOT NULL,
+  `cart_id` INT(10) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`cart_id`) REFERENCES `shopping_cart_session` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `page_option` (`id`, `title`, `context`, `active`, `option_usage`) VALUES
+('option_quotethankyoupage', 'Quote "Thank you" page', 'Quote system', 1, 'once');
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.7' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.8' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

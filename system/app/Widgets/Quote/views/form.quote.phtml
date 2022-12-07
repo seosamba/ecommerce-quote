@@ -142,14 +142,20 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                     return false;
                 }
                 if($(form).hasClass('_reload') && (response instanceof Object)) {
-                    window.location.href = response.id + '.html';
+                        //window.location.href = response.id + '.html';
+                        document.location.href = $('#website_url').val() + 'plugin/quote/run/thankyou/quoteId/'+response.id+'/quoteRedirect/1/';
+                       //window.location.href = response.id + '.html';
                 } else {
                     showMessage(formMessage, false, 5000);
                     setTimeout(() => {
                         $.event.trigger({
                             type: "quoteForm-success"
                         });
-                        document.location.href="/";
+                        <?php if (!empty($this->quoteThankYouPage)):?>
+                            document.location.href=$('#website_url').val() + 'plugin/quote/run/thankyou/quoteId/'+response.id;
+                        <?php else:?>
+                            document.location.href="/";
+                        <?php endif;?>
                     }, "5000")
                 }
             }).fail(function(response) {
