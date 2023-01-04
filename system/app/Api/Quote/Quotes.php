@@ -143,6 +143,21 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $formOptions = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->$sessionFormOptions;
                 }
 
+                $customOptions = array();
+                if (!empty($formOptions)) {
+                    $customFieldOpt = preg_grep("/^customfields/", $formOptions);
+
+                    if (!empty($customFieldOpt)) {
+                        $customOptions = $formOptions;
+                        foreach ($customFieldOpt as $customfieldsOptionKey => $opt) {
+                            if (!empty($formOptions[$customfieldsOptionKey + 1])) {
+                                unset($formOptions[$customfieldsOptionKey + 1]);
+                            }
+                            unset($formOptions[$customfieldsOptionKey]);
+                        }
+                    }
+                }
+
                 if($formOptions) {
                     $form = Quote_Tools_Tools::adjustFormFields($form, $formOptions, array('productId' => false, 'productOptions' => false, 'sendQuote' => false));
                 }
@@ -333,7 +348,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                 $cart = $cartMapper->save($cart);
 
-                $customFieldOpt = preg_grep("/^customfields/", $formOptions);
+                $customFieldOpt = preg_grep("/^customfields/", $customOptions);
 
                 if(!empty($customFieldOpt)) {
                     $quoteCustomFieldsConfigMapper = Quote_Models_Mapper_QuoteCustomFieldsConfigMapper::getInstance();
@@ -342,8 +357,8 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
                     if(!empty($customFields)) {
                         foreach ($customFieldOpt as $customfieldsOptionKey => $opt) {
-                            if (!empty($formOptions[$customfieldsOptionKey + 1])) {
-                                $customfieldsOptions = array_filter(explode(',', $formOptions[$customfieldsOptionKey + 1]));
+                            if (!empty($customOptions[$customfieldsOptionKey + 1])) {
+                                $customfieldsOptions = array_filter(explode(',', $customOptions[$customfieldsOptionKey + 1]));
 
                                 if (!empty($customfieldsOptions)) {
                                     foreach ($customFields as $key => $field) {
