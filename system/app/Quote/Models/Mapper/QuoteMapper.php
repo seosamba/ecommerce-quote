@@ -281,6 +281,8 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             Models_Model_CartSession::CART_STATUS_PENDING
         ));
 
+        $where  .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('sq.is_quote_signed = ?', '0');
+
         if(!empty($expiredAt)) {
             $where .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('sq.expires_at <= ?', $expiredAt);
         }

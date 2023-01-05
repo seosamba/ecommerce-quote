@@ -263,8 +263,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             if ($this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SOLD && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_LOST && $this->_quote->getStatus() !== Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED) {
                 if ($cartSessionModel instanceof Models_Model_CartSession) {
                     if (!in_array($cartSessionModel->getStatus(), $this->_statusesNotLostQuotes)) {
-                        $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
-                        $this->_quote = $mapper->save($this->_quote);
+                        if (empty($this->_quote->getIsQuoteSigned())) {
+                            $this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_LOST);
+                            $this->_quote = $mapper->save($this->_quote);
+                        }
                     }
                 }
             }
