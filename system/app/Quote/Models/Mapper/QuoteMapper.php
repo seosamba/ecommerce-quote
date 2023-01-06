@@ -94,6 +94,7 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             $deepSearch = explode(' ', $search);
             $searchTitleWhere = '';
             $searchFullNameWhere = '';
+            $searchFullName2Where = '';
             $searchLastNameWhere = '';
 
             foreach ($deepSearch as $searchParam) {
@@ -104,8 +105,10 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
                 if(!empty($searchFullNameWhere)) {
                     $searchFullNameWhere .= ' AND ';
+                    $searchFullName2Where .= ' AND ';
                 }
                 $searchFullNameWhere.= 'u1.full_name LIKE "%' . $searchParam . '%"';
+                $searchFullName2Where.= 'u2.full_name LIKE "%' . $searchParam . '%"';
 
                 if(!empty($searchLastNameWhere)) {
                     $searchLastNameWhere .= ' AND ';
@@ -114,7 +117,8 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
             }
 
             $searchTitleWhere = '('. $searchTitleWhere . ')';
-            $searchFullNameWhere = '('. $searchFullNameWhere . ')';
+            //$searchFullNameWhere = '('. $searchFullNameWhere . ')';
+            $searchFullNameWhere = '('. $searchFullNameWhere . ' OR '. $searchFullName2Where .')';
             $searchLastNameWhere = '('. $searchLastNameWhere . ')';
 
             //$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR cust_addr.email LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR cust_addr.email LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%")');
