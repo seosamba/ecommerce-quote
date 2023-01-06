@@ -118,6 +118,9 @@ define([
                     self.quotes.pager();
                     showMessage((_.isUndefined(i18n['New quote']) ? 'New quote':i18n['New quote']) +' '+ '[' + model.get('title') + ']' +' '+ (_.isUndefined(i18n['has been generated.']) ? 'has been generated.':i18n['has been generated.']));
                     $('#duplicate-quote-id').val('');
+                    $('.quote-create-option-button-default-load').trigger('click');
+                    $('#search-quote-duplicate').val('');
+                    $('#quote-title-original').val('');
                 },
                 error: function(mode, xhr) {
                     hideSpinner();
@@ -181,7 +184,7 @@ define([
             }).autocomplete({
                 source: function(request, response) {
                     $.ajax({
-                        'url': $('#website_url').val()+'plugin/leads/run/getQuoteNames/',
+                        'url': $('#website_url').val()+'plugin/quote/run/getQuoteNames/',
                         'type':'GET',
                         'dataType':'json',
                         'data': {searchTerm: request.term}
