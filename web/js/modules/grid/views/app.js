@@ -32,7 +32,11 @@ define([
             this.quotes.on('remove', this.render, this);
 
             this.quotes.server_api = _.extend(this.quotes.server_api, {
-                search: function() {return $('#quote-grid-search').val()},
+                search: function() {
+                    var searchParam = $('#quote-grid-search').val();
+                    searchParam = searchParam.replace("&", $('#quote-amp-hook').val());
+                    return searchParam;
+                },
                 quoteOwnerId: function() {return $('#quote-owner-name').val()},
                 quoteStatusName: function() {return $('#quote-status-name').val()}
             });
