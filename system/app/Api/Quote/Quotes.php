@@ -10,6 +10,11 @@
 class Api_Quote_Quotes extends Api_Service_Abstract {
 
     /**
+     * Special hook for symbol "&"
+     */
+    const AMP_SYMBOL_HOOK = '__amp__';
+
+    /**
      * Instance of quote mapper
      *
      * @var Quote_Models_Mapper_QuoteMapper
@@ -81,6 +86,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $search    = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
         $quoteOwnerId    = filter_var($this->_request->getParam('quoteOwnerId'), FILTER_SANITIZE_NUMBER_INT);
         $quoteStatusName    = filter_var($this->_request->getParam('quoteStatusName'), FILTER_SANITIZE_STRING);
+
+        if(!empty($search)) {
+            $search = str_replace(self::AMP_SYMBOL_HOOK, '&', $search);
+        }
 
         $where = '';
         if(!empty($quoteOwnerId)) {

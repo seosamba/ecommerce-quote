@@ -32,7 +32,11 @@ define([
             this.quotes.on('remove', this.render, this);
 
             this.quotes.server_api = _.extend(this.quotes.server_api, {
-                search: function() {return $('#quote-grid-search').val()},
+                search: function() {
+                    var searchParam = $('#quote-grid-search').val();
+                    searchParam = searchParam.replace("&", $('#quote-amp-hook').val());
+                    return searchParam;
+                },
                 quoteOwnerId: function() {return $('#quote-owner-name').val()},
                 quoteStatusName: function() {return $('#quote-status-name').val()}
             });
@@ -118,6 +122,9 @@ define([
                     self.quotes.pager();
                     showMessage((_.isUndefined(i18n['New quote']) ? 'New quote':i18n['New quote']) +' '+ '[' + model.get('title') + ']' +' '+ (_.isUndefined(i18n['has been generated.']) ? 'has been generated.':i18n['has been generated.']));
                     $('#duplicate-quote-id').val('');
+                    $('.quote-create-option-button-default-load').trigger('click');
+                    $('#search-quote-duplicate').val('');
+                    $('#quote-title-original').val('');
                 },
                 error: function(mode, xhr) {
                     hideSpinner();
@@ -181,7 +188,7 @@ define([
             }).autocomplete({
                 source: function(request, response) {
                     $.ajax({
-                        'url': $('#website_url').val()+'plugin/leads/run/getQuoteNames/',
+                        'url': $('#website_url').val()+'plugin/quote/run/getQuoteNames/',
                         'type':'GET',
                         'dataType':'json',
                         'data': {searchTerm: request.term}
