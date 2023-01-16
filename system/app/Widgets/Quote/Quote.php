@@ -547,7 +547,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
         $date = Tools_System_Tools::convertDateFromTimezone($date, $serverTimezone, 'UTC');
 
-        $date = date(Tools_System_Tools::DATE_MYSQL, strtotime($date .'+'.Tools_EmailSequenceTools::getTimezoneShift('UTC', $storeTimezone).'hours'));
+        $date = date(Tools_System_Tools::DATE_MYSQL, strtotime($date .'+'.Tools_Misc::getTimezoneShift('UTC', $storeTimezone).'hours'));
 
         $date = date($format, strtotime($date));
 
