@@ -91,7 +91,42 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null, $includeCount = false) {
 		$entries   = array();
         if($search !== null) {
-			$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR cust_addr.email LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR cust_addr.email LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%")');
+            $deepSearch = explode(' ', $search);
+            $searchTitleWhere = '';
+            $searchFullNameWhere = '';
+            $searchFullName2Where = '';
+            $searchLastNameWhere = '';
+
+            foreach ($deepSearch as $searchParam) {
+                if(!empty($searchTitleWhere)) {
+                    $searchTitleWhere .= ' AND ';
+                }
+                $searchTitleWhere .= 'title LIKE "%' . $searchParam . '%"';
+
+                if(!empty($searchFullNameWhere)) {
+                    $searchFullNameWhere .= ' AND ';
+                    $searchFullName2Where .= ' AND ';
+                }
+                $searchFullNameWhere.= 'u1.full_name LIKE "%' . $searchParam . '%"';
+                $searchFullName2Where.= 'u2.full_name LIKE "%' . $searchParam . '%"';
+
+                if(!empty($searchLastNameWhere)) {
+                    $searchLastNameWhere .= ' AND ';
+                }
+                $searchLastNameWhere .= 'cust_addr.lastname LIKE "%' . $searchParam . '%"';
+            }
+
+            $searchTitleWhere = '('. $searchTitleWhere . ')';
+            //$searchFullNameWhere = '('. $searchFullNameWhere . ')';
+            $searchFullNameWhere = '('. $searchFullNameWhere . ' OR '. $searchFullName2Where .')';
+            $searchLastNameWhere = '('. $searchLastNameWhere . ')';
+
+            //$where = ($where === null) ? 'title LIKE "%' . $search .'%" OR cust_addr.email LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%"' : ($where . ' AND (title LIKE "%' . $search .'%" OR cust_addr.email LIKE "%' . $search .'%" OR u1.full_name LIKE "%' . $search .'%" OR cust_addr.lastname LIKE "%' . $search .'%")');
+            if($where === null) {
+                $where = $searchTitleWhere . ' OR cust_addr.email LIKE "%'. $search . '%" OR ' . $searchFullNameWhere . ' OR ' . $searchLastNameWhere;
+            } else {
+                $where = ($where . ' AND (' . $searchTitleWhere . ' OR cust_addr.email LIKE "%'. $search . '%" OR ' . $searchFullNameWhere . ' OR ' . $searchLastNameWhere . ')');
+            }
 		}
         $table = $this->getDbTable();
 
