@@ -14,7 +14,7 @@
                     <?php echo $this->translate('Select opportunity stage');?>:
                 </label>
                 <select name="stageId" id="email-opportunity-stage-id" class="flex_6 f-omega">
-                    <option><?php echo $this->translate('Select opportunity stage');?></option>
+                    <option value="0"><?php echo $this->translate('Select opportunity stage');?></option>
                     <?php foreach ($this->opportunityStages as $opportunityId => $opportunityStage) :?>
                         <?php if (!in_array($opportunityId, array(1, 100))):?>
                             <option value="<?php echo $opportunityId;?>" <?php echo ($opportunityId == '60')?'selected':'';?>><?php echo $opportunityStage;?> <?php echo $opportunityId;?> %</option>
