@@ -738,6 +738,10 @@ function showMailMessageEditQuote(trigger, callback, recipient){
                             }
 
                             additionalInfo.stageId = $('#email-opportunity-stage-id').val();
+                            if (additionalInfo.stageId != '0' && additionalInfo.processOpportunity == '1') {
+                                showMessage(response.responseText.errorMessages.specifyOpportunityStage, true, 5000);
+                                return false;
+                            }
 
                             msgEditScreen.dialog('close');
                             callback($('#trigger-msg').val(), $('#additional-emails').val(), additionalInfo);

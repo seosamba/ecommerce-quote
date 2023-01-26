@@ -949,13 +949,16 @@ class Quote extends Tools_PaymentGateway
             $this->_view->opportunityStages = $leadOpportunityDataMapper->getOpportunityStages(true);
         }
 
+        $errorMessages = array('specifyOpportunityStage' => $this->_translator->translate('Please specify opportunity stage'));
+
         $popupContent = $this->_view->render('save-and-send-content.phtml');
 
         $this->_responseHelper->success(array(
             'message' => $trigger['message'],
             'dialogTitle' => $this->_translator->translate('Edit mail message before sending'),
             'dialogOkay' => $this->_translator->translate('Okay'),
-            'popupContent' => $popupContent
+            'popupContent' => $popupContent,
+            'errorMessages' => $errorMessages
         ));
         return true;
     }
