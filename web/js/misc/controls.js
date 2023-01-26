@@ -695,6 +695,15 @@ function showMailMessageEditQuote(trigger, callback, recipient){
             show      : 'clip',
             hide      : 'clip',
             draggable : false,
+            open: function (event, ui) {
+                $(document).on('change', '#process-opportunity', function(){
+                    if ($(this).is(':checked')) {
+                        $(document).find('.opportunity-processing-block').removeClass('hidden');
+                    } else {
+                        $(document).find('.opportunity-processing-block').addClass('hidden');
+                    }
+                });
+            },
             buttons   : [
                 {
                     text  : dialogOkay,
