@@ -476,7 +476,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                     $currentCart->setFirstPartialPaidAmount(0);
                                     $currentCart->setSecondPartialPaidAmount(0);
                                     $currentCart->setPurchaseErrorMessage('');
-                                    $currentCart->setPartialNotificationDate(null);
 
                                     $cart =  $cartMapper->save($currentCart);
 
