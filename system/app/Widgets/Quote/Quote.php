@@ -1346,6 +1346,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if($addrKey !== null) {
             $address = Tools_ShoppingCart::getAddressById($addrKey);
             if(is_array($address) && !empty($address)) {
+                if (!empty($address['customer_notes'])) {
+                    $address['disclaimer'] = $address['customer_notes'];
+                }
                 $quoteForm->populate($address);
             }
         }
