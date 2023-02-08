@@ -468,6 +468,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                     $currentCart->setPurchasedOn(null);
                                     $currentCart->setPartialPurchasedOn(null);
                                     $currentCart->setPartialNotificationDate(null);
+                                    $currentCart->setIsFirstPaymentManuallyPaid('0');
+                                    $currentCart->setIsSecondPaymentManuallyPaid('0');
+                                    $currentCart->setIsFullOrderManuallyPaid('0');
+                                    $currentCart->setFirstPaymentGateway('');
+                                    $currentCart->setSecondPaymentGateway('');
+                                    $currentCart->setFirstPartialPaidAmount(0);
+                                    $currentCart->setSecondPartialPaidAmount(0);
+                                    $currentCart->setPurchaseErrorMessage('');
+
                                     $cart =  $cartMapper->save($currentCart);
 
                                     $newCartId = $cart->getId();
