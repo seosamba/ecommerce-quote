@@ -17,6 +17,8 @@ class Quote_Models_Model_Quote extends Application_Model_Models_Abstract {
 
 	const STATUS_LOST           = 'lost';
 
+	const STATUS_PARTIAL        = 'partial';
+
 	const TEMPLATE_TYPE_QUOTE   = 'typequote';
 
     const QUOTE_TYPE_AUTO       = 'auto';

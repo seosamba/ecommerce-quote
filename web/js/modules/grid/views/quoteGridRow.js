@@ -34,19 +34,42 @@ define([
             });
         },
         statusAction: function(e) {
-            var quote = appView.quotes.get(e.currentTarget.id);
-            quote.set({status: e.currentTarget.value, skipStatusVerification:'1'});
+            var quote = appView.quotes.get(e.currentTarget.id),
+                status = e.currentTarget.value,
+                oldStatus = quote.get('status');
+            quote.set({status: status, skipStatusVerification:'1'});
             showSpinner();
-            quote.save(null, {
-                success: function(model, response) {
+
+            if (status === 'partial') {
+                $.ajax({
+                    'url': $('#website_url').val() + 'api/quote/partialpayment/',
+                    'type': 'POST',
+                    'dataType': 'json',
+                    'data': {
+                        status: status,
+                        fromGrid: '1',
+                        quoteId:quote.get('id')
+                    }
+                }).done(function (responseData) {
                     hideSpinner();
-                    showMessage((_.isUndefined(i18n['Quote']) ? 'Quote':i18n['Quote']) + ' ' + '[' + model.get('title') + ']'  + ' ' + (_.isUndefined(i18n['status changed to']) ? 'status changed to':i18n['status changed to'])   + ' ' + model.get('status'));
-                },
-                error: function(model, response) {
+                    showMessage((_.isUndefined(i18n['Quote']) ? 'Quote' : i18n['Quote']) + ' ' + '[' + quote.get('title') + ']' + ' ' + (_.isUndefined(i18n['status changed to']) ? 'status changed to' : i18n['status changed to']) + ' ' + quote.get('status'));
+                }).fail(function(responseData){
                     hideSpinner();
-                    showMessage((_.isUndefined(i18n['Can not update quote']) ? 'Can not update quote':i18n['Can not update quote']) +' '+ '[' + model.get('title') + ']' +' '+ (_.isUndefined(i18n['status. Try again later.']) ? 'status. Try again later.':i18n['status. Try again later.']), true);
-                }
-            })
+                    showMessage(responseData.responseJSON, true, 3000);
+                    quote.set('status', oldStatus);
+                });
+            } else {
+                quote.save(null, {
+                    success: function (model, response) {
+                        hideSpinner();
+                        showMessage((_.isUndefined(i18n['Quote']) ? 'Quote' : i18n['Quote']) + ' ' + '[' + model.get('title') + ']' + ' ' + (_.isUndefined(i18n['status changed to']) ? 'status changed to' : i18n['status changed to']) + ' ' + model.get('status'));
+                    },
+                    error: function (model, response) {
+                        hideSpinner();
+                        showMessage((_.isUndefined(i18n['Can not update quote']) ? 'Can not update quote' : i18n['Can not update quote']) + ' ' + '[' + model.get('title') + ']' + ' ' + (_.isUndefined(i18n['status. Try again later.']) ? 'status. Try again later.' : i18n['status. Try again later.']), true);
+                    }
+                });
+            }
         },
         toggleAction: function(e) {
             var quote = appView.quotes.get(e.currentTarget.id);

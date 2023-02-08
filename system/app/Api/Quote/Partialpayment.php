@@ -29,6 +29,7 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
         $quoteId = filter_var($this->_request->getParam('quoteId'), FILTER_SANITIZE_STRING);
         $partialPercentage = filter_var($this->_request->getParam('partialPercentage'), FILTER_SANITIZE_STRING);
+        $fromGrid = filter_var($this->_request->getParam('fromGrid'), FILTER_SANITIZE_NUMBER_INT);
 
         $translator = Zend_Registry::get('Zend_Translate');
         if (empty($quoteId)) {
@@ -40,14 +41,23 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
             $this->_error($translator->translate('Quote not found'));
         }
 
-        if (empty($partialPercentage)) {
-            $this->_error($translator->translate('Please specify partial payment amount'));
-        }
-
         $cartId = $quote->getCartId();
         $cart = Models_Mapper_CartSessionMapper::getInstance()->find($cartId);
         if (empty($cart->getIsPartial())) {
-            $this->_error($translator->translate('Wrong quote payment type'));
+            if (!empty($fromGrid)) {
+                $this->_error($translator->translate('Please make quote as partial payment'));
+            } else {
+                $this->_error($translator->translate('Wrong quote payment type'));
+            }
+        }
+
+        if (empty($partialPercentage) && empty($fromGrid)) {
+            $this->_error($translator->translate('Please specify partial payment amount'));
+        } elseif (!empty($fromGrid)) {
+            $partialPercentage = $cart->getPartialPercentage();
+            if (empty($partialPercentage)) {
+                $this->_error($translator->translate('Please specify partial payment amount'));
+            }
         }
 
         $isSignatureRequired = $quote->getIsSignatureRequired();
