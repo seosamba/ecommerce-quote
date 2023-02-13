@@ -608,6 +608,12 @@ class Quote extends Tools_PaymentGateway
                 $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
                 $searchTerm = filter_var($this->_request->getParam('searchTerm'), FILTER_SANITIZE_STRING);
                 $searchInfo = array_filter(explode(' ', $searchTerm));
+                if (empty($searchInfo)) {
+                    echo json_encode(array());
+                    exit;
+                }
+                sort($searchInfo);
+
                 $where = ' ( ';
                 foreach ($searchInfo as $key => $attrVal) {
                     $where .= $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
