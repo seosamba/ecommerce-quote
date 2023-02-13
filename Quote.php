@@ -607,8 +607,21 @@ class Quote extends Tools_PaymentGateway
             if ($this->_request->isGet()) {
                 $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
                 $searchTerm = filter_var($this->_request->getParam('searchTerm'), FILTER_SANITIZE_STRING);
-                $where = $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
-                    $searchTerm . '%');
+                $searchInfo = array_filter(explode(' ', $searchTerm));
+                $where = ' ( ';
+                foreach ($searchInfo as $key => $attrVal) {
+                    $where .= $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
+                        '%'. $attrVal . '%');
+
+                    if (count($searchInfo) > $key+1) {
+                        $where .= ' AND ';
+                    }
+                }
+
+                $where .= ' ) ';
+
+//                $where = $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
+//                    $searchTerm . '%');
                 $data = $quoteMapper->searchQuotes($where, null, null, null, true);
 
                 echo json_encode($data);
