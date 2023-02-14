@@ -45,7 +45,7 @@ class Api_Quote_Partialpayment extends Api_Service_Abstract
         $cart = Models_Mapper_CartSessionMapper::getInstance()->find($cartId);
         if (empty($cart->getIsPartial())) {
             if (!empty($fromGrid)) {
-                $this->_error($translator->translate('Please make quote as partial payment'));
+                $this->_error($translator->translate('Please change quote type to partial payment'));
             } else {
                 $this->_error($translator->translate('Wrong quote payment type'));
             }
