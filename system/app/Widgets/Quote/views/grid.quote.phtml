@@ -120,7 +120,10 @@
                             data-type="create_quote_duplicate"><?php echo $this->translate('Create quote from a template'); ?></button>
                 </div>
 
-                <input class="hidden" id="search-quote-duplicate" name="search-quote-duplicate" placeholder="<?php echo $this->translate('Search by quote title');?>" />
+                <div class="search-block-element-autocomplete">
+                    <input class="hidden search-input-autocomplete" id="search-quote-duplicate" name="search-quote-duplicate" placeholder="<?php echo $this->translate('Search by quote title');?>" />
+                    <span class="ticon-cancel-search clear-input-autocomplete hidden"></span>
+                </div>
                 <input type="text" id="quote-title-original" class="search-quote-title-original" placeholder="<?php echo $this->translate('Quote title');?>" />
                 <input class="hidden" id="duplicate-quote-id" name="duplicate-quote-id">
                 <input class="hidden" id="quote-amp-hook" name="quote-amp-hook" value="<?php echo Api_Quote_Quotes::AMP_SYMBOL_HOOK;?>">
