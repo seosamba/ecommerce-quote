@@ -203,6 +203,11 @@ define([
                         'data': {searchTerm: request.term}
                     }).done(function(responseData){
                         $('#duplicate-quote-id').val('');
+                        var clearInputAutocomplete = $("#search-quote-duplicate").closest('.search-block-element-autocomplete').find('.clear-input-autocomplete');
+                        if(typeof clearInputAutocomplete !== 'undefined') {
+                            clearInputAutocomplete.addClass('hidden');
+                        }
+
                         if (!_.isEmpty(responseData)) {
                             response($.map(responseData, function (responseData) {
                                 return {
@@ -211,11 +216,6 @@ define([
                                     custom: responseData.id,
                                 };
                             }));
-                        } else {
-                            var clearInputAutocomplete = $("#search-quote-duplicate").closest('.search-block-element-autocomplete').find('.clear-input-autocomplete');
-                            if(typeof clearInputAutocomplete !== 'undefined') {
-                                clearInputAutocomplete.addClass('hidden');
-                            }
                         }
                     });
                 },
@@ -241,6 +241,7 @@ define([
             if(typeof searchInput !== 'undefined') {
                 searchInput.val('').focus();
                 $(e.currentTarget).addClass('hidden');
+                $('#duplicate-quote-id').val('');
             }
         }
     })
