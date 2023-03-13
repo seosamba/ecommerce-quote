@@ -55,7 +55,6 @@ define([
         },
         changeCreationType: function(e)
         {
-
             var el = $(e.currentTarget),
                 currentStatus = el.data('checked'),
                 switchType = el.data('type');
@@ -69,9 +68,10 @@ define([
             }
 
             if (switchType === 'create_quote_duplicate') {
-                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').removeClass('hidden');
+                $(el).closest('#quote-grid-top').find('.search-block-element-autocomplete').removeClass('hidden');
+                $(el).closest('#quote-grid-top').find('.clear-input-autocomplete').addClass('hidden');
             } else {
-                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').addClass('hidden');
+                $(el).closest('#quote-grid-top').find('.search-block-element-autocomplete').addClass('hidden');
                 $(el).closest('#quote-grid-top').find('#search-quote-duplicate').val('');
                 $(el).closest('#quote-grid-top').find('#duplicate-quote-id').val('');
             }
