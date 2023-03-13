@@ -187,6 +187,12 @@ define([
             this.renderGrid();
 
             $("#search-quote-duplicate").on("keydown", function(event) {
+                $('#duplicate-quote-id').val('');
+                var clearInputAutocomplete = $("#search-quote-duplicate").closest('.search-block-element-autocomplete').find('.clear-input-autocomplete');
+                if(typeof clearInputAutocomplete !== 'undefined') {
+                    clearInputAutocomplete.addClass('hidden');
+                }
+
                 if ( event.keyCode === $.ui.keyCode.TAB &&
                     $(this).autocomplete( "instance" ).menu.active) {
                     event.preventDefault();
@@ -202,12 +208,6 @@ define([
                         'dataType':'json',
                         'data': {searchTerm: request.term}
                     }).done(function(responseData){
-                        $('#duplicate-quote-id').val('');
-                        var clearInputAutocomplete = $("#search-quote-duplicate").closest('.search-block-element-autocomplete').find('.clear-input-autocomplete');
-                        if(typeof clearInputAutocomplete !== 'undefined') {
-                            clearInputAutocomplete.addClass('hidden');
-                        }
-
                         if (!_.isEmpty(responseData)) {
                             response($.map(responseData, function (responseData) {
                                 return {
