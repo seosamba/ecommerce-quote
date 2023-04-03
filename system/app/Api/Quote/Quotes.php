@@ -187,6 +187,10 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $this->_error($translator->translate('Not valid email address'));
                 }
 
+                if (Tools_System_FormBlacklist::isBlacklisted($data['email'], $data)) {
+                    return array();
+                }
+
                 $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
                 if (!empty($shoppingConfig['maxProductsInQuote'])) {
                     $inCartContent = $this->_cartStorage->getContent();
