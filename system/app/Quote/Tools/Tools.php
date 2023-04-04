@@ -1090,7 +1090,12 @@ class Quote_Tools_Tools {
                     if (empty($stateIds)) {
                         return true;
                     }
-                    $currentState = Tools_Geo::getStateByCode($fieldsData[$fieldName]);
+                    if (is_numeric($fieldsData[$fieldName])) {
+                        $currentState = Tools_Geo::getStateById($fieldsData[$fieldName]);
+                    } else {
+                        $currentState = Tools_Geo::getStateByCode($fieldsData[$fieldName]);
+                    }
+
                     if (empty($currentState)) {
                         return false;
                     }
