@@ -467,7 +467,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
     if(typeof quoteForm !== 'undefined') {
         $(':input[name], select[name]', quoteForm).each(function(key, field) {
             if($(field).hasClass('required')){
-                if($(field).attr('id') != 'quote-form-email' && $(this).val() === '') {
+                if($(field).attr('id') != 'quote-form-email' && $(field).attr('id') != 'state' && $(this).val() === '') {
                     notValidElements.push(field);
                 }
             }
@@ -477,7 +477,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
     if(typeof quoteShippingUserAddressForm !== 'undefined') {
         $(':input[name], select[name]', quoteShippingUserAddressForm).each(function(key, field) {
             if($(field).hasClass('required')){
-                if($(field).attr('id') != 'email' && $(this).val() === '') {
+                if($(field).attr('id') != 'email' && $(field).attr('id') != 'state' && $(this).val() === '') {
                     notValidElements.push(field);
                 }
             }
@@ -525,7 +525,11 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         partialPaymentType : $('#partial-payment-type').val(),
         ccEmails    : ccEmails,
         additionalEmailValidate : (additionalEmailValidate) ? additionalEmailValidate : '',
-        additionalInfo : additionalInfo
+        additionalInfo : additionalInfo,
+        enableShippingMandatory: $('#enable-shipping-custom-validation').val(),
+        enableBillingMandatory: $('#enable-billing-custom-validation').val(),
+        shippingMandatoryFields: $('#enable-shipping-custom-validation').data('mandatory-fields'),
+        billingMandatoryFields: $('#enable-billing-custom-validation').data('mandatory-fields'),
     };
 
     var request = _update('api/quote/quotes/', data, noSpinner);
