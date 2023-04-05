@@ -1081,4 +1081,33 @@ class Quote_Tools_Tools {
         return $entityParser->parse(strip_tags($smsMessage));
     }
 
+    public static function verifyFormFields($fieldName, $fieldsData)
+    {
+        if (array_key_exists($fieldName, $fieldsData) || $fieldName === 'state') {
+            if (!empty(trim($fieldsData[$fieldName])) || $fieldName === 'state') {
+                if ($fieldName === 'state') {
+                    $stateIds = Tools_Geo::getState($fieldsData['country'], true);
+                    if (empty($stateIds)) {
+                        return true;
+                    }
+                    if (is_numeric($fieldsData[$fieldName])) {
+                        $currentState = Tools_Geo::getStateById($fieldsData[$fieldName]);
+                    } else {
+                        $currentState = Tools_Geo::getStateByCode($fieldsData[$fieldName]);
+                    }
+
+                    if (empty($currentState)) {
+                        return false;
+                    }
+                    if (!array_key_exists($currentState['id'], $stateIds)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return false;
+        }
+    }
+
 }

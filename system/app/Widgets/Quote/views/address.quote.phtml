@@ -3,6 +3,9 @@
 		<p class="title"><?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? $this->translate('Billing info') : $this->translate('Shipped to'); ?>
             <span class="ticon-refresh use-lead-address pointer fl-right" data-type="<?php echo ($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING) ? 'billing' : 'shipping';?>"> </span>
         </p>
+        <?php if($this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_BILLING || $this->addressType == Widgets_Quote_Quote::ADDRESS_TYPE_SHIPPING):?>
+            <input data-mandatory-fields='<?php echo json_encode($this->mandatoryFieldsList);?>' id="enable-<?php echo $this->addressType;?>-custom-validation" type="hidden" name="enable-custom-validation" value="<?php echo $this->enableCustomValidation;?>">
+        <?php endif;?>
 		<?php echo $this->addressForm; ?>
 	</div>
 <?php elseif(!empty($this->quoteCustomParamsData) && !empty($this->customfieldsOptions)) :?>

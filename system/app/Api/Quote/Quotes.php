@@ -653,6 +653,28 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
         }
 
+        if (empty($additionalEmailValidate)) {
+            if (!empty($quoteData['enableShippingMandatory']) && !empty($quoteData['shippingMandatoryFields'])) {
+                foreach ($quoteData['shippingMandatoryFields'] as $mandatoryField) {
+                    parse_str($quoteData['shipping'], $shippingDataToCheck);
+                    $isValidField = Quote_Tools_Tools::verifyFormFields($mandatoryField, $shippingDataToCheck);
+                    if ($isValidField === false) {
+                        $response->fail($translator->translate('Sorry, but you didn\'t fill all the required fields.'));
+                    }
+                }
+            }
+
+            if (!empty($quoteData['enableBillingMandatory']) && !empty($quoteData['billingMandatoryFields'])) {
+                foreach ($quoteData['billingMandatoryFields'] as $mandatoryField) {
+                    parse_str($quoteData['billing'], $billingDataToCheck);
+                    $isValidField = Quote_Tools_Tools::verifyFormFields($mandatoryField, $billingDataToCheck);
+                    if ($isValidField === false) {
+                        $response->fail($translator->translate('Sorry, but you didn\'t fill all the required fields.'));
+                    }
+                }
+            }
+        }
+
         if(!$quoteId) {
             $this->_error('Not enough parameters', self::REST_STATUS_BAD_REQUEST);
         }

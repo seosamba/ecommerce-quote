@@ -804,6 +804,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     ->setLabel('');
             }
 
+            if (!empty($requiredFields)) {
+                $this->_view->enableCustomValidation = '1';
+                $this->_view->mandatoryFieldsList = $requiredFields;
+            } else {
+                $this->_view->enableCustomValidation = '0';
+                $this->_view->mandatoryFieldsList = '';
+            }
+
             $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
