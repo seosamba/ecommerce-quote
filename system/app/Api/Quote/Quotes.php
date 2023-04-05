@@ -661,7 +661,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
 
             if (!empty($quoteData['enableBillingMandatory']) && !empty($quoteData['billingMandatoryFields'])) {
-                foreach ($quoteData['shippingMandatoryFields'] as $mandatoryField) {
+                foreach ($quoteData['billingMandatoryFields'] as $mandatoryField) {
                     parse_str($quoteData['billing'], $billingDataToCheck);
                     $isValidField = Quote_Tools_Tools::verifyFormFields($mandatoryField, $billingDataToCheck);
                     if ($isValidField === false) {
