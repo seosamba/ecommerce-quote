@@ -1110,4 +1110,29 @@ class Quote_Tools_Tools {
         }
     }
 
+    public static function getQuoteOwnerEmail($quoteId)
+    {
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        if (!empty($shoppingConfig['notifyQuoteOwnerOnly'])) {
+            $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
+            if ($quoteModel instanceof Quote_Models_Model_Quote) {
+                $creatorId = $quoteModel->getCreatorId();
+                $quoteOwnerModel = Application_Model_Mappers_UserMapper::getInstance()->find($creatorId);
+                if ($quoteOwnerModel instanceof Application_Model_Models_User) {
+                    $roleId = $quoteOwnerModel->getRoleId();
+                    $accessList = array(
+                        Tools_Security_Acl::ROLE_SUPERADMIN,
+                        Tools_Security_Acl::ROLE_ADMIN,
+                        Shopping::ROLE_SALESPERSON
+                    );
+
+                    if (in_array($roleId, $accessList)) {
+                        return array('fullName' => $quoteOwnerModel->getFullName(), 'email' => $quoteOwnerModel->getEmail());
+                    }
+
+                }
+            }
+        }
+    }
+
 }

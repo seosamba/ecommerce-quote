@@ -361,5 +361,37 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 
     }
 
+    /**
+     * Get all possible owners of the quotes
+     * @param int $excludeId exclude owner id
+     * @param array $ids user ids
+     * @param bool $fullInfo full info
+     * @return array
+     */
+    public function getOwnersFullList($excludeId = 0, $ids = array(), $fullInfo = false)
+    {
+        $where = $this->getDbTable()->getAdapter()->quoteInto('role_id IN (?)',
+            array(Tools_Security_Acl::ROLE_ADMIN, Shopping::ROLE_SALESPERSON, Tools_Security_Acl::ROLE_SUPERADMIN));
+        if ($excludeId) {
+            $where .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('id <> ?', $excludeId);
+        }
+
+        if (!empty($ids)) {
+            $where .= ' AND ' . $this->getDbTable()->getAdapter()->quoteInto('id IN (?)', $ids);
+        }
+
+        if (!empty($fullInfo)) {
+            $select = $this->getDbTable()->getAdapter()->select()->from(array('u' => 'user'),
+                array('id', 'full_name', 'role_id', 'email'))->where($where);
+            return $this->getDbTable()->getAdapter()->fetchAssoc($select);
+
+        } else {
+            $select = $this->getDbTable()->getAdapter()->select()->from(array('u' => 'user'),
+                array('id', 'full_name'))->where($where);
+            return $this->getDbTable()->getAdapter()->fetchPairs($select);
+        }
+
+    }
+
 
 }

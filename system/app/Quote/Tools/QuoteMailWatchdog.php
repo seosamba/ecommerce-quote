@@ -229,6 +229,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
+            $quoteOwnerEmailInfo = Quote_Tools_Tools::getQuoteOwnerEmail($this->_quote->getId());
             $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch ($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
@@ -242,6 +243,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // store owner
                         $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
@@ -256,6 +259,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_ADMIN:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // all admins
                         $emails = Quote_Tools_Tools::getEmailData(array(
@@ -298,6 +303,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
+            $quoteOwnerEmailInfo = Quote_Tools_Tools::getQuoteOwnerEmail($this->_quote->getId());
             $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch ($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
@@ -343,6 +349,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // store owner
                         $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
@@ -357,6 +365,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_ADMIN:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // all admins
                         $emails = Quote_Tools_Tools::getEmailData(array(
@@ -383,6 +393,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
+            $quoteOwnerEmailInfo = Quote_Tools_Tools::getQuoteOwnerEmail($this->_quote->getId());
             $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch ($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
@@ -430,6 +441,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // store owner
                         $emails[$this->_storeConfig['company']] = $this->_storeConfig['email'];
@@ -444,6 +457,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_ADMIN:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // all admins
                         $emails = Quote_Tools_Tools::getEmailData(array(
@@ -553,6 +568,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 }
             }
         } else {
+            $quoteOwnerEmailInfo = Quote_Tools_Tools::getQuoteOwnerEmail($this->_quote->getId());
+            $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
                 case self::RECIPIENT_MEMBER:
@@ -563,37 +580,49 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     $this->_mailer->setMailToLabel($recipient->getFullName())->setMailTo($recipient->getEmail());
                     break;
                 case self::RECIPIENT_SALESPERSON:
-                    $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
-                        self::RECIPIENT_SALESPERSON);
-                    $salesUsers = $userMapper->fetchAll($where);
-                    //store owner
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
+                    } else {
+                        $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
+                            self::RECIPIENT_SALESPERSON);
+                        $salesUsers = $userMapper->fetchAll($where);
+                        //store owner
 
-                    $bccArray[] = $this->_storeConfig['email'];
+                        $bccArray[] = $this->_storeConfig['email'];
 
-                    if (!empty($salesUsers)) {
-                        foreach ($salesUsers as $sales) {
-                            array_push($bccArray, $sales->getEmail());
+                        if (!empty($salesUsers)) {
+                            foreach ($salesUsers as $sales) {
+                                array_push($bccArray, $sales->getEmail());
+                            }
+                            if (!empty($bccArray)) {
+                                $this->_mailer->setMailBcc($bccArray);
+                            }
                         }
-                        if (!empty($bccArray)) {
-                            $this->_mailer->setMailBcc($bccArray);
-                        }
+
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company']);
                     }
-
-                    $this->_mailer->setMailToLabel($this->_storeConfig['company']);
                     break;
                 case self::RECIPIENT_ADMIN:
                     // all admins
-                    $this->_mailer->setMailToLabel('Admin')
-                        ->setMailTo($adminEmail);
-                    $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
-                        Tools_Security_Acl::ROLE_ADMIN);
-                    $adminUsers = $userMapper->fetchAll($where);
-                    if (!empty($adminUsers)) {
-                        foreach ($adminUsers as $admin) {
-                            array_push($bccArray, $admin->getEmail());
-                        }
-                        if (!empty($bccArray)) {
-                            $this->_mailer->setMailBcc($bccArray);
+                    if (!empty($customEmailNotificationList)) {
+                        $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
+                    } elseif (!empty($quoteOwnerEmail)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
+                    } else {
+                        $this->_mailer->setMailToLabel('Admin')
+                            ->setMailTo($adminEmail);
+                        $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
+                            Tools_Security_Acl::ROLE_ADMIN);
+                        $adminUsers = $userMapper->fetchAll($where);
+                        if (!empty($adminUsers)) {
+                            foreach ($adminUsers as $admin) {
+                                array_push($bccArray, $admin->getEmail());
+                            }
+                            if (!empty($bccArray)) {
+                                $this->_mailer->setMailBcc($bccArray);
+                            }
                         }
                     }
 

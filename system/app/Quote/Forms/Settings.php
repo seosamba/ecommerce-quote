@@ -57,6 +57,24 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Quote emails notification')
         )));
 
+        $quoteOwners = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnersFullList();
+
+        $quoteOwners = array('0' => $translator->translate('Select default quote owner')) + $quoteOwners;
+
+        $this->addElement(new Zend_Form_Element_Select(array(
+            'name'         => 'defaultQuoteOwner',
+            'id'           => 'default-quote-owner',
+            'label'        => $translator->translate('Default quote owner'),
+            'class'        => 'grid_6 alpha omega',
+            'multiOptions' => $quoteOwners
+        )));
+
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'notifyQuoteOwnerOnly',
+            'id'    => 'notify-quote-owner-only',
+            'label' => $translator->translate('Notify quote owner only')
+        )));
+
 
 //        $adminUsers = Quote_Models_Mapper_QuoteMapper::getInstance()->getAllUsers(true, true);
 //

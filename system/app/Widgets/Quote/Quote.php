@@ -2129,4 +2129,29 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
     }
 
+    /**
+     * Renderer change quote owner dropdown{$quote:editquoteowner}
+     *
+     * @return string
+     */
+    protected function _renderEditquoteowner()
+    {
+        $currentRole = Zend_Controller_Action_HelperBroker::getStaticHelper('Session')->getCurrentUser()->getRoleId();
+        $accessList  = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+        if (in_array($currentRole, $accessList)) {
+            $this->_view->quoteOwnerId = $this->_quote->getCreatorId();
+            $this->_view->id      = $this->_quote->getId();
+            $quoteOwners = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnersFullList();
+
+            $this->_view->quoteOwners = $quoteOwners;
+
+            return $this->_view->render('change-quote-owner.phtml');
+        }
+
+        return '';
+    }
 }

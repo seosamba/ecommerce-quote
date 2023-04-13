@@ -43,6 +43,14 @@
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
             </p>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('defaultQuoteOwner')->renderLabel(); ?>
+                <?php echo $this->form->getElement('defaultQuoteOwner')->renderViewHelper(); ?>
+            </p>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('notifyQuoteOwnerOnly')->renderLabel(); ?>
+                <?php echo $this->form->getElement('notifyQuoteOwnerOnly')->renderViewHelper(); ?>
+            </p>
             <!--        <p>-->
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
@@ -204,6 +212,7 @@ $(document).ready(function(){
               allowAutosave = 0,
               disableAutosaveEmail = 0,
               defaultQuoteTypeForAdmin = 0,
+              notifyQuoteOwnerOnly = 0,
               notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
               notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
               // defaultQuoteCreatorId = '';
@@ -242,6 +251,10 @@ $(document).ready(function(){
             disableAutosaveEmail = 1;
         }
 
+        if($('#notify-quote-owner-only').prop("checked")){
+            notifyQuoteOwnerOnly = 1;
+        }
+
           $.ajax({
             type: "POST",
             url: '<?php echo $this->websiteUrl;?>plugin/quote/run/settings/',
@@ -253,6 +266,8 @@ $(document).ready(function(){
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
                 quoteEmailsNotifications: $('#quote-emails-notifications').val(),
+                defaultQuoteOwner: $('#default-quote-owner').val(),
+                notifyQuoteOwnerOnly: notifyQuoteOwnerOnly,
                 enableQuoteDefaultType: enableQuoteDefaultType,
                 quotePaymentType: $('#quote-payment-types').val(),
                 quotePartialPercentage: $('#quote-partial-percentage').val(),

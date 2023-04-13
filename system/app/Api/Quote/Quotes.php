@@ -132,9 +132,16 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
         $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
         if($currentUser instanceof Application_Model_Models_User){
             $editedBy      = $currentUser->getFullName();
-            $creatorId     = $currentUser->getId();
+            $creatorId = $currentUser->getId();
+            if (!empty($shoppingConfig['defaultQuoteOwner']) && !in_array($currentUser->getRoleId(), array(Tools_Security_Acl::ROLE_ADMIN, Shopping::ROLE_SALESPERSON, Tools_Security_Acl::ROLE_SUPERADMIN))) {
+                $quoteOwnerModel = Application_Model_Mappers_UserMapper::getInstance()->find($shoppingConfig['defaultQuoteOwner']);
+                if ($quoteOwnerModel instanceof Application_Model_Models_User) {
+                    $creatorId = $quoteOwnerModel->getId();
+                }
+            }
         }else{
             $editedBy   = Shopping::ROLE_CUSTOMER;
             $creatorId  = 0;
