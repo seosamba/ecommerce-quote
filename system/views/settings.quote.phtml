@@ -43,6 +43,10 @@
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderLabel(); ?>
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
             </p>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('enableSpamVerification')->renderLabel(); ?>
+                <?php echo $this->form->getElement('enableSpamVerification')->renderViewHelper(); ?>
+            </p>
             <!--        <p>-->
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
@@ -204,6 +208,7 @@ $(document).ready(function(){
               allowAutosave = 0,
               disableAutosaveEmail = 0,
               defaultQuoteTypeForAdmin = 0,
+              enableSpamVerification = 0,
               notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
               notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
               // defaultQuoteCreatorId = '';
@@ -242,6 +247,10 @@ $(document).ready(function(){
             disableAutosaveEmail = 1;
         }
 
+        if($('#enable-spam-verification').prop("checked")){
+            enableSpamVerification = 1;
+        }
+
           $.ajax({
             type: "POST",
             url: '<?php echo $this->websiteUrl;?>plugin/quote/run/settings/',
@@ -258,6 +267,7 @@ $(document).ready(function(){
                 quotePartialPercentage: $('#quote-partial-percentage').val(),
                 quoteDownloadLabel: $('#quote-download-label').val(),
                 enabledPartialPayment: enabledPartialPayment,
+                enableSpamVerification: enableSpamVerification,
                 partialNotifyAfterType: partialNotifyAfterType,
                 partialNotifyAfterQuantity: partialNotifyAfterQuantity,
                 quotePartialType: $('#quote-partial-type').val(),
