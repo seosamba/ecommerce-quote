@@ -569,6 +569,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
             }
         } else {
             $quoteOwnerEmailInfo = Quote_Tools_Tools::getQuoteOwnerEmail($this->_quote->getId());
+            $quoteOwnerExpirationEmailInfo = Quote_Tools_Tools::getQuoteOwnerExpirationOnly($this->_quote->getId());
             $customEmailNotificationList = $this->_getCustomEmailNotificationList();
             switch($this->_options['recipient']) {
                 case self::RECIPIENT_CUSTOMER:
@@ -584,6 +585,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
                     } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
+                    } elseif (!empty($quoteOwnerExpirationEmailInfo)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerExpirationEmailInfo['fullName'])->setMailTo($quoteOwnerExpirationEmailInfo['email']);
                     } else {
                         $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
                             self::RECIPIENT_SALESPERSON);
@@ -610,6 +613,8 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
                     } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
+                    } elseif (!empty($quoteOwnerExpirationEmailInfo)) {
+                        $this->_mailer->setMailToLabel($quoteOwnerExpirationEmailInfo['fullName'])->setMailTo($quoteOwnerExpirationEmailInfo['email']);
                     } else {
                         $this->_mailer->setMailToLabel('Admin')
                             ->setMailTo($adminEmail);
