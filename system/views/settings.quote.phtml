@@ -51,6 +51,10 @@
                 <?php echo $this->form->getElement('notifyQuoteOwnerOnly')->renderLabel(); ?>
                 <?php echo $this->form->getElement('notifyQuoteOwnerOnly')->renderViewHelper(); ?>
             </p>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('notifyExpirationQuoteOwnerOnly')->renderLabel(); ?>
+                <?php echo $this->form->getElement('notifyExpirationQuoteOwnerOnly')->renderViewHelper(); ?>
+            </p>
             <!--        <p>-->
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
@@ -213,6 +217,7 @@ $(document).ready(function(){
               disableAutosaveEmail = 0,
               defaultQuoteTypeForAdmin = 0,
               notifyQuoteOwnerOnly = 0,
+              notifyExpirationQuoteOwnerOnly = 0,
               notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
               notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
               // defaultQuoteCreatorId = '';
@@ -255,6 +260,10 @@ $(document).ready(function(){
             notifyQuoteOwnerOnly = 1;
         }
 
+        if($('#notify-expiration-quote-owner-only').prop("checked")){
+            notifyExpirationQuoteOwnerOnly = 1;
+        }
+
           $.ajax({
             type: "POST",
             url: '<?php echo $this->websiteUrl;?>plugin/quote/run/settings/',
@@ -266,6 +275,7 @@ $(document).ready(function(){
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
                 quoteEmailsNotifications: $('#quote-emails-notifications').val(),
+                notifyExpirationQuoteOwnerOnly: notifyExpirationQuoteOwnerOnly,
                 defaultQuoteOwner: $('#default-quote-owner').val(),
                 notifyQuoteOwnerOnly: notifyQuoteOwnerOnly,
                 enableQuoteDefaultType: enableQuoteDefaultType,

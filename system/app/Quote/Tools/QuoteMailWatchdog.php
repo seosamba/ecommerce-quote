@@ -243,7 +243,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // store owner
@@ -259,7 +259,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_ADMIN:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // all admins
@@ -349,7 +349,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // store owner
@@ -365,7 +365,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_ADMIN:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // all admins
@@ -441,7 +441,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // store owner
@@ -457,7 +457,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_ADMIN:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         // all admins
@@ -582,7 +582,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 case self::RECIPIENT_SALESPERSON:
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         $where = $userMapper->getDbTable()->getAdapter()->quoteInto("role_id = ?",
@@ -608,7 +608,7 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     // all admins
                     if (!empty($customEmailNotificationList)) {
                         $this->_mailer->setMailToLabel($this->_storeConfig['company'])->setMailTo($customEmailNotificationList);
-                    } elseif (!empty($quoteOwnerEmail)) {
+                    } elseif (!empty($quoteOwnerEmailInfo)) {
                         $this->_mailer->setMailToLabel($quoteOwnerEmailInfo['fullName'])->setMailTo($quoteOwnerEmailInfo['email']);
                     } else {
                         $this->_mailer->setMailToLabel('Admin')

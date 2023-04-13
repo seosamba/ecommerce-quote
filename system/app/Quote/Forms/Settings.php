@@ -72,9 +72,14 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'notifyQuoteOwnerOnly',
             'id'    => 'notify-quote-owner-only',
-            'label' => $translator->translate('Notify quote owner only')
+            'label' => $translator->translate('Send all quote notifications(emails) to quote owner only')
         )));
 
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'notifyExpirationQuoteOwnerOnly',
+            'id'    => 'notify-expiration-quote-owner-only',
+            'label' => $translator->translate('Notify quote owner only for quote expiration')
+        )));
 
 //        $adminUsers = Quote_Models_Mapper_QuoteMapper::getInstance()->getAllUsers(true, true);
 //
