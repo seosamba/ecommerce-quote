@@ -1157,7 +1157,7 @@ class Quote_Tools_Tools {
                 );
 
                 if (in_array($roleId, $accessList)) {
-                    return array('fullName' => $quoteOwnerModel->getFullName(), 'email' => $quoteOwnerModel->getEmail());
+                    return array('roleId' => $quoteOwnerModel->getRoleId(), 'fullName' => $quoteOwnerModel->getFullName(), 'email' => $quoteOwnerModel->getEmail());
                 }
 
             }
