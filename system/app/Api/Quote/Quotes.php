@@ -196,6 +196,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     $dataToVerify = $data;
                     $dataToVerify['message'] = $data['disclaimer'];
                     $dataToVerify['formName'] = null;
+                    $dataToVerify['spamValidationType'] = 'quote';
                     if (Tools_System_FormBlacklist::isSpam($dataToVerify)) {
                         return array();
                     }
