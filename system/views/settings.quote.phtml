@@ -54,6 +54,12 @@
             <p class="grid_12 alpha omega">
                 <?php echo $this->form->getElement('notifyExpirationQuoteOwnerOnly')->renderLabel(); ?>
                 <?php echo $this->form->getElement('notifyExpirationQuoteOwnerOnly')->renderViewHelper(); ?>
+                <label for="enable-spam-verification" class="grid_6 optional"><?php echo $this->translate('Enable AI Anti-Spam verification');?>
+                    <a href="https://help.seosamba.com/seosamba-ai-anti-spam-bot.html" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Learn more about SeoSamba AI Anti-Spam Bot');?>"></a>
+                </label>
+                <?php //echo $this->form->getElement('enableSpamVerification')->renderLabel(); ?>
+
+                <?php echo $this->form->getElement('enableSpamVerification')->renderViewHelper(); ?>
             </p>
             <!--        <p>-->
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderLabel(); ?>
@@ -218,6 +224,7 @@ $(document).ready(function(){
               defaultQuoteTypeForAdmin = 0,
               notifyQuoteOwnerOnly = 0,
               notifyExpirationQuoteOwnerOnly = 0,
+              enableSpamVerification = 0,
               notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
               notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
               // defaultQuoteCreatorId = '';
@@ -260,8 +267,12 @@ $(document).ready(function(){
             notifyQuoteOwnerOnly = 1;
         }
 
-        if($('#notify-expiration-quote-owner-only').prop("checked")){
+        if($('#notify-expiration-quote-owner-only').prop("checked")) {
             notifyExpirationQuoteOwnerOnly = 1;
+        }
+
+        if($('#enable-spam-verification').prop("checked")){
+            enableSpamVerification = 1;
         }
 
           $.ajax({
@@ -283,6 +294,7 @@ $(document).ready(function(){
                 quotePartialPercentage: $('#quote-partial-percentage').val(),
                 quoteDownloadLabel: $('#quote-download-label').val(),
                 enabledPartialPayment: enabledPartialPayment,
+                enableSpamVerification: enableSpamVerification,
                 partialNotifyAfterType: partialNotifyAfterType,
                 partialNotifyAfterQuantity: partialNotifyAfterQuantity,
                 quotePartialType: $('#quote-partial-type').val(),
