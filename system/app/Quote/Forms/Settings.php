@@ -57,6 +57,12 @@ class  Quote_Forms_Settings extends Zend_Form {
             'label' => $translator->translate('Quote emails notification')
         )));
 
+        $this->addElement(new Zend_Form_Element_Checkbox(array(
+            'name'  => 'enableSpamVerification',
+            'id'    => 'enable-spam-verification',
+            'label' => $translator->translate('Enable AI Anti-Spam verification')
+        )));
+
 
 //        $adminUsers = Quote_Models_Mapper_QuoteMapper::getInstance()->getAllUsers(true, true);
 //

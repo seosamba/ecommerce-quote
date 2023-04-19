@@ -192,6 +192,18 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 }
 
                 $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                if (!empty($data['disclaimer']) && !empty($shoppingConfig['enableSpamVerification'])) {
+                    $dataToVerify = $data;
+                    $dataToVerify['message'] = $data['disclaimer'];
+                    $dataToVerify['formName'] = null;
+                    $dataToVerify['spamValidationType'] = 'quote';
+                    if (Tools_System_FormBlacklist::isSpam($dataToVerify)) {
+                        return array();
+                    }
+                }
+
+
+                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
                 if (!empty($shoppingConfig['maxProductsInQuote'])) {
                     $inCartContent = $this->_cartStorage->getContent();
                     if (intval($shoppingConfig['maxProductsInQuote']) > 0 && !empty($inCartContent)) {
