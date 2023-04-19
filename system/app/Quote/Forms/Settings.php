@@ -60,7 +60,7 @@ class  Quote_Forms_Settings extends Zend_Form {
         $this->addElement(new Zend_Form_Element_Checkbox(array(
             'name'  => 'enableSpamVerification',
             'id'    => 'enable-spam-verification',
-            'label' => $translator->translate('Enable spam verification')
+            'label' => $translator->translate('Enable AI Anti-Spam verification')
         )));
 
 
