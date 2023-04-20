@@ -105,6 +105,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('cart.status = ?', $quoteStatusName);
             } else {
                 $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.status = ?', $quoteStatusName);
+                $where .= ' AND '.$this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('cart.status <> ?', Quote_Models_Model_Quote::STATUS_PARTIAL);
             }
         }
 
