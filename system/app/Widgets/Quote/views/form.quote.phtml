@@ -2,6 +2,7 @@
 $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config')->getConfig();
 ?>
 <?php echo $this->form; ?>
+<input type="hidden" id="quote-page-id" name="quote-page-id" value="<?php echo $this->quotePageId;?>">
 <?php $key = mt_rand(100, 10000);?>
 <?php if(!Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)):?>
     <?php $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config')->getConfig(); ?>
@@ -117,7 +118,8 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
             }
 
             //working with form
-            var form = $(e.currentTarget);
+            var form = $(e.currentTarget),
+                formData = '';
 
             //check if this is a single-product quote form
             var productId = $('#productId').val();
@@ -126,12 +128,13 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                 form.find('input[name="productOptions"]').val(options);
             }
 
+            formData = $(form).serialize() + '&quotePageId='+$('#quote-page-id').val();
             //console.log($(form).serialize()); return false;
 
             $.ajax({
                 type: 'post',
                 url: $(form).attr('action'),
-                data: $(form).serialize(),
+                data: formData,
                 dataType: 'json',
                 beforeSend: showLoader('Sending quote...')
             }).done(function(response) {

@@ -1587,6 +1587,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
         $thankyouPage = Application_Model_Mappers_PageMapper::getInstance()->fetchByOption(        Quote_Models_Model_Quote::OPTION_THANKYOU, true);
         $this->_view->quoteThankYouPage = '';
+        $this->_view->quotePageId = $this->_toasterOptions['id'];
         if ($thankyouPage instanceof Application_Model_Models_Page) {
             $this->_view->quoteThankYouPage = $this->_websiteHelper->getUrl().$thankyouPage->getUrl();
         }
