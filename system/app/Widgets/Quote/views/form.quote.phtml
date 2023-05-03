@@ -133,7 +133,7 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                 url: $(form).attr('action'),
                 data: $(form).serialize(),
                 dataType: 'json',
-                beforeSend: showSpinner('#plugin-quote-quoteform', 'quote-form-spinner-block system-spinner', 'Thank you for submitting a quote request. Please wait quote will be processed soon...')
+                beforeSend: showSpinner('#plugin-quote-quoteform', 'quote-form-spinner-block', 'Thank you for submitting a quote request. Please wait quote will be processed soon...')
             }).done(function(response) {
                 hideSpinner('quote-form-spinner-block');
                 var formMessage = "<?php echo $this->translate('Thank you for submitting a quote request. We will get back to you shortly - You will shortly be redirected to our homepage');?>";
