@@ -131,6 +131,13 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $itemData    = null;
         $cartContentData = array();
 
+        $priceWithoutOptionsTotal = 0;
+        $shoppingConfigMapper =  Models_Mapper_ShoppingConfig::getInstance();
+        $isTaxable = false;
+        $showPriceIncTax = $shoppingConfigMapper->getConfigParam('showPriceIncTax');
+        if (!empty($showPriceIncTax)) {
+            $isTaxable = true;
+        }
 
         foreach($cartContent as $key => $item) {
             $product = Models_Mapper_ProductMapper::getInstance()->find($item['product_id']);
@@ -151,6 +158,28 @@ class Api_Quote_Products extends Api_Service_Abstract {
         $options   = !empty($itemData['options']) ? $itemData['options'] : [];
         $skipOptionRecalculation = true;
         $skipGroupPriceRecalculation = true;
+
+        if ($data['type'] === self::UPDATE_TYPE_QTY) {
+            //Calculate price without product options
+            $productPrice = $product->getCurrentPrice();
+            if (!empty($itemData['qty'])) {
+                if (($taxClass = $product->getTaxClass()) != 0 && $isTaxable === true) {
+                    $rateMethodName = 'getRate' . $taxClass;
+
+                    $tax = Models_Mapper_Tax::getInstance()->getDefaultRule();
+
+                    if (isset($tax) && $tax !== null) {
+                        $productPrice = is_null($product->getCurrentPrice()) ? $product->getPrice() : $product->getCurrentPrice();
+                        $itemTax = ($productPrice / 100) * $tax->$rateMethodName();
+                    }
+                }
+
+                if (!empty($itemTax)) {
+                    $priceWithoutOptionsTotal += ($productPrice + $itemTax) * $data['value'];
+                }
+            }
+        }
+
         switch($data['type']) {
             case self::UPDATE_TYPE_QTY     :
                 $product->setPrice(floatval($itemData['price']));
@@ -185,7 +214,16 @@ class Api_Quote_Products extends Api_Service_Abstract {
             $storage->setContent($content);
         }
 
-        return Quote_Tools_Tools::calculate($storage, false, true, $data['qid'], $skipGroupPriceRecalculation);
+        $cartSummaryData = Quote_Tools_Tools::calculate($storage, false, true, $data['qid'], $skipGroupPriceRecalculation);
+
+        if (!empty($priceWithoutOptionsTotal)) {
+            $cartSummaryData['priceWithoutOptionsTotal'] = $priceWithoutOptionsTotal;
+        } else {
+            $cartSummaryData['priceWithoutOptionsTotal'] = $cartSummaryData['subTotal'];
+        }
+
+
+        return $cartSummaryData;
     }
 
     public function deleteAction() {
