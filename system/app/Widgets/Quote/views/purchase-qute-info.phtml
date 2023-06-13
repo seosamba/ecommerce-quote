@@ -15,7 +15,7 @@
     <?php $gateway = $this->translate('Manually paid'); ?>
 <?php endif; ?>
 
-<?php if (!empty($this->order->getIsPartial()) && ($this->order->getStatus() === Models_Model_CartSession::CART_STATUS_COMPLETED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_SHIPPED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_DELIVERED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_PARTIAL)): ?>
+<?php if (!empty($this->order->getIsPartial()) && ($this->order->getStatus() === Models_Model_CartSession::CART_STATUS_COMPLETED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_SHIPPED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_DELIVERED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_PARTIAL || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_ERROR)): ?>
     <span><b><?php echo $this->translate('Payment Method'); ?>:</b></span>
     <br/>
     <?php if (!empty($this->order->getIsFirstPaymentManuallyPaid())): ?>

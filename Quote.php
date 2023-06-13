@@ -607,8 +607,27 @@ class Quote extends Tools_PaymentGateway
             if ($this->_request->isGet()) {
                 $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
                 $searchTerm = filter_var($this->_request->getParam('searchTerm'), FILTER_SANITIZE_STRING);
-                $where = $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
-                    $searchTerm . '%');
+                $searchInfo = array_filter(explode(' ', $searchTerm));
+                if (empty($searchInfo)) {
+                    echo json_encode(array());
+                    exit;
+                }
+                sort($searchInfo);
+
+                $where = ' ( ';
+                foreach ($searchInfo as $key => $attrVal) {
+                    $where .= $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
+                        '%'. $attrVal . '%');
+
+                    if (count($searchInfo) > $key+1) {
+                        $where .= ' AND ';
+                    }
+                }
+
+                $where .= ' ) ';
+
+//                $where = $quoteMapper->getDbTable()->getAdapter()->quoteInto('sq.title LIKE ?',
+//                    $searchTerm . '%');
                 $data = $quoteMapper->searchQuotes($where, null, null, null, true);
 
                 echo json_encode($data);
@@ -915,6 +934,52 @@ class Quote extends Tools_PaymentGateway
         }
 
         $this->_redirector->gotoUrl($this->_websiteUrl);
+    }
+
+    /**
+     * Action for alter mail message before sending
+     *
+     * @return bool
+     * @throws Exceptions_SeotoasterException
+     */
+    public function popupEmailMessageAction() {
+        $triggerName = $this->_request->getParam('trigger', false);
+        $recipientName = $this->_request->getParam('recipient', false);
+        if(!$triggerName) {
+            throw new Exceptions_SeotoasterException('Not enough parameter passed!');
+        }
+        $trigger = Application_Model_Mappers_EmailTriggersMapper::getInstance()->findByTriggerName($triggerName)->toArray();
+        if (!empty($trigger) && !empty($recipientName)) {
+            $trigger = array_filter($trigger, function($triggerInfo) use ($recipientName){
+                return $triggerInfo['recipient'] === $recipientName;
+            });
+
+        }
+
+        $trigger = reset($trigger);
+
+        if (empty($trigger)) {
+            $trigger['message'] = '';
+        }
+
+        $leadsPluginEnabled = Tools_LeadTools::verifyPluginEnabled('leads');
+        if ($leadsPluginEnabled) {
+            $leadOpportunityDataMapper = Leads_Mapper_LeadsOpportunityStageMapper::getInstance();
+            $this->_view->opportunityStages = $leadOpportunityDataMapper->getOpportunityStages(true);
+        }
+
+        $errorMessages = array('specifyOpportunityStage' => $this->_translator->translate('Please specify opportunity stage'));
+
+        $popupContent = $this->_view->render('save-and-send-content.phtml');
+
+        $this->_responseHelper->success(array(
+            'message' => $trigger['message'],
+            'dialogTitle' => $this->_translator->translate('Edit mail message before sending'),
+            'dialogOkay' => $this->_translator->translate('Okay'),
+            'popupContent' => $popupContent,
+            'errorMessages' => $errorMessages
+        ));
+        return true;
     }
 
 }

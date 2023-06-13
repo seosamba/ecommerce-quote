@@ -20,7 +20,8 @@ define([
             'change #quote-grid-select-all' : 'checkAllAction',
             'change #batch-action'          : 'batchAction',
             'click .sortable'               : 'sortGridAction',
-            'click .quote-create-option-button': 'changeCreationType'
+            'click .quote-create-option-button': 'changeCreationType',
+            'click .clear-input-autocomplete': 'clearInputAutocomplete',
         },
         templates: {
             pager: _.template($('#quote-grid-pager').text())
@@ -54,7 +55,6 @@ define([
         },
         changeCreationType: function(e)
         {
-
             var el = $(e.currentTarget),
                 currentStatus = el.data('checked'),
                 switchType = el.data('type');
@@ -68,9 +68,10 @@ define([
             }
 
             if (switchType === 'create_quote_duplicate') {
-                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').removeClass('hidden');
+                $(el).closest('#quote-grid-top').find('.search-block-element-autocomplete').removeClass('hidden');
+                $(el).closest('#quote-grid-top').find('.clear-input-autocomplete').addClass('hidden');
             } else {
-                $(el).closest('#quote-grid-top').find('#search-quote-duplicate').addClass('hidden');
+                $(el).closest('#quote-grid-top').find('.search-block-element-autocomplete').addClass('hidden');
                 $(el).closest('#quote-grid-top').find('#search-quote-duplicate').val('');
                 $(el).closest('#quote-grid-top').find('#duplicate-quote-id').val('');
             }
@@ -125,6 +126,11 @@ define([
                     $('.quote-create-option-button-default-load').trigger('click');
                     $('#search-quote-duplicate').val('');
                     $('#quote-title-original').val('');
+                    var searchInput = $(e.currentTarget).closest('.flex-row-quote-buttons').find('span.clear-input-autocomplete');
+                    if(typeof searchInput !== 'undefined') {
+                        $(searchInput).addClass('hidden');
+                    }
+
                 },
                 error: function(mode, xhr) {
                     hideSpinner();
@@ -181,9 +187,18 @@ define([
             this.renderGrid();
 
             $("#search-quote-duplicate").on("keydown", function(event) {
+                $('#duplicate-quote-id').val('');
+                var clearInputAutocomplete = $("#search-quote-duplicate").closest('.search-block-element-autocomplete').find('.clear-input-autocomplete');
+                if(typeof clearInputAutocomplete !== 'undefined') {
+                    clearInputAutocomplete.addClass('hidden');
+                }
+
                 if ( event.keyCode === $.ui.keyCode.TAB &&
                     $(this).autocomplete( "instance" ).menu.active) {
                     event.preventDefault();
+                }
+                if (event.keyCode === 13) {
+                    $("#search-quote-duplicate").trigger('keydown');
                 }
             }).autocomplete({
                 source: function(request, response) {
@@ -193,7 +208,6 @@ define([
                         'dataType':'json',
                         'data': {searchTerm: request.term}
                     }).done(function(responseData){
-                        $('#duplicate-quote-id').val('');
                         if (!_.isEmpty(responseData)) {
                             response($.map(responseData, function (responseData) {
                                 return {
@@ -206,11 +220,29 @@ define([
                     });
                 },
                 select: function(event, ui ) {
+                    var clearInputEl = $("#search-quote-duplicate").closest('.search-block-element-autocomplete').find('span.clear-input-autocomplete');
+                    if(typeof clearInputEl !== 'undefined') {
+                        if(ui.item.custom.length > 0) {
+                            $(clearInputEl).removeClass('hidden');
+                        } else {
+                            $(clearInputEl).addClass('hidden');
+                        }
+                    }
+
                     $('#duplicate-quote-id').val(ui.item.custom);
                 }
             });
 
             return this;
+        },
+        clearInputAutocomplete:function (e) {
+            var searchInput = $(e.currentTarget).closest('.search-block-element-autocomplete').find('input.search-input-autocomplete');
+
+            if(typeof searchInput !== 'undefined') {
+                searchInput.val('').focus();
+                $(e.currentTarget).addClass('hidden');
+                $('#duplicate-quote-id').val('');
+            }
         }
     })
     return QuoteGridView;

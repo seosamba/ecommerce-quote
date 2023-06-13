@@ -805,6 +805,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     ->setLabel('');
             }
 
+            if (!empty($requiredFields)) {
+                $this->_view->enableCustomValidation = '1';
+                $this->_view->mandatoryFieldsList = $requiredFields;
+            } else {
+                $this->_view->enableCustomValidation = '0';
+                $this->_view->mandatoryFieldsList = '';
+            }
+
             $this->_view->addressForm = $addressForm;
             return $this->_view->render('address.quote.phtml');
         } elseif (!$this->_editAllowed && isset($this->_options[1]) && is_array($address)) {
@@ -1347,6 +1355,9 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         if($addrKey !== null) {
             $address = Tools_ShoppingCart::getAddressById($addrKey);
             if(is_array($address) && !empty($address)) {
+                if (!empty($address['customer_notes'])) {
+                    $address['disclaimer'] = $address['customer_notes'];
+                }
                 $quoteForm->populate($address);
             }
         }
@@ -1577,6 +1588,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         $this->_view->desktopMasks = $listMasksMapper->getListOfMasksByType(Application_Model_Models_MaskList::MASK_TYPE_DESKTOP);
         $thankyouPage = Application_Model_Mappers_PageMapper::getInstance()->fetchByOption(        Quote_Models_Model_Quote::OPTION_THANKYOU, true);
         $this->_view->quoteThankYouPage = '';
+        $this->_view->quotePageId = $this->_toasterOptions['id'];
         if ($thankyouPage instanceof Application_Model_Models_Page) {
             $this->_view->quoteThankYouPage = $this->_websiteHelper->getUrl().$thankyouPage->getUrl();
         }
@@ -2102,10 +2114,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     Models_Model_CartSession::CART_STATUS_REFUNDED,
                     Models_Model_CartSession::CART_STATUS_DELIVERED,
                     Models_Model_CartSession::CART_STATUS_SHIPPED,
-                    Models_Model_CartSession::CART_STATUS_CANCELED,
                     Models_Model_CartSession::CART_STATUS_PARTIAL,
                     Models_Model_CartSession::CART_STATUS_ERROR,
                 );
+
+                $purchasedOn = $this->_cart->getPurchasedOn();
+                if ($status === Models_Model_CartSession::CART_STATUS_ERROR && empty($purchasedOn)) {
+                    return '';
+                }
 
                 if (in_array($status, $cartStatuses)) {
                     $this->_view->order = $this->_cart;

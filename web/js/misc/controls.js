@@ -133,8 +133,8 @@ $(function() {
                     showMessage(response.responseText, true, 5000);
                     return false;
                 } else {
-                    showMailMessageEdit(control.data('trigger'), function (message, ccEmails) {
-                        updateQuote(quoteId, true, message, '', ccEmails);
+                    showMailMessageEditQuote(control.data('trigger'), function (message, ccEmails, additionalInfo) {
+                        updateQuote(quoteId, true, message, '', ccEmails, false, '', '', additionalInfo);
                     }, 'customer');
                 }
             });
@@ -454,7 +454,7 @@ var processDraggable = function(quoteId) {
     return true;
 }
 
-var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner, additionalEmailValidate, disableAutosaveEmail) {
+var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, noSpinner, additionalEmailValidate, disableAutosaveEmail, additionalInfo) {
     var quoteForm = $('#plugin-quote-quoteform'),
         quoteShippingUserAddressForm = $('#shipping-user-address'),
         notValidElements = [],
@@ -467,7 +467,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
     if(typeof quoteForm !== 'undefined') {
         $(':input[name], select[name]', quoteForm).each(function(key, field) {
             if($(field).hasClass('required')){
-                if($(field).attr('id') != 'quote-form-email' && $(this).val() === '') {
+                if($(field).attr('id') != 'quote-form-email' && $(field).attr('id') != 'state' && $(this).val() === '') {
                     notValidElements.push(field);
                 }
             }
@@ -477,7 +477,7 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
     if(typeof quoteShippingUserAddressForm !== 'undefined') {
         $(':input[name], select[name]', quoteShippingUserAddressForm).each(function(key, field) {
             if($(field).hasClass('required')){
-                if($(field).attr('id') != 'email' && $(this).val() === '') {
+                if($(field).attr('id') != 'email' && $(field).attr('id') != 'state' && $(this).val() === '') {
                     notValidElements.push(field);
                 }
             }
@@ -525,6 +525,11 @@ var updateQuote = function(quoteId, sendMail, mailMessage, eventType, ccEmails, 
         partialPaymentType : $('#partial-payment-type').val(),
         ccEmails    : ccEmails,
         additionalEmailValidate : (additionalEmailValidate) ? additionalEmailValidate : '',
+        additionalInfo : additionalInfo,
+        enableShippingMandatory: $('#enable-shipping-custom-validation').val(),
+        enableBillingMandatory: $('#enable-billing-custom-validation').val(),
+        shippingMandatoryFields: $('#enable-shipping-custom-validation').data('mandatory-fields'),
+        billingMandatoryFields: $('#enable-billing-custom-validation').data('mandatory-fields'),
     };
 
     var request = _update('api/quote/quotes/', data, noSpinner);
@@ -663,4 +668,95 @@ function changePaymentTypeMessage(paymentType, isSignatureRequired) {
             showMessage(JSON.parse(response.responseText), true, 5000);
         });
     }
+}
+
+function showMailMessageEditQuote(trigger, callback, recipient){
+    $.getJSON($('#website_url').val()+'plugin/quote/run/popupEmailMessage', {
+        'trigger' : trigger,
+        'recipient' : recipient
+    }, function(response){
+        $(msgEditScreen).remove();
+        var msg = response.responseText.message,
+            dialogTitle = response.responseText.dialogTitle,
+            dialogOkay = response.responseText.dialogOkay,
+            additionalInfo = {};
+
+        dialogTitle = (dialogTitle.length > 0) ? dialogTitle : 'Edit mail message before sending';
+        dialogOkay = (dialogOkay.length > 0) ? dialogOkay : 'Okay';
+        msg = (msg) ? response.responseText.message : 'success';
+
+        var msgEditScreen = $('<div class="msg-edit-screen"></div>').append($('<textarea id="trigger-msg" rows="10"></textarea>').val(msg).css({
+            resizable : "none"
+        }));
+        $(msgEditScreen).append(response.responseText.popupContent);
+
+        $('#trigger-msg').val(msg);
+        msgEditScreen.dialog({
+            modal     : true,
+            title     : dialogTitle,
+            width     : 600,
+            resizable : false,
+            show      : 'clip',
+            hide      : 'clip',
+            draggable : false,
+            open: function (event, ui) {
+                $(document).on('change', '#process-opportunity', function(){
+                    if ($(this).is(':checked')) {
+                        $(document).find('.opportunity-processing-block').removeClass('hidden');
+                    } else {
+                        $(document).find('.opportunity-processing-block').addClass('hidden');
+                    }
+                });
+            },
+            buttons   : [
+                {
+                    text  : dialogOkay,
+                    click : function(e){
+                        var additionalEmails = $('#additional-emails').val(),
+                            closeDialog = true;
+
+                        if(additionalEmails.length) {
+                            additionalEmails = additionalEmails.split(',');
+
+                            var regularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+                            $.each(additionalEmails, function(key, email){
+                                var clearEmail = email.toString().replace(/\s/g, ''),
+                                    isValidEmail = regularExpression.test(clearEmail);
+
+                                if(!isValidEmail) {
+                                    closeDialog = false;
+                                    showMessage('Not valid email address - "' + clearEmail + '"', true, 3000);
+                                }
+                            });
+                        }
+
+                        if(closeDialog) {
+                            additionalInfo.processOpportunity = '0';
+                            if ($('#process-opportunity').is(':checked')) {
+                                additionalInfo.processOpportunity = '1';
+                            }
+                            additionalInfo.reprocessOpportunity = '0';
+                            if ($('#re-process-opportunity').is(':checked')) {
+                                additionalInfo.reprocessOpportunity = '1';
+                            }
+
+                            additionalInfo.stageId = $('#email-opportunity-stage-id').val();
+                            if (additionalInfo.stageId == '0' && additionalInfo.processOpportunity == '1') {
+                                showMessage(response.responseText.errorMessages.specifyOpportunityStage, true, 5000);
+                                return false;
+                            }
+
+                            msgEditScreen.dialog('close');
+                            callback($('#trigger-msg').val(), $('#additional-emails').val(), additionalInfo);
+                        }
+                    }
+                }
+            ],
+            close: function(event, ui){
+                $(this).dialog('close').remove();
+            }
+        });
+    }, 'json');
+
 }

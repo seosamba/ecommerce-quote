@@ -101,7 +101,12 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 $where .= ' AND ';
             }
 
-            $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.status = ?', $quoteStatusName);
+            if ($quoteStatusName === Quote_Models_Model_Quote::STATUS_PARTIAL) {
+                $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('cart.status = ?', $quoteStatusName);
+            } else {
+                $where .= $this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('s_q.status = ?', $quoteStatusName);
+                $where .= ' AND '.$this->_quoteMapper->getDbTable()->getAdapter()->quoteInto('cart.status <> ?', Quote_Models_Model_Quote::STATUS_PARTIAL);
+            }
         }
 
         $quotes    = $this->_quoteMapper->fetchAll(
@@ -182,6 +187,36 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 if (!$emailValidator->isValid($data['email'])) {
                     $this->_error($translator->translate('Not valid email address'));
                 }
+
+                if (Tools_System_FormBlacklist::isBlacklisted($data['email'], $data)) {
+                    return array();
+                }
+
+                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+                if (!empty($data['disclaimer']) && !empty($shoppingConfig['enableSpamVerification'])) {
+                    $dataToVerify = $data;
+                    $dataToVerify['message'] = $data['disclaimer'];
+                    $dataToVerify['formName'] = null;
+                    $dataToVerify['spamValidationType'] = 'quote';
+                    $dataToVerify['pageUrl'] = '';
+                    if (isset($dataToVerify['quotePageId'])) {
+                        $quotePageId = $dataToVerify['quotePageId'];
+                        unset($dataToVerify['quotePageId']);
+                        if (!empty($quotePageId)) {
+                            $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($quotePageId);
+                            if ($pageModel instanceof Application_Model_Models_Page) {
+                                $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+                                $dataToVerify['pageUrl'] = $websiteHelper->getUrl().$pageModel->getUrl();
+                            }
+                        }
+
+                    }
+
+                    if (Tools_System_FormBlacklist::isSpam($dataToVerify)) {
+                        return array();
+                    }
+                }
+
 
                 $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
                 if (!empty($shoppingConfig['maxProductsInQuote'])) {
@@ -468,6 +503,15 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                                     $currentCart->setPurchasedOn(null);
                                     $currentCart->setPartialPurchasedOn(null);
                                     $currentCart->setPartialNotificationDate(null);
+                                    $currentCart->setIsFirstPaymentManuallyPaid('0');
+                                    $currentCart->setIsSecondPaymentManuallyPaid('0');
+                                    $currentCart->setIsFullOrderManuallyPaid('0');
+                                    $currentCart->setFirstPaymentGateway('');
+                                    $currentCart->setSecondPaymentGateway('');
+                                    $currentCart->setFirstPartialPaidAmount(0);
+                                    $currentCart->setSecondPartialPaidAmount(0);
+                                    $currentCart->setPurchaseErrorMessage('');
+
                                     $cart =  $cartMapper->save($currentCart);
 
                                     $newCartId = $cart->getId();
@@ -634,6 +678,28 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $quoteId   = filter_var($quoteData['qid'], FILTER_SANITIZE_STRING);
         if(!$quoteId) {
             $quoteId = filter_var($quoteData['id'], FILTER_SANITIZE_STRING);
+        }
+
+        if (empty($additionalEmailValidate)) {
+            if (!empty($quoteData['enableShippingMandatory']) && !empty($quoteData['shippingMandatoryFields'])) {
+                foreach ($quoteData['shippingMandatoryFields'] as $mandatoryField) {
+                    parse_str($quoteData['shipping'], $shippingDataToCheck);
+                    $isValidField = Quote_Tools_Tools::verifyFormFields($mandatoryField, $shippingDataToCheck);
+                    if ($isValidField === false) {
+                        $response->fail($translator->translate('Sorry, but you didn\'t fill all the required fields.'));
+                    }
+                }
+            }
+
+            if (!empty($quoteData['enableBillingMandatory']) && !empty($quoteData['billingMandatoryFields'])) {
+                foreach ($quoteData['billingMandatoryFields'] as $mandatoryField) {
+                    parse_str($quoteData['billing'], $billingDataToCheck);
+                    $isValidField = Quote_Tools_Tools::verifyFormFields($mandatoryField, $billingDataToCheck);
+                    if ($isValidField === false) {
+                        $response->fail($translator->translate('Sorry, but you didn\'t fill all the required fields.'));
+                    }
+                }
+            }
         }
 
         if(!$quoteId) {

@@ -16,13 +16,50 @@
     <td><%= (ownerName != null) ? ownerName : "<?php echo $this->translate('unknown'); ?>" %></td>
     <td><%= $.datepicker.formatDate('dd-M-yy', new Date(Date.parse(createdAt.replace(/\-/g, '/')))) %></td>
     <td>
-        <select <% if (status == 'sold') { %> disabled="disabled" <% } %> name="quoteStatus" class="quote-status" id="<%= id %>">
-            <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>><?php echo $this->translate('Quote New');?></option>
-            <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Sent');?></option>
-            <option value="signature_only_signed" <% if (status == 'signature_only_signed') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
-            <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
-            <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
-        </select>
+        <% if (typeof cartStatus !== 'undefined' && cartStatus === 'partial') {%>
+            <% status = cartStatus%>
+        <% } %>
+        <% if (status == 'partial') { %>
+            <select  name="quoteStatus" class="quote-status" id="<%= id %>">
+                <option value="partial" <% if (status == 'partial') { %> selected="selected" <% } %>><?php echo $this->translate('Quote partially paid');?></option>
+                <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
+            </select>
+        <% } else if(status == 'signature_only_signed')  { %>
+            <select  name="quoteStatus" class="quote-status" id="<%= id %>">
+                <option value="signature_only_signed" <% if (status == 'signature_only_signed') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
+                <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
+                <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
+            </select>
+        <% } else if(status == 'new')  { %>
+            <select name="quoteStatus" class="quote-status" id="<%= id %>">
+                <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>><?php echo $this->translate('Quote New');?></option>
+                <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Sent');?></option>
+                <option value="partial" <% if (status == 'partial') { %> selected="selected" <% } %>><?php echo $this->translate('Quote partially paid');?></option>
+                <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
+                <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
+            </select>
+        <% } else if(status == 'sent')  { %>
+            <select name="quoteStatus" class="quote-status" id="<%= id %>">
+                <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>><?php echo $this->translate('Quote New');?></option>
+                <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Sent');?></option>
+                <option value="partial" <% if (status == 'partial') { %> selected="selected" <% } %>><?php echo $this->translate('Quote partially paid');?></option>
+                <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
+                <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
+            </select>
+        <% } else if(status == 'lost')  { %>
+            <select <% if (status == 'lost') { %> disabled="disabled" <% } %> name="quoteStatus" class="quote-status" id="<%= id %>">
+                <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
+            </select>
+        <% } else  { %>
+            <select <% if (status == 'sold') { %> disabled="disabled" <% } %> name="quoteStatus" class="quote-status" id="<%= id %>">
+                <option value="new" <% if (status == 'new') { %> selected="selected" <% } %>><?php echo $this->translate('Quote New');?></option>
+                <option value="sent" <% if (status == 'sent') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Sent');?></option>
+                <option value="signature_only_signed" <% if (status == 'signature_only_signed') { %> selected="selected" <% } %>><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
+                <option value="partial" <% if (status == 'partial') { %> selected="selected" <% } %>><?php echo $this->translate('Quote partially paid');?></option>
+                <option value="sold" <% if (status == 'sold') { %> selected="selected" <% } %>><?php echo $this->translate('Payment received');?></option>
+                <option value="lost" <% if (status == 'lost') { %> selected="selected" <% } %>><?php echo $this->translate('Lost opportunity');?></option>
+            </select>
+        <% } %>
     </td>
     <td><a target="_blank" href="<%= $('#website_url').val() + id %>.html?mode=preview"><?php echo $this->translate('Preview');?></a></td>
     <td class="text-center"><a href="javascript:;" class="quote-grid-delete icon18 ticon-cancel red" data-sid="<%= id %>"><?php echo $this->translate('Delete');?></a></td>
@@ -41,7 +78,7 @@
             ->appendStylesheet($this->websiteUrl . 'system/css/reset-widgets.css');
     ?>
     <div id="quote-grid">
-        <div id="quote-grid-top" class="quote-grid-block mt20px mb20px clearfix">
+        <div id="quote-grid-top" class="quote-grid-block mb20px clearfix">
             <div class="grid_5 alpha flex-row border-box">
                 <span class="flex_12 f-alpha f-omega t-flex_3 t-alpha search-block-element mb5px">
                     <?php echo $this->formText('search', '', array('id' => 'quote-grid-search','class' => 'search-input', 'placeholder' => $this->translate('search quote by title, by creator, by client email & name'))); ?>
@@ -62,6 +99,7 @@
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_NEW;?>"><?php echo $this->translate('Quote New');?></option>
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_SENT;?>"><?php echo $this->translate('Quote Sent');?></option>
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_SIGNATURE_ONLY_SIGNED;?>"><?php echo $this->translate('Quote Signed (Signature only quote)');?></option>
+                        <option value="<?php echo Quote_Models_Model_Quote::STATUS_PARTIAL;?>"><?php echo $this->translate('Partially payed');?></option>
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_SOLD;?>"><?php echo $this->translate('Payment received');?></option>
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_LOST;?>"><?php echo $this->translate('Lost opportunity');?></option>
                     </select>
@@ -82,7 +120,10 @@
                             data-type="create_quote_duplicate"><?php echo $this->translate('Create quote from a template'); ?></button>
                 </div>
 
-                <input class="hidden" id="search-quote-duplicate" name="search-quote-duplicate" placeholder="<?php echo $this->translate('Search by quote title');?>" />
+                <div class="search-block-element-autocomplete hidden">
+                    <input class="search-input-autocomplete" id="search-quote-duplicate" name="search-quote-duplicate" placeholder="<?php echo $this->translate('Search by quote title');?>" />
+                    <span class="ticon-cancel-search clear-input-autocomplete hidden"></span>
+                </div>
                 <input type="text" id="quote-title-original" class="search-quote-title-original" placeholder="<?php echo $this->translate('Quote title');?>" />
                 <input class="hidden" id="duplicate-quote-id" name="duplicate-quote-id">
                 <input class="hidden" id="quote-amp-hook" name="quote-amp-hook" value="<?php echo Api_Quote_Quotes::AMP_SYMBOL_HOOK;?>">
