@@ -44,6 +44,7 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 {$quote:item:customfield:testdropdown:select} - custom field select
 :testdropdown - name of the custom field
 :select - custom field type
+{$quote:item:pricewithoutoption} - displays product subtotal without any options
 
 {$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly]]}
 customfields:fieldName,fieldName2 - display quote custom fields
