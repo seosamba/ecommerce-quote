@@ -600,11 +600,11 @@ var recalculate = function(options, sid) {
             $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice, accounting.settings.currency));
         }
 
-        if(sid.length && typeof options.summary.priceWithoutOptionsTotal !== 'undefined'){
-            $('.price-without-option-total[data-sid="' + sid + '"]').text(accounting.formatMoney(options.summary.priceWithoutOptionsTotal, accounting.settings.currency));
-        } else {
-            $('.price-without-option-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(options.summary.priceWithoutOptionsTotal, accounting.settings.currency));
-        }
+        // if(sid.length && typeof options.summary.priceWithoutOptionsTotal !== 'undefined'){
+        //     $('.price-without-option-total[data-sid="' + sid + '"]').text(accounting.formatMoney(options.summary.priceWithoutOptionsTotal, accounting.settings.currency));
+        // } else {
+        //     $('.price-without-option-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(options.summary.priceWithoutOptionsTotal, accounting.settings.currency));
+        // }
 
         unitPriceContainer.val(accounting.formatNumber(unitPrice, 2));
     }

@@ -1244,7 +1244,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     $price += $itemTax;
                 }
 
-                $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price * $item['qty']);
+                $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price);
                 $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
                 break;
             case 'price':
