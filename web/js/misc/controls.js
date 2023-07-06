@@ -4,6 +4,22 @@ $(function() {
     // current quote id
     var quoteId = $('#quote-id').val();
 
+    //Disable "Edit page properties" on Quote
+    var editPageLink = $('.tpopup.edit-page-link');
+    if(editPageLink.length) {
+        $(editPageLink).addClass('hidden');
+    }
+
+    //Disable "Delete this page" on Quote
+    var delThisPage = $('#del-this-page');
+    if(delThisPage.length) {
+        $(delThisPage).addClass('hidden');
+    }
+
+    if(editPageLink.length && delThisPage.length) {
+        $('.page-control').addClass('hidden');
+    }
+
     //same fore shipping checkbox handling
     $(document).on('click', '#same-for-shipping', function(e) {
         var shippingForm = $('#shipping-user-address');
