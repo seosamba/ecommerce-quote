@@ -17,7 +17,17 @@ $(function() {
     }
 
     if(editPageLink.length && delThisPage.length) {
-        $('.page-control').addClass('hidden');
+        //$('.page-control').addClass('hidden');
+        var pageId = $('#page_id').val();
+
+        $.ajax({
+            url        : $('#website_url').val() + 'plugin/quote/run/showEditQuotePageConfig',
+            type       : 'POST',
+            data       : {pageId: pageId},
+            dataType   : 'json',
+        }).done(function(response) {
+            $('.page-control').closest('ul li:nth-child(1)').after($("<li>").append(response.responseText.quotePageConfig));
+        });
     }
 
     //same fore shipping checkbox handling
