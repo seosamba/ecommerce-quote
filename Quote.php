@@ -1062,7 +1062,7 @@ class Quote extends Tools_PaymentGateway
                             if($template->getName() == $quoteTemplate) {
                                 $pageModel->setTemplateId($quoteTemplate);
                                 $pageMapper->save($pageModel);
-                                $this->_responseHelper->success('');
+                                $this->_responseHelper->success($this->_translator->translate('Quote template changed and the page will be reloaded.'));
                             }
                         }
                     }

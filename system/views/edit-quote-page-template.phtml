@@ -6,11 +6,8 @@
         )
     ); ?>
     <div class="f-content">
-        <div class="current-quote-page-template grid_12">
-            <?php echo $this->translator->translate('Current saved quote template'); ?> : <b class="current-saved-template-text"><?php echo $this->currentPageTemplate;?></b>
-        </div>
         <div class="quote-templates-list grid_12 mt10px">
-            <label class="grid_5 alpha omega mt5px"><?php echo $this->translator->translate('Choose quote template'); ?>:</label>
+            <label class="grid_5 alpha omega mt5px"><?php echo $this->translator->translate('Current template'); ?>:</label>
             <select name="quoteTemplates" class="quoteTemplates grid_7">
                 <?php if (!empty($this->quoteTemplates)): ?>
                     <?php foreach ($this->quoteTemplates as $template): ?>
@@ -48,12 +45,14 @@
                 }).done(function (response) {
                     if (response.error == 1) {
                         showMessage(response.responseText, true, 5000);
-                        $('.current-saved-template-text').text(currentSavedTemplate);
                         $('.quoteTemplates').val(currentSavedTemplate);
                     } else {
-                        showMessage('<?php echo $this->translate('Saved');?>', false, 5000);
+                        showMessage(response.responseText, false, 5000);
                         $('.currentSavedTemplate').val(quoteTemplate);
-                        $('.current-saved-template-text').text(quoteTemplate);
+                        setTimeout(() => {
+                            top.location.reload();
+                        }, 1000);
+
                     }
                 });
             }, function () {
