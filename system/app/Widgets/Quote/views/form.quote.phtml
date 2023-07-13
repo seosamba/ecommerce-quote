@@ -130,15 +130,16 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
 
             formData = $(form).serialize() + '&quotePageId='+$('#quote-page-id').val();
             //console.log($(form).serialize()); return false;
+            var formMessageThx = "<?php echo $this->translate('Thank you for submitting a quote request. Please wait, the quote will be processed soon...');?>";
 
             $.ajax({
                 type: 'post',
                 url: $(form).attr('action'),
                 data: formData,
                 dataType: 'json',
-                beforeSend: showSpinner('#plugin-quote-quoteform', 'quote-form-spinner-block', 'Thank you for submitting a quote request. Please wait, the quote will be processed soon...', 'spinner-opacity-medium')
+                beforeSend: showSpinner('#plugin-quote-quoteform', 'quote-form-spinner-block', formMessageThx, 'spinner-opacity-medium')
             }).done(function(response) {
-                hideSpinner('quote-form-spinner-block');
+                hideSpinner('.quote-form-spinner-block');
                 var formMessage = "<?php echo $this->translate('Thank you for submitting a quote request. We will get back to you shortly - You will shortly be redirected to our homepage');?>";
                 if(typeof response.error !== "undefined"){
                     showMessage(formMessage, false, 5000);
@@ -162,7 +163,7 @@ $websiteConfig = Zend_Controller_Action_HelperBroker::getExistingHelper('config'
                     }, "5000")
                 }
             }).fail(function(response) {
-                hideLoader();
+                hideSpinner('.quote-form-spinner-block');
                 var msg = '';
                 <?php if(Tools_Security_Acl::isAllowed(Tools_Security_Acl::RESOURCE_PLUGINS)):?>
                     var msg = '<a class="quote-fail-lnk" target="_blank" href="http://www.seotoaster.com/web-site-quote-system-software-tool.html"><?php echo $this->translate("Learn more")?></a>';
