@@ -982,4 +982,96 @@ class Quote extends Tools_PaymentGateway
         return true;
     }
 
+    /**
+     * Generate "Quote page config" link on quote page in admin panel
+     *
+     * @return void
+     */
+    public function showEditQuotePageConfigAction() {
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT) && $this->_request->isPost()) {
+            $pageId = filter_var($this->_request->getParam('pageId'), FILTER_SANITIZE_NUMBER_INT);
+            if (!empty($pageId)) {
+                $this->_view->pageId = $pageId;
+                $quotePageConfig = $this->_view->render('quote-page-config-item.phtml');
+                $this->_responseHelper->success(array('quotePageConfig' => $quotePageConfig));
+            }
+        }
+    }
+
+    /**
+     * "Quote page config" popup
+     *
+     * @return void
+     */
+    public function quoteEditPageTemplateAction()
+    {
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT) && $this->_request->isGet()) {
+            $pageId = filter_var($this->_request->getParam('pageId'), FILTER_SANITIZE_NUMBER_INT);
+
+            if(!empty($pageId)) {
+                $currentPageTemplate = '';
+                $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($pageId);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    $currentPageTemplate = $pageModel->getTemplateId();
+                }
+
+                $this->_view->currentPageTemplate = $currentPageTemplate;
+
+                $quoteTemplates = Application_Model_Mappers_TemplateMapper::getInstance()->findByType(self::QUOTE_TEPMPLATE_TYPE);
+
+                $this->_view->quoteTemplates = $quoteTemplates;
+                $this->_view->pageId = $pageId;
+            }
+
+            $this->_view->translator = $this->_translator;
+
+            $this->_layout->content = $this->_view->render('edit-quote-page-template.phtml');
+            echo $this->_layout->render();
+        }
+    }
+
+    /**
+     * Set new page template for quote
+     *
+     * @return void
+     * @throws Exceptions_SeotoasterException
+     */
+    public function changeQuoteTemplateAction() {
+        if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT) && $this->_request->isPost()) {
+            $secureToken = $this->_request->getParam(Tools_System_Tools::CSRF_SECURE_TOKEN, false);
+            $tokenValid = Tools_System_Tools::validateToken($secureToken, self::QUOTE_SECURE_TOKEN);
+            if (!$tokenValid) {
+                $this->_responseHelper->fail($this->_translator->translate('Can not change the quote template!'));
+            }
+
+            $pageId = filter_var($this->_request->getParam('pageId'), FILTER_SANITIZE_NUMBER_INT);
+            $quoteTemplate = filter_var($this->_request->getParam('quoteTemplate'), FILTER_SANITIZE_STRING);
+
+            if(!empty($pageId) && !empty($quoteTemplate)) {
+                $pageMapper = Application_Model_Mappers_PageMapper::getInstance();
+                $pageModel = $pageMapper->find($pageId);
+                if ($pageModel instanceof Application_Model_Models_Page) {
+                    $currentPageTemplate = $pageModel->getTemplateId();
+
+                    if($currentPageTemplate == $quoteTemplate) {
+                        $this->_responseHelper->fail($this->_translator->translate('Can not change the quote template!'));
+                    } else {
+                        $quoteTemplates = Application_Model_Mappers_TemplateMapper::getInstance()->findByType(self::QUOTE_TEPMPLATE_TYPE);
+
+                        foreach ($quoteTemplates as $template) {
+                            if($template->getName() == $quoteTemplate) {
+                                $pageModel->setTemplateId($quoteTemplate);
+                                $pageMapper->save($pageModel);
+                                $this->_responseHelper->success($this->_translator->translate('Quote template changed and the page will be reloaded.'));
+                            }
+                        }
+                    }
+                }
+            }
+
+            $this->_responseHelper->fail($this->_translator->translate('Can not change the quote template!'));
+
+        }
+    }
+
 }
