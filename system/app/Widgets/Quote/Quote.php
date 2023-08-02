@@ -1214,6 +1214,39 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 $this->_view->linkFlag = $linkFlag;
 
             break;
+            case 'pricewithoutoption':
+                $price                  = $cartContent[$itemId]['original_price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
+
+                if($cartContent[$itemId]['freebies'] === '1'){
+                    $this->_view->freebies = true;
+                }
+
+                $isTaxable = false;
+                if (!empty($this->_shoppingConfig['showPriceIncTax'])) {
+                    $isTaxable = true;
+                }
+
+                $productMapper = Models_Mapper_ProductMapper::getInstance();
+                $product = $productMapper->find($cartContent[$itemId]['product_id']);
+
+                if (($taxClass = $product->getTaxClass()) != 0 && $isTaxable === true) {
+                    $rateMethodName = 'getRate' . $taxClass;
+
+                    $tax = Models_Mapper_Tax::getInstance()->getDefaultRule();
+
+                     if (isset($tax) && $tax !== null) {
+                        $productPrice = is_null($product->getCurrentPrice()) ? $product->getPrice() : $product->getCurrentPrice();
+                        $itemTax = ($productPrice / 100) * $tax->$rateMethodName();
+                    }
+               }
+
+                if (!empty($itemTax)) {
+                    $price += $itemTax;
+                }
+
+                $value                  = (isset($this->_options[1]) && $this->_options[1] === 'unit') ? $price : ($price);
+                $this->_view->unitPrice = (isset($this->_options[1]) && $this->_options[1] === 'unit');
+                break;
             case 'price':
                 $price                  = ($this->_shoppingConfig['showPriceIncTax']) ? $cartContent[$itemId]['tax_price'] : $cartContent[$itemId]['price']; //Tools_ShoppingCart::getInstance()->calculateProductPrice($product, (isset($item['options']) && $item['options']) ? $item['options'] : Quote_Tools_Tools::getProductDefaultOptions($product));
 

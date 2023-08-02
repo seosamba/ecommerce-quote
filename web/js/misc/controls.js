@@ -4,6 +4,32 @@ $(function() {
     // current quote id
     var quoteId = $('#quote-id').val();
 
+    //Disable "Edit page properties" on Quote
+    var editPageLink = $('.tpopup.edit-page-link');
+    if(editPageLink.length) {
+        $(editPageLink).addClass('hidden');
+    }
+
+    //Disable "Delete this page" on Quote
+    var delThisPage = $('#del-this-page');
+    if(delThisPage.length) {
+        $(delThisPage).addClass('hidden');
+    }
+
+    if(editPageLink.length && delThisPage.length) {
+        //$('.page-control').addClass('hidden');
+        var pageId = $('#page_id').val();
+
+        $.ajax({
+            url        : $('#website_url').val() + 'plugin/quote/run/showEditQuotePageConfig',
+            type       : 'POST',
+            data       : {pageId: pageId},
+            dataType   : 'json',
+        }).done(function(response) {
+            $('.page-control').closest('ul li:nth-child(1)').after($("<li>").append(response.responseText.quotePageConfig));
+        });
+    }
+
     //same fore shipping checkbox handling
     $(document).on('click', '#same-for-shipping', function(e) {
         var shippingForm = $('#shipping-user-address');
@@ -599,6 +625,13 @@ var recalculate = function(options, sid) {
         } else {
             $('.price-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(totalPrice, accounting.settings.currency));
         }
+
+        // if(sid.length && typeof options.summary.priceWithoutOptionsTotal !== 'undefined'){
+        //     $('.price-without-option-total[data-sid="' + sid + '"]').text(accounting.formatMoney(options.summary.priceWithoutOptionsTotal, accounting.settings.currency));
+        // } else {
+        //     $('.price-without-option-total[data-pid="' + options.productId + '"]').text(accounting.formatMoney(options.summary.priceWithoutOptionsTotal, accounting.settings.currency));
+        // }
+
         unitPriceContainer.val(accounting.formatNumber(unitPrice, 2));
     }
     var summary = options.summary;

@@ -203,31 +203,6 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                     return array();
                 }
 
-                $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
-                if (!empty($data['disclaimer']) && !empty($shoppingConfig['enableSpamVerification'])) {
-                    $dataToVerify = $data;
-                    $dataToVerify['message'] = $data['disclaimer'];
-                    $dataToVerify['formName'] = null;
-                    $dataToVerify['spamValidationType'] = 'quote';
-                    $dataToVerify['pageUrl'] = '';
-                    if (isset($dataToVerify['quotePageId'])) {
-                        $quotePageId = $dataToVerify['quotePageId'];
-                        unset($dataToVerify['quotePageId']);
-                        if (!empty($quotePageId)) {
-                            $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($quotePageId);
-                            if ($pageModel instanceof Application_Model_Models_Page) {
-                                $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
-                                $dataToVerify['pageUrl'] = $websiteHelper->getUrl().$pageModel->getUrl();
-                            }
-                        }
-
-                    }
-
-                    if (Tools_System_FormBlacklist::isSpam($dataToVerify)) {
-                        return array();
-                    }
-                }
-
 
                 $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
                 if (!empty($shoppingConfig['maxProductsInQuote'])) {
@@ -259,6 +234,30 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
                 } else {
                     if (!$form->isValid($this->_request->getParams())) {
                         $this->_error($translator->translate('Sorry, but you didn\'t fill all the required fields. Please try again.'));
+                    }
+                }
+
+                if (!empty($data['disclaimer']) && !empty($shoppingConfig['enableSpamVerification'])) {
+                    $dataToVerify = $data;
+                    $dataToVerify['message'] = $data['disclaimer'];
+                    $dataToVerify['formName'] = null;
+                    $dataToVerify['spamValidationType'] = 'quote';
+                    $dataToVerify['pageUrl'] = '';
+                    if (isset($dataToVerify['quotePageId'])) {
+                        $quotePageId = $dataToVerify['quotePageId'];
+                        unset($dataToVerify['quotePageId']);
+                        if (!empty($quotePageId)) {
+                            $pageModel = Application_Model_Mappers_PageMapper::getInstance()->find($quotePageId);
+                            if ($pageModel instanceof Application_Model_Models_Page) {
+                                $websiteHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('website');
+                                $dataToVerify['pageUrl'] = $websiteHelper->getUrl().$pageModel->getUrl();
+                            }
+                        }
+
+                    }
+
+                    if (Tools_System_FormBlacklist::isSpam($dataToVerify)) {
+                        return array();
                     }
                 }
 

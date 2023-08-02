@@ -1,0 +1,15 @@
+<?php if($this->editAllowed && $this->unitPrice == 'unit'): ?>
+    <?php $price = round($this->pricewithoutoption,2);?>
+    <input data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" data-scope="quote-item" data-type="pricewithoutoption" type="text" value="<?php echo $price; ?>" />
+<?php else: ?>
+    <?php if(isset($this->freebies)):?>
+        <span data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" class="price-without-option-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $this->translate('free'); ?></span>
+    <?php else:?>
+        <?php if(!empty($this->clean)):?>
+            <?php $price = number_format($this->pricewithoutoption, 2);?>
+        <?php else :?>
+            <?php $price = $this->currency($this->pricewithoutoption);?>
+        <?php endif;?>
+        <span data-sid="<?php echo $this->sid; ?>" data-pid="<?php echo $this->productId; ?>" class="price-without-option-<?php echo (($this->unitPrice) ? 'unit' : 'total'); ?>"><?php echo $price; ?></span>
+    <?php endif;?>
+<?php endif; ?>

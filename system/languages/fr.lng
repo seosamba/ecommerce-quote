@@ -158,6 +158,14 @@
     'filter by owner' => 'filtrer par propriétaire',
     'filter by status' => 'filtrer par statut',
     'Quote Signed (Signature only quote)' => 'Devis signé (Signature seulement devis)',
-    'Thank you for submitting a quote request. We will get back to you shortly - You will shortly be redirected to our homepage'=>'Merci d\'avoir soumis une demande de devis. Nous vous répondrons dans les plus brefs délais - Vous serez bientôt redirigé vers notre page d\'accueil'
+    'Thank you for submitting a quote request. We will get back to you shortly - You will shortly be redirected to our homepage'=>'Merci d\'avoir soumis une demande de devis. Nous vous répondrons dans les plus brefs délais - Vous serez bientôt redirigé vers notre page d\'accueil',
+    'Thank you for submitting a quote request. Please wait, the quote will be processed soon...' => 'Nous vous remercions d\'avoir soumis une demande de devis. Veuillez patienter, le devis sera bientôt traité...',
+    'Can not change the quote template!' => 'Impossible de modifier le modèle de citation!',
+    'Edit quote page template' => 'Modifier le modèle de page de citation',
+    'Current saved quote template' => 'Modèle de citation actuellement enregistré',
+    'Choose quote template' => 'Choisissez un modèle de citation',
+    'Are you sure want to change the template for this quote?' => 'Êtes-vous sûr de vouloir changer le modèle pour cette citation?',
+    'Quote page config' => 'Configuration de la page de citation',
+
 
 );?>
