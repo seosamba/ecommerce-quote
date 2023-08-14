@@ -1,0 +1,69 @@
+<div id="quotePageTemplateContainer" class="seotoaster f-container">
+    <?php echo $this->partial(
+        'admin' . DIRECTORY_SEPARATOR . '_header.phtml',
+        array(
+            'headerText' => $this->translate('Edit quote page template')
+        )
+    ); ?>
+    <div class="f-content">
+        <div class="quote-templates-list grid_12 mt10px">
+            <label class="grid_5 alpha omega mt5px"><?php echo $this->translator->translate('Current template'); ?>:</label>
+            <select name="quoteTemplates" class="quoteTemplates grid_7">
+                <?php if (!empty($this->quoteTemplates)): ?>
+                    <?php foreach ($this->quoteTemplates as $template): ?>
+                        <?php $selected = '';?>
+                        <?php if($template->getName() == $this->currentPageTemplate) {
+                            $selected = 'selected';
+                        }?>
+                        <option <?php echo $selected;?> value="<?php echo $template->getName(); ?>"><?php echo $template->getName(); ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </div>
+        <input type="hidden" class="quote-secure-token" name="<?php echo Tools_System_Tools::CSRF_SECURE_TOKEN;?>" value="<?php echo Tools_System_Tools::initSecureToken(Quote::QUOTE_SECURE_TOKEN);?>" />
+        <input type="hidden" class="currentSavedTemplate" name="currentSavedTemplate" value="<?php echo $this->currentPageTemplate;?>" />
+    </div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        $(document).on("change", ".quoteTemplates", function (e) {
+            e.preventDefault();
+
+            var quoteTemplate = $('.quoteTemplates').val(),
+                currentSavedTemplate = $('.currentSavedTemplate').val();
+            showConfirm("<?php echo $this->translate('Are you sure want to change the template for this quote?');?>", function(){
+                $.ajax({
+                    type: "POST",
+                    url: '<?php echo $this->websiteUrl; ?>plugin/quote/run/changeQuoteTemplate/',
+                    dataType: "json",
+                    data: {
+                        secureToken: $('.quote-secure-token').val(),
+                        pageId: "<?php echo $this->pageId;?>",
+                        quoteTemplate: quoteTemplate
+                    }
+                }).done(function (response) {
+                    if (response.error == 1) {
+                        showMessage(response.responseText, true, 5000);
+                        $('.quoteTemplates').val(currentSavedTemplate);
+                    } else {
+                        showMessage(response.responseText, false, 5000);
+                        $('.currentSavedTemplate').val(quoteTemplate);
+                        setTimeout(() => {
+                            top.location.reload();
+                        }, 1000);
+
+                    }
+                });
+            }, function () {
+                $('.quoteTemplates').val($('.currentSavedTemplate').val());
+                return false;
+            });
+        });
+
+
+    });
+</script>
+
+
+
