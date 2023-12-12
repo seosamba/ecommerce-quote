@@ -469,8 +469,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     protected function _renderGrid() {
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-        $this->_view->quotes = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+        $quotesInfo = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
 
+        foreach ($quotesInfo['data'] as $key => $qInfo) {
+            unset($quotesInfo['data'][$key]['signature']);
+        }
+
+        $this->_view->quotes = $quotesInfo;
         $ownerRoles = array();
 
         $userRolesList = $quoteMapper->getAllUsers(true, true, 'full_name ASC');
