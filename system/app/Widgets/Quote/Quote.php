@@ -2041,10 +2041,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                         return $quoteCreatorModel->getFullName();
                     }
                     if ($this->_options[0] === 'mobile') {
-                        return $quoteCreatorModel->getMobileCountryCodeValue().$quoteCreatorModel->getMobilePhone();
+                        if (empty($quoteCreatorModel->getMobilePhone())) {
+                            return '';
+                        }
+                        return $quoteCreatorModel->getMobileCountryCodeValue().Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getMobilePhone(),
+                                Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $quoteCreatorModel->getMobileCountryCode());
                     }
                     if ($this->_options[0] === 'desktop') {
-                        return $quoteCreatorModel->getDesktopCountryCodeValue().$quoteCreatorModel->getDesktopPhone();
+                        if (empty($quoteCreatorModel->getDesktopPhone())) {
+                            return '';
+                        }
+                        return $quoteCreatorModel->getDesktopCountryCodeValue().Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getDesktopPhone(),
+                                Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $quoteCreatorModel->getDesktopCountryCode());
                     }
                     if ($this->_options[0] === 'email') {
                         return $quoteCreatorModel->getEmail();
