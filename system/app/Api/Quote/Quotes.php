@@ -709,9 +709,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         $ccValidEmails = array();
         $ccEmailsArr = array();
-        $ccEmails = filter_var($quoteData['ccEmails'], FILTER_SANITIZE_STRING);
 
-        if(!empty($ccEmails)) {
+        if(!empty($quoteData['ccEmails'])) {
+            $ccEmails = filter_var($quoteData['ccEmails'], FILTER_SANITIZE_STRING);
             $ccEmailsArr = array_filter(array_unique(array_map('trim', explode(',', $ccEmails))));
         }
 
