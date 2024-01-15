@@ -225,7 +225,12 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
 
     protected function _sendQuoteCreatedMail() {
         // switch through the recipients and init proper mailer values for them
-        $data = $this->_options['params'];
+        if (!empty($this->_options['params'])) {
+            $data = $this->_options['params'];
+        } else {
+            $data = array();
+        }
+
         if ($this->_options['service'] === 'sms') {
             return $this->_sendSms($data);
         } else {
