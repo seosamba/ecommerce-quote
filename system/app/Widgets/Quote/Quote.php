@@ -887,8 +887,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
                     if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
-                        $state = Tools_Geo::getStateById($this->shoppingConfig['state']);
-                        return $state;
+                        $stateData = Tools_Geo::getStateById($this->_shoppingConfig['state']);
+                        if (!empty($stateData['state'])) {
+                            return $stateData['state'];
+                        }
                     } else {
                         $stateData = Tools_Geo::getStateById($address['state']);
                         if (!empty($stateData['state'])) {
