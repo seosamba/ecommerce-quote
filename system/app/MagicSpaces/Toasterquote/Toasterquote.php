@@ -40,7 +40,7 @@ class MagicSpaces_Toasterquote_Toasterquote extends MagicSpaces_Toastercart_Toas
 
 		$cartContent = $this->_getCartContent();
 
-		if(sizeof($cartContent)) {
+		if ($cartContent !== null && sizeof($cartContent)) {
             $cartContent = $this->_processSid($cartContent);
 
 			foreach($cartContent as $key => $item) {
