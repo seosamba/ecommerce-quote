@@ -41,7 +41,7 @@ class Quote_Tools_Tools {
      * @return bool|string
      */
     public static function createQuote($cart, $options = array()) {
-        $quoteId = substr(md5(uniqid(time(true)) . time(true)), 0, 15);
+        $quoteId = substr(md5(uniqid(time()) . time()), 0, 15);
         $date    = date(Tools_System_Tools::DATE_MYSQL);
         $quote   = new Quote_Models_Model_Quote();
 

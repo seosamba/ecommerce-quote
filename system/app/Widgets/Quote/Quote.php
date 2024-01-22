@@ -674,7 +674,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     protected function _renderAddress() {
         $addressType = isset($this->_options[0]) ? $this->_options[0] : self::ADDRESS_TYPE_BILLING;
-        $address = null;
+        $address = array();
         if ($this->_cart instanceof Models_Model_CartSession) {
             switch ($addressType) {
                 case self::ADDRESS_TYPE_BILLING:
@@ -718,6 +718,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $this->_view->disableAutosaveEmail = $disableAutosaveEmail;
+
+        if (empty($address)) {
+            $address = array();
+        }
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
@@ -883,8 +887,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
                     if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
-                        $state = Tools_Geo::getStateById($this->shoppingConfig['state']);
-                        return $state;
+                        $stateData = Tools_Geo::getStateById($this->_shoppingConfig['state']);
+                        if (!empty($stateData['state'])) {
+                            return $stateData['state'];
+                        }
                     } else {
                         $stateData = Tools_Geo::getStateById($address['state']);
                         if (!empty($stateData['state'])) {
@@ -1803,6 +1809,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             }
 
             $leftAmountToPaid = 0;
+            $partialPercentage = 0;
+            $isPartialPaid = false;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
                 $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
