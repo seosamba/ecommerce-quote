@@ -44,6 +44,18 @@
                 <?php echo $this->form->getElement('quoteEmailsNotifications')->renderViewHelper(); ?>
             </p>
             <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('defaultQuoteOwner')->renderLabel(); ?>
+                <?php echo $this->form->getElement('defaultQuoteOwner')->renderViewHelper(); ?>
+            </p>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('notifyQuoteOwnerOnly')->renderLabel(); ?>
+                <?php echo $this->form->getElement('notifyQuoteOwnerOnly')->renderViewHelper(); ?>
+            </p>
+            <p class="grid_12 alpha omega">
+                <?php echo $this->form->getElement('notifyExpirationQuoteOwnerOnly')->renderLabel(); ?>
+                <?php echo $this->form->getElement('notifyExpirationQuoteOwnerOnly')->renderViewHelper(); ?>
+            </p>
+            <p class="grid_12 alpha omega">
                 <label for="enable-spam-verification" class="grid_6 optional"><?php echo $this->translate('Enable AI Anti-Spam verification');?>
                     <a href="https://help.seosamba.com/seosamba-ai-anti-spam-bot.html" target="_blank" class="ticon-info tooltip icon18" title="<?php echo $this->translate('Learn more about SeoSamba AI Anti-Spam Bot');?>"></a>
                 </label>
@@ -212,6 +224,8 @@ $(document).ready(function(){
               allowAutosave = 0,
               disableAutosaveEmail = 0,
               defaultQuoteTypeForAdmin = 0,
+              notifyQuoteOwnerOnly = 0,
+              notifyExpirationQuoteOwnerOnly = 0,
               enableSpamVerification = 0,
               notifyExpiryUnitQuote = $('#notify-expiry-unit-quote').val(),
               notifyExpiryQuoteType = $('#notify-expiry-quote-type').val();
@@ -251,6 +265,14 @@ $(document).ready(function(){
             disableAutosaveEmail = 1;
         }
 
+        if($('#notify-quote-owner-only').prop("checked")){
+            notifyQuoteOwnerOnly = 1;
+        }
+
+        if($('#notify-expiration-quote-owner-only').prop("checked")) {
+            notifyExpirationQuoteOwnerOnly = 1;
+        }
+
         if($('#enable-spam-verification').prop("checked")){
             enableSpamVerification = 1;
         }
@@ -266,6 +288,9 @@ $(document).ready(function(){
                 quoteTemplate: $('#quote-template option:selected').val(),
                 expirationDelay: $('#expiration-delay').val(),
                 quoteEmailsNotifications: $('#quote-emails-notifications').val(),
+                notifyExpirationQuoteOwnerOnly: notifyExpirationQuoteOwnerOnly,
+                defaultQuoteOwner: $('#default-quote-owner').val(),
+                notifyQuoteOwnerOnly: notifyQuoteOwnerOnly,
                 enableQuoteDefaultType: enableQuoteDefaultType,
                 quotePaymentType: $('#quote-payment-types').val(),
                 quotePartialPercentage: $('#quote-partial-percentage').val(),

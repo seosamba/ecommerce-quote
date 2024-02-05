@@ -26,6 +26,7 @@ customfields:fieldName - display quote custom field
 {$quote:timestamp[:created|expires][:m-d-Y h:i]} - return quote creation timestamp or expires timestamp
 {$quote:address[:customfields:fieldName]}
 customfields:fieldName - display quote custom field
+{$quote:editquoteowner} - return dropdown which allows to change quote owner
 
 Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working with quote page (dashboard):
 {$quote:item:name} - Displays the product name added to the quote.
