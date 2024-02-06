@@ -2100,6 +2100,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             $cartId = (int) $this->_options[2];
         }
 
+        $defaultValue = '';
+        $defaultValueData = current(preg_grep('/default=*/', $this->_options));
+        if (!empty($defaultValueData)) {
+            $defaultValue = str_replace('default=', '', $defaultValueData);
+        }
+
+        $predefineValue = false;
+        if (in_array('predefine-value', $this->_options)) {
+            $predefineValue = true;
+        }
+
         if(in_array('customfields', $this->_options) && !empty($cartId)) {
             $customfieldsOptionKey = array_search('customfields', $this->_options);
 
@@ -2139,6 +2150,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                             } elseif ($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
 
+                            }
+                        } elseif (!empty($defaultValue) && $fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                            if (in_array($fields['param_name'], $customfieldsOptions)) {
+                                $value = $defaultValue;
+                                if ($predefineValue === true) {
+                                    $quoteCustomFieldsOptionsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+                                    $quoteCustomFieldsOptionsDataModel->setCartId($cartId);
+                                    $quoteCustomFieldsOptionsDataModel->setParamId($fields['id']);
+                                    $quoteCustomFieldsOptionsDataModel->setParamValue($value);
+                                    $quoteCustomParamsDataMapper->save($quoteCustomFieldsOptionsDataModel);
+                                }
                             }
                         }
 

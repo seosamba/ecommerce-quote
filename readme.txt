@@ -47,10 +47,12 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 :select - custom field type
 {$quote:item:pricewithoutoption} - displays product subtotal without any options
 
-{$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly]]}
+{$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly][:default=somevalue][:predefine-value]]}
 customfields:fieldName,fieldName2 - display quote custom fields
 {$quote:cartId} - if cartId option isn't added, widget will try to find quote cartId automatically
-readonly - display only custom field text
+:readonly - display only custom field text
+:default - display value
+:predefine - predefine (save value into the db)
 
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource
