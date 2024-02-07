@@ -52,7 +52,7 @@ customfields:fieldName,fieldName2 - display quote custom fields
 {$quote:cartId} - if cartId option isn't added, widget will try to find quote cartId automatically
 :readonly - display only custom field text
 :default - display value
-:predefine - predefine (save value into the db)
+:predefine-value - predefine (save value into the db)
 
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource
