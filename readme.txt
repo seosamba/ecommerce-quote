@@ -141,3 +141,6 @@ Quote action emails lexems:
 
  {conversionpostpurchasequotecode} ... {/conversionpostpurchasequotecode} - conversionpostpurchasequotecode magic space is used to specify place
 whether display or not conversion code
+
+{quotesigned}{/quotesigned} - displays content if quote is signed
+{quotenotsigned}{/quotenotsigned} - displays content if quote not signed and quote requires signature
