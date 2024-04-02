@@ -22,6 +22,7 @@ define([
             'click .sortable'               : 'sortGridAction',
             'click .quote-create-option-button': 'changeCreationType',
             'click .clear-input-autocomplete': 'clearInputAutocomplete',
+            'click .clear-input': 'clearInput',
         },
         templates: {
             pager: _.template($('#quote-grid-pager').text())
@@ -137,6 +138,10 @@ define([
                     showMessage(xhr.responseText, true);
                 }
             });
+        },
+        clearInput: function () {
+            $('#quote-grid-search').val('');
+            $('#search-quote-button').trigger('click');
         },
         searchAction: function() {
             this.quotes.goTo(this.quotes.firstPage);
