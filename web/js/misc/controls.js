@@ -356,6 +356,18 @@ $(function() {
                 processDraggable(quoteId);
             }
         });
+
+        var ifHandleExists = false,
+            handleElements = $('#quote-sortable').find('.sortable-handle');
+
+        if(handleElements.length) {
+            ifHandleExists = true;
+        }
+
+        if(ifHandleExists) {
+            $('#quote-sortable').sortable( "option", "handle", ".sortable-handle" );
+        }
+
     }
 
     $(document).on('change', '#is-partial-payment-payed', function (e) {
