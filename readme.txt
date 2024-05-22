@@ -107,7 +107,6 @@ Here you can put quote item widgets
 
  id="quote-sortable" - special ID to allow use draggable products.
  data-sort-product-sid="{$quote:item:sid}" - unique product hash with options.
- class="sortable-handle" - Restricts sort start click to the specified element. If you have elements with input inside, use this class for adjacent elements which elements can be drags (don't use this class for elements with input.)
 
  MAGICSPACE: quotediscount
   {quotediscount}{/quotediscount} - Hide content if quote discount doesn't exist. Doesn't work for everyone who have admin access.

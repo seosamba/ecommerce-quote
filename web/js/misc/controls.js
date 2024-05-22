@@ -358,9 +358,19 @@ $(function() {
         });
 
         var ifHandleExists = false,
-            handleElements = $('#quote-sortable').find('.sortable-handle');
+            handleDragElement = $('#quote-sortable');
 
-        if(handleElements.length) {
+        if(handleDragElement.length) {
+            var sortableEl =  $('.quote-sortable-product-row').find('td');
+
+            if(sortableEl.length) {
+                $(sortableEl).each(function (index, el) {
+                    if(!$(el).hasClass('product-unit-price') && !$(el).hasClass('product-qty')) {
+                        $(el).addClass('sortable-handle');
+                    }
+                });
+            }
+
             ifHandleExists = true;
         }
 
