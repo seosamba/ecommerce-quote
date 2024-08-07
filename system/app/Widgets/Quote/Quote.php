@@ -470,8 +470,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     protected function _renderGrid() {
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-        $this->_view->quotes = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+        $quotesInfo = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
 
+        foreach ($quotesInfo['data'] as $key => $qInfo) {
+            unset($quotesInfo['data'][$key]['signature']);
+        }
+
+        $this->_view->quotes = $quotesInfo;
         $ownerRoles = array();
 
         $userRolesList = $quoteMapper->getAllUsers(true, true, 'full_name ASC');
@@ -670,7 +675,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     protected function _renderAddress() {
         $addressType = isset($this->_options[0]) ? $this->_options[0] : self::ADDRESS_TYPE_BILLING;
-        $address = null;
+        $address = array();
         if ($this->_cart instanceof Models_Model_CartSession) {
             switch ($addressType) {
                 case self::ADDRESS_TYPE_BILLING:
@@ -714,6 +719,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
 
         $this->_view->disableAutosaveEmail = $disableAutosaveEmail;
+
+        if (empty($address)) {
+            $address = array();
+        }
 
         if($this->_editAllowed && ($this->_options[1] == 'default' || !array_key_exists($this->_options[1], $address))) {
             $requiredFields = array();
@@ -879,8 +888,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 if ($this->_options[1] === 'state' && !empty($address['state']) && is_numeric($address['state'])) {
                     if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
-                        $state = Tools_Geo::getStateById($this->shoppingConfig['state']);
-                        return $state;
+                        $stateData = Tools_Geo::getStateById($this->_shoppingConfig['state']);
+                        if (!empty($stateData['state'])) {
+                            return $stateData['state'];
+                        }
                     } else {
                         $stateData = Tools_Geo::getStateById($address['state']);
                         if (!empty($stateData['state'])) {
@@ -1799,6 +1810,8 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             }
 
             $leftAmountToPaid = 0;
+            $partialPercentage = 0;
+            $isPartialPaid = false;
             if ($paymentType === Quote_Models_Model_Quote::PAYMENT_TYPE_PARTIAL_PAYMENT) {
                 $partialPercentage = $this->_cart->getPartialPercentage();
                 $this->_view->partialToPayAmount = $this->_currency->toCurrency(($partialPercentage * $this->_cart->getTotal()/100));
@@ -2037,10 +2050,18 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                         return $quoteCreatorModel->getFullName();
                     }
                     if ($this->_options[0] === 'mobile') {
-                        return $quoteCreatorModel->getMobileCountryCodeValue().$quoteCreatorModel->getMobilePhone();
+                        if (empty($quoteCreatorModel->getMobilePhone())) {
+                            return '';
+                        }
+                        return $quoteCreatorModel->getMobileCountryCodeValue().Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getMobilePhone(),
+                                Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $quoteCreatorModel->getMobileCountryCode());
                     }
                     if ($this->_options[0] === 'desktop') {
-                        return $quoteCreatorModel->getDesktopCountryCodeValue().$quoteCreatorModel->getDesktopPhone();
+                        if (empty($quoteCreatorModel->getDesktopPhone())) {
+                            return '';
+                        }
+                        return $quoteCreatorModel->getDesktopCountryCodeValue().Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getDesktopPhone(),
+                                Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $quoteCreatorModel->getDesktopCountryCode());
                     }
                     if ($this->_options[0] === 'email') {
                         return $quoteCreatorModel->getEmail();
@@ -2078,6 +2099,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
             }
         } else {
             $cartId = (int) $this->_options[2];
+        }
+
+        $defaultValue = '';
+        $defaultValueData = current(preg_grep('/default=*/', $this->_options));
+        if (!empty($defaultValueData)) {
+            $defaultValue = str_replace('default=', '', $defaultValueData);
+        }
+
+        $predefineValue = false;
+        if (in_array('predefine-value', $this->_options)) {
+            $predefineValue = true;
         }
 
         if(in_array('customfields', $this->_options) && !empty($cartId)) {
@@ -2119,6 +2151,17 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                             } elseif ($fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_CHECKBOX) {
 
+                            }
+                        } elseif (!empty($defaultValue) && $fields['param_type'] == Quote_Models_Model_QuoteCustomFieldsConfigModel::CUSTOM_PARAM_TYPE_TEXT) {
+                            if (in_array($fields['param_name'], $customfieldsOptions)) {
+                                $value = $defaultValue;
+                                if ($predefineValue === true) {
+                                    $quoteCustomFieldsOptionsDataModel = new Quote_Models_Model_QuoteCustomParamsDataModel();
+                                    $quoteCustomFieldsOptionsDataModel->setCartId($cartId);
+                                    $quoteCustomFieldsOptionsDataModel->setParamId($fields['id']);
+                                    $quoteCustomFieldsOptionsDataModel->setParamValue($value);
+                                    $quoteCustomParamsDataMapper->save($quoteCustomFieldsOptionsDataModel);
+                                }
                             }
                         }
 
@@ -2164,4 +2207,29 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         }
     }
 
+    /**
+     * Renderer change quote owner dropdown{$quote:editquoteowner}
+     *
+     * @return string
+     */
+    protected function _renderEditquoteowner()
+    {
+        $currentRole = Zend_Controller_Action_HelperBroker::getStaticHelper('Session')->getCurrentUser()->getRoleId();
+        $accessList  = array(
+            Tools_Security_Acl::ROLE_SUPERADMIN,
+            Tools_Security_Acl::ROLE_ADMIN,
+            Shopping::ROLE_SALESPERSON
+        );
+        if (in_array($currentRole, $accessList)) {
+            $this->_view->quoteOwnerId = $this->_quote->getCreatorId();
+            $this->_view->id      = $this->_quote->getId();
+            $quoteOwners = Quote_Models_Mapper_QuoteMapper::getInstance()->getOwnersFullList();
+
+            $this->_view->quoteOwners = $quoteOwners;
+
+            return $this->_view->render('change-quote-owner.phtml');
+        }
+
+        return '';
+    }
 }

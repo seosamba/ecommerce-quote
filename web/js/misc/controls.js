@@ -356,6 +356,28 @@ $(function() {
                 processDraggable(quoteId);
             }
         });
+
+        var ifHandleExists = false,
+            handleDragElement = $('#quote-sortable');
+
+        if(handleDragElement.length) {
+            var sortableEl =  $('.quote-sortable-product-row').find('td');
+
+            if(sortableEl.length) {
+                $(sortableEl).each(function (index, el) {
+                    if(!$(el).hasClass('product-unit-price') && !$(el).hasClass('product-qty')) {
+                        $(el).addClass('sortable-handle');
+                    }
+                });
+            }
+
+            ifHandleExists = true;
+        }
+
+        if(ifHandleExists) {
+            $('#quote-sortable').sortable( "option", "handle", ".sortable-handle" );
+        }
+
     }
 
     $(document).on('change', '#is-partial-payment-payed', function (e) {

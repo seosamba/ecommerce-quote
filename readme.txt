@@ -26,6 +26,7 @@ customfields:fieldName - display quote custom field
 {$quote:timestamp[:created|expires][:m-d-Y h:i]} - return quote creation timestamp or expires timestamp
 {$quote:address[:customfields:fieldName]}
 customfields:fieldName - display quote custom field
+{$quote:editquoteowner} - return dropdown which allows to change quote owner
 
 Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working with quote page (dashboard):
 {$quote:item:name} - Displays the product name added to the quote.
@@ -46,10 +47,12 @@ Widgets that used into {toasterquote}{/toasterquote} magicspace. Also working wi
 :select - custom field type
 {$quote:item:pricewithoutoption} - displays product subtotal without any options
 
-{$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly]]}
+{$quote:customfield:customfields:fieldName,fieldName2[:{$quote:cartId}[:readonly][:default=somevalue][:predefine-value]]}
 customfields:fieldName,fieldName2 - display quote custom fields
 {$quote:cartId} - if cartId option isn't added, widget will try to find quote cartId automatically
-readonly - display only custom field text
+:readonly - display only custom field text
+:default - display value
+:predefine-value - predefine (save value into the db)
 
 MAGICSPACE: customersonly
 {customersonly}{/customersonly} - return content for everyone who not have access to the storemanagement resource
@@ -138,3 +141,6 @@ Quote action emails lexems:
 
  {conversionpostpurchasequotecode} ... {/conversionpostpurchasequotecode} - conversionpostpurchasequotecode magic space is used to specify place
 whether display or not conversion code
+
+{quotesigned}{/quotesigned} - displays content if quote is signed
+{quotenotsigned}{/quotenotsigned} - displays content if quote not signed and quote requires signature

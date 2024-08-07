@@ -41,7 +41,7 @@ class Quote_Tools_Tools {
      * @return bool|string
      */
     public static function createQuote($cart, $options = array()) {
-        $quoteId = substr(md5(uniqid(time(true)) . time(true)), 0, 15);
+        $quoteId = substr(md5(uniqid(time()) . time()), 0, 15);
         $date    = date(Tools_System_Tools::DATE_MYSQL);
         $quote   = new Quote_Models_Model_Quote();
 
@@ -1121,6 +1121,62 @@ class Quote_Tools_Tools {
 
             return false;
         }
+    }
+
+    /**
+     * @param string $quoteId
+     * @return array
+     */
+    public static function getQuoteOwnerEmail($quoteId)
+    {
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        if (!empty($shoppingConfig['notifyQuoteOwnerOnly'])) {
+            return self::getUserUserInfoByQuoteId($quoteId);
+        }
+
+        return array();
+    }
+
+    /**
+     * @param string $quoteId
+     * @return array
+     */
+    public static function getQuoteOwnerExpirationOnly($quoteId)
+    {
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        if (!empty($shoppingConfig['notifyExpirationQuoteOwnerOnly'])) {
+            return self::getUserUserInfoByQuoteId($quoteId);
+        }
+
+        return array();
+    }
+
+    /**
+     * @param string $quoteId
+     * @return array
+     */
+    public static function getUserUserInfoByQuoteId($quoteId)
+    {
+        $quoteModel = Quote_Models_Mapper_QuoteMapper::getInstance()->find($quoteId);
+        if ($quoteModel instanceof Quote_Models_Model_Quote) {
+            $creatorId = $quoteModel->getCreatorId();
+            $quoteOwnerModel = Application_Model_Mappers_UserMapper::getInstance()->find($creatorId);
+            if ($quoteOwnerModel instanceof Application_Model_Models_User) {
+                $roleId = $quoteOwnerModel->getRoleId();
+                $accessList = array(
+                    Tools_Security_Acl::ROLE_SUPERADMIN,
+                    Tools_Security_Acl::ROLE_ADMIN,
+                    Shopping::ROLE_SALESPERSON
+                );
+
+                if (in_array($roleId, $accessList)) {
+                    return array('roleId' => $quoteOwnerModel->getRoleId(), 'fullName' => $quoteOwnerModel->getFullName(), 'email' => $quoteOwnerModel->getEmail());
+                }
+
+            }
+        }
+
+        return array();
     }
 
 }

@@ -133,13 +133,24 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $cartMapper    = Models_Mapper_CartSessionMapper::getInstance();
         $responseHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('response');
         $currentUser   = Application_Model_Mappers_UserMapper::getInstance()->find(Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser()->getId());
+        $currentUserSession = Zend_Controller_Action_HelperBroker::getStaticHelper('session')->getCurrentUser();
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
         if($currentUser instanceof Application_Model_Models_User){
             $editedBy      = $currentUser->getFullName();
-            $creatorId     = $currentUser->getId();
+            $creatorId = $currentUser->getId();
         }else{
             $editedBy   = Shopping::ROLE_CUSTOMER;
             $creatorId  = 0;
         }
+
+        if (!empty($shoppingConfig['defaultQuoteOwner']) && !in_array($currentUserSession->getRoleId(), array(Tools_Security_Acl::ROLE_ADMIN, Shopping::ROLE_SALESPERSON, Tools_Security_Acl::ROLE_SUPERADMIN))) {
+            $quoteOwnerModel = Application_Model_Mappers_UserMapper::getInstance()->find($shoppingConfig['defaultQuoteOwner']);
+            if ($quoteOwnerModel instanceof Application_Model_Models_User) {
+                $editedBy  = $quoteOwnerModel->getFullName();
+                $creatorId = $quoteOwnerModel->getId();
+            }
+        }
+
         $quoteId = 0;
         $oldPageId = 0;
 
@@ -709,9 +720,9 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
 
         $ccValidEmails = array();
         $ccEmailsArr = array();
-        $ccEmails = filter_var($quoteData['ccEmails'], FILTER_SANITIZE_STRING);
 
-        if(!empty($ccEmails)) {
+        if(!empty($quoteData['ccEmails'])) {
+            $ccEmails = filter_var($quoteData['ccEmails'], FILTER_SANITIZE_STRING);
             $ccEmailsArr = array_filter(array_unique(array_map('trim', explode(',', $ccEmails))));
         }
 
