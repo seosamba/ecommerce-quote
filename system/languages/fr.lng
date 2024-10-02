@@ -164,7 +164,7 @@
     'Edit quote page template' => 'Modifier le modèle de page de citation',
     'Current saved quote template' => 'Modèle de citation actuellement enregistré',
     'Choose quote template' => 'Choisissez un modèle de citation',
-    'Are you sure want to change the template for this quote?' => 'Êtes-vous sûr de vouloir changer le modèle pour cette citation?',
+    'Are you sure want to change the template for this quote?' => 'Êtes-vous sûr de vouloir changer le modèle pour ce devis?',
     'Quote page config' => 'Configuration de la page de citation',
 
 
