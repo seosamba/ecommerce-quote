@@ -2052,14 +2052,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                         if (empty($quoteCreatorModel->getMobilePhone())) {
                             return '';
                         }
-                        return $quoteCreatorModel->getMobileCountryCodeValue().Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getMobilePhone(),
+                        return $quoteCreatorModel->getMobileCountryCodeValue(). ' ' .Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getMobilePhone(),
                                 Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $quoteCreatorModel->getMobileCountryCode());
                     }
                     if ($this->_options[0] === 'desktop') {
                         if (empty($quoteCreatorModel->getDesktopPhone())) {
                             return '';
                         }
-                        return $quoteCreatorModel->getDesktopCountryCodeValue().Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getDesktopPhone(),
+                        return $quoteCreatorModel->getDesktopCountryCodeValue(). ' ' .Tools_System_Tools::formatPhoneMobileMask($quoteCreatorModel->getDesktopPhone(),
                                 Application_Model_Models_MaskList::MASK_TYPE_DESKTOP, $quoteCreatorModel->getDesktopCountryCode());
                     }
                     if ($this->_options[0] === 'email') {
