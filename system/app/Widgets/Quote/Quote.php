@@ -878,10 +878,25 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 }
 
                 if ($this->_options[1] === 'country') {
+                    $countriesList = Tools_Geo::getCountries(true);
                     if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
-                        return $this->_shoppingConfig['country'];
+                        if (in_array('fullname', $this->_options)) {
+                            if (isset($countriesList[$this->_shoppingConfig['country']])) {
+                                return $countriesList[$this->_shoppingConfig['country']];
+                            }
+                            return $this->_shoppingConfig['country'];
+                        } else {
+                            return $this->_shoppingConfig['country'];
+                        }
                     } else {
-                        return $address[$this->_options[1]];
+                        if (in_array('fullname', $this->_options)) {
+                            if (isset($countriesList[$address[$this->_options[1]]])) {
+                                return $countriesList[$address[$this->_options[1]]];
+                            }
+                            return $address[$this->_options[1]];
+                        } else {
+                            return $address[$this->_options[1]];
+                        }
                     }
                 }
 

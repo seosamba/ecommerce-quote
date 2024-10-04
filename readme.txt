@@ -64,7 +64,7 @@ Ex: guest, customer, member
     <p>{$quote:address:billing:company}</p>
     <p>{$quote:address:billing:address1} {$quote:address:billing:address2}</p>
     <p>{$quote:address:billing:city} {$quote:address:billing:state} {$quote:address:billing:zip}</p>
-    <p>{$quote:address:billing:country}</p>
+    <p>{$quote:address:billing:country[:fullname]}</p>
     <p><a href="mailto:{$quote:address:billing:email}">{$quote:address:billing:email}</a></p>
     <p>{$quote:address:billing:phone}</p>
 </div>
@@ -74,7 +74,7 @@ Ex: guest, customer, member
     <p>{$quote:address:shipping:company}</p>
     <p>{$quote:address:shipping:address1} {$quote:address:shipping:address2}</p>
     <p>{$quote:address:shipping:city} {$quote:address:shipping:state} {$quote:address:shipping:zip}</p>
-    <p>{$quote:address:shipping:country}</p>
+    <p>{$quote:address:shipping:country[:fullname]}</p>
     <p><a href="mailto:{$quote:address:shipping:email}">{$quote:address:shipping:email}</a></p>
     <p>{$quote:address:shipping:phone}</p>
 </div>
