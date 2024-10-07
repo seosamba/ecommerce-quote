@@ -117,6 +117,10 @@ CREATE TABLE IF NOT EXISTS `shopping_quote_conversions` (
 INSERT INTO `page_option` (`id`, `title`, `context`, `active`, `option_usage`) VALUES
 ('option_quotethankyoupage', 'Quote "Thank you" page', 'Quote system', 1, 'once');
 
+-- 07/10/2024
+-- version: 2.3.8
+UPDATE `shopping_config` SET  `value` = 1 WHERE `name` = 'quoteDraggableProducts';
+
 -- These alters are always the latest and updated version of the database
-UPDATE `plugin` SET `version`='2.3.8' WHERE `name`='quote';
+UPDATE `plugin` SET `version`='2.3.9' WHERE `name`='quote';
 SELECT version FROM `plugin` WHERE `name` = 'quote';

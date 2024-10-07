@@ -44,7 +44,7 @@ INSERT INTO `template_type` (`id`, `title`) VALUES ('typepdfquote', 'Quote pdf')
 
 INSERT INTO `observers_queue` (`observable`, `observer`) VALUES ('Models_Model_CartSession', 'Quote_Tools_PurchaseWatchdog');
 
-INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES('quoteDraggableProducts', 0);
+INSERT IGNORE INTO `shopping_config` (`name`, `value`) VALUES('quoteDraggableProducts', 1);
 
 CREATE TABLE IF NOT EXISTS `shopping_quote_draggable` (
   `quoteId` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
