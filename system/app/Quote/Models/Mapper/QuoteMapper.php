@@ -88,6 +88,194 @@ class Quote_Models_Mapper_QuoteMapper extends Application_Model_Mappers_Abstract
 		return $deleteResult;
 	}
 
+    /**
+     * Get quotes data with info
+     *
+     * @param string $where SQL where clause
+     * @param string $order OPTIONAL An SQL ORDER clause.
+     * @param int $limit OPTIONAL An SQL LIMIT count.
+     * @param int $offset OPTIONAL An SQL LIMIT offset.
+     * @param string $search search string
+     * @param bool $withoutCount flag to get with or without records quantity
+     * @param bool $singleRecord flag fetch single record
+     *
+     * @return array
+     */
+    public function fetchAllData($where = null, $order = null, $limit = null, $offset = null, $search = null, $withoutCount = false, $singleRecord = false)
+    {
+
+        $additionalParamsForSelect = array(
+            'ownerName' => new Zend_Db_Expr('COALESCE(u2.full_name, u1.full_name)'),
+            'clients' => new Zend_Db_Expr('COALESCE(u1.full_name)')
+        );
+
+        if ($search !== null) {
+            $deepSearch = explode(' ', $search);
+            $searchTitleWhere = '';
+            $searchFullNameWhere = '';
+            $searchFullName2Where = '';
+            $searchLastNameWhere = '';
+
+            foreach ($deepSearch as $searchParam) {
+                if (!empty($searchTitleWhere)) {
+                    $searchTitleWhere .= ' AND ';
+                }
+                $searchTitleWhere .= 's_q.title LIKE "%' . $searchParam . '%"';
+
+                if (!empty($searchFullNameWhere)) {
+                    $searchFullNameWhere .= ' AND ';
+                    $searchFullName2Where .= ' AND ';
+                }
+                $searchFullNameWhere .= 'u1.full_name LIKE "%' . $searchParam . '%"';
+                $searchFullName2Where .= 'u2.full_name LIKE "%' . $searchParam . '%"';
+
+                if (!empty($searchLastNameWhere)) {
+                    $searchLastNameWhere .= ' AND ';
+                }
+                $searchLastNameWhere .= 'cust_addr.lastname LIKE "%' . $searchParam . '%"';
+            }
+
+            $searchTitleWhere = '(' . $searchTitleWhere . ')';
+            $searchFullNameWhere = '(' . $searchFullNameWhere . ' OR ' . $searchFullName2Where . ')';
+            $searchLastNameWhere = '(' . $searchLastNameWhere . ')';
+
+            if ($where === null) {
+                $where = $searchTitleWhere . ' OR cust_addr.email LIKE "%' . $search . '%" OR ' . $searchFullNameWhere . ' OR ' . $searchLastNameWhere;
+            } else {
+                $where = ($where . ' AND (' . $searchTitleWhere . ' OR cust_addr.email LIKE "%' . $search . '%" OR ' . $searchFullNameWhere . ' OR ' . $searchLastNameWhere . ')');
+            }
+        }
+
+        $params = array(
+            'id' => 's_q.id',
+            'title' => 's_q.title',
+            'status' => 's_q.status',
+            'disclaimer' => 's_q.disclaimer',
+            'internalNote' => 's_q.internal_note',
+            'discountTaxRate' => 's_q.discount_tax_rate',
+            'deliveryType' => 's_q.delivery_type',
+            'cartId' => 's_q.cart_id',
+            'editedBy' => 's_q.edited_by',
+            'editorId' => 's_q.editor_id',
+            'creatorId' => 's_q.creator_id',
+            'expiresAt' => 's_q.expires_at',
+            'expirationNotificationIsSend' => 's_q.expiration_notification_is_send',
+            'userId' => 's_q.user_id',
+            'createdAt' => 's_q.created_at',
+            'updatedAt' => 's_q.updated_at',
+            'paymentType' => 's_q.payment_type',
+            'isSignatureRequired' => 's_q.is_signature_required',
+            'pdfTemplate' => 's_q.pdf_template',
+            'signature' => 's_q.signature',
+            'isQuoteSigned' => 's_q.is_quote_signed',
+            'quoteSignedAt' => 's_q.quote_signed_at',
+            'isQuoteRestrictedControl' => 's_q.is_quote_restricted_control',
+            'signatureInfoField' => 's_q.signature_info_field',
+            'cartStatus' => 'cart.status',
+            'cust_addr.firstname',
+            'cust_addr.lastname'
+        );
+
+        $params = array_merge($additionalParamsForSelect, $params);
+
+        $select = $this->getDbTable()->getAdapter()->select()
+            ->from(array('s_q' => 'shopping_quote'),
+                $params
+            )
+            ->joinLeft(array('u1' => 'user'), 's_q.user_id=u1.id', array())
+            ->joinLeft(array('u2' => 'user'), 's_q.creator_id=u2.id', array())
+            ->joinLeft(array('cart' => 'shopping_cart_session'), 's_q.cart_id=cart.id', array())
+            ->joinLeft(array('cust_addr' => 'shopping_customer_address'), 'cust_addr.id=cart.billing_address_id', array());
+
+        if (!empty($order)) {
+            $select->order($order);
+        }
+
+        if (!empty($where)) {
+            $select->where($where);
+        }
+
+        $select->limit($limit, $offset);
+
+        if ($singleRecord) {
+            $data = $this->getDbTable()->getAdapter()->fetchRow($select);
+        } else {
+            $data = $this->getDbTable()->getAdapter()->fetchAll($select);
+        }
+
+        if (!empty($data)) {
+            $data = $this->_addAdditionalQuoteInfo($data);
+        }
+
+        if ($withoutCount === false) {
+            $select->reset(Zend_Db_Select::COLUMNS);
+            $select->reset(Zend_Db_Select::FROM);
+            $select->reset(Zend_Db_Select::LIMIT_OFFSET);
+            $select->reset(Zend_Db_Select::LIMIT_COUNT);
+
+            $count = array('count' => new Zend_Db_Expr('COUNT(DISTINCT(s_q.id))'));
+            $count = array_merge($count, $additionalParamsForSelect);
+
+            $select->from(array('s_q' => 'shopping_quote'),
+                    $count
+                )
+                ->joinLeft(array('u1' => 'user'), 's_q.user_id=u1.id', array())
+                ->joinLeft(array('u2' => 'user'), 's_q.creator_id=u2.id', array())
+                ->joinLeft(array('cart' => 'shopping_cart_session'), 's_q.cart_id=cart.id', array())
+                ->joinLeft(array('cust_addr' => 'shopping_customer_address'), 'cust_addr.id=cart.billing_address_id', array());
+
+            $select = $this->getDbTable()->getAdapter()->select()
+                ->from(
+                    array('subres' => $select),
+                    array('count' => 'SUM(count)')
+                );
+
+            $count = $this->getDbTable()->getAdapter()->fetchRow($select);
+
+            return array(
+                'total' => $count['count'],
+                'data' => $data,
+                'offset' => $offset,
+                'limit' => $limit
+            );
+        } else {
+            return $data;
+        }
+
+    }
+
+    /**
+     * Backward compatibility function
+     *
+     * @param $data
+     * @return array[]
+     * @throws Zend_Reflection_Exception
+     */
+    private function _addAdditionalQuoteInfo($data)
+    {
+        return array_map(function ($item) {
+            $quote = new Quote_Models_Model_Quote($item);
+            $quoteData = $quote->toArray();
+            if (empty($quoteData['creatorId']) && !empty($quoteData['userId'])) {
+                $userLink = Tools_System_Tools::firePluginMethodByPluginName('leads', 'getLeadLink',
+                    array($quoteData['userId']), true);
+            } elseif (!empty($quoteData['creatorId'])) {
+                $userLink = Tools_System_Tools::firePluginMethodByPluginName('leads', 'getLeadLink',
+                    array($quoteData['userId']), true);
+            } else {
+                $userLink = '';
+            }
+
+            if (!empty($userLink) && is_array($userLink)) {
+                $userLink = $userLink[$quoteData['userId']];
+            }
+            $quoteData['userLink'] = $userLink;
+            $quoteData['customerName'] = trim($item['firstname'] . ' ' . $item['lastname']);
+            $quoteData['cartStatus'] = $item['cartStatus'];
+            return $quoteData;
+        }, $data);
+    }
+
 	public function fetchAll($where = null, $order = null, $limit = null, $offset = null, $search = null, $includeCount = false) {
 		$entries   = array();
         if($search !== null) {

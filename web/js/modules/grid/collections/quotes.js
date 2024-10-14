@@ -7,7 +7,7 @@ define([
 
     var quotesCollection = Backbone.Paginator.requestPager.extend({
         model : QuoteModel,
-        order : 'created_at',
+        order : 's_q.created_at',
         orderType: 'desc',
         paginator_core: {
             dataType : 'json',
