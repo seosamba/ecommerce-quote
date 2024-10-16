@@ -469,7 +469,14 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
      */
     protected function _renderGrid() {
         $quoteMapper = Quote_Models_Mapper_QuoteMapper::getInstance();
-        $quotesInfo = $quoteMapper->fetchAll(null, array('created_at ' . self::QUOTEGRID_DEFAULTS_ORDER), self::QUOTEGRID_DEFAULTS_PERPAGE, 0, null, true);
+
+        $quotesInfo = $quoteMapper->fetchAllData(
+            null,
+            array('s_q.created_at ' . self::QUOTEGRID_DEFAULTS_ORDER),
+            self::QUOTEGRID_DEFAULTS_PERPAGE,
+            0,
+            null
+        );
 
         foreach ($quotesInfo['data'] as $key => $qInfo) {
             unset($quotesInfo['data'][$key]['signature']);

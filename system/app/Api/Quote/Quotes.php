@@ -81,7 +81,7 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
         $count     = (bool) $this->_request->has('count');
         $offset    = filter_var($this->_request->getParam('offset'), FILTER_SANITIZE_NUMBER_INT);
         $limit     = filter_var($this->_request->getParam('limit'), FILTER_SANITIZE_NUMBER_INT);
-        $order     = filter_var($this->_request->getParam('order', 'created_at'), FILTER_SANITIZE_STRING);
+        $order     = filter_var($this->_request->getParam('order', 's_q.created_at'), FILTER_SANITIZE_STRING);
         $orderType = filter_var($this->_request->getParam('orderType', 'desc'), FILTER_SANITIZE_STRING);
         $search    = filter_var($this->_request->getParam('search'), FILTER_SANITIZE_STRING);
         $quoteOwnerId    = filter_var($this->_request->getParam('quoteOwnerId'), FILTER_SANITIZE_NUMBER_INT);
@@ -109,14 +109,25 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             }
         }
 
-        $quotes    = $this->_quoteMapper->fetchAll(
-            ($where)  ? $where : null,
-            ($order)  ? array($order . ' ' . strtoupper($orderType)) : array(),
-            ($limit)  ? $limit : null,
-            ($offset) ? $offset : null,
-            ($search) ? $search : null,
-            ($count)  ? $count : null
-        );
+        if($count) {
+            $quotes = $this->_quoteMapper->fetchAllData(
+                ($where) ? $where : null,
+                ($order) ? array($order . ' ' . strtoupper($orderType)) : array(),
+                ($limit) ? $limit : null,
+                ($offset) ? $offset : null,
+                ($search) ? $search : null,
+                ($count) ? false : true
+            );
+        } else {
+            $quotes    = $this->_quoteMapper->fetchAll(
+                ($where)  ? $where : null,
+                ($order)  ? array($order . ' ' . strtoupper($orderType)) : array(),
+                ($limit)  ? $limit : null,
+                ($offset) ? $offset : null,
+                ($search) ? $search : null,
+                ($count)  ? $count : null
+            );
+        }
 
         if($count) {
             return $quotes;
