@@ -24,8 +24,11 @@
     </span>
     <?php else : ?>
         <span><?php echo $this->translate('First payment'); ?>: <?php echo $this->translate('Processed'); ?>
-                                        (<?php echo $this->currency($this->order->getFirstPartialPaidAmount()); ?>) <?php echo $this->translate('via'); ?> <?php echo $firstPaymentGateway; ?> <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPartialPurchasedOn())); ?>
-                                    </span>
+                                        (<?php echo $this->currency($this->order->getFirstPartialPaidAmount()); ?>) <?php echo $this->translate('via'); ?> <?php echo $firstPaymentGateway; ?>
+                                        <?php if(!empty($this->order->getPartialPurchasedOn())):?>
+                                        <?php echo $this->translate('on'); ?> <?php echo date('d M, Y', strtotime($this->order->getPartialPurchasedOn())); ?>
+                                <?php  endif;?>
+            </span>
     <?php endif; ?>
     <br/>
     <?php if ($this->order->getStatus() === Models_Model_CartSession::CART_STATUS_COMPLETED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_SHIPPED || $this->order->getStatus() === Models_Model_CartSession::CART_STATUS_DELIVERED): ?>
