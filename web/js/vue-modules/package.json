@@ -21,7 +21,7 @@
     "progressbar.js": "^1.1.0",
     "v-tooltip": "^2.0.0-rc.33",
     "vee-validate": "^2.2.15",
-    "vue": "^2.6.3",
+    "vue": "^3.0.0",
     "vue-clipboard2": "^0.1.1",
     "vue-cookie": "^1.1.4",
     "vue-i18n": "^8.15.1",
