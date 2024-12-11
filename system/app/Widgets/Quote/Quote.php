@@ -844,6 +844,15 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                     }
                 }
 
+                if ($this->_options[1] === 'mobile') {
+                    if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
+                        return $this->_shoppingConfig['mobile'];
+                    } else {
+                        return $address['mobile_country_code_value'] . ' ' . Tools_System_Tools::formatPhoneMobileMask($address[$this->_options[1]],
+                                Application_Model_Models_MaskList::MASK_TYPE_MOBILE, $address['mobilecountrycode']);
+                    }
+                }
+
                 if ($this->_options[1] === 'company') {
                     if ($shippingType === 'pickup' && $addressType === self::ADDRESS_TYPE_SHIPPING) {
                         return $this->_shoppingConfig['company'];
