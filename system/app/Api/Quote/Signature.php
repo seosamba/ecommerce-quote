@@ -151,6 +151,8 @@ class Api_Quote_Signature extends Api_Service_Abstract
         $observableModel = '';
         if (!empty($leadModel) && $leadModel instanceof Leads_Model_LeadsModel) {
             $observableModel = $leadModel;
+        } else {
+            $observableModel = $quote;
         }
 
         $quote->registerObserver(new Tools_Mail_Watchdog(array(

@@ -811,11 +811,39 @@ class Api_Quote_Quotes extends Api_Service_Abstract {
             )));
 
             if($quoteData['sendMail']) {
-                $quote->registerObserver(new Tools_Mail_Watchdog(array(
-                    'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
-                    'mailMessage' => $quoteData['mailMessage'],
-                    'ccEmails'    => $ccValidEmails
-                )));
+                $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+                if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+                    $leadsMapper = Leads_Mapper_LeadsMapper::getInstance();
+                    $leadModel = $leadsMapper->findByUserId($quote->getUserId());
+                    if ($leadModel instanceof Leads_Model_LeadsModel) {
+                        $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($quote->getUserId());
+                        if ($userModel instanceof Application_Model_Models_User) {
+                            $leadModel = $leadsMapper->findByEmail($userModel->getEmail());
+                        }
+
+                        $observableModel = '';
+                        if (!empty($leadModel) && $leadModel instanceof Leads_Model_LeadsModel) {
+                            $observableModel = $leadModel;
+                        }
+
+                        if ($leadModel instanceof Leads_Model_LeadsModel) {
+                            $quote->registerObserver(new Tools_Mail_Watchdog(array(
+                                'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
+                                'mailMessage' => $quoteData['mailMessage'],
+                                'ccEmails'    => $ccValidEmails,
+                                'observableModel' => $observableModel
+                            )));
+                        }
+                    }
+                } else {
+                    $quote->registerObserver(new Tools_Mail_Watchdog(array(
+                        'trigger'     => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_UPDATED,
+                        'mailMessage' => $quoteData['mailMessage'],
+                        'ccEmails'    => $ccValidEmails,
+                        'observableModel' => $quote
+                    )));
+                }
+
                 $quote->setStatus(Quote_Models_Model_Quote::STATUS_SENT);
             }
 
