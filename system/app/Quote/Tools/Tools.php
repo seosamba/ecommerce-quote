@@ -57,11 +57,30 @@ class Quote_Tools_Tools {
             $oldQuoteId = $options['oldQuoteId'];
         }
 
+
+        $observableModel = '';
+        $leadsPlugin = Application_Model_Mappers_PluginMapper::getInstance()->findByName('leads');
+        if ($leadsPlugin instanceof Application_Model_Models_Plugin) {
+            $leadsMapper = Leads_Mapper_LeadsMapper::getInstance();
+            $leadModel = $leadsMapper->findByUserId($cart->getUserId());
+            if ($leadModel instanceof Leads_Model_LeadsModel) {
+                $userModel = Application_Model_Mappers_UserMapper::getInstance()->find($cart->getUserId());
+                if ($userModel instanceof Application_Model_Models_User) {
+                    $leadModel = $leadsMapper->findByEmail($userModel->getEmail());
+                }
+
+                if (!empty($leadModel) && $leadModel instanceof Leads_Model_LeadsModel) {
+                    $observableModel = $leadModel;
+                }
+            }
+        }
+
         if ($options['actionType'] == Quote::QUOTE_TYPE_CLONE) {
             $quote->registerObserver(new Quote_Tools_Watchdog(array(
                 'gateway' => new Quote(array(), array()),
                 'oldPageId' => $oldPageId,
-                'oldQuoteId' => $oldQuoteId
+                'oldQuoteId' => $oldQuoteId,
+                'observableModel' => !empty($observableModel) ? $observableModel: $quote
 
             )));
         } else {
@@ -69,10 +88,12 @@ class Quote_Tools_Tools {
                 'gateway' => new Quote(array(), array()),
                 'oldPageId' => $oldPageId,
                 'oldQuoteId' => $oldQuoteId,
-                'templateName' => $templateName
+                'templateName' => $templateName,
+                'observableModel' => !empty($observableModel) ? $observableModel: $quote
 
             )))->registerObserver(new Tools_Mail_Watchdog(array(
-                    'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED
+                    'trigger' => Quote_Tools_QuoteMailWatchdog::TRIGGER_QUOTE_CREATED,
+                    'observableModel' => !empty($observableModel) ? $observableModel: $quote
                 )));
         }
 

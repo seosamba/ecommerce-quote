@@ -298,6 +298,10 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                 Quote_Models_Mapper_QuoteMapper::getInstance()->save($this->_quote->setStatus(Quote_Models_Model_Quote::STATUS_NEW));
             }
 
+            if (isset($this->_options['observableModel'])) {
+                $this->_observableModel = $this->_options['observableModel'];
+            }
+
             return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! We created a new quote for you')));
         }
     }
@@ -398,6 +402,11 @@ class Quote_Tools_QuoteMailWatchdog implements Interfaces_Observer {
                     }
                     break;
             }
+
+            if (isset($this->_options['observableModel'])) {
+                $this->_observableModel = $this->_options['observableModel'];
+            }
+
             return $this->_send(array('subject' => $this->_storeConfig['company'] . $this->_translator->translate(' Hello! Your quote has been updated')));
         }
     }
