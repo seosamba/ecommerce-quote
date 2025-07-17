@@ -267,6 +267,10 @@ class Quote extends Tools_PaymentGateway
         }
         $form->populate($this->_shoppingConfig);
         $this->_view->form = $form;
+        $configHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('config');
+        $hideAllowAutoSave = $configHelper->getConfig('hideAllowAutoSave');
+        $this->_view->hideAllowAutoSave = $hideAllowAutoSave;
+
         $this->_show(null, true);
     }
 
