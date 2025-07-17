@@ -68,11 +68,12 @@
             <!--            --><?php //echo $this->form->getElement('defaultQuoteCreatorId')->renderViewHelper(); ?>
             <!--        </p>-->
             <fieldset class="background mt10px grid_12">
-                <p>
-                    <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
-                    <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
-                </p>
-
+                <?php if (empty($this->hideAllowAutoSave)):?>
+                    <p>
+                        <?php echo $this->form->getElement('allowAutosave')->renderLabel(); ?>
+                        <?php echo $this->form->getElement('allowAutosave')->renderViewHelper(); ?>
+                    </p>
+                <?php endif;?>
                 <p id="disable-autosave-email-block" class="mb10px <?php echo $disableAutosaveEmailClass;?>">
                     <?php echo $this->form->getElement('disableAutosaveEmail')->renderLabel(); ?>
                     <?php echo $this->form->getElement('disableAutosaveEmail')->renderViewHelper(); ?>
