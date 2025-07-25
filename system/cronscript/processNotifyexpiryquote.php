@@ -141,6 +141,12 @@ if ($name !== null) {
 
 Zend_Registry::set('Zend_Locale', $locale);
 
+if(!empty($config['useSqlMode'])) {
+    $database->query("SET sql_mode=''");
+    Zend_Db_Table_Abstract::setDefaultAdapter($database);
+    Zend_Registry::set('dbAdapter', $database);
+}
+
 $session = Zend_Registry::get('session');
 
 $locale = (isset($session->locale)) ? $session->locale : Zend_Registry::get('Zend_Locale');
