@@ -1,6 +1,19 @@
 {
   "name": "seosamba/ecommerce-quote",
   "type": "library",
+  "description": "Quote/Inquiry module for SeoToaster Ecommerce",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "SeoToaster Team",
+      "email": "andrei@seosamba.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4 <=8.2",
+    "ext-mbstring": "*",
+    "ext-pdo_mysql": "*"
+  },
   "autoload": {
     "psr-4": {
       "SeoSamba\\EcommerceQuote\\": "src/"
