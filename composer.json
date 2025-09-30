@@ -1,24 +1,22 @@
 {
-    "name": "seosamba/quote",
-    "description": "Quote generation plugin for SEOToaster CMS v2.0",
-    "type": "plugin",
-    "require": {
-        "php": ">=5.3.7"
-    },
-    "require-dev": {
-        "phpmd/phpmd": "2.0.0.*@dev",
-        "squizlabs/php_codesniffer": "2.0.*@dev",
-        "phpmd/phpmd": "2.0.0.*@dev"
-    },
-    "minimum-stability": "dev",
-    "authors": [
-        {
-            "name": "Eugene Nezhuta",
-            "email": "eugene@seosamba.com"
-        },
-        {
-            "name": "Pavel Kovalyov",
-            "email": "pavel.k@seosamba.com"
-        }
-    ]
+  "name": "seosamba/ecommerce-quote",
+  "type": "library",
+  "description": "Quote/Inquiry module for SeoToaster Ecommerce",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "SeoToaster Team",
+      "email": "andrei@seosamba.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4 <=8.2",
+    "ext-mbstring": "*",
+    "ext-pdo_mysql": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "SeoSamba\\EcommerceQuote\\": "src/"
+    }
+  }
 }
