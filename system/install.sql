@@ -99,4 +99,4 @@ INSERT INTO `page_option` (`id`, `title`, `context`, `active`, `option_usage`) V
 ('option_quotethankyoupage', 'Quote "Thank you" page', 'Quote system', 1, 'once');
 
 UPDATE `plugin` SET `tags`='ecommerce,userdeleteerror,userdelete,salespermission' WHERE `name` = 'quote';
-UPDATE `plugin` SET `version` = '2.3.8' WHERE `name` = 'quote';
+UPDATE `plugin` SET `version` = '2.3.9' WHERE `name` = 'quote';
