@@ -496,7 +496,9 @@ var processDraggable = function(quoteId) {
                 data: {'quoteId': quoteId, 'data': sortProductsSids},
                 type: 'post',
                 dataType: 'json'
-            }).done(function(response) {});
+            }).done(function(response) {
+                calculateSubtotals();
+            });
         }
     }
     return true;
@@ -683,6 +685,8 @@ var recalculate = function(options, sid) {
         $('#partial-payment-percentage-payment-amount').html(partialTotal);
     }
 
+    calculateSubtotals();
+
 };
 
 function changePaymentTypeMessage(paymentType, isSignatureRequired) {
@@ -814,4 +818,78 @@ function showMailMessageEditQuote(trigger, callback, recipient){
         });
     }, 'json');
 
+}
+
+// -----------------------------
+// Price parser (handles all formats)
+// -----------------------------
+function parsePrice(raw) {
+    if (!raw) return 0;
+
+    raw = raw.toString().trim();
+
+    // Remove currency symbols, spaces, everything except digits . , -
+    raw = raw.replace(/[^0-9.,-]/g, "");
+
+    // Case: 5,642.70 → thousands = comma, decimal = dot
+    if (/^\d{1,3}(,\d{3})+\.\d+$/.test(raw)) {
+        raw = raw.replace(/,/g, "");
+    }
+    // Case: 5.642,70 → thousands = dot, decimal = comma
+    else if (/^\d{1,3}(\.\d{3})+,\d+$/.test(raw)) {
+        raw = raw.replace(/\./g, "").replace(",", ".");
+    }
+    else {
+        // If there are multiple commas → they are thousand separators
+        if ((raw.match(/,/g) || []).length > 1) {
+            raw = raw.replace(/,/g, "");
+        }
+        // Single comma → decimal
+        else {
+            raw = raw.replace(",", ".");
+        }
+    }
+
+    return parseFloat(raw) || 0;
+}
+
+// -----------------------------
+// Subtotal calculation
+// -----------------------------
+function calculateSubtotals() {
+
+    const rows = document.querySelectorAll(".quote-sortable-product-row");
+    let runningTotal = 0;
+
+    rows.forEach(row => {
+
+        // Product line → accumulate price
+        const totalSpan = row.querySelector(".price-total");
+        if (totalSpan) {
+
+            const rawText = totalSpan.textContent.trim();
+            const value = parsePrice(rawText);
+
+            runningTotal += value;
+            return;
+        }
+
+        // Subtotal row
+        if (row.classList.contains("product-info-title-")) {
+
+            const subtotalInput = row.querySelector(".price-sub-total .prepop-text");
+
+            if (subtotalInput) {
+                subtotalInput.value = runningTotal.toFixed(2);
+
+                // Trigger one blur → saves into DB
+                subtotalInput.dispatchEvent(
+                    new Event("blur", { bubbles: true })
+                );
+            }
+
+            // Reset subtotal for next section
+            runningTotal = 0;
+        }
+    });
 }
