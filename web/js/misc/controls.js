@@ -886,7 +886,7 @@ function calculateSubtotals() {
             const subtotalInput = row.querySelector(".price-sub-total .prepop-text");
 
             if (subtotalInput) {
-                subtotalInput.value = runningTotal.toFixed(2);
+                subtotalInput.value = accounting.formatMoney(runningTotal, accounting.settings.currency);
 
                 // Trigger one blur → saves into DB
                 subtotalInput.dispatchEvent(
