@@ -30,6 +30,11 @@ $(function() {
         });
     }
 
+    setTimeout(() => {
+        calculateSubtotals();
+    }, 1000);
+
+
     //same fore shipping checkbox handling
     $(document).on('click', '#same-for-shipping', function(e) {
         var shippingForm = $('#shipping-user-address');
@@ -128,6 +133,7 @@ $(function() {
                 hideSpinner();
                 recalculate({summary: response});
                 selfEl.closest('tr').remove();
+                calculateSubtotals();
             });
         });
     });
