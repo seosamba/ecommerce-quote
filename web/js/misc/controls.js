@@ -864,7 +864,7 @@ function parsePrice(raw) {
 // -----------------------------
 function calculateSubtotals() {
 
-    const rows = document.querySelectorAll(".quote-sortable-product-row");
+    const rows = document.querySelectorAll(".quote-subtotal-row");
     let runningTotal = 0;
 
     rows.forEach(row => {
@@ -881,7 +881,7 @@ function calculateSubtotals() {
         }
 
         // Subtotal row
-        if (row.classList.contains("product-info-title-")) {
+        if (row.classList.contains("quote-subtotal-row-")) {
 
             const subtotalInput = row.querySelector(".price-sub-total .prepop-text");
 
