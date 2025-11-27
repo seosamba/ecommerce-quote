@@ -834,30 +834,66 @@ function parsePrice(raw) {
 
     raw = raw.toString().trim();
 
-    // Remove currency symbols, spaces, everything except digits . , -
+    // Normalize invisible spaces (NBSP, thin space)
+    raw = raw.replace(/[\u00A0\u202F]/g, "");
+
+    // Remove currency symbols and letters, keep only digits and separators
     raw = raw.replace(/[^0-9.,-]/g, "");
 
-    // Case: 5,642.70 → thousands = comma, decimal = dot
+    let commaCount = (raw.match(/,/g) || []).length;
+    let dotCount   = (raw.match(/\./g) || []).length;
+
+    // --- CASE 1: US format → 1,234.56 -------------------------
     if (/^\d{1,3}(,\d{3})+\.\d+$/.test(raw)) {
-        raw = raw.replace(/,/g, "");
-    }
-    // Case: 5.642,70 → thousands = dot, decimal = comma
-    else if (/^\d{1,3}(\.\d{3})+,\d+$/.test(raw)) {
-        raw = raw.replace(/\./g, "").replace(",", ".");
-    }
-    else {
-        // If there are multiple commas → they are thousand separators
-        if ((raw.match(/,/g) || []).length > 1) {
-            raw = raw.replace(/,/g, "");
-        }
-        // Single comma → decimal
-        else {
-            raw = raw.replace(",", ".");
-        }
+        raw = raw.replace(/,/g, "");             // remove thousands
+        return parseFloat(raw);
     }
 
+    // --- CASE 2: EU format → 1.234,56 -------------------------
+    if (/^\d{1,3}(\.\d{3})+,\d+$/.test(raw)) {
+        raw = raw.replace(/\./g, "").replace(",", ".");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 3: Multiple commas → commas = thousands ---------
+    if (commaCount > 1) {
+        raw = raw.replace(/,/g, "");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 4: Multiple dots → dots = thousands -------------
+    if (dotCount > 1) {
+        raw = raw.replace(/\./g, "");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 5: One comma + one dot → detect decimal ----------
+    if (commaCount === 1 && dotCount === 1) {
+        if (raw.indexOf(",") > raw.indexOf(".")) {
+            // 1.234,56 → comma is decimal
+            raw = raw.replace(/\./g, "").replace(",", ".");
+        } else {
+            // 1,234.56 → dot is decimal
+            raw = raw.replace(/,/g, "");
+        }
+        return parseFloat(raw);
+    }
+
+    // --- CASE 6: Only comma → decimal separator --------------
+    if (commaCount === 1 && dotCount === 0) {
+        raw = raw.replace(",", ".");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 7: Only dot → assume decimal --------------------
+    if (dotCount === 1 && commaCount === 0) {
+        return parseFloat(raw);
+    }
+
+    // --- CASE 8: No separators at all -------------------------
     return parseFloat(raw) || 0;
 }
+
 
 // -----------------------------
 // Subtotal calculation
@@ -886,7 +922,19 @@ function calculateSubtotals() {
             const subtotalInput = row.querySelector(".price-sub-total .prepop-text");
 
             if (subtotalInput) {
-                subtotalInput.value = accounting.formatMoney(runningTotal, accounting.settings.currency);
+
+                const customCurrencyInput = document.getElementById("custom-sub-total-currency");
+
+                if (customCurrencyInput && customCurrencyInput.value.trim()) {
+                    // Use symbol from hidden input
+                    var customCurrency = Object.assign({}, accounting.settings.currency);
+                    customCurrency.symbol = customCurrencyInput.value.trim();
+
+                    subtotalInput.value = accounting.formatMoney(runningTotal, customCurrency);
+                } else {
+                    // Default behavior
+                    subtotalInput.value = accounting.formatMoney(runningTotal, accounting.settings.currency);
+                }
 
                 // Trigger one blur → saves into DB
                 subtotalInput.dispatchEvent(
