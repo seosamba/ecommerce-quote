@@ -30,6 +30,11 @@ $(function() {
         });
     }
 
+    setTimeout(() => {
+        calculateSubtotals();
+    }, 1000);
+
+
     //same fore shipping checkbox handling
     $(document).on('click', '#same-for-shipping', function(e) {
         var shippingForm = $('#shipping-user-address');
@@ -128,6 +133,7 @@ $(function() {
                 hideSpinner();
                 recalculate({summary: response});
                 selfEl.closest('tr').remove();
+                calculateSubtotals();
             });
         });
     });
@@ -496,7 +502,9 @@ var processDraggable = function(quoteId) {
                 data: {'quoteId': quoteId, 'data': sortProductsSids},
                 type: 'post',
                 dataType: 'json'
-            }).done(function(response) {});
+            }).done(function(response) {
+                calculateSubtotals();
+            });
         }
     }
     return true;
@@ -683,6 +691,8 @@ var recalculate = function(options, sid) {
         $('#partial-payment-percentage-payment-amount').html(partialTotal);
     }
 
+    calculateSubtotals();
+
 };
 
 function changePaymentTypeMessage(paymentType, isSignatureRequired) {
@@ -814,4 +824,126 @@ function showMailMessageEditQuote(trigger, callback, recipient){
         });
     }, 'json');
 
+}
+
+// -----------------------------
+// Price parser (handles all formats)
+// -----------------------------
+function parsePrice(raw) {
+    if (!raw) return 0;
+
+    raw = raw.toString().trim();
+
+    // Normalize invisible spaces (NBSP, thin space)
+    raw = raw.replace(/[\u00A0\u202F]/g, "");
+
+    // Remove currency symbols and letters, keep only digits and separators
+    raw = raw.replace(/[^0-9.,-]/g, "");
+
+    let commaCount = (raw.match(/,/g) || []).length;
+    let dotCount   = (raw.match(/\./g) || []).length;
+
+    // --- CASE 1: US format → 1,234.56 -------------------------
+    if (/^\d{1,3}(,\d{3})+\.\d+$/.test(raw)) {
+        raw = raw.replace(/,/g, "");             // remove thousands
+        return parseFloat(raw);
+    }
+
+    // --- CASE 2: EU format → 1.234,56 -------------------------
+    if (/^\d{1,3}(\.\d{3})+,\d+$/.test(raw)) {
+        raw = raw.replace(/\./g, "").replace(",", ".");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 3: Multiple commas → commas = thousands ---------
+    if (commaCount > 1) {
+        raw = raw.replace(/,/g, "");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 4: Multiple dots → dots = thousands -------------
+    if (dotCount > 1) {
+        raw = raw.replace(/\./g, "");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 5: One comma + one dot → detect decimal ----------
+    if (commaCount === 1 && dotCount === 1) {
+        if (raw.indexOf(",") > raw.indexOf(".")) {
+            // 1.234,56 → comma is decimal
+            raw = raw.replace(/\./g, "").replace(",", ".");
+        } else {
+            // 1,234.56 → dot is decimal
+            raw = raw.replace(/,/g, "");
+        }
+        return parseFloat(raw);
+    }
+
+    // --- CASE 6: Only comma → decimal separator --------------
+    if (commaCount === 1 && dotCount === 0) {
+        raw = raw.replace(",", ".");
+        return parseFloat(raw);
+    }
+
+    // --- CASE 7: Only dot → assume decimal --------------------
+    if (dotCount === 1 && commaCount === 0) {
+        return parseFloat(raw);
+    }
+
+    // --- CASE 8: No separators at all -------------------------
+    return parseFloat(raw) || 0;
+}
+
+
+// -----------------------------
+// Subtotal calculation
+// -----------------------------
+function calculateSubtotals() {
+
+    const rows = document.querySelectorAll(".quote-subtotal-row");
+    let runningTotal = 0;
+
+    rows.forEach(row => {
+
+        // Product line → accumulate price
+        const totalSpan = row.querySelector(".price-total");
+        if (totalSpan) {
+
+            const rawText = totalSpan.textContent.trim();
+            const value = parsePrice(rawText);
+
+            runningTotal += value;
+            return;
+        }
+
+        // Subtotal row
+        if (row.classList.contains("quote-subtotal-row-")) {
+
+            const subtotalInput = row.querySelector(".price-sub-total .prepop-text");
+
+            if (subtotalInput) {
+
+                const customCurrencyInput = document.getElementById("custom-sub-total-currency");
+
+                if (customCurrencyInput && customCurrencyInput.value.trim()) {
+                    // Use symbol from hidden input
+                    var customCurrency = Object.assign({}, accounting.settings.currency);
+                    customCurrency.symbol = customCurrencyInput.value.trim();
+
+                    subtotalInput.value = accounting.formatMoney(runningTotal, customCurrency);
+                } else {
+                    // Default behavior
+                    subtotalInput.value = accounting.formatMoney(runningTotal, accounting.settings.currency);
+                }
+
+                // Trigger one blur → saves into DB
+                subtotalInput.dispatchEvent(
+                    new Event("blur", { bubbles: true })
+                );
+            }
+
+            // Reset subtotal for next section
+            runningTotal = 0;
+        }
+    });
 }
