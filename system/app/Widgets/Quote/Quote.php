@@ -1352,6 +1352,13 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
                 if ($notRender === true) {
                     return '';
                 }
+
+                if ($widgetOption === 'sku' && $this->_view->clean === true) {
+                    $currentSku = (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
+                    $currentSku = str_replace('#', '', $currentSku);
+                    return $currentSku;
+                }
+
                 return (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
             break;
         }
