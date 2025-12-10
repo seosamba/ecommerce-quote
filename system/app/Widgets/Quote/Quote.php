@@ -1355,7 +1355,7 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
 
                 if ($widgetOption === 'sku' && $this->_view->clean === true) {
                     $currentSku = (isset($item[$widgetOption])) ? $item[$widgetOption] : '';
-                    $symbols = array('@', '#', '$', '%', '!', '^', '@', '*', '=', '+', '№');
+                    $symbols = array('@', '#', '$', '%', '!', '^', '@', '*', '=', '+', '№', "'", '"');
                     $currentSku = str_replace($symbols, '', $currentSku);
                     return $currentSku;
                 }
