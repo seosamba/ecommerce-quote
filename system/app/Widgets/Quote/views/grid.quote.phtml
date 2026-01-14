@@ -104,7 +104,7 @@
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_LOST;?>"><?php echo $this->translate('Lost opportunity');?></option>
                     </select>
                 </div>
-                <a href="javascript:;" id="search-quote-button" class="btn green flex_4 f-omega t-flex_3 t-omega"><?php echo $this->translate('Search Quote');?></a>
+                <a href="javascript:;" id="search-quote-button" class="btn flex_4 f-omega t-flex_3 t-omega"><?php echo $this->translate('Search Quote');?></a>
                 <?php $quoteTemplates = array_merge(
                     array(0 => 'Select quote template'),
                     Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
