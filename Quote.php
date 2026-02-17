@@ -1017,7 +1017,14 @@ class Quote extends Tools_PaymentGateway
             if (!empty($pageId)) {
                 $this->_view->pageId = $pageId;
                 $quotePageConfig = $this->_view->render('quote-page-config-item.phtml');
-                $this->_responseHelper->success(array('quotePageConfig' => $quotePageConfig));
+                $sessionHelper = Zend_Controller_Action_HelperBroker::getStaticHelper('session');
+                $currentUser = $sessionHelper->getCurrentUser();
+                $access = '';
+                if ($currentUser->getRoleId() === Shopping::ROLE_SALESPERSON) {
+                    $access = 'no_page_config';
+                }
+
+                $this->_responseHelper->success(array('quotePageConfig' => $quotePageConfig, 'access' => $access));
             }
         }
     }
