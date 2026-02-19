@@ -618,6 +618,10 @@ class Widgets_Quote_Quote extends Widgets_Abstract {
         // if controls are not available for the current user role - rise exception
         if(!$this->_editAllowed) {
             //throw new Exceptions_SeotoasterWidgetException('Quote widget error: Controlls are available for administrator only.');
+            if (Tools_Security_Acl::isAllowed(Shopping::RESOURCE_STORE_MANAGEMENT)) {
+                return $this->_view->render('controls-preview.quote.phtml');
+            }
+
             return '';
         }
 

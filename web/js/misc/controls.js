@@ -26,7 +26,12 @@ $(function() {
             data       : {pageId: pageId},
             dataType   : 'json',
         }).done(function(response) {
-            $('.page-control').closest('ul li:nth-child(1)').after($("<li>").append(response.responseText.quotePageConfig));
+            if (typeof response.responseText.access !== 'undefined' && response.responseText.access === 'no_page_config') {
+                $('.page-control').closest('ul').empty();
+                $('#cpanelul').find('li:nth-child(1)').find('ul').append(response.responseText.quotePageConfig);
+            } else {
+                $('.page-control').closest('ul li:nth-child(1)').after($("<li>").append(response.responseText.quotePageConfig));
+            }
         });
     }
 
