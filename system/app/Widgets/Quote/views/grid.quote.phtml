@@ -104,7 +104,7 @@
                         <option value="<?php echo Quote_Models_Model_Quote::STATUS_LOST;?>"><?php echo $this->translate('Lost opportunity');?></option>
                     </select>
                 </div>
-                <a href="javascript:;" id="search-quote-button" class="btn flex_4 f-omega t-flex_3 t-omega"><?php echo $this->translate('Search Quote');?></a>
+                <button id="search-quote-button" class="btn flex_4 f-omega t-flex_3 t-omega"><?php echo $this->translate('Search Quote');?></button>
                 <?php $quoteTemplates = array_merge(
                     array(0 => 'Select quote template'),
                     Tools_System_Tools::getTemplatesHash(Quote_Models_Model_Quote::TEMPLATE_TYPE_QUOTE)
@@ -129,7 +129,7 @@
                 <input class="hidden" id="quote-amp-hook" name="quote-amp-hook" value="<?php echo Api_Quote_Quotes::AMP_SYMBOL_HOOK;?>">
                 <input id="quote-chosen-type" class="quote-chosen-type" type="hidden" name="quote-chosen-type" value="">
 
-                <a class="quote-grid-add btn green" href="javascript:;" title="<?php echo $this->translate('Create Quote');?>"><?php echo $this->translate('Create Quote');?></a>
+                <button class="quote-grid-add btn green" title="<?php echo $this->translate('Create Quote');?>"><?php echo $this->translate('Create Quote');?></button>
             </div>
         </div>
         <table id="quote-grid-quotes" class="widget table-hover">
