@@ -13,7 +13,7 @@ define([
     var QuoteGridView = Backbone.View.extend({
         el: $('#quote-grid'),
         events: {
-            'click a.quote-grid-add'        : 'addAction',
+            'click button.quote-grid-add'        : 'addAction',
             'click a.page'                  : 'navigateAction',
             'click #search-quote-button'   : 'searchAction',
             'keyup #quote-grid-search'   : 'searchEnterAction',
@@ -112,8 +112,17 @@ define([
                 quoteTitle = $('#quote-title-original').val(),
                 quoteType = $('#quote-chosen-type').val();
 
+                if (typeof self.formProcessingQuote !== 'undefined' && self.formProcessingQuote === true) {
+                    return false;
+                }
+
+                self.formProcessingQuote = true;
+                this.$el.find('.quote-grid-add').prop('disabled', true);
+
                 if (quoteType === 'create_quote_duplicate' && duplicateQuoteId == '') {
                     showMessage(_.isUndefined(i18n['Please search by quote title'])?'Please search by quote title':i18n['Please search by quote title'], true, 5000);
+                    self.formProcessingQuote = false;
+                    this.$el.find('.quote-grid-add').prop('disabled', false);
                     return false;
                 }
 
@@ -132,10 +141,15 @@ define([
                         $(searchInput).addClass('hidden');
                     }
 
+                    self.formProcessingQuote = false;
+                    self.$el.find('.quote-grid-add').prop('disabled', false);
+
                 },
                 error: function(mode, xhr) {
                     hideSpinner();
                     showMessage(xhr.responseText, true);
+                    self.formProcessingQuote = false;
+                    self.$el.find('.quote-grid-add').prop('disabled', false);
                 }
             });
         },
@@ -144,6 +158,14 @@ define([
             $('#search-quote-button').trigger('click');
         },
         searchAction: function() {
+
+            if (typeof self.formProcessingSearch !== 'undefined' && self.formProcessingSearch === true) {
+                return false;
+            }
+
+            this.formProcessingSearch = true;
+            this.$el.find('#search-quote-button').prop('disabled', true);
+
             this.quotes.goTo(this.quotes.firstPage);
 
         },
@@ -151,6 +173,13 @@ define([
         {
             if (event.keyCode === 13) {
                 event.preventDefault();
+
+                if (typeof self.formProcessingSearch !== 'undefined' && self.formProcessingSearch === true) {
+                    return false;
+                }
+
+                this.formProcessingSearch = true;
+                this.$el.find('#search-quote-button').prop('disabled', true);
                 this.quotes.goTo(this.quotes.firstPage);
             }
         },
@@ -187,6 +216,9 @@ define([
                 }
             }, this);
             this.$('td.pager').html(this.templates.pager(this.quotes.info()));
+
+            this.formProcessingSearch = false;
+            this.$el.find('#search-quote-button').prop('disabled', false);
         },
         render: function() {
             this.renderGrid();
