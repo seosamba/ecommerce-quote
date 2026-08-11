@@ -37,6 +37,11 @@ class Api_Quote_Signature extends Api_Service_Abstract
             $this->_error($translator->translate('Please sign the quote'));
         }
 
+        $shoppingConfig = Models_Mapper_ShoppingConfig::getInstance()->getConfigParams();
+        if (!empty($shoppingConfig['quoteSignatureStrictVerification']) && !$this->hasVisibleSignatureStroke($signature)) {
+            $this->_error($translator->translate('Please sign the quote'));
+        }
+
         $quote = $quoteMapper->find($quoteId);
         if (!$quote instanceof Quote_Models_Model_Quote) {
             $this->_error($translator->translate('Quote not found'));
@@ -198,5 +203,69 @@ class Api_Quote_Signature extends Api_Service_Abstract
 
     public function deleteAction()
     {
+    }
+
+    private function hasVisibleSignatureStroke($dataUrl)
+    {
+        if (!preg_match(
+            '#^data:image/png;base64,([A-Za-z0-9+/]+={0,2})$#',
+            $dataUrl,
+            $matches
+        )) {
+            return false;
+        }
+
+        // Prevent excessively large submissions.
+        if (strlen($matches[1]) > 5 * 1024 * 1024) {
+            return false;
+        }
+
+        $imageData = base64_decode($matches[1], true);
+
+        if ($imageData === false) {
+            return false;
+        }
+
+        $imageInfo = @getimagesizefromstring($imageData);
+
+        if (
+            $imageInfo === false
+            || $imageInfo[2] !== IMAGETYPE_PNG
+            || $imageInfo[0] * $imageInfo[1] > 2000000
+        ) {
+            return false;
+        }
+
+        $image = @imagecreatefromstring($imageData);
+
+        if ($image === false) {
+            return false;
+        }
+
+        $width  = imagesx($image);
+        $height = imagesy($image);
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $color = imagecolorat($image, $x, $y);
+
+                $alpha = ($color >> 24) & 0x7F;
+                $red   = ($color >> 16) & 0xFF;
+                $green = ($color >> 8) & 0xFF;
+                $blue  = $color & 0xFF;
+
+                $isVisible = $alpha < 120;
+                $isNotWhite = $red < 245 || $green < 245 || $blue < 245;
+
+                if ($isVisible && $isNotWhite) {
+                    imagedestroy($image);
+                    return true;
+                }
+            }
+        }
+
+        imagedestroy($image);
+
+        return false;
     }
 }
